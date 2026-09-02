@@ -1,0 +1,15 @@
+{
+  "name": "השחרת מסמכים",
+  "short_name": "השחרה",
+  "description": "הסרת פרטים מזהים ממסמכי Word לפני שליחה לכלי AI. הכל רץ במחשב שלך.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f2f7",
+  "theme_color": "#0a84ff",
+  "lang": "he",
+  "dir": "rtl",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
