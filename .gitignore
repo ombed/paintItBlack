@@ -1,0 +1,21 @@
+# Claude Design canvas build artifact, dropped next to design/*.dc.html
+.thumbnail
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
