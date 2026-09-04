@@ -1,23 +1,21 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>השחרת מסמכים</title>
-<meta name="description" content="הסרת פרטים מזהים ממסמכי Word לפני שליחה לכלי AI. הכל רץ במחשב שלך.">
-<meta name="theme-color" content="#1F5B44">
-<meta name="referrer" content="no-referrer">
-<link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="./icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600&family=Noto+Serif+Hebrew:wght@400;500&display=swap" rel="stylesheet">
-<style>
-/* התבנית מוסתרת מהרגע הראשון ולא רק אחרי שהריצה התחילה. אם שכבת ההרצה
-   לא נטענה, מוצגת הודעה מסודרת — לא ‎{{ }}‎ ולא תגיות ‎sc-if‎ על המסך. */
-x-dc{display:none!important}
-</style>
+<script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
 <style>
 :root{
   --bg:#F4F2ED; --panel:#FFFFFF; --panel2:#F7F6F1; --line:rgba(22,33,28,.13);
@@ -47,91 +45,6 @@ a:hover{text-decoration:underline}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 </style>
-<style>
-#boot{position:fixed;inset:0;z-index:200;display:grid;place-items:center;
-  background:var(--bg);padding:24px;font-family:Rubik,"Noto Sans Hebrew",system-ui,sans-serif}
-#boot .card{max-width:440px;text-align:center;color:var(--ink2)}
-#boot b{display:block;font-size:16px;font-weight:500;color:var(--ink);margin-bottom:6px}
-#boot p{margin:0;font-size:13.5px;line-height:1.6}
-#boot .spin{width:26px;height:26px;margin:0 auto 16px;border-radius:50%;
-  border:2px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite}
-#boot.stuck .spin{display:none}
-#boot.stuck b{color:var(--bad)}
-#boot code{font-family:ui-monospace,monospace;font-size:12.5px;background:var(--panel2);
-  padding:1px 5px;border-radius:5px}
-#ver{position:fixed;bottom:8px;inset-inline-start:10px;z-index:10;font-size:11px;
-  color:var(--ink3);font-family:Rubik,system-ui,sans-serif;letter-spacing:.02em;
-  pointer-events:none;user-select:none}
-</style>
-<script src="./support.js"></script>
-</head>
-<body>
-<div id="boot"><div class="card">
-  <div class="spin" aria-hidden="true"></div>
-  <b>נטען…</b>
-  <p id="boot-msg">רגע אחד.</p>
-</div></div>
-<div id="ver">גרסה v8</div>
-<script>
-(function(){
-  console.log("השחרת מסמכים — גרסה v8");
-  var stuck=setTimeout(function(){
-    var b=document.getElementById("boot"); if(!b) return;
-    b.className="stuck";
-    document.getElementById("boot-msg").innerHTML=
-      location.protocol==="file:"
-      ? "הקובץ נפתח מהדיסק. הדפדפן חוסם מקור מקומי, ולכן הכלי צריך כתובת "+
-        "<code>https</code> — גם כדי לשמור את מודל הזיהוי."
-      : "שכבת ההרצה לא נטענה. בביקור הראשון דרוש חיבור לאינטרנט; אחר כך הכלי "+
-        "עובד גם בלעדיו. אם זה חוזר — רענון בלי מטמון (<code>Ctrl+Shift+R</code>).";
-  },9000);
-  var obs=new MutationObserver(function(){
-    if(!document.getElementById("dc-root")) return;
-    clearTimeout(stuck); obs.disconnect();
-    requestAnimationFrame(function(){requestAnimationFrame(function(){
-      var b=document.getElementById("boot"); if(b) b.remove();
-    })});
-  });
-  obs.observe(document.documentElement,{childList:true,subtree:true});
-  if(!("serviceWorker" in navigator) || location.protocol==="file:"){ /* אין מה לרשום */ }
-  else if(window.top!==window){
-    // בתוך iframe (תצוגה מוטמעת) לא רושמים עובד שירות — הוא היה תופס
-    // את כל המקור המארח. וגם מנקים רישום שנוצר בטעות.
-    navigator.serviceWorker.getRegistrations().then(function(rs){
-      rs.forEach(function(r){ if(/\/sw\.js$/.test((r.active||r.installing||{}).scriptURL||"")) r.unregister() });
-    }).catch(function(){});
-  }
-  else
-    addEventListener("load",function(){
-      var sw=navigator.serviceWorker;
-      sw.register("./sw.js").catch(function(e){
-        console.warn("עובד השירות לא נרשם:",e.message)});
-      // אם העובד מגיש גרסה אחרת ממה שכתוב בעמוד — לומר את זה, ולא לחכות
-      // שנבזבז סבב דיבוג על מטמון ישן.
-      sw.addEventListener("message",function(ev){
-        var v=ev.data && ev.data.sw; if(!v) return;
-        var served=v.replace("hedact-","");
-        console.log("עובד שירות: "+served);
-        if(served==="v8") return;
-        var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v8 · <b style="color:var(--warn)">מוגש '+served+
-          ' — רענון בלי מטמון</b>';
-      });
-      sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
-    });
-})();
-</script>
-<x-dc>
-<helmet>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>השחרת מסמכים</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600&family=Noto+Serif+Hebrew:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
-
 </helmet>
 
 <div dir="rtl" style="min-height:100vh;background:var(--bg);color:var(--ink)">
@@ -681,7 +594,8 @@ a:hover{text-decoration:underline}
 
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},
+&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
 class Component extends DCLogic {
@@ -701,8 +615,7 @@ class Component extends DCLogic {
 
   async componentDidMount(){
     try{
-      const E = await import((window.__resources && window.__resources.engine) || "./redact-engine.js");
-      window.__RE = E;
+      const E = await import("./redact-engine.js");
       E.setNerSay((t,p)=>this.setState({nerMsg:t||"", nerPct:p}));
       this.setState({E, ready:true});
       this.nerStatus(E);
@@ -779,13 +692,13 @@ class Component extends DCLogic {
   async loadPdf(raw, f){
     this.setState({err:"", screen:"busy", busyT:"קורא את ה-PDF…"});
     try{
-      const {pdfToText} = await import((window.__resources && window.__resources.pdftext) || "./pdf-text.js");
+      const {pdfToText} = await import("./pdf-text.js");
       const {text, pages, scanned} = await pdfToText(raw);
       if(scanned || !text){
         this.setState({screen:"entry", err:"ב-PDF הזה כמעט אין טקסט — כנראה מסמך סרוק או צילום. הכלי עובד על טקסט בלבד, ולכן אין בו מה להחליף. אפשר להריץ המרה ל-Word עם זיהוי תווים, ואז להעלות את הקובץ."});
         return;
       }
-      const {textToDocx} = await import((window.__resources && window.__resources.todocx) || "./text-to-docx.js");
+      const {textToDocx} = await import("./text-to-docx.js");
       const buf = await textToDocx(text);
       const blocks = await this.blocksOf(buf);
       this.setState({screen:"entry", buf, name:f.name, pending:true,
@@ -856,7 +769,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const txt=(this.state.pasteText||"").trim();
     if(txt.length<20){ this.setState({err:"צריך קצת יותר טקסט כדי שהזיהוי יעבוד."}); return; }
     try{
-      const {textToDocx} = await import((window.__resources && window.__resources.todocx) || "./text-to-docx.js");
+      const {textToDocx} = await import("./text-to-docx.js");
       const buf = await textToDocx(txt);
       const blocks = await this.blocksOf(buf);
       const chars = txt.length;
@@ -983,7 +896,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     for(let i=0;i<30 && !(window.d3 && window.topojson);i++) await new Promise(r=>setTimeout(r,150));
     if(!(window.d3 && window.topojson)){ this._atlasBusy=false; return; }
     try{
-      const t = await (await fetch((window.__resources && window.__resources.atlas) || "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json")).json();
+      const t = await (await fetch("https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json")).json();
       this.setState({atlas: window.topojson.feature(t, t.objects.countries)});
     }catch(_){ }
     this._atlasBusy = false;
