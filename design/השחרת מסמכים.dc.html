@@ -581,7 +581,7 @@ a:hover{text-decoration:underline}
   </div>
 
   <sc-if value="{{ popup }}">
-    <div style="{{ popupStyle }}">
+    <div data-popup="1" style="{{ popupStyle }}">
       <div style="font-size:12.5px;color:var(--ink2);margin-bottom:8px">הוספת <b style="color:var(--ink)">{{ popupText }}</b> בתור:</div>
       <div style="display:flex;gap:5px;flex-wrap:wrap">
         <sc-for list="{{ popupKinds }}" as="k" hint-placeholder-count="4">
