@@ -122,6 +122,8 @@ function scoreDoc(doc, res) {
     const row = { doc: doc.id, genre: doc.genre, cat: e.cat, canonical: e.canonical, found: false, leaked: false, fp: 0, via: [], matched: [], leakedSurfaces: [] };
     if (e.must) {
       for (const s of surfaces) for (const k of keys) if (hit(k, s)) { row.found = true; row.matched.push(res.surfaced.get(k).value); for (const src of res.surfaced.get(k).sources) row.via.push(src); }
+      // replaced automatically by a pattern detector without being surfaced: handled, not missed
+      for (const s of surfaces) for (const k of res.applied) if (hit(k, s)) { row.found = true; row.matched.push(k); row.via.push("applied"); }
       row.leakedSurfaces = bare.filter((s) => s.length >= 3 && wordIn(outForLeak, s));
       row.leaked = row.leakedSurfaces.length > 0;
       if (e.cat === "P_ED1_PAIR") {
@@ -134,8 +136,8 @@ function scoreDoc(doc, res) {
       const suggested = surfaces.some((s) => keys.some((k) => hit(k, s)));
       const altered = surfaces.some((s) => s.length >= 3 && !res.out.includes(s));
       row.fp = suggested || altered ? 1 : 0;
-      row.matched = suggested ? keys.filter((k) => surfaces.some((s) => hit(k, s))).map((k) => res.surfaced.get(k).value) : [];
-      row.leakedSurfaces = altered ? ["altered in output"] : [];
+      row.matched = suggested ? keys.filter((k) => surfaces.some((s) => hit(k, s))).map((k) => res.surfaced.get(k).value + " [" + [...res.surfaced.get(k).sources].join("+") + "]") : [];
+      row.leakedSurfaces = surfaces.filter((s) => s.length >= 3 && !res.out.includes(s)).map((s) => "altered: " + s);
       row.found = null; row.leaked = null;
     }
     row.via = [...new Set(row.via)]; row.matched = [...new Set(row.matched)];
@@ -193,7 +195,7 @@ function table(rows, groupBy, label) {
   out.push("", "## Missed and leaked, by document", "");
   for (const r of rows.filter((r) => r.found === false || r.leaked)) out.push(`- ${r.doc} · ${KEY.categories[r.cat]} · ${r.canonical}: ${r.found === false ? "missed" : "found via " + r.via.join("+") + " as «" + r.matched.join("», «") + "»"}${r.leaked ? ", **leaked**: " + r.leakedSurfaces.join(", ") : ""}`);
   out.push("", "## Traps and public bodies touched", "");
-  for (const r of rows.filter((r) => r.found === null && r.fp)) out.push(`- ${r.doc} · ${KEY.categories[r.cat]} · ${r.canonical}: ${r.matched.length ? "suggested as «" + r.matched.join("», «") + "»" : ""}${r.leakedSurfaces.length ? (r.matched.length ? "; " : "") + "altered in the output" : ""}`);
+  for (const r of rows.filter((r) => r.found === null && r.fp)) out.push(`- ${r.doc} · ${KEY.categories[r.cat]} · ${r.canonical}: ${r.matched.length ? "suggested as «" + r.matched.join("», «") + "»" : ""}${r.leakedSurfaces.length ? (r.matched.length ? "; " : "") + r.leakedSurfaces.join(", ") : ""}`);
   out.push("", "## Timing", "", "| doc | genre | ms | rules confirmed | unlisted |", "|---|---|---|---|---|");
   for (const d of perDoc) out.push(`| ${d.id} | ${d.genre} | ${d.ms} | ${d.rules} | ${d.unlisted} |`);
   const md = out.join("\n") + "\n";

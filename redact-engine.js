@@ -292,6 +292,11 @@ function findNear(blocks,targets,banned){
         const bare=cand.replace(/^[בהולמכש]/,"");
         for(const t of list){
           if(cand===t.norm||bare===t.norm)continue;
+          // חילוף של אות שימוש בלבד אינו שיבוש: "בחיים" מול "שחיים" הוא אותו "חיים"
+          // עם ב במקום ש, ו"בגיל" הוא "גיל" עם ב. בשני המקרים זו מילה (בחיים לא
+          // ראיתי, בגיל 8), והצעה כאן משחיתה את המשפט אם היא מתקבלת.
+          if(PFX.has(cand[0])&&PFX.has(t.norm[0])&&cand.slice(1)===t.norm.slice(1))continue;
+          if(PFX.has(cand[0])&&cand.slice(1)===t.norm)continue;
           const r=near1(cand,t.norm)||near1(bare,t.norm);
           if(!r)continue;
           const s=tk[i].s,e=tk[i+K-1].e, raw=blk.text.slice(s,e);
@@ -454,6 +459,10 @@ function bodyNames(blocks,known){
         const nxt=cln(raw[len-1],t[i+len])&&t[i+len].w;
         const prv=cln(t[i-1],raw[0])&&i>0&&t[i-1].w;
         const prv2=prv&&cln(t[i-2],t[i-1])&&i>1&&t[i-2].w;
+        // תואר בראש המועמד ("עו\"ד יערה") אינו שם, וגוף ציבורי ("לביטוח לאומי",
+        // "המוסד לביטוח לאומי" עם המילה שלפניו) אינו פרט מזהה. שניהם הוצעו ואושרו,
+        // והראשון גם דחק את החלפת שם המשפחה של "יערה ליפשיץ" בגלל "שם משותף".
+        if(TITLE_RX.test(cand+" ")||[cand,prv&&prv+" "+cand,prv2&&prv&&prv2+" "+prv+" "+cand].filter(Boolean).some(x=>PUBLIC_ORG.test(x)||PUBLIC_ORG.test(x.replace(/^[בהולמכש]/,""))))continue;
         const hit=(p,w)=>{pts+=p;strong=true;return w};
         let why="";
         if(nxt&&VRB.has(nxt))why=hit(3,`עומד לפני «${nxt}»`);
@@ -497,6 +506,7 @@ function bodyNames(blocks,known){
     if(!g.strong)continue;
     const total=g.pts+(g.n>=3?2:g.n>=2?1:0);
     if(total<3)continue;
+    if(PUBLIC_ORG.test(value)||PUBLIC_ORG.test(value.replace(/^[בהולמכש]/,"")))continue;
     out.push({value,score:total,count:g.n,why:[...g.why].slice(0,2).join(" · "),
       ctx:g.ctx,part:g.part})}
   // "אזולאי" הוצע כי הוא חוזר, אבל במסמך כתוב "סיגלית אזולאי" — עדיף
@@ -529,8 +539,9 @@ function bodyNames(blocks,known){
    בהתחלה ("במיש" במקום "במישל"), מחזיר תארים כישות נפרדת,
    ומסמן גם מוסדות ציבוריים שאין טעם להשחיר. */
 const trimEdges=s=>(s||"").replace(/^[\s,.;:()\[\]"'\u05f3\u05f4-]+|[\s,.;:()\[\]"'\u05f3\u05f4-]+$/g,"").trim();
-const PUBLIC_ORG=/^(?:בי?ת ה?משפט|בתי המשפט|משרד ה|הכנסת|ועד[תה]\s|הוועד[הת]|המוסד לביטוח|ביטוח לאומי|הביטוח הלאומי|משטרת ישראל|צה"ל|היועץ המשפטי|פרקליטות|רשות ה|המשרד ל|בנק ישראל|מס הכנסה)/u;
+const PUBLIC_ORG=/^(?:בי?ת ה?משפט|שרת? ה|לשכת ה|בתי המשפט|משרד ה|הכנסת|ועד[תה]\s|הוועד[הת]|המוסד לביטוח|ביטוח לאומי|הביטוח הלאומי|משטרת ישראל|צה"ל|היועץ המשפטי|פרקליטות|רשות ה|המשרד ל|בנק ישראל|מס הכנסה)/u;
 const NER_DROP=new Set(["מרח","מרח'","רח'","רחוב","שד'","ת.ז","ת\"ז","נ'","עמ'","סע'","בע\"מ","הנ\"ל"]);
+const NER_HEADS=new Set(["עמותת","עמותה","מעון","מרפאת","מכון","קרן","מרכז","אגודת","חברת","לשכת","משרד","פנימיית","ישיבת","רחוב","שדרות","שכונת","סמטת","דרך","כיכר","ככר","מעלה","משעול","כפר","קרית","גני","נווה","מבוא"]);
 const NER_KIND={PER:"NAME",ORG:"ORG",GPE:"PLACE",LOC:"PLACE",FAC:"PLACE"};
 // זיהוי בלבד, לא ייצור: כאן מותר שיהיו שמות שכיחים שלא נרצה להמציא
 const KNOWN_FIRST=new Set([...FEM,...MASC,...WORDLIKE,...POOL.he_f,...POOL.he_m,
@@ -608,15 +619,33 @@ function nerClean(ents,text,opt){
       // יודע שזה יישוב, וזו עדות טובה יותר מספירת הופעות
       const bare=[stem,...w.slice(1)].join(" ");
       const known=!!PLACE_BY[norm(bare)]||KNOWN_FIRST.has(stem);
-      if(wasCut||elsewhere||known){
+      // "בעמותת שביל הלב", "ברחוב הארזים": כשהגזע הוא ראש של גוף או של מקום,
+      // האות הראשונה היא אות שימוש גם בלי שהגזע מופיע במקום אחר.
+      const headPeel=NER_HEADS.has(stem);
+      if(wasCut||elsewhere||known||headPeel){
         w[0]=w[0].slice(w[0].length-f.length+1); v=trimEdges(w.join(" "));
       }
     }
+    // פיסוק של סוף משפט אינו חלק משם. אם נשאר כזה בתוך המקטע, שומרים את
+    // החלק שאחרי הפיסוק האחרון: שם שהמודל הדביק לו את סוף המשפט הקודם.
+    if(/[.!?:;\n]/.test(v)){const parts=v.split(/[.!?:;\n]+/).map(x=>trimEdges(x)).filter(Boolean); v=parts.length?parts[parts.length-1]:"";}
+    // מילה בודדת שהיא מילת עצירה, מילה נפוצה או פועל אינה שם: "אני", "השופט",
+    // "לבד". בתמלול "אני" מסומן כשם שוב ושוב, וכל משפט בגוף ראשון נהרס.
+    // תואר בתחילת המקטע אינו חלק מהשם: "עו\"ד יערה" הוא "יערה". בלי זה המקטע
+    // המודבק מאושר כשם שני לצד "יערה ליפשיץ", ושם המשפחה לבדו נחשב משותף ולא מוחלף.
+    if(v)v=trimEdges(v.replace(TITLE_RX,""));
+    if(v&&!/s/.test(v)&&(STOP.has(v)||COMMON.has(v)||VRB.has(v)||STOP.has(norm(v))||COMMON.has(norm(v))))continue;
     if(!v||v.length<2||NER_DROP.has(v)||NER_DROP.has(norm(v)))continue;
     let kind=NER_KIND[e.type];
     // "שחר - שירותי חברה רווחה משפחה" סומן כאדם. שם עם מקף מפריד או
     // חמש מילים ומעלה הוא גוף, ושם בדוי של אדם שם היה מבלבל.
     if(kind==="NAME"&&(/\s[-\u2013]\s/.test(v)||v.split(/\s+/).length>4))kind="ORG";
+    // ראש של גוף (עמותת, מעון, מרפאת…) באמצע המקטע: מה שלפניו הודבק מהמשפט,
+    // "משרד עמותת שביל הלב". חותכים לפני הראש, אחרת הכלל תופס רק את הצורה המודבקת.
+    if(kind==="ORG"){const m=/(?:^|\s)(עמותת|עמותה|מעון|מרפאת|מכון|קרן|מרכז|אגודת|חברת|בית ספר|בי"ס|ביה"ס|גן ילדים|פנימיית|ישיבת)\s/u.exec(v); if(m&&m.index>0)v=v.slice(m.index+1);}
+    // גם כשהמודל תפס רק קטע: "הרווחה" מתוך "משרד הרווחה". בודקים את הקטע עם
+    // עד שתי המילים שלפניו בטקסט המקורי, אחרת גוף ציבורי מוצע ומושחר.
+    if(kind!=="NAME"){const back=text.slice(Math.max(0,s-40),s).split(/\s+/).filter(Boolean).slice(-2); const strip1=x=>x.replace(/^[בהולמכש]/,""); const c2=norm([...back,v].join(" ")), c1=norm([...back.slice(-1),v].join(" ")); if([c2,strip1(c2),c1,strip1(c1)].some(x=>PUBLIC_ORG.test(x)))continue;}
     // בית משפט ומשרד ממשלתי אינם פרט מזהה, ואין טעם להציע אותם
     if(kind!=="NAME"&&PUBLIC_ORG.test(norm(v).replace(/^[\u05d1\u05d4\u05d5\u05dc\u05de\u05db\u05e9]/,"")))continue;
     if(kind!=="NAME"&&PUBLIC_ORG.test(norm(v)))continue;
@@ -733,6 +762,9 @@ function anchored(text){
       for(let g=1;g<m.length;g++){
         if(!m[g])continue;
         const c=cleanName(m[g]); if(!c)continue;
+        // "פלוני", "פלונית", "אלמוני" הם מציין-מקום של בית המשפט, לא שם. "פלוני בדיון"
+        // נתפס כאן כשם ואז הוחלף, וההחלפה מחקה את המילה שנועדה להסתיר.
+        if(["פלוני","פלונית","אלמוני","אלמונית"].includes(c.split(" ")[0]))continue;
         // העוגן הפרוזאי בלבד: מילת תפקיד באה גם לפני פועל ("התובעת הגישה בקשה").
         // מסננים פעלים ומילים נפוצות; לא nameish, שדוחה שמות כמו הדס.
         if(a.k==="rolep"&&c.split(/\s+/).some(w=>VRB.has(w)||COMMON.has(w)||STOP.has(w)))continue;
@@ -808,6 +840,8 @@ function findPlaces(text){
       const raw=g[1];
       let s=g.index+g[0].indexOf(raw); const o=raw.indexOf(c); if(o>0)s+=o;
       const e=s+c.length, k=s+":"+e; if(seen.has(k))continue; seen.add(k);
+      // "לשכת הרווחה": מילת המקום עם השם הם גוף ציבורי, ואין מה לסמן לבדיקה
+      if(PUBLIC_ORG.test(norm(g[0]))||PUBLIC_ORG.test(norm(g[0]).replace(/^[בהולמכש]/,"")))continue;
       out.push({s,e,type:"PLACE_VENUE",label:v.l,text:text.slice(s,e),
         why:"מופיע אחרי מילה שמציינת מקום",apply:false,src:"pattern",
         prio:2,conf:"medium",review:true});
@@ -946,7 +980,9 @@ class Engine{
     const protect=new Set(subs.map(x=>x.value));
     if(typeof PLACE_BY!=="undefined")Object.keys(PLACE_BY).forEach(n=>protect.add(n));
     for(const s of subs){
-      const lvl=(s.kind==="NAME"||s.kind==="ORG")?(opt.prefixes||"normal"):"off";
+      // גם מקום שאישרה מקבל צורות עם אות שימוש: "במבוא חורון" הוא "מבוא חורון".
+      // בלי זה יישוב שאינו במאגר מאושר, לא נמצא, ומדווח "לא מופיע במסמך".
+      const lvl=(s.kind==="NAME"||s.kind==="ORG"||s.kind==="PLACE")?(opt.prefixes||"normal"):"off";
       // שם קצר בן מילה אחת ("רון", "גל") — הצורות עם אות שימוש
       // דומות מדי למילים אחרות, אז הן דורשות אישור ולא מוחלפות לבד.
       const shortSingle = s.kind==="NAME" &&
@@ -955,7 +991,19 @@ class Engine{
         if(seen.has(v))continue; seen.add(v);
         this.rules.push({rx:new RegExp(NW+flex(v)+NWE,"gu"),base:s.value,
           kind:s.kind,rep:s.replacement,pre,auto:s.auto,soft:!!pre&&shortSingle});
-      }}
+      }
+      // "עמותת שביל הלב" אושרה: גם "שביל הלב" לבדו הוא אותו גוף, כמו שם משפחה
+      // לבדו אצל אדם. אחרת המופע הראשון מוחלף והשני נשאר בטקסט.
+      if(s.kind==="ORG"){
+        const hm=/^(עמותת|עמותה|מעון|מרפאת|מכון|קרן|מרכז|אגודת|חברת|בית ספר|בי"ס|ביה"ס|גן ילדים|פנימיית|ישיבת)\s+(.+)$/u.exec(s.value.trim());
+        const rest=hm&&hm[2].trim();
+        if(rest&&(rest.split(/\s+/).length>=2||rest.length>=5)&&!protect.has(rest))
+          for(const [v,pre] of variants(rest,lvl,protect)){
+            if(seen.has(v))continue; seen.add(v);
+            this.rules.push({rx:new RegExp(NW+flex(v)+NWE,"gu"),base:s.value,kind:s.kind,rep:s.replacement,pre,auto:s.auto,soft:false});
+          }
+      }
+    }
     this.rules.sort((a,b)=>b.rx.source.length-a.rx.source.length);
     // הרשימה הלבנה חייבת לתפוס גם צורות עם אות שימוש ("בתל אביב"),
     // אחרת "אל תחליף" נכשל בשקט על כל מילה עם ב/ל/מ/ה לפניה.
@@ -1001,6 +1049,9 @@ class Engine{
       while((m=r.rx.exec(n))){
         const s=m.index,e=s+m[0].length;
         if(this.blocked(s,e,zones))continue;
+        // שם בן מילה אחת ("שר", "גיל") שאחריו מילה שעושה ממנו תואר ציבורי:
+        // "שר הרווחה" הוא התפקיד, לא האדם ששמו שר. בודקים את ההתאמה עם המילה הבאה.
+        if(r.base.trim().split(" ").length===1){const nx=n.slice(e,e+30).trim().split(" ")[0]||""; const t2=(m[0]+" "+nx).trim(); if(PUBLIC_ORG.test(t2)||PUBLIC_ORG.test(t2.replace(/^[בהולמכש]/,"")))continue;}
         hits.push({s,e,type:r.kind,label:KINDLBL[r.kind]||r.kind,text:text.slice(s,e),
           apply:!r.soft,src:"list",prio:0,base:r.base,rep:r.rep,pre:r.pre,
           why:r.auto?"התגלה אוטומטית מההקשר":(r.pre?`מהרשימה שהגדרת, עם אות השימוש "${r.pre}" שנשמרה`:"מהרשימה שהגדרת"),
@@ -1622,6 +1673,9 @@ function nerGroup(toks){
   const out=[]; let cur=null;
   for(const t of toks){
     if(t._s==null){cur=null;continue}
+    // סימן פיסוק אינו חלק משם, גם כשהמודל מדביק לו תווית I-. "הילדה. מיקה"
+    // ו"השופטת: הורוביץ" נולדו מכאן: הנקודה קיבלה I-PER והשרשרת נמשכה.
+    if(!/[֐-׿w]/u.test(String(t.word||t.token||t.text||"").replace(/^##/,""))){cur=null;continue}
     const raw=String(t.entity_group||t.entity||"");
     const type=raw.replace(/^[BI]-/,"");
     if(!type||type==="O"){cur=null;continue}

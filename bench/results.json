@@ -10,12 +10,12 @@
    "fp": 0,
    "via": [
     "discover",
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "קעדאן",
-    "סאמר קעדאן",
-    "משרד. קעדאן"
+    "סאמר קעדאן"
    ],
    "leakedSurfaces": []
   },
@@ -29,12 +29,11 @@
    "fp": 0,
    "via": [
     "model",
-    "near",
-    "flagged"
+    "applied"
    ],
    "matched": [
     "חיים סבג",
-    "בחיים"
+    "חיים"
    ],
    "leakedSurfaces": []
   },
@@ -44,20 +43,18 @@
    "cat": "P_TITLE",
    "canonical": "יערה ליפשיץ",
    "found": true,
-   "leaked": true,
+   "leaked": false,
    "fp": 0,
    "via": [
     "discover",
     "model",
-    "suggest"
+    "applied"
    ],
    "matched": [
     "יערה ליפשיץ",
-    "עו\"ד יערה"
-   ],
-   "leakedSurfaces": [
     "ליפשיץ"
-   ]
+   ],
+   "leakedSurfaces": []
   },
   {
    "doc": "m1",
@@ -70,7 +67,8 @@
    "via": [
     "model",
     "near",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "דסטה",
@@ -88,7 +86,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "עמיחי אלמגור"
@@ -101,19 +100,18 @@
    "cat": "O_PRIVATE",
    "canonical": "עמותת שביל הלב",
    "found": true,
-   "leaked": true,
+   "leaked": false,
    "fp": 0,
    "via": [
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
-    "משרד עמותת שביל הלב",
+    "עמותת שביל הלב",
     "שביל"
    ],
-   "leakedSurfaces": [
-    "שביל הלב"
-   ]
+   "leakedSurfaces": []
   },
   {
    "doc": "m1",
@@ -124,7 +122,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "בנוף הגליל"
@@ -150,14 +149,10 @@
    "canonical": "בחיים לא ראיתי",
    "found": null,
    "leaked": null,
-   "fp": 1,
+   "fp": 0,
    "via": [],
-   "matched": [
-    "בחיים"
-   ],
-   "leakedSurfaces": [
-    "altered in output"
-   ]
+   "matched": [],
+   "leakedSurfaces": []
   },
   {
    "doc": "m2",
@@ -169,12 +164,13 @@
    "fp": 0,
    "via": [
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "אריאל הורוביץ",
     "אריאל",
-    "נבון. הורוביץ"
+    "הורוביץ"
    ],
    "leakedSurfaces": []
   },
@@ -188,7 +184,8 @@
    "fp": 0,
    "via": [
     "model",
-    "suggest"
+    "suggest",
+    "applied"
    ],
    "matched": [
     "ענבר",
@@ -206,7 +203,8 @@
    "fp": 0,
    "via": [
     "model",
-    "suggest"
+    "suggest",
+    "applied"
    ],
    "matched": [
     "טגניה",
@@ -225,11 +223,11 @@
    "via": [
     "discover",
     "model",
-    "flagged"
+    "applied"
    ],
    "matched": [
     "סיון נבון",
-    "נבון. הורוביץ"
+    "נבון"
    ],
    "leakedSurfaces": []
   },
@@ -243,7 +241,8 @@
    "fp": 0,
    "via": [
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "גן הדובים",
@@ -261,7 +260,8 @@
    "fp": 0,
    "via": [
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "ואופק",
@@ -280,7 +280,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "נווה רם"
@@ -297,11 +298,13 @@
    "fp": 0,
    "via": [
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "מורן רוזנטל",
-    "רוזנטל"
+    "רוזנטל",
+    "מורן"
    ],
    "leakedSurfaces": []
   },
@@ -315,7 +318,8 @@
    "fp": 0,
    "via": [
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "ונמרוד רוזנטל",
@@ -333,10 +337,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "suggest"
+    "suggest",
+    "applied"
    ],
    "matched": [
-    "איגור וולקוב"
+    "איגור וולקוב",
+    "וולקוב"
    ],
    "leakedSurfaces": []
   },
@@ -349,7 +355,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "מיקה"
@@ -380,7 +387,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "עומרי"
@@ -408,10 +416,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "מורן אביטן"
+    "מורן אביטן",
+    "אביטן"
    ],
    "leakedSurfaces": []
   },
@@ -424,10 +434,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "ינון אביתן"
+    "ינון אביתן",
+    "אביתן"
    ],
    "leakedSurfaces": []
   },
@@ -440,11 +452,13 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "וארקו",
-    "טיטו ווארקו"
+    "טיטו ווארקו",
+    "טיטו"
    ],
    "leakedSurfaces": []
   },
@@ -457,11 +471,13 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "אלה בן-רביב",
-    "בן רביב"
+    "אלה בן",
+    "בן רביב",
+    "רביב"
    ],
    "leakedSurfaces": []
   },
@@ -474,7 +490,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "אופק"
@@ -486,11 +503,16 @@
    "genre": "meeting",
    "cat": "L_STREET",
    "canonical": "רחוב הארזים 12",
-   "found": false,
+   "found": true,
    "leaked": true,
    "fp": 0,
-   "via": [],
-   "matched": [],
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "רחוב הארזים"
+   ],
    "leakedSurfaces": [
     "הארזים"
    ]
@@ -505,10 +527,12 @@
    "fp": 0,
    "via": [
     "discover",
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "סיון נבון"
+    "סיון נבון",
+    "נבון"
    ],
    "leakedSurfaces": []
   },
@@ -522,10 +546,12 @@
    "fp": 0,
    "via": [
     "discover",
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "צור אסולין"
+    "צור אסולין",
+    "אסולין"
    ],
    "leakedSurfaces": []
   },
@@ -540,7 +566,8 @@
    "via": [
     "discover",
     "flagged",
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "יערה",
@@ -559,11 +586,13 @@
    "fp": 0,
    "via": [
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "אריאל הורוביץ",
-    "אריאל"
+    "אריאל",
+    "הורוביץ"
    ],
    "leakedSurfaces": []
   },
@@ -576,7 +605,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "נתנאל וייסמן",
@@ -593,10 +623,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "נטליה פטרובה"
+    "נטליה פטרובה",
+    "פטרובה"
    ],
    "leakedSurfaces": []
   },
@@ -609,7 +641,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "ניצני הגליל"
@@ -635,14 +668,10 @@
    "canonical": "המוסד לביטוח לאומי",
    "found": null,
    "leaked": null,
-   "fp": 1,
+   "fp": 0,
    "via": [],
-   "matched": [
-    "לביטוח לאומי"
-   ],
-   "leakedSurfaces": [
-    "altered in output"
-   ]
+   "matched": [],
+   "leakedSurfaces": []
   },
   {
    "doc": "f1",
@@ -667,10 +696,11 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "מרחוב התאנה 4"
+    "רחוב התאנה"
    ],
    "leakedSurfaces": []
   },
@@ -707,7 +737,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "גיל נבון"
@@ -724,11 +755,13 @@
    "fp": 0,
    "via": [
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "שחר גולן",
-    "גולן"
+    "גולן",
+    "שחר"
    ],
    "leakedSurfaces": []
   },
@@ -743,7 +776,8 @@
    "via": [
     "discover",
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "מורן רוזנטל",
@@ -762,7 +796,8 @@
    "via": [
     "discover",
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "נמרוד רוזנטל",
@@ -783,7 +818,8 @@
    "via": [
     "discover",
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "נתנאל גולן",
@@ -802,7 +838,8 @@
    "fp": 0,
    "via": [
     "discover",
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "רויטל סבג"
@@ -820,7 +857,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "רהנו",
@@ -837,11 +875,15 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "suggest",
+    "applied"
    ],
    "matched": [
-    "אלה בן-רביב",
-    "בן רביב"
+    "אלה בן",
+    "בן-רביב",
+    "בן רביב",
+    "רביב"
    ],
    "leakedSurfaces": []
   },
@@ -854,7 +896,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "עומרי גן"
@@ -894,7 +937,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "גני אביב"
@@ -936,7 +980,7 @@
    "via": [],
    "matched": [],
    "leakedSurfaces": [
-    "altered in output"
+    "altered: עם שחר"
    ]
   },
   {
@@ -948,10 +992,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "מורן אביטן"
+    "מורן אביטן",
+    "אביטן"
    ],
    "leakedSurfaces": []
   },
@@ -964,10 +1010,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "ינון אביתן"
+    "ינון אביתן",
+    "אביתן"
    ],
    "leakedSurfaces": []
   },
@@ -980,11 +1028,14 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "suggest",
+    "applied"
    ],
    "matched": [
-    "אלה בן-רביב",
-    "ן-רביב"
+    "אלה בן",
+    "המבקשת",
+    "בן-רביב"
    ],
    "leakedSurfaces": []
   },
@@ -997,7 +1048,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "suggest"
+    "suggest",
+    "applied"
    ],
    "matched": [
     "בוזגלו"
@@ -1014,7 +1066,8 @@
    "fp": 0,
    "via": [
     "model",
-    "suggest"
+    "suggest",
+    "applied"
    ],
    "matched": [
     "עומרי",
@@ -1031,7 +1084,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "רויטל"
@@ -1047,11 +1101,13 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "יקטור סמירנוב",
-    "ויקטור"
+    "ויקטור",
+    "סמירנוב"
    ],
    "leakedSurfaces": []
   },
@@ -1062,14 +1118,10 @@
    "canonical": "משרד הרווחה",
    "found": null,
    "leaked": null,
-   "fp": 1,
+   "fp": 0,
    "via": [],
-   "matched": [
-    "הרווחה"
-   ],
-   "leakedSurfaces": [
-    "altered in output"
-   ]
+   "matched": [],
+   "leakedSurfaces": []
   },
   {
    "doc": "f3",
@@ -1092,10 +1144,11 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "במבוא חורון"
+    "מבוא חורון"
    ],
    "leakedSurfaces": []
   },
@@ -1122,11 +1175,13 @@
    "via": [
     "discover",
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "לינא מסאלחה",
-    "ינא מסאלחה"
+    "ינא מסאלחה",
+    "מסאלחה"
    ],
    "leakedSurfaces": []
   },
@@ -1140,11 +1195,13 @@
    "fp": 0,
    "via": [
     "model",
-    "suggest"
+    "suggest",
+    "applied"
    ],
    "matched": [
     "איל שקור",
-    "ואיל שקור"
+    "ואיל שקור",
+    "שקור"
    ],
    "leakedSurfaces": []
   },
@@ -1157,10 +1214,11 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "עבד אל-האדי"
+    "עבד אל"
    ],
    "leakedSurfaces": []
   },
@@ -1174,11 +1232,12 @@
    "fp": 0,
    "via": [
     "discover",
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "רויטל סבג",
-    "אצלנו. סבג"
+    "סבג"
    ],
    "leakedSurfaces": []
   },
@@ -1191,10 +1250,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "suggest"
+    "suggest",
+    "applied"
    ],
    "matched": [
-    "יערה שפרינסק"
+    "יערה שפרינסק",
+    "שפרינסק"
    ],
    "leakedSurfaces": []
   },
@@ -1207,7 +1268,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "מיקה"
@@ -1220,28 +1282,31 @@
    "cat": "O_LOOKS_PERSON",
    "canonical": "שילה ואופק",
    "found": true,
-   "leaked": true,
+   "leaked": false,
    "fp": 0,
    "via": [
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "שילה"
    ],
-   "leakedSurfaces": [
-    "שילה ואופק"
-   ]
+   "leakedSurfaces": []
   },
   {
    "doc": "f4",
    "genre": "filing",
    "cat": "L_STREET",
    "canonical": "שדרות הנשיאים 8",
-   "found": false,
+   "found": true,
    "leaked": true,
    "fp": 0,
-   "via": [],
-   "matched": [],
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "שדרות הנשיאים 8"
+   ],
    "leakedSurfaces": [
     "הנשיאים"
    ]
@@ -1267,10 +1332,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "דור רביב"
+    "דור רביב",
+    "דור"
    ],
    "leakedSurfaces": []
   },
@@ -1283,7 +1350,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "אלישע שר"
@@ -1300,13 +1368,13 @@
    "fp": 0,
    "via": [
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "אריאל הורוביץ",
     "אריאל",
-    "הורוביץ",
-    "השופטת: הורוביץ"
+    "הורוביץ"
    ],
    "leakedSurfaces": []
   },
@@ -1319,7 +1387,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "ענבר"
@@ -1335,10 +1404,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "אנסטסיה קוזלוב"
+    "אנסטסיה קוזלוב",
+    "קוזלוב"
    ],
    "leakedSurfaces": []
   },
@@ -1352,10 +1423,12 @@
    "fp": 0,
    "via": [
     "discover",
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "צור אסולין"
+    "צור אסולין",
+    "אסולין"
    ],
    "leakedSurfaces": []
   },
@@ -1366,14 +1439,10 @@
    "canonical": "משרד הרווחה",
    "found": null,
    "leaked": null,
-   "fp": 1,
+   "fp": 0,
    "via": [],
-   "matched": [
-    "הרווחה"
-   ],
-   "leakedSurfaces": [
-    "altered in output"
-   ]
+   "matched": [],
+   "leakedSurfaces": []
   },
   {
    "doc": "t1",
@@ -1381,18 +1450,16 @@
    "cat": "L_TOWN",
    "canonical": "אלון שבות",
    "found": true,
-   "leaked": true,
+   "leaked": false,
    "fp": 0,
    "via": [
     "model",
-    "flagged"
+    "applied"
    ],
    "matched": [
     "אלון שבות"
    ],
-   "leakedSurfaces": [
-    "אלון שבות"
-   ]
+   "leakedSurfaces": []
   },
   {
    "doc": "t1",
@@ -1401,14 +1468,10 @@
    "canonical": "פלוני",
    "found": null,
    "leaked": null,
-   "fp": 1,
+   "fp": 0,
    "via": [],
-   "matched": [
-    "פלוני בדיון"
-   ],
-   "leakedSurfaces": [
-    "altered in output"
-   ]
+   "matched": [],
+   "leakedSurfaces": []
   },
   {
    "doc": "t1",
@@ -1417,14 +1480,10 @@
    "canonical": "שר הרווחה",
    "found": null,
    "leaked": null,
-   "fp": 1,
+   "fp": 0,
    "via": [],
-   "matched": [
-    "הרווחה"
-   ],
-   "leakedSurfaces": [
-    "altered in output"
-   ]
+   "matched": [],
+   "leakedSurfaces": []
   },
   {
    "doc": "t2",
@@ -1436,7 +1495,8 @@
    "fp": 0,
    "via": [
     "discover",
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "קעדאן",
@@ -1453,7 +1513,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "אבו ריא"
@@ -1471,7 +1532,8 @@
    "via": [
     "model",
     "near",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "דסטה",
@@ -1490,11 +1552,12 @@
    "fp": 0,
    "via": [
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
-    "אלה בן-רביב",
-    "ן-רביב",
+    "אלה בן",
+    "רביב",
     "שבן רביב",
     "ובן רביב"
    ],
@@ -1523,7 +1586,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "נהוראי"
@@ -1539,7 +1603,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "עין הכרמים"
@@ -1556,11 +1621,10 @@
    "fp": 0,
    "via": [
     "model",
-    "flagged"
+    "applied"
    ],
    "matched": [
-    "מגני יוחנן",
-    "יוחנן"
+    "גני יוחנן"
    ],
    "leakedSurfaces": []
   },
@@ -1573,10 +1637,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "ניר אסולין"
+    "ניר אסולין",
+    "ניר"
    ],
    "leakedSurfaces": []
   },
@@ -1589,10 +1655,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "אור בוזגלו"
+    "אור בוזגלו",
+    "אור"
    ],
    "leakedSurfaces": []
   },
@@ -1605,10 +1673,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "מורן אביטן"
+    "מורן אביטן",
+    "אביטן"
    ],
    "leakedSurfaces": []
   },
@@ -1621,10 +1691,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "ינון אביתן"
+    "ינון אביתן",
+    "אביתן"
    ],
    "leakedSurfaces": []
   },
@@ -1637,10 +1709,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "טיטו ווארקו"
+    "טיטו ווארקו",
+    "טיטו"
    ],
    "leakedSurfaces": []
   },
@@ -1650,17 +1724,16 @@
    "cat": "P_NIKUD",
    "canonical": "מיקה",
    "found": true,
-   "leaked": true,
+   "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "הילדה. מיקה"
-   ],
-   "leakedSurfaces": [
     "מיקה"
-   ]
+   ],
+   "leakedSurfaces": []
   },
   {
    "doc": "t3",
@@ -1671,10 +1744,11 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "flagged"
+    "model",
+    "applied"
    ],
    "matched": [
-    "שביל הלב"
+    "עמותת שביל הלב"
    ],
    "leakedSurfaces": []
   },
@@ -1688,7 +1762,7 @@
    "fp": 0,
    "via": [
     "model",
-    "flagged"
+    "applied"
    ],
    "matched": [
     "שילה",
@@ -1705,7 +1779,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "הדקלים"
@@ -1733,7 +1808,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "ענבר"
@@ -1750,11 +1826,13 @@
    "fp": 0,
    "via": [
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "מורן רוזנטל",
-    "רוזנטל"
+    "רוזנטל",
+    "מורן"
    ],
    "leakedSurfaces": []
   },
@@ -1768,13 +1846,13 @@
    "fp": 0,
    "via": [
     "model",
-    "flagged"
+    "flagged",
+    "applied"
    ],
    "matched": [
     "נמרוד רוזנטל",
     "רוזנטל",
-    "מורן רוזנטל",
-    "שלי, רוזנטל"
+    "מורן רוזנטל"
    ],
    "leakedSurfaces": []
   },
@@ -1787,7 +1865,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "טגניה"
@@ -1803,7 +1882,8 @@
    "leaked": true,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "אברה"
@@ -1821,10 +1901,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "עומרי גן"
+    "עומרי גן",
+    "עומרי"
    ],
    "leakedSurfaces": []
   },
@@ -1837,7 +1919,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "עמיחי אלמגור",
@@ -1854,10 +1937,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
-    "עומרי גן"
+    "עומרי גן",
+    "עומרי"
    ],
    "leakedSurfaces": []
   },
@@ -1870,7 +1955,8 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "model"
+    "model",
+    "applied"
    ],
    "matched": [
     "בהר אדר"
@@ -1879,16 +1965,6 @@
   }
  ],
  "unlisted": [
-  {
-   "doc": "m4",
-   "genre": "meeting",
-   "value": "להבחין",
-   "sources": [
-    "model"
-   ],
-   "why": "",
-   "applied": true
-  },
   {
    "doc": "m4",
    "genre": "meeting",
@@ -1971,12 +2047,11 @@
    "applied": true
   },
   {
-   "doc": "f3",
+   "doc": "f2",
    "genre": "filing",
-   "value": "לשכת הרווחה\nהמבקשת",
+   "value": "המבקשת",
    "sources": [
-    "model",
-    "flagged"
+    "model"
    ],
    "why": "",
    "applied": true
@@ -2000,7 +2075,7 @@
     "flagged"
    ],
    "why": "",
-   "applied": false
+   "applied": true
   },
   {
    "doc": "t1",
@@ -2010,26 +2085,6 @@
     "discover"
    ],
    "why": "מופיע אחרי תואר",
-   "applied": true
-  },
-  {
-   "doc": "t1",
-   "genre": "transcript",
-   "value": "אני",
-   "sources": [
-    "model"
-   ],
-   "why": "",
-   "applied": true
-  },
-  {
-   "doc": "t1",
-   "genre": "transcript",
-   "value": "ושר",
-   "sources": [
-    "flagged"
-   ],
-   "why": "",
    "applied": true
   },
   {
@@ -2063,36 +2118,6 @@
    "applied": true
   },
   {
-   "doc": "t3",
-   "genre": "transcript",
-   "value": "השופט",
-   "sources": [
-    "model"
-   ],
-   "why": "",
-   "applied": true
-  },
-  {
-   "doc": "t3",
-   "genre": "transcript",
-   "value": "תוזמן. טיטו",
-   "sources": [
-    "model"
-   ],
-   "why": "",
-   "applied": true
-  },
-  {
-   "doc": "t4",
-   "genre": "transcript",
-   "value": "לארח",
-   "sources": [
-    "model"
-   ],
-   "why": "",
-   "applied": true
-  },
-  {
    "doc": "t4",
    "genre": "transcript",
    "value": "ועדה",
@@ -2107,86 +2132,86 @@
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 146,
-   "rules": 14,
+   "ms": 187,
+   "rules": 11,
    "unlisted": 0
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 88,
-   "rules": 14,
+   "ms": 153,
+   "rules": 13,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 71,
+   "ms": 104,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 97,
+   "ms": 147,
    "rules": 12,
-   "unlisted": 5
+   "unlisted": 4
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 127,
-   "rules": 15,
+   "ms": 157,
+   "rules": 14,
    "unlisted": 2
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 138,
-   "rules": 17,
-   "unlisted": 2
+   "ms": 178,
+   "rules": 19,
+   "unlisted": 3
   },
   {
    "id": "f3",
    "genre": "filing",
-   "ms": 106,
-   "rules": 13,
-   "unlisted": 1
+   "ms": 111,
+   "rules": 12,
+   "unlisted": 0
   },
   {
    "id": "f4",
    "genre": "filing",
-   "ms": 116,
-   "rules": 12,
+   "ms": 190,
+   "rules": 11,
    "unlisted": 2
   },
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 111,
-   "rules": 15,
-   "unlisted": 3
+   "ms": 115,
+   "rules": 9,
+   "unlisted": 1
   },
   {
    "id": "t2",
    "genre": "transcript",
-   "ms": 86,
-   "rules": 16,
+   "ms": 114,
+   "rules": 15,
    "unlisted": 2
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 107,
-   "rules": 13,
-   "unlisted": 3
+   "ms": 120,
+   "rules": 11,
+   "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 91,
-   "rules": 13,
-   "unlisted": 2
+   "ms": 114,
+   "rules": 11,
+   "unlisted": 1
   }
  ]
 }
