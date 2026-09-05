@@ -254,7 +254,7 @@ a:hover{text-decoration:underline}
             <div style="font-size:11.5px;font-weight:500;letter-spacing:.05em;color:var(--ink3);margin-bottom:10px">המיקומים במסמך</div>
             <div style="position:relative;width:150px;height:340px;margin:0 auto">
               <svg viewBox="0 0 150 340" width="150" height="340" style="position:absolute;inset:0;display:block">
-                <path d="{{ mapLand }}" fill="var(--panel2)" stroke="var(--line)" stroke-width="0.8"></path>
+                <path data-d="{{ mapLand }}" fill="var(--panel2)" stroke="var(--line)" stroke-width="0.8"></path>
               </svg>
               <sc-for list="{{ mapFrom }}" as="p" hint-placeholder-count="3">
                 <div style="{{ p.style }}">
@@ -268,7 +268,7 @@ a:hover{text-decoration:underline}
             <div style="font-size:11.5px;font-weight:500;letter-spacing:.05em;color:var(--accent-ink);margin-bottom:10px">הקבוצה החלופית</div>
             <div style="position:relative;width:150px;height:340px;margin:0 auto">
               <svg viewBox="0 0 150 340" width="150" height="340" style="position:absolute;inset:0;display:block">
-                <path d="{{ mapLand }}" fill="var(--panel2)" stroke="var(--line)" stroke-width="0.8"></path>
+                <path data-d="{{ mapLand }}" fill="var(--panel2)" stroke="var(--line)" stroke-width="0.8"></path>
               </svg>
               <sc-for list="{{ mapTo }}" as="p" hint-placeholder-count="3">
                 <div style="{{ p.style }}">
@@ -644,6 +644,14 @@ class Component extends DCLogic {
     r.setProperty("--accent-soft", dark?a[2]+"22":a[1]);
     r.setProperty("--doc-font", this.props.docFont==="sans"?"Rubik,sans-serif":"'Noto Serif Hebrew',serif");
     r.setProperty("--rail-w", (this.props.railWidth ?? 404)+"px");
+    // The map geometry travels in data-d and is copied to d here, after
+    // render. Binding d directly in the template hands the unresolved
+    // placeholder to the HTML parser, which logs an SVG path error on every
+    // load before the runtime ever runs. data-d is never validated.
+    for(const p of document.querySelectorAll("path[data-d]")){
+      const d=p.getAttribute("data-d")||"";
+      if(p.getAttribute("d")!==d) p.setAttribute("d", d);
+    }
   }
 
   applyTheme(t){

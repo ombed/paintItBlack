@@ -1,26 +1,42 @@
 /* Shared by the browser checks. Everything here drives the real page over
-   http; the only substitution is the model, and only where a test asks. */
+   http; the only substitution is the model layer, and only where a test asks. */
 const { expect } = require("@playwright/test");
 
 const DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
-/* Serve the real engine with nerRun reassigned at the end of the module.
-   nerRun is a function declaration in a plain export list, so the live
-   binding the page imports follows the reassignment. The stub reads its
-   timing and its answers from window.__ner, set per test, so scans are
-   fast and deterministic while every other line is the shipped code. */
+/* Serve the real engine with its model-layer bindings reassigned at the end
+   of the module. nerRun is a function declaration and nerEnv, nerCached are
+   `let`, all in a plain export list, so the live bindings the page imports
+   follow the reassignment. Behaviour comes from window.__ner:
+
+     names(text)  -> array of names nerRun returns        (default: none)
+     delay(text)  -> ms before nerRun resolves            (default: 0)
+     error        -> nerRun rejects with this message
+     env          -> object nerEnv returns                (default: the real one)
+     cached       -> what nerCached resolves to           (default: the real one)
+
+   env and cached are read at mount, so set them with addInitScript. The
+   rest are read per call, so page.evaluate after boot is fine. Every other
+   line, including the generation guard, is the shipped code. */
 async function serveEngineWithStub(page) {
   await page.route("**/redact-engine.js", async (route) => {
     const res = await route.fetch();
     const body = (await res.text()) + [
       "",
       "/* test stub: see e2e/helpers.js */",
+      "const __realNerEnv = nerEnv, __realNerCached = nerCached;",
+      "nerEnv = () => (window.__ner && window.__ner.env) || __realNerEnv();",
+      "nerCached = async () => {",
+      "  const c = window.__ner || {};",
+      "  return c.cached !== undefined ? c.cached : __realNerCached();",
+      "};",
       "nerRun = async (blocks, onProgress) => {",
       "  const text = blocks.map((b) => b.text).join(' ');",
       "  const cfg = window.__ner || {};",
       "  window.__nerCalls = (window.__nerCalls || 0) + 1;",
       "  if (onProgress) onProgress(5);",
       "  await new Promise((r) => setTimeout(r, cfg.delay ? cfg.delay(text) : 0));",
+      "  if (cfg.error) throw new Error(cfg.error);",
       "  return (cfg.names ? cfg.names(text) : []).map((v) => ({ value: v, kind: 'NAME', n: 1, score: 0.95 }));",
       "};",
       "",
@@ -61,7 +77,7 @@ const goButton = (page) => page.getByRole("button", { name: "המשך", exact: t
 const skipButton = (page) => page.getByRole("button", { name: /המשך בלי שמות/ });
 
 // Each people row carries a delete button; the name is the row's own span.
-const listedNames = (page) =>
-  page.locator('div:has(> button[aria-label="הסרה"]) > span').allTextContents();
+const peopleRows = (page) => page.locator('div:has(> button[aria-label="הסרה"])');
+const listedNames = (page) => peopleRows(page).locator("> span").allTextContents();
 
-module.exports = { DOCX, serveEngineWithStub, boot, upload, startScan, scanning, goButton, skipButton, listedNames };
+module.exports = { DOCX, serveEngineWithStub, boot, upload, startScan, scanning, goButton, skipButton, peopleRows, listedNames };
