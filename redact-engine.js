@@ -737,6 +737,10 @@ const ANCH=[["title",`(?:${TITLES})[,\\s]+(${NME})`,"מופיע אחרי תוא�
  ["rolep",`(?:${ROLES})\\s+(${NME})`,"מופיע אחרי מילת תפקיד בגוף הטקסט"],
  ["bid",`(${NME})\\s*,?\\s*(?=ת\\.?\\s?ז\\.?|ת"ז|תעודת\\s+זהות|ח\\.?\\s?פ\\.?)`,'מופיע מיד לפני ת"ז'],
  ["btw",`בין\\s+(${NME})\\s+(?:לבין|ל)`,'מופיע במבנה "בין X לבין Y"'],
+ // תור דיבור בתמלול: פסקה שנפתחת בשם ואחריו נקודתיים. "דליה לב שדה: תודה רבה".
+ // זה העוגן היחיד שיש לתמלול, ובלי המודל אין לו כמעט שום דבר אחר. תואר
+ // לפני השם ("היו\"ר אורלי לוי") נבלע; "מוזמנים:" בלי טקסט אחריו לא נתפס.
+ ["speaker",`^(?:(?:${TITLES}|היו"ר|היו״ר|יו"ר|יו״ר|השר|השרה)\\s+)?(${NWD}(?:\\s+${NWD}){0,2})\\s*:\\s`,"פותח תור דיבור בתמלול"],
  ["vs",`(${NME})\\s+נ'\\s+(${NME})`,"מופיע בכותרת תיק"]]
  .map(([k,r,w])=>({k,rx:new RegExp(r,"gu"),w}));
 const PFX=new Set(["מ","ב","ל","ו","ה","ש","כ"]);
@@ -1430,6 +1434,9 @@ function discover(blocks){
     if(h.role&&!r.role)r.role=h.role;
     if(h.g==="f")r.gf++; if(h.g==="m")r.gm++;
     if(h.anchor==="bid"||h.anchor==="role")r.conf="high";
+    // דובר שחוזר, או דובר בשם מלא, הוא אדם בוודאות. דובר יחיד במילה אחת נשאר
+    // הצעה: "שאלה:" או "הערה:" נראים אותו דבר עד שחוזרים.
+    if(h.anchor==="speaker"){r.spk=(r.spk||0)+1; if(r.spk>=2||h.text.includes(" "))r.conf="high";}
     if(!r.ctx)r.ctx=ctxHTML(b.text,h.s,h.e)}
   // "מאורי בן-שחר" הוא "אורי בן-שחר" עם אות שימוש — לא מועמד נפרד
   // אין איחוד אוטומטי לפי האות הראשונה: "שרון לוי" אינו "רון לוי"
@@ -1444,7 +1451,7 @@ function discover(blocks){
     const full=toks.length===1?keys.find(x=>x!==value&&
       x.split(/\s+/).length>1&&x.split(/\s+/).slice(-1)[0]===toks[0]):null;
     return {value,count:r.count,conf:r.conf,why:[...r.why].join(" · "),
-            ctx:r.ctx,aliasOf:full||null,role:r.role,
+            ctx:r.ctx,aliasOf:full||null,role:r.role,speaker:!!r.spk,
             g:r.gf>r.gm?"f":r.gm>r.gf?"m":null};
   }).sort((a,b)=>(a.conf==="high"?0:1)-(b.conf==="high"?0:1)||b.count-a.count)}
 

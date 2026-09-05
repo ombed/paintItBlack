@@ -17,7 +17,7 @@
 | trap: idiom or public title beside a same-word name | – | – | – | 1 |
 | person: full name, surname alone, first name alone | 3 | 0 | 0 | 0 |
 | person: only in prose, never before a speech verb | 3 | 0 | 0 | 0 |
-| person: Ethiopian name | 4 | 0 | 1 | 0 |
+| person: Ethiopian name | 4 | 0 | 0 | 0 |
 | person: role word directly before, no colon | 5 | 0 | 0 | 0 |
 | org: body whose name reads like a person's | 3 | 0 | 0 | 0 |
 | place: neighbourhood | 3 | 0 | 0 | 0 |
@@ -40,13 +40,13 @@
 |---|---|---|---|---|
 | meeting | 25 | 1 | 2 | 0 |
 | filing | 34 | 1 | 2 | 1 |
-| transcript | 32 | 1 | 2 | 0 |
+| transcript | 32 | 1 | 1 | 0 |
 
 ## Unlisted suggestions (match nothing in the key; one tap each)
 
-- **meeting** (4, 4 applied): מהבניין [suggest] **applied** · נוער [suggest] **applied** · לבד [flagged] **applied** · אבל [flagged] **applied**
-- **filing** (7, 5 applied): בי [discover+flagged; מופיע מיד לפני ת"ז] · נישאו [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · לדירה בשכונת [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · ומצא סימני [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · המבקשת [model] **applied** · לקבוע מזונו [discover+flagged; מופיע מיד לפני ת"ז] · עלי [flagged] **applied**
-- **transcript** (5, 5 applied): שר [discover; מופיע אחרי תואר] **applied** · לי [discover; מופיע אחרי תואר] **applied** · במרפאת עין [suggest] **applied** · הראשון [discover; מופיע אחרי תואר] **applied** · ועדה [flagged] **applied**
+- **meeting** (5, 5 applied): סיכמנו [discover; פותח תור דיבור בתמלול] **applied** · מהבניין [suggest] **applied** · נוער [suggest] **applied** · לבד [flagged] **applied** · אבל [flagged] **applied**
+- **filing** (8, 6 applied): בי [discover+flagged; מופיע מיד לפני ת"ז] · נישאו [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · המבקשת [discover+model; פותח תור דיבור בתמלול] **applied** · לדירה בשכונת [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · ומצא סימני [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · המלצה [discover; פותח תור דיבור בתמלול] **applied** · לקבוע מזונו [discover+flagged; מופיע מיד לפני ת"ז] · עלי [flagged] **applied**
+- **transcript** (6, 6 applied): שר [discover; מופיע אחרי תואר] **applied** · לי [discover; מופיע אחרי תואר] **applied** · במרפאת עין [suggest] **applied** · הראשון [discover; מופיע אחרי תואר] **applied** · יו"ר [discover; פותח תור דיבור בתמלול] **applied** · ועדה [flagged] **applied**
 
 ## Missed and leaked, by document
 
@@ -55,7 +55,6 @@
 - f1 · place: town · בית זית: missed, **leaked**: בית זית
 - f4 · place: street · שדרות הנשיאים 8: found via applied as «שדרות הנשיאים 8», **leaked**: הנשיאים
 - t2 · person: minor, first name only · אופק: missed, **leaked**: אופק
-- t4 · person: Ethiopian name · אברה ברהנו: found via model+applied as «אברה», **leaked**: ברהנו
 
 ## Traps and public bodies touched
 
@@ -65,15 +64,15 @@
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 144 | 11 | 0 |
-| m2 | meeting | 102 | 13 | 0 |
-| m3 | meeting | 79 | 6 | 0 |
-| m4 | meeting | 115 | 12 | 4 |
-| f1 | filing | 140 | 14 | 2 |
-| f2 | filing | 158 | 19 | 3 |
-| f3 | filing | 103 | 12 | 0 |
-| f4 | filing | 121 | 11 | 2 |
-| t1 | transcript | 107 | 9 | 1 |
-| t2 | transcript | 102 | 15 | 2 |
-| t3 | transcript | 102 | 11 | 1 |
-| t4 | transcript | 98 | 11 | 1 |
+| m1 | meeting | 178 | 11 | 0 |
+| m2 | meeting | 134 | 13 | 0 |
+| m3 | meeting | 85 | 6 | 0 |
+| m4 | meeting | 134 | 13 | 5 |
+| f1 | filing | 148 | 14 | 2 |
+| f2 | filing | 178 | 19 | 3 |
+| f3 | filing | 119 | 13 | 1 |
+| f4 | filing | 133 | 11 | 2 |
+| t1 | transcript | 136 | 9 | 1 |
+| t2 | transcript | 119 | 15 | 2 |
+| t3 | transcript | 114 | 11 | 1 |
+| t4 | transcript | 111 | 14 | 2 |

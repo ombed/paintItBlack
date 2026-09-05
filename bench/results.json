@@ -1331,6 +1331,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -1349,6 +1350,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -1403,6 +1405,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -1498,8 +1501,8 @@
     "applied"
    ],
    "matched": [
-    "קעדאן",
-    "סאמר קעדאן"
+    "סאמר קעדאן",
+    "קעדאן"
    ],
    "leakedSurfaces": []
   },
@@ -1550,13 +1553,14 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "flagged",
     "applied"
    ],
    "matched": [
+    "אלה בן-רביב",
     "אלה בן",
-    "רביב",
     "שבן רביב",
     "ובן רביב"
    ],
@@ -1636,6 +1640,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -1654,6 +1659,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -1844,6 +1850,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "flagged",
     "applied"
@@ -1864,10 +1871,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
    "matched": [
+    "מולו טגניה",
     "טגניה"
    ],
    "leakedSurfaces": []
@@ -1878,18 +1887,20 @@
    "cat": "P_ETHIOPIAN",
    "canonical": "אברה ברהנו",
    "found": true,
-   "leaked": true,
+   "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
+    "flagged",
     "applied"
    ],
    "matched": [
-    "אברה"
-   ],
-   "leakedSurfaces": [
+    "אברה ברהנו",
+    "אברה",
     "ברהנו"
-   ]
+   ],
+   "leakedSurfaces": []
   },
   {
    "doc": "t4",
@@ -1918,6 +1929,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -1964,6 +1976,16 @@
   }
  ],
  "unlisted": [
+  {
+   "doc": "m4",
+   "genre": "meeting",
+   "value": "סיכמנו",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
   {
    "doc": "m4",
    "genre": "meeting",
@@ -2028,6 +2050,17 @@
   {
    "doc": "f2",
    "genre": "filing",
+   "value": "המבקשת",
+   "sources": [
+    "discover",
+    "model"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
    "value": "לדירה בשכונת",
    "sources": [
     "discover"
@@ -2046,13 +2079,13 @@
    "applied": true
   },
   {
-   "doc": "f2",
+   "doc": "f3",
    "genre": "filing",
-   "value": "המבקשת",
+   "value": "המלצה",
    "sources": [
-    "model"
+    "discover"
    ],
-   "why": "",
+   "why": "פותח תור דיבור בתמלול",
    "applied": true
   },
   {
@@ -2119,6 +2152,16 @@
   {
    "doc": "t4",
    "genre": "transcript",
+   "value": "יו\"ר",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "t4",
+   "genre": "transcript",
    "value": "ועדה",
    "sources": [
     "flagged"
@@ -2131,86 +2174,86 @@
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 144,
+   "ms": 178,
    "rules": 11,
    "unlisted": 0
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 102,
+   "ms": 134,
    "rules": 13,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 79,
+   "ms": 85,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 115,
-   "rules": 12,
-   "unlisted": 4
+   "ms": 134,
+   "rules": 13,
+   "unlisted": 5
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 140,
+   "ms": 148,
    "rules": 14,
    "unlisted": 2
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 158,
+   "ms": 178,
    "rules": 19,
    "unlisted": 3
   },
   {
    "id": "f3",
    "genre": "filing",
-   "ms": 103,
-   "rules": 12,
-   "unlisted": 0
+   "ms": 119,
+   "rules": 13,
+   "unlisted": 1
   },
   {
    "id": "f4",
    "genre": "filing",
-   "ms": 121,
+   "ms": 133,
    "rules": 11,
    "unlisted": 2
   },
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 107,
+   "ms": 136,
    "rules": 9,
    "unlisted": 1
   },
   {
    "id": "t2",
    "genre": "transcript",
-   "ms": 102,
+   "ms": 119,
    "rules": 15,
    "unlisted": 2
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 102,
+   "ms": 114,
    "rules": 11,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 98,
-   "rules": 11,
-   "unlisted": 1
+   "ms": 111,
+   "rules": 14,
+   "unlisted": 2
   }
  ]
 }

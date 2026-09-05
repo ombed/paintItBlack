@@ -71,8 +71,13 @@ const words=paras.join(" ").split(/\s+/).length;
  // הזה מדגים: הכתיב השני של שלוה נתפס לבדיקה, ושם שמופיע רק בפרוזה הוצע.
  const twinFlagged=near.some(x=>x.value.includes("שלווה"));
  const proseSurfaced=kid.length>0;
- const verdict=(twinFlagged&&proseSurfaced)?"PASS":"FAIL";
+ // הדוברים בתמלול ממלאים את הרשימה מראש: השמות שהיא הקלידה יושבים בכותרות התורים.
+ const fold=x=>x.replace(/[-–־]/g," ").split(" ").filter(Boolean).join(" ");
+ const typedFound=typed.filter(t=>seed.some(c=>fold(c.value)===fold(t))).length;
+ const speakersPrefilled=typedFound>=typed.length-1;
+ const verdict=(twinFlagged&&proseSurfaced&&speakersPrefilled)?"PASS":"FAIL";
  console.log(`
 סיכום: ${verdict} — הכתיב השני «שלווה» ${twinFlagged?"נתפס לבדיקה":"לא נתפס"} · `+
-   `שם מהפרוזה ${proseSurfaced?"הוצע ("+kid.join(", ")+")":"לא הוצע"}`);
+   `שם מהפרוזה ${proseSurfaced?"הוצע ("+kid.join(", ")+")":"לא הוצע"} · `+
+   `דוברים מולאו מראש ${typedFound}/${typed.length}`);
 })().catch(e=>{console.error(e);process.exit(1)});
