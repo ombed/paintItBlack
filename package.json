@@ -6,7 +6,10 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "playwright test"
+    "test": "node tests/run.js && playwright test",
+    "test:unit": "node tests/run.js",
+    "test:browser": "playwright test",
+    "build:fixtures": "node tests/build-fixtures.js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +20,8 @@
   "type": "commonjs",
   "private": true,
   "devDependencies": {
-    "@playwright/test": "^1.62.1"
+    "@playwright/test": "^1.62.1",
+    "@xmldom/xmldom": "^0.9.12",
+    "jsdom": "^30.0.1"
   }
 }
