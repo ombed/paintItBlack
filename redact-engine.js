@@ -700,7 +700,12 @@ const ANCH=[["title",`(?:${TITLES})[,\\s]+(${NME})`,"מופיע אחרי תוא�
    'מופיע אחרי "בפני"'],
  ["signed",`(?:בכבוד\\s+רב|ולראיה\\s+באתי\\s+על\\s+החתום|חתימה)\\s*[,:\\-–]?\\s*(${NME})`,
    "מופיע באזור החתימה"],
+ // מילת תפקיד לפני שם. עם נקודתיים זו כותרת ("התובעת: רונית לוי") — כמעט ודאי,
+ // ולכן ביטחון גבוה ומילוי אוטומטי. בלי נקודתיים, בגוף הטקסט ("התובעת רונית לוי"),
+ // זה אות אמיתי אבל חלש יותר: "התובעת הגישה בקשה" נראה אותו דבר. לכן ביטחון בינוני,
+ // כלומר הצעה שהמשתמשת מאשרת, לא מילוי אוטומטי.
  ["role",`(?:${ROLES})\\s*[:\\-–]\\s*(${NME})`,"מופיע אחרי תפקיד ונקודתיים"],
+ ["rolep",`(?:${ROLES})\\s+(${NME})`,"מופיע אחרי מילת תפקיד בגוף הטקסט"],
  ["bid",`(${NME})\\s*,?\\s*(?=ת\\.?\\s?ז\\.?|ת"ז|תעודת\\s+זהות|ח\\.?\\s?פ\\.?)`,'מופיע מיד לפני ת"ז'],
  ["btw",`בין\\s+(${NME})\\s+(?:לבין|ל)`,'מופיע במבנה "בין X לבין Y"'],
  ["vs",`(${NME})\\s+נ'\\s+(${NME})`,"מופיע בכותרת תיק"]]
@@ -728,10 +733,13 @@ function anchored(text){
       for(let g=1;g<m.length;g++){
         if(!m[g])continue;
         const c=cleanName(m[g]); if(!c)continue;
+        // העוגן הפרוזאי בלבד: מילת תפקיד באה גם לפני פועל ("התובעת הגישה בקשה").
+        // מסננים פעלים ומילים נפוצות; לא nameish, שדוחה שמות כמו הדס.
+        if(a.k==="rolep"&&c.split(/\s+/).some(w=>VRB.has(w)||COMMON.has(w)||STOP.has(w)))continue;
         let s=m.index+m[0].indexOf(m[g]); const o=m[g].indexOf(c); if(o>0)s+=o;
         const e=s+c.length,k=s+":"+e; if(seen.has(k))continue; seen.add(k);
         let role=null;
-        if(a.k==="role"){
+        if(a.k==="role"||a.k==="rolep"){
           const rm=/(התובע(?:ת)?|הנתבע(?:ת)?|המבקש(?:ת)?|המשיב(?:ה)?|הנאשם(?:ת)?|המערער(?:ת)?|המנוח(?:ה)?)/.exec(m[0]);
           if(rm)role=rm[1];
         }
@@ -869,7 +877,9 @@ function geoMap(names,variant){
 function findPatterns(text,on,flag){
   const n=norm(text),hits=[];
   if(on.has("NAME_ANCHORED")||flag.has("NAME_ANCHORED"))
-    for(const h of anchored(text)){h.apply=on.has("NAME_ANCHORED");hits.push(h)}
+    // העוגן הפרוזאי (rolep) מזין רק את ההצעות ב-discover, לא את ההשחרה: ניחוש
+    // שגוי שם עולה הקשה אחת; כאן הוא היה דוחק החלפה אמיתית מאותם תווים.
+    for(const h of anchored(text)){if(h.anchor==="rolep")continue;h.apply=on.has("NAME_ANCHORED");hits.push(h)}
   if(on.has("PLACES")||flag.has("PLACES"))
     for(const h of findPlaces(text)){
       if(!on.has("PLACES"))h.apply=false;
@@ -1514,6 +1524,13 @@ function nerFixRegExp(){
   P.prototype=Orig.prototype; Object.setPrototypeOf(P,Orig);
   window.RegExp=P; globalThis.RegExp=P;
 }
+// העטיפה של RegExp מותקנת כאן, בזמן הערכת המודול. המודול נטען ב-import דינמי
+// מתוך componentDidMount, כלומר אחרי ש-#dc-root כבר מחובר. מי שקורא את RegExp
+// הגלובלי לפני שה-import הסתיים רואה את המקורי, לא את העטוף.
+// זה לא מזיק בפועל, ונבדק: סקריפט האתחול ב-index.html לא בונה אף תבנית,
+// support.js בונה שתיים פשוטות לפירוק התבנית, ושלוש התבניות שנבנות כאן לפני
+// השורה הזו (GF, GM, PLACE_RX) תקינות תחת הדגל u — אחרת המודול לא היה נטען.
+// בדיקת הדפדפן ב-e2e/flow.spec.js ממתינה ל-window.__nerRx לפני שהיא שואלת.
 nerFixRegExp();
 export async function nerPrepTokenizer(report){
   const say=m=>{console.log("טוקנייזר: "+m); if(report)report(m)};
