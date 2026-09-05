@@ -71,10 +71,10 @@ a:hover{text-decoration:underline}
   <b>נטען…</b>
   <p id="boot-msg">רגע אחד.</p>
 </div></div>
-<div id="ver">גרסה v9</div>
+<div id="ver">גרסה v10</div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v9");
+  console.log("השחרת מסמכים — גרסה v10");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -112,9 +112,9 @@ a:hover{text-decoration:underline}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v9") return;
+        if(served==="v10") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v9 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v10 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
