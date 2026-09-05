@@ -1,0 +1,22 @@
+{
+  "name": "paintitblack-tests",
+  "version": "1.0.0",
+  "description": "Browser checks for the redaction tool",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "playwright test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github-new:ombed/paintItBlack.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "private": true,
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
+  }
+}

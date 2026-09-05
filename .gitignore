@@ -6,6 +6,12 @@ node_modules/
 dist/
 build/
 
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
 # Secrets
 .env
 .env.*
