@@ -145,8 +145,6 @@ a:hover{text-decoration:underline}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600&family=Noto+Serif+Hebrew:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
 
 </helmet>
 
@@ -1030,7 +1028,6 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const rules = rows.map(r=>({...r}));
     this.setState({rules, allow:[]});
     if(!this.state.o.places){ this.run(rules); return; }
-    this.loadAtlas();
     try{
       const blocks = await this.blocksOf(this.state.buf);
       const text = E.norm(blocks.map(b=>b.text).join("\n"));
@@ -1046,7 +1043,11 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   loadAtlas = async () => {
     if(this.state.atlas || this._atlasBusy) return;
     this._atlasBusy = true;
-    for(let i=0;i<30 && !(window.d3 && window.topojson);i++) await new Promise(r=>setTimeout(r,150));
+    // הספריות של המפה נטענות רק כשמבקשים לראות אותה, לא בכל ביקור
+    const libs=[["d3","https://unpkg.com/d3@7.9.0/dist/d3.min.js","sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i"],["topojson","https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js","sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67"]];
+    for(const [g,src,integrity] of libs){ if(window[g]) continue;
+      await new Promise(res=>{ const el=document.createElement("script"); el.src=src; el.integrity=integrity; el.crossOrigin="anonymous";
+        el.onload=res; el.onerror=res; document.head.appendChild(el); }); }
     if(!(window.d3 && window.topojson)){ this._atlasBusy=false; return; }
     try{
       const t = await (await fetch((window.__resources && window.__resources.atlas) || "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json")).json();
@@ -1455,7 +1456,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         onRemove:()=>this.geoRemove(m.from)})),
       hasExcluded:(S.geoExcluded||[]).length>0,
       excluded:(S.geoExcluded||[]).map(n=>({name:n, onUndo:()=>this.geoRestore(n)})),
-      mapLand:MV?MV.land:"", hasLand:!!(MV&&MV.hasLand), showMap:!!S.showMap, mapLabel:S.showMap?"הסתרת המפה":"הצגת המפה", onToggleMap:()=>this.setState({showMap:!S.showMap}),
+      mapLand:MV?MV.land:"", hasLand:!!(MV&&MV.hasLand), showMap:!!S.showMap, mapLabel:S.showMap?"הסתרת המפה":"הצגת המפה", onToggleMap:()=>{ if(!S.showMap) this.loadAtlas(); this.setState({showMap:!S.showMap}); },
       mapFrom:MV?MV.from:[], mapTo:MV?MV.to:[],
       onGeoAlt:this.geoAlt, onGeoApply:this.geoApply, onGeoSkip:()=>this.run(S.rules),
       onBackHome:()=>this.setState({screen:"entry", res:null, err:""}),

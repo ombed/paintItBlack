@@ -12,7 +12,9 @@
     "build:fixtures": "node tests/build-fixtures.js",
     "report": "node tests/report.js",
     "bench": "node bench/generate.js && node bench/run.js",
-    "bench:nomodel": "node bench/generate.js && node bench/run.js --no-model"
+    "bench:nomodel": "node bench/generate.js && node bench/run.js --no-model",
+    "gate": "node bench/gate.js",
+    "bump": "node scripts/bump.js"
   },
   "repository": {
     "type": "git",
