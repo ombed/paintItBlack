@@ -1,0 +1,49 @@
+name: שם שעבר / החלפה שגויה
+description: שם שנשאר במסמך, או משהו שהוחלף ולא היה צריך
+labels: ["detection"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **לא לצרף את המסמך ולא להעתיק ממנו שורות.** מספיק הצורה של המקרה.
+        אם לחצת "דוח דליפה" בכלי, אפשר להדביק כאן את מה שהוא ייצר — הוא לא מכיל טקסט מהמסמך.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: מה קרה
+      options:
+        - שם של אדם נשאר בטקסט
+        - שם של גוף או מקום נשאר בטקסט
+        - מילה רגילה הוחלפה כאילו היא שם
+        - שני אנשים אוחדו לאחד
+        - משהו אחר
+    validations:
+      required: true
+  - type: dropdown
+    id: doc
+    attributes:
+      label: סוג המסמך
+      options:
+        - פרוטוקול דיון / תמלול
+        - כתב טענות / בקשה
+        - תסקיר / חוות דעת
+        - הסכם
+        - אחר
+  - type: textarea
+    id: shape
+    attributes:
+      label: הצורה של המקרה
+      description: בלי השם עצמו. למשל "שם פרטי של קטין שמופיע פעם אחת אחרי המילה הקטינה", או "שם משפחה בן שלוש אותיות שמופיע רק עם ב׳ לפניו"
+    validations:
+      required: true
+  - type: textarea
+    id: report
+    attributes:
+      label: דוח הדליפה מהכלי
+      description: ההדבקה מהכפתור "דוח דליפה", אם יש
+      render: json
+  - type: input
+    id: version
+    attributes:
+      label: גרסה
+      description: מה כתוב בשבב התחתון (למשל v14)

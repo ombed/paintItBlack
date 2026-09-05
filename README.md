@@ -31,7 +31,7 @@ GitHub Pages או כל אירוח סטטי מספיק. **כתובת `https` הי
 
 | קובץ | שורה | המחרוזת | תפקיד |
 |---|---|---|---|
-| `index.html` | 731 | `<div id="ver">גרסה v13</div>` | השבב התחתון — מה שנראה על המסך |
+| `index.html` | 729 | `<div id="ver">גרסה v13</div>` | השבב התחתון — מה שנראה על המסך |
 | `index.html` | 93 | `console.log("… גרסה v13")` | שורת הפתיחה בקונסול |
 | `index.html` | 131 | `if(served==="v13") return;` | **בדיקת ההשוואה** מול מה שהעובד מגיש |
 | `index.html` | 133 | `el.innerHTML='גרסה v13 · …'` | תווית האזהרה שמוצגת כשיש פער |
@@ -53,7 +53,7 @@ GitHub Pages או כל אירוח סטטי מספיק. **כתובת `https` הי
 
 | מאיפה | מה | מתי |
 |---|---|---|
-| unpkg.com | React, ReactDOM, d3, topojson | בכל טעינה, ואחר כך מהמטמון |
+| unpkg.com | d3, topojson | רק כשלוחצים «הצגת המפה», ואחר כך מהמטמון |
 | cdn.jsdelivr.net | transformers.js, קובץ הגיאומטריה למפה | בטעינה, ובפעם הראשונה שנפתח מסך המפה |
 | fonts.googleapis.com | Rubik, Noto Serif Hebrew | בכל טעינה, ואחר כך מהמטמון |
 | huggingface.co | משקלי `dictabert-ner-ONNX` | פעם אחת, רק אם «זיהוי חכם» דלוק |

@@ -100,15 +100,15 @@
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 69 | 4 | 0 |
-| m2 | meeting | 33 | 7 | 0 |
-| m3 | meeting | 27 | 3 | 0 |
-| m4 | meeting | 34 | 7 | 5 |
-| f1 | filing | 48 | 11 | 2 |
-| f2 | filing | 57 | 14 | 3 |
-| f3 | filing | 25 | 6 | 1 |
-| f4 | filing | 33 | 7 | 2 |
-| t1 | transcript | 38 | 7 | 1 |
-| t2 | transcript | 26 | 7 | 2 |
-| t3 | transcript | 30 | 6 | 1 |
-| t4 | transcript | 37 | 8 | 2 |
+| m1 | meeting | 53 | 4 | 0 |
+| m2 | meeting | 29 | 7 | 0 |
+| m3 | meeting | 19 | 3 | 0 |
+| m4 | meeting | 30 | 7 | 5 |
+| f1 | filing | 47 | 11 | 2 |
+| f2 | filing | 66 | 14 | 3 |
+| f3 | filing | 26 | 6 | 1 |
+| f4 | filing | 30 | 7 | 2 |
+| t1 | transcript | 31 | 7 | 1 |
+| t2 | transcript | 24 | 7 | 2 |
+| t3 | transcript | 24 | 6 | 1 |
+| t4 | transcript | 29 | 8 | 2 |
