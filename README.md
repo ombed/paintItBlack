@@ -53,7 +53,7 @@ GitHub Pages או כל אירוח סטטי מספיק. **כתובת `https` הי
 
 | מאיפה | מה | מתי |
 |---|---|---|
-| unpkg.com | React, ReactDOM, d3, topojson | בכל טעינה, ואחר כך מהמטמון |
+| unpkg.com | d3, topojson | רק כשלוחצים «הצגת המפה», ואחר כך מהמטמון |
 | cdn.jsdelivr.net | transformers.js, קובץ הגיאומטריה למפה | בטעינה, ובפעם הראשונה שנפתח מסך המפה |
 | fonts.googleapis.com | Rubik, Noto Serif Hebrew | בכל טעינה, ואחר כך מהמטמון |
 | huggingface.co | משקלי `dictabert-ner-ONNX` | פעם אחת, רק אם «זיהוי חכם» דלוק |

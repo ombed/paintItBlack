@@ -25,7 +25,7 @@ const { spawnSync } = require("child_process");
 const HERE = __dirname;
 const SUITES = [
   "t.js", "e2e.js", "edge.js", "ner_t.js", "tok_t.js",
-  "align_t.js", "diag_t.js", "org_t.js", "case.js", "version_t.js",
+  "align_t.js", "diag_t.js", "org_t.js", "case.js", "version_t.js", "design_t.js",
 ];
 const BLOCKED = [
   ["flow.js", 26], ["theme_t.js", 13], ["race_t.js", 6], ["ui.js", 0],

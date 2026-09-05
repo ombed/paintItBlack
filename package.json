@@ -10,6 +10,7 @@
     "test:unit": "node tests/run.js",
     "test:browser": "playwright test",
     "build:fixtures": "node tests/build-fixtures.js",
+    "build:design": "node scripts/build-design.js",
     "report": "node tests/report.js",
     "bench": "node bench/generate.js && node bench/run.js",
     "bench:nomodel": "node bench/generate.js && node bench/run.js --no-model",
