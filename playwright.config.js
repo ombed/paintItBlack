@@ -5,6 +5,8 @@ const { defineConfig, devices } = require("@playwright/test");
    every browser check runs against a local static server, never the file. */
 module.exports = defineConfig({
   testDir: "./e2e",
+  // The UX walk-through captures screens; it is a tool, not a test. AUDIT=1 runs it.
+  testIgnore: process.env.AUDIT ? [] : ["**/.audit.spec.js"],
   fullyParallel: false,
   workers: 1,
   reporter: [["list"]],

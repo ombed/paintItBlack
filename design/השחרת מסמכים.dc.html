@@ -44,6 +44,23 @@ a:hover{text-decoration:underline}
 @keyframes flash{0%,100%{background:transparent}30%{background:var(--accent-soft)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* טלפון: הרשתות נערמות, הבר עוטף, השורות מתקפלות, החותמת יורדת לתחתית */
+@media (max-width:1119px){
+  [data-stack]{grid-template-columns:1fr!important}
+  [data-bar]>div{flex-wrap:wrap;gap:10px}
+  [data-bar-text]{flex:1 1 200px!important}
+  [data-bar] button{flex:1 1 auto}
+  [data-wrap]{flex-wrap:wrap}
+  [data-wrap]>span:first-child{min-width:0!important;flex:1 1 100%}
+  [data-wrap] input{flex:1 1 140px!important}
+  [data-work]{padding-bottom:170px!important}
+  header{flex-wrap:wrap;height:auto!important;padding:8px 14px!important;row-gap:4px}
+  header>div:first-child{flex:1 1 100%}
+  #ver{position:static!important;display:block;text-align:center;padding:14px 0 12px}
+}
+/* זמן הריצה נועל את השורש לגובה החלון; התוכן גולש ממנו, ושבב הגרסה הסטטי בטלפון
+   נחת באמצע העמוד. גובה אוטומטי משאיר את השבב אחרי התוכן. */
+#dc-root,#dc-root>.sc-host{height:auto!important;min-height:100%}
 </style>
 </helmet>
 
@@ -101,7 +118,7 @@ a:hover{text-decoration:underline}
     </div>
   </sc-if>
 
-  <sc-if value="{{ err }}">
+  <sc-if value="{{ errTop }}">
     <div style="margin:14px 22px 0;padding:11px 14px;border-radius:10px;background:var(--bad-soft);color:var(--bad);font-size:13.5px">{{ err }}</div>
   </sc-if>
 
@@ -111,7 +128,7 @@ a:hover{text-decoration:underline}
     <h1 style="font-size:29px;font-weight:500;letter-spacing:-.02em;margin:0 0 6px">מה יוצא מהמסמך, ומה נכנס במקומו</h1>
     <p style="margin:0 0 26px;color:var(--ink2);font-size:14.5px;max-width:62ch">מעלים קובץ Word, מאשרים את רשימת האנשים, ומקבלים מסמך מושחר עם דוח מלא של כל החלפה. הזיהוי, ההחלפה והאימות רצים כאן בדפדפן.</p>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch">
+    <div data-stack style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch">
       <button onClick="{{ onPick }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDropFile }}" style="{{ dropStyle }}">
         <span style="width:38px;height:38px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none;font-size:17px">↑</span>
         <span style="text-align:start">
@@ -146,7 +163,7 @@ a:hover{text-decoration:underline}
       </sc-if>
     </div>
 
-    <div style="display:grid;grid-template-columns:1.15fr .85fr;gap:22px;margin-top:30px;align-items:start">
+    <div data-stack style="display:grid;grid-template-columns:1.15fr .85fr;gap:22px;margin-top:30px;align-items:start">
       <section>
         <div style="font-size:12px;font-weight:500;color:var(--ink3);letter-spacing:.06em;margin-bottom:9px">זיהוי</div>
         <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden">
@@ -210,8 +227,9 @@ a:hover{text-decoration:underline}
 
     <div style="display:flex;flex-wrap:wrap;gap:8px">
       <sc-for list="{{ peoItems }}" as="p" hint-placeholder-count="4">
+        <sc-if value="{{ p.groupLabel }}"><span style="flex-basis:100%;font-size:11.5px;color:var(--ink3);margin-top:4px">{{ p.groupLabel }}</span></sc-if>
         <div style="{{ p.style }}">
-          <button onClick="{{ p.onKind }}" title="החלפת סוג: אדם · גוף · מקום" style="font-size:11px;font-weight:500;color:var(--ink2);background:var(--panel2);border-radius:6px;padding:2px 7px">{{ p.kindName }}</button>
+          <button onClick="{{ p.onKind }}" title="החלפת סוג: אדם · גוף · מקום" style="font-size:11px;font-weight:500;color:var(--ink2);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:2px 7px" style-hover="background:var(--panel);color:var(--ink)">{{ p.kindName }} <span aria-hidden="true">▾</span></button>
           <span style="font-weight:500">{{ p.value }}</span>
           <sc-if value="{{ p.note }}"><small style="color:var(--ink3);font-size:11.5px">{{ p.note }}</small></sc-if>
           <button onClick="{{ p.onDel }}" aria-label="הסרה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:13px" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
@@ -240,7 +258,13 @@ a:hover{text-decoration:underline}
       <input value="{{ peoIn }}" onChange="{{ onPeoIn }}" onKeyDown="{{ onPeoKey }}" onPaste="{{ onPeoPaste }}" placeholder="שם מלא — למשל רונית לוי. אפשר להדביק כמה שמות, שורה לכל אחד" style="flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:14px">
       <button onClick="{{ onPeoAdd }}" style="padding:0 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-size:14px;font-weight:500" style-hover="background:var(--panel2)">הוספה</button>
     </div>
-    <p style="margin:11px 0 0;font-size:13px;color:var(--ink2);line-height:1.55">{{ peoNote }}</p>
+    <sc-if value="{{ nerFailed }}">
+      <div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <span style="flex:1;min-width:200px">{{ peoNote }}</span>
+        <button onClick="{{ onRetryScan }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--warn);font-size:12.5px;font-weight:500;color:var(--warn)">ניסיון נוסף</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ nerOk }}"><p style="margin:11px 0 0;font-size:13px;color:var(--ink2);line-height:1.55">{{ peoNote }}</p></sc-if>
 
     <div style="display:flex;gap:10px;margin-top:24px;align-items:center;flex-wrap:wrap">
       <button onClick="{{ onPeoGo }}" disabled="{{ scanning }}" style="{{ primaryBtn }}">{{ peoGoLabel }}</button>
@@ -261,9 +285,11 @@ a:hover{text-decoration:underline}
         <div style="display:flex;align-items:baseline;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line2)">
           <b style="font-weight:500">{{ geoCount }} יישובים במסמך</b>
           <span style="font-size:12.5px;color:var(--ink2)">סטיית מרחק {{ geoErr }} ק״מ · {{ geoQuality }}</span>
-          <button onClick="{{ onGeoAlt }}" style="margin-inline-start:auto;font-size:13px;color:var(--accent);padding:6px 10px;border-radius:8px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--accent-soft)">קבוצה אחרת</button>
+          <button onClick="{{ onToggleMap }}" style="margin-inline-start:auto;font-size:13px;color:var(--ink2);padding:6px 10px;border-radius:8px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel2)">{{ mapLabel }}</button>
+          <button onClick="{{ onGeoAlt }}" style="font-size:13px;color:var(--accent);padding:6px 10px;border-radius:8px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--accent-soft)">קבוצה אחרת</button>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line2);border-bottom:1px solid var(--line2)">
+        <sc-if value="{{ showMap }}">
+        <div data-stack style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line2);border-bottom:1px solid var(--line2)">
           <div style="background:var(--panel);padding:14px 16px 18px">
             <div style="font-size:11.5px;font-weight:500;letter-spacing:.05em;color:var(--ink3);margin-bottom:10px">המיקומים במסמך</div>
             <div style="position:relative;width:150px;height:340px;margin:0 auto">
@@ -296,8 +322,9 @@ a:hover{text-decoration:underline}
         <sc-if value="{{ hasLand }}">
           <div style="padding:0 18px 12px;font-size:11px;color:var(--ink3);text-align:center">מפת רקע: Natural Earth · קובץ מיפוי אחד, זהה לכל מסמך. שמות היישובים לא יוצאים מהדפדפן.</div>
         </sc-if>
+        </sc-if>
         <sc-for list="{{ geoRows }}" as="g" hint-placeholder-count="3">
-          <div style="display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--line2)">
+          <div data-wrap style="display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--line2)">
             <span style="min-width:130px;font-weight:500">{{ g.from }}</span>
             <span style="color:var(--ink3)">←</span>
             <input value="{{ g.to }}" onChange="{{ g.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
@@ -314,7 +341,7 @@ a:hover{text-decoration:underline}
         </sc-if>
         <div style="display:flex;gap:9px;padding:15px 18px">
           <button onClick="{{ onGeoApply }}" style="{{ primaryBtn }}">החלת הקבוצה והמשך</button>
-          <button onClick="{{ onGeoSkip }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">דילוג — החלפה רגילה</button>
+          <button onClick="{{ onGeoSkip }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">בלי שמירת מרחקים — שמות אקראיים</button>
         </div>
       </div>
     </sc-if>
@@ -357,6 +384,7 @@ a:hover{text-decoration:underline}
       <button onClick="{{ onRvGo }}" style="{{ primaryBtn }}">החזרת שמות</button>
       <button onClick="{{ onLoadProf }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">טעינת פרופיל תיק</button>
     </div>
+    <sc-if value="{{ rvErr }}"><div style="margin-top:10px;padding:10px 13px;border-radius:10px;background:var(--bad-soft);color:var(--bad);font-size:13.5px">{{ rvErr }}</div></sc-if>
     <sc-if value="{{ rvOut }}">
       <div style="margin-top:20px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;font:15px/1.9 'Noto Serif Hebrew',serif;white-space:pre-wrap">{{ rvOut }}</div>
       <button onClick="{{ onRvCopy }}" style="margin-top:11px;padding:11px 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-size:14px;font-weight:500" style-hover="background:var(--panel2)">{{ rvCopyLabel }}</button>
@@ -366,7 +394,7 @@ a:hover{text-decoration:underline}
 
   <!-- ═════ סביבת העבודה ═════ -->
   <sc-if value="{{ isWork }}">
-  <main style="{{ workGrid }}">
+  <main data-work style="{{ workGrid }}">
 
     <sc-if value="{{ narrow }}">
       <div style="display:flex;gap:6px;background:var(--panel2);border-radius:9px;padding:3px;margin-bottom:12px">
@@ -409,20 +437,6 @@ a:hover{text-decoration:underline}
     </section>
 
     <aside style="{{ railStyle }}">
-
-      <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:13px 15px">
-        <div style="font-size:12px;font-weight:500;color:var(--ink3);letter-spacing:.05em;margin-bottom:9px">הוספה ידנית</div>
-        <div style="display:flex;gap:7px">
-          <input value="{{ addV }}" onChange="{{ onAddV }}" onKeyDown="{{ onAddKey }}" placeholder="ערך שפוספס" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px">
-          <input value="{{ addR }}" onChange="{{ onAddR }}" onKeyDown="{{ onAddKey }}" placeholder="תחליף" style="flex:0 0 106px;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px">
-        </div>
-        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:9px">
-          <sc-for list="{{ kindChips }}" as="k" hint-placeholder-count="7">
-            <button onClick="{{ k.onClick }}" style="{{ k.style }}">{{ k.label }}</button>
-          </sc-for>
-          <button onClick="{{ onAdd }}" style="margin-inline-start:auto;padding:6px 14px;border-radius:16px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:500">הוספה והחלפה</button>
-        </div>
-      </div>
 
       <sc-for list="{{ sections }}" as="s" hint-placeholder-count="5">
         <div style="{{ s.wrapStyle }}">
@@ -494,13 +508,19 @@ a:hover{text-decoration:underline}
                     </div>
                     <div style="font-size:12.5px;color:var(--ink2);margin-top:3px;line-height:1.45">{{ g.why }}</div>
                     <div style="font-size:11.5px;color:var(--ink3);margin-top:2px">{{ g.meta }}</div>
+                    <sc-if value="{{ g.isApplied }}">
+                      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center">
+                        <button onClick="{{ g.onQuickAllow }}" title="להשאיר את הטקסט המקורי" style="padding:4px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px;color:var(--ink2)" style-hover="background:var(--panel2)">אל תחליף</button>
+                        <sc-if value="{{ g.fromList }}"><button onClick="{{ g.onDropRule }}" title="זה לא שם — להסיר מהרשימה ולהחזיר את הטקסט" style="padding:4px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px;color:var(--bad)" style-hover="background:var(--bad-soft)">לא שם — הסרה מהרשימה</button></sc-if>
+                        <span style="font-size:11.5px;color:var(--ink3)">לחיצה על הכרטיס: תחליף אחר</span>
+                      </div>
+                    </sc-if>
                     <div style="font:13px/1.7 var(--doc-font);color:var(--ink2);margin-top:6px;padding-inline-start:9px;border-inline-start:2px solid var(--line)">{{ g.ctx.pre }}<b style="background:var(--accent-soft);font-weight:500">{{ g.ctx.hit }}</b>{{ g.ctx.post }}</div>
                     <sc-if value="{{ g.selected }}">
                       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--line2)">
                         <sc-if value="{{ g.applied }}">
                           <input value="{{ g.repDraft }}" onChange="{{ g.onRepChange }}" onClick="{{ g.stop }}" onKeyDown="{{ g.onRepKey }}" placeholder="תחליף" style="width:120px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12.5px">
                           <button onClick="{{ g.onSave }}" style="padding:6px 11px;border-radius:14px;background:var(--accent);color:var(--panel);font-size:12px;font-weight:500">שמירת תחליף</button>
-                          <button onClick="{{ g.onAllow }}" style="padding:6px 11px;border-radius:14px;border:1px solid var(--line);font-size:12px;color:var(--ink2)">אל תחליף</button>
                           <sc-if value="{{ g.showSame }}">
                             <select onChange="{{ g.onSame }}" onClick="{{ g.stop }}" style="background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:6px 10px;font-size:12px;max-width:150px;color:var(--ink2)">
                               <option value="">זה אותו אחד כמו…</option>
@@ -575,13 +595,27 @@ a:hover{text-decoration:underline}
           </sc-if>
         </div>
       </sc-for>
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:13px 15px">
+        <div style="font-size:12px;font-weight:500;color:var(--ink3);letter-spacing:.05em;margin-bottom:9px">הוספה ידנית</div>
+        <div style="display:flex;gap:7px">
+          <input value="{{ addV }}" onChange="{{ onAddV }}" onKeyDown="{{ onAddKey }}" placeholder="ערך שפוספס" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px">
+          <input value="{{ addR }}" onChange="{{ onAddR }}" onKeyDown="{{ onAddKey }}" placeholder="תחליף" style="flex:0 0 106px;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px">
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:9px">
+          <sc-for list="{{ kindChips }}" as="k" hint-placeholder-count="7">
+            <button onClick="{{ k.onClick }}" style="{{ k.style }}">{{ k.label }}</button>
+          </sc-for>
+          <button onClick="{{ onAdd }}" style="margin-inline-start:auto;padding:6px 14px;border-radius:16px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:500">הוספה והחלפה</button>
+        </div>
+      </div>
+
     </aside>
   </main>
 
-  <div style="position:fixed;inset-inline:0;bottom:0;z-index:35;background:var(--panel);border-top:1px solid var(--line);padding:11px 22px">
+  <div data-bar style="position:fixed;inset-inline:0;bottom:0;z-index:35;background:var(--panel);border-top:1px solid var(--line);padding:11px 22px">
     <div style="max-width:1520px;margin:0 auto;display:flex;align-items:center;gap:16px">
       <span style="{{ statusDot }}">{{ statusIcon }}</span>
-      <div style="flex:1;min-width:0">
+      <div data-bar-text style="flex:1;min-width:0">
         <b style="display:block;font-weight:500;font-size:13.5px">{{ statusTitle }}</b>
         <small style="display:block;color:var(--ink2);font-size:12.5px;line-height:1.45">{{ statusText }}</small>
       </div>
@@ -852,7 +886,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const peoSug=cands.filter(c=>!inList(c.value)).filter(c=>{const w=c.value.split(/\s+/);
       return w.length<=3&&w.every(x=>x.length>=2)&&(w.length>=2||c.speaker||c.count>=2);})
       .slice(0,8).map(c=>({value:c.value, why:c.why, count:c.count, kind:"NAME"}));
-    this.setState({peo, peoSug, peoIn:"", screen:"people", nerBox:false});
+    this._lastScan={blocks,cands};
+    this.setState({peo, peoSug, peoIn:"", screen:"people", nerBox:false, nerFailed:false});
     if(!(this.state.o.ner && blocks && blocks.length)){
       this.setState({nerUsed:false, peoNote: peo.length
         ? `${peo.length===1?"זוהה שם אחד":"זוהו "+peo.length+" שמות"} בכותרת המסמך. כדאי להוסיף כל מי שמוזכר בגוף הטקסט — עדים, אנשי מקצוע, בני משפחה.`
@@ -883,7 +918,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         : "המודל רץ ולא מצא שמות מעבר למה שברשימה. אפשר להקליד שמות נוספים למטה."});
     }catch(e){
       if(my!==this._scan) return;
-      this.setState({nerBox:false, peoNote:"המודל לא נטען ("+String(e.message||e).slice(0,70)+"). ממשיכים בלעדיו — הזיהוי הרגיל פועל, ובסוף התהליך תוצג בדיקה על שמות שלא נרשמו."});
+      this.setState({nerBox:false, nerFailed:true, peoNote:"המודל לא נטען ("+String(e.message||e).slice(0,70)+"). ממשיכים בלעדיו — הזיהוי הרגיל פועל, ובסוף התהליך תוצג בדיקה על שמות שלא נרשמו."});
     }finally{ if(my===this._scan) this.setState({scanning:false}); }
   }
 
@@ -1010,7 +1045,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     try{
       const res = await E.redactDocx(this.state.buf.slice(0), rules, this.state.allow, this.opts());
       // מגיעים למסמך עצמו קודם: הפאנלים מקופלים, פס הסטטוס אומר מה מחכה
-      this.setState({res, screen:"work", open:null, pane:"doc", docView:"red", markIdx:0});
+      const toReview=(res.verification.near||[]).length+(res.verification.suggest||[]).length;
+      this.setState({res, screen:"work", open:toReview?["review","findings"]:["findings"], pane:"doc", docView:"red", markIdx:0});
     }catch(e){ this.setState({err:"שגיאה בעיבוד: "+(e.message||e), screen:"entry", res:null}); }
   }
   async rerun(){
@@ -1027,7 +1063,12 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.setState({rules:[...this.state.rules, {value, kind:kind||"NAME", replacement:(rep||"").trim(), auto:false}],
       addV:"", addR:"", popup:null, err:""}, ()=>this.rerun());
   };
+  // מוסיף מקטע לפתוחים בלי לסגור אחרים
+  openWith = k => { const o=Array.isArray(this.state.open)?this.state.open:[]; return o.includes(k)?o:[...o,k]; };
   dropRule = v => this.setState({rules:this.state.rules.filter(r=>r.value!==v)}, ()=>this.rerun());
+  // "לא שם": הכלל יורד מהרשימה על כל צורותיו, והטקסט הזה לא יוצע שוב
+  notAName = (base, v) => this.setState({allow:this.state.allow.includes(v)?this.state.allow:[...this.state.allow, v],
+    rules:this.state.rules.filter(r=>r.value!==base && r.value!==v)}, ()=>this.rerun());
   addAllow = v => { if(this.state.allow.includes(v)) return;
     this.setState({allow:[...this.state.allow, v], rules:this.state.rules.filter(r=>r.value!==v)}, ()=>this.rerun()); };
   setRep = (v, rep) => {
@@ -1045,7 +1086,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     for(const r of src){
       const k=(r.ap?"a":"f")+"|"+E.norm(r.value).trim();
       let g=m.get(k);
-      if(!g){ g={key:k, value:r.value, label:r.label, why:r.why, rep:r.rep, ap:r.ap,
+      if(!g){ g={key:k, value:r.value, label:r.label, why:r.why, rep:r.rep, ap:r.ap, src:r.src, base:r.base||r.value,
         review:r.review, count:0, ctxs:[], parts:new Set(), ids:[]}; m.set(k,g); }
       g.count++;
       if(g.ctxs.length<50) g.ctxs.push(r.ctx);
@@ -1197,7 +1238,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       real:"«רונית לוי» תהפוך ל«מיכל ברנע». המשפט נשאר תקין דקדוקית, וכלי ה-AI מגיב על טקסט שנקרא כמו מסמך אמיתי. אותו אדם מקבל את אותו שם גם במסמך הבא באותו תיק.",
       label:"«רונית לוי» תהפוך ל«פלוני א׳». חד-משמעי לעין, אבל הטקסט נקרא פחות טבעי.",
       block:"«רונית לוי» תהפוך ל«███». הכי בטוח, אבל כלי AI מתקשה לנתח טקסט כזה."};
-    const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
+    const KIND_ORDER=["NAME","ORG","PLACE"], KIND_GROUP={NAME:"אנשים",ORG:"גופים",PLACE:"מקומות"};
+const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
+    // שם קובץ עברי עם סיומת לטינית: בידוד משמאל לימין, אחרת הסיומת קופצת לצד הלא נכון
+    const bdi=s=>s?String.fromCharCode(8294)+s+String.fromCharCode(8297):s;
     const stepStyle=(active, enabled)=>"font-size:12.5px;padding:4px 2px;white-space:nowrap;cursor:"+(enabled?"pointer":"default")+
       ";color:"+(active?"var(--ink)":enabled?"var(--ink2)":"var(--ink3)");
     const SCR_LBL={entry:"קובץ", people:"רשימת השמות", places:"מקומות", work:"המסמך"};
@@ -1232,13 +1276,13 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       pasteText:S.pasteText||"", hasPaste:(S.pasteText||"").trim().length>0,
       pasteLabel:"שימוש בטקסט הזה", onPasteGo:this.usePastedText,
       onPasteText:e=>this.setState({pasteText:e.target.value}),
-      hasPending:!!S.pending, pendName:S.name, pendMeta:S.pendMeta||"", onStart:this.start,
+      hasPending:!!S.pending, pendName:bdi(S.name), pendMeta:S.pendMeta||"", onStart:this.start,
       startLabel:S.o.auto?"המשך — איתור שמות במסמך":"המשך לעיבוד",
       rvBackLabel:S.returnTo==="work"?"חזרה למסמך":"חזרה",
       rvCtxStyle:"padding:12px 15px;border-radius:11px;font-size:13px;margin-bottom:16px;border:1px solid var(--line);background:"+(S.res||S.profile?"var(--accent-soft)":"var(--panel2)"),
       rvCtxTitle:S.res?"מחובר למסמך שבעבודה":(S.profile?"נטען פרופיל תיק":"אין מיפוי טעון"),
       rvCtxText:S.res
-        ? `המיפוי נלקח מהמסמך «${S.name}» שנמצא כרגע במסך הבדיקה — ${Object.keys(this.currentMap()).length} שמות. היציאה מכאן מחזירה לאותו מסמך.`
+        ? `המיפוי נלקח מהמסמך «${bdi(S.name)}» שנמצא כרגע במסך הבדיקה — ${Object.keys(this.currentMap()).length} שמות. היציאה מכאן מחזירה לאותו מסמך.`
         : (S.profile
           ? `המיפוי נלקח מפרופיל התיק שנטען — ${Object.keys((S.profile.map)||{}).length} שמות. אפשר להשתמש במסך הזה גם בלי להעלות מסמך.`
           : "המסך הזה עצמאי: הוא מחזיר שמות לפי מיפוי. אפשר לטעון פרופיל תיק שנשמר קודם, או להשחיר מסמך בחלון הזה ולחזור לכאן."),
@@ -1258,7 +1302,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       fileRef:el=>{ if(el) this.fileEl=el; }, profRef:el=>{ if(el) this.profEl=el; },
       onPick:this.pickFile, onFile:this.onFile, onProfFile:this.onProfFile,
       onDragOver:this.onDragOver, onDragLeave:this.onDragLeave, onDropFile:this.onDropFile,
-      fileName:S.pending?"":S.name,
+      fileName:S.pending?"":bdi(S.name),
       dropStyle:"display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;text-align:start;"+
         "background:var(--panel);border:1px solid "+(S.drag?"var(--accent)":"var(--line)")+";box-shadow:var(--shadow)",
       oAuto:S.o.auto, oPlaces:S.o.places, oNer:S.o.ner, oNear:S.o.near, nerOff:S.nerOff, nerHint:S.nerHint,
@@ -1289,11 +1333,18 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         value:x.value, why:x.why,
         onAdd:()=>this.peoAdd(x.value,"מההקשר",true),
         onDrop:()=>this.setState({peoSug:S.peoSug.filter(y=>y!==x)})})),
-      peoItems:S.peo.map((p,i)=>({
+      nerFailed:!!S.nerFailed, nerOk:!S.nerFailed,
+      onRetryScan:()=>{ const L=this._lastScan; if(!L)return; this.setState({nerFailed:false, peoNote:""}); this.showPeople(L.blocks, L.cands); },
+      // הרשימה מקובצת: אנשים, גופים, מקומות. הסדר לתצוגה בלבד; המחיקה והחלפת הסוג
+      // עובדות על האינדקס המקורי.
+      peoItems:S.peo.map((p,i)=>({p,i})).sort((a,b)=>KIND_ORDER.indexOf(a.p.kind||"NAME")-KIND_ORDER.indexOf(b.p.kind||"NAME")).map(({p,i},j,arr)=>({
+        groupLabel:(j===0||(arr[j-1].p.kind||"NAME")!==(p.kind||"NAME"))&&S.peo.some(q=>(q.kind||"NAME")!==(S.peo[0].kind||"NAME"))?KIND_GROUP[p.kind||"NAME"]+" · "+S.peo.filter(q=>(q.kind||"NAME")===(p.kind||"NAME")).length:"",
         value:p.value, note:p.note, kindName:KIND_NAME[p.kind]||"אדם",
         style:"display:flex;align-items:center;gap:8px;padding:7px 10px 7px 12px;border-radius:20px;font-size:14px;white-space:nowrap;"+
           "border:1px solid "+(p.auto?"var(--accent-soft)":"var(--line)")+";background:"+(p.auto?"var(--accent-soft)":"var(--panel)"),
         onKind:()=>this.cycleKind(i), onDel:()=>this.delPeo(i)})),
+      // השגיאה של המסך הזה מוצגת ליד השדה, לא בראש העמוד מעל לכותרת
+      rvErr:S.screen==="reverse"?S.err:"", errTop:S.screen==="reverse"?"":S.err,
       rvIn:S.rvIn, rvOut:S.rvOut, rvCopyLabel:S.rvCopyLabel,
       onRvIn:e=>this.setState({rvIn:e.target.value}),
       onRvGo:()=>{
@@ -1317,7 +1368,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         onRemove:()=>this.geoRemove(m.from)})),
       hasExcluded:(S.geoExcluded||[]).length>0,
       excluded:(S.geoExcluded||[]).map(n=>({name:n, onUndo:()=>this.geoRestore(n)})),
-      mapLand:MV?MV.land:"", hasLand:!!(MV&&MV.hasLand),
+      mapLand:MV?MV.land:"", hasLand:!!(MV&&MV.hasLand), showMap:!!S.showMap, mapLabel:S.showMap?"הסתרת המפה":"הצגת המפה", onToggleMap:()=>this.setState({showMap:!S.showMap}),
       mapFrom:MV?MV.from:[], mapTo:MV?MV.to:[],
       onGeoAlt:this.geoAlt, onGeoApply:this.geoApply, onGeoSkip:()=>this.run(S.rules),
       onBackHome:()=>this.setState({screen:"entry", res:null, err:""}),
@@ -1355,7 +1406,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       (pane==="find"?"background:var(--panel);color:var(--accent-ink);box-shadow:var(--shadow)":"color:var(--ink2)");
     v.onPaneDoc=()=>this.setState({pane:"doc"});
     v.onPaneFind=()=>this.setState({pane:"find"});
-    v.docTitle = S.name || "המסמך המושחר";
+    v.docTitle = bdi(S.name) || "המסמך המושחר";
     v.docSub = RES.applied.length+" החלפות · "+RES.preview.length+" פסקאות";
     const viewOrig = S.docView==="orig";
     const viewSeg = on => "padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;"+
@@ -1384,7 +1435,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
               : "background:var(--accent-soft);color:var(--accent-ink);"),
           onClick:()=>{
             const r=RES.applied[m.id]; if(!r) return;
-            this.setState({filter:"all", cat:"", open:"findings", sel:"a|"+E.norm(r.value).trim(),
+            this.setState({filter:"all", cat:"", open:this.openWith("findings"), sel:"a|"+E.norm(r.value).trim(),
               pane:this.state.narrow?"find":this.state.pane, repDraft:r.rep||""}, ()=>{
               const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape("a|"+E.norm(r.value).trim())+'"]');
               if(node && this.listEl){ const nr=node.getBoundingClientRect(), lr=this.listEl.getBoundingClientRect();
@@ -1407,7 +1458,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const i=(cur+d+order.length)%order.length;
       const r=RES.applied[order[i]];
       this.setState({markIdx:i, docView:"red", sel:r?"a|"+E.norm(r.value).trim():null,
-        repDraft:r?(r.rep||""):"", open:"findings"}, ()=>this.scrollToMark(order[i]));
+        repDraft:r?(r.rep||""):"", open:this.openWith("findings")}, ()=>this.scrollToMark(order[i]));
     };
     v.onPrevMark=()=>jump(-1); v.onNextMark=()=>jump(1);
 
@@ -1440,6 +1491,11 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     v.groups = shown.map(g=>({
       key:g.key, value:g.value, count:g.count, why:g.why||"", review:!!g.review,
       arrow:g.ap?"←":"", rep:g.ap?g.rep:"לא הוחלף",
+      // הפעולות גלויות בלי לחיצה: "אל תחליף" משאיר את הטקסט, "הסרה מהרשימה" מוחקת
+      // את השם שהמודל טעה בו. עד עכשיו הן הופיעו רק אחרי לחיצה על הכרטיס, בלי רמז.
+      isApplied:!!g.ap, fromList:g.src==="list"||g.src==="sweep",
+      onQuickAllow:e=>{ e.stopPropagation(); this.addAllow(g.value); },
+      onDropRule:e=>{ e.stopPropagation(); this.notAName(g.base||g.value, g.value); },
       repStyle:"font-weight:500;font-size:14px;color:"+(g.ap?"var(--accent-ink)":"var(--warn)"),
       meta:g.label+" · "+[...g.parts].join(", "),
       ctx:g.ctxs[0]||{}, selected:S.sel===g.key, applied:g.ap && S.sel===g.key, flagged:!g.ap && S.sel===g.key,
@@ -1520,23 +1576,27 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     v.copyBtnStyle="padding:11px 20px;border-radius:10px;font-weight:500;font-size:14px;white-space:nowrap;color:var(--panel);background:"+(kind==="ok"?"var(--accent)":kind==="warn"?"var(--warn)":"var(--bad)");
     v.onCopyAi=this.copyAi; v.onDownload=this.download;
     v.hasReview = (near.length+sug.length)>0 && S.open!=="review";
-    v.onOpenReview=()=>this.setState({open:"review", pane:"find"});
+    v.onOpenReview=()=>this.setState({open:this.openWith("review"), pane:"find"});
 
+    // כמה מקטעים פתוחים יחד; "לבדיקה" נפתח מעצמו כשיש מה לבדוק. אקורדיון שסוגר
+    // מקטע כשפותחים אחר החביא את הרשימה שהיא צריכה לעבור עליה.
+    const open=Array.isArray(S.open)?S.open:(S.open?[S.open]:[]);
+    const isOpen=k=>open.includes(k);
     const secDef=[
       ["review","לבדיקה", near.length+sug.length, near.length+sug.length?"warn":"ok"],
       ["findings","מה נמצא והוחלף", RES.applied.length+RES.flagged.length, "ok"],
-      ["ai","הלוך ושוב מול AI", 0, "plain"],
-      ["profile","פרופיל התיק והרשימה", S.rules.length, "plain"],
+      ["ai","החזרת שמות מתשובת ה-AI", 0, "plain"],
+      ["profile","הרשימה ופרופיל התיק", S.rules.length, "plain"],
       ["clean","מה נוקה מהקובץ", stats.length, "plain"]
     ];
     v.sections = secDef.map(([key,title,count,tone])=>({
-      title, count:count?count:"", chev:S.open===key?"▲":"▼",
-      wrapStyle:"background:var(--panel);border:1px solid "+(S.open===key?"var(--line)":"var(--line2)")+";border-radius:12px;box-shadow:"+(S.open===key?"var(--shadow)":"none")+";overflow:hidden",
+      title, count:count?count:"", chev:isOpen(key)?"▲":"▼",
+      wrapStyle:"background:var(--panel);border:1px solid "+(isOpen(key)?"var(--line)":"var(--line2)")+";border-radius:12px;box-shadow:"+(isOpen(key)?"var(--shadow)":"none")+";overflow:hidden",
       dotStyle:"width:7px;height:7px;border-radius:50%;flex:none;background:"+(tone==="warn"?"var(--warn)":tone==="ok"?"var(--accent)":"var(--ink3)"),
-      onToggle:()=>this.setState({open:S.open===key?null:key}),
-      openReview:S.open==="review"&&key==="review", openFindings:S.open==="findings"&&key==="findings",
-      openAi:S.open==="ai"&&key==="ai", openProfile:S.open==="profile"&&key==="profile",
-      openClean:S.open==="clean"&&key==="clean"
+      onToggle:()=>this.setState({open:isOpen(key)?open.filter(k=>k!==key):[...open,key]}),
+      openReview:isOpen("review")&&key==="review", openFindings:isOpen("findings")&&key==="findings",
+      openAi:isOpen("ai")&&key==="ai", openProfile:isOpen("profile")&&key==="profile",
+      openClean:isOpen("clean")&&key==="clean"
     }));
     return v;
   }
