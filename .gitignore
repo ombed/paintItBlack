@@ -6,6 +6,17 @@ node_modules/
 dist/
 build/
 
+# Generated test fixtures, rebuilt from redact-engine.js by tests/build-fixtures.js
+tests/app.html
+tests/core.js
+tests/*-core.js
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
 # Secrets
 .env
 .env.*

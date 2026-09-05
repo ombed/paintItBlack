@@ -1,0 +1,28 @@
+{
+  "name": "paintitblack-tests",
+  "version": "1.0.0",
+  "description": "Browser checks for the redaction tool",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "node tests/run.js && playwright test",
+    "test:unit": "node tests/run.js",
+    "test:browser": "playwright test",
+    "build:fixtures": "node tests/build-fixtures.js",
+    "report": "node tests/report.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github-new:ombed/paintItBlack.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "private": true,
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@xmldom/xmldom": "^0.9.12",
+    "jsdom": "^30.0.1"
+  }
+}
