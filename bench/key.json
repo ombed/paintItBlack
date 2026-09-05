@@ -1,0 +1,1368 @@
+{
+ "generated": "2026-09-05",
+ "categories": {
+  "P_WORD": "person: name that is also a common word",
+  "P_PROSE": "person: only in prose, never before a speech verb",
+  "P_PREFIX_ONCE": "person: once, only with a prefix letter",
+  "P_CORRUPT_ONLY": "person: only in corrupted form, never cleanly",
+  "P_TWO_SPELL": "person: same person, one clean and one corrupted spelling",
+  "P_FORMS": "person: full name, surname alone, first name alone",
+  "P_SHARED_SURNAME": "person: two people sharing a surname",
+  "P_ED1_PAIR": "person: two people edit-distance 1 apart (must not merge)",
+  "P_ARABIC": "person: Arabic name",
+  "P_ETHIOPIAN": "person: Ethiopian name",
+  "P_RUSSIAN": "person: Russian name",
+  "P_MINOR": "person: minor, first name only",
+  "P_TITLE": "person: title attached",
+  "P_ROLE_NOCOLON": "person: role word directly before, no colon",
+  "P_NIKUD": "person: nikud on one occurrence",
+  "P_HYPHEN": "person: hyphenated surname, elsewhere with a space",
+  "P_SPLITRUN": "person: name split across two runs mid-word",
+  "P_LOOKS_ORG": "person: name that reads like a body's",
+  "O_PRIVATE": "org: private body, must be redacted",
+  "O_PUBLIC": "org: public body, must not be redacted",
+  "O_LOOKS_PERSON": "org: body whose name reads like a person's",
+  "L_TOWN": "place: town",
+  "L_NEIGHBOURHOOD": "place: neighbourhood",
+  "L_STREET": "place: street",
+  "T_PLONI": "trap: פלוני / פלונית",
+  "T_NUMBERS": "trap: case numbers, dates, section references",
+  "T_IDIOM": "trap: idiom or public title beside a same-word name"
+ },
+ "exemptFromDisjoint": [
+  "P_WORD",
+  "T_IDIOM"
+ ],
+ "expectedFail": [
+  "P_PREFIX_ONCE",
+  "P_CORRUPT_ONLY"
+ ],
+ "docs": [
+  {
+   "id": "m1",
+   "genre": "meeting",
+   "title": "סיכום פגישה",
+   "file": "corpus/m1.docx",
+   "words": 101,
+   "entities": [
+    {
+     "cat": "P_ARABIC",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "סאמר קעדאן",
+     "surfaces": [
+      "סאמר קעדאן",
+      "קעדאן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_WORD",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "חיים סבג",
+     "surfaces": [
+      "חיים סבג",
+      "חיים"
+     ],
+     "note": "lexicon-aided by design"
+    },
+    {
+     "cat": "P_TITLE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "יערה ליפשיץ",
+     "surfaces": [
+      "עו\"ד יערה ליפשיץ",
+      "ליפשיץ"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_TWO_SPELL",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "דסטה טספאיי",
+     "surfaces": [
+      "דסטה טספאיי",
+      "תספאיי"
+     ],
+     "note": "second form swaps ט for ת"
+    },
+    {
+     "cat": "P_SPLITRUN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "עמיחי אלמגור",
+     "surfaces": [
+      "עמיחי אלמגור"
+     ],
+     "note": "split mid-word across two runs"
+    },
+    {
+     "cat": "O_PRIVATE",
+     "kind": "ORG",
+     "must": true,
+     "canonical": "עמותת שביל הלב",
+     "surfaces": [
+      "עמותת שביל הלב",
+      "שביל הלב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_TOWN",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "נוף הגליל",
+     "surfaces": [
+      "נוף הגליל"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "14.5.2026",
+     "surfaces": [
+      "14.5.2026",
+      "סעיף 3(א)"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_IDIOM",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "בחיים לא ראיתי",
+     "surfaces": [
+      "בחיים לא ראיתי"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "m2",
+   "genre": "meeting",
+   "title": "סיכום פגישה",
+   "file": "corpus/m2.docx",
+   "words": 99,
+   "entities": [
+    {
+     "cat": "P_FORMS",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אריאל הורוביץ",
+     "surfaces": [
+      "אריאל הורוביץ",
+      "הורוביץ",
+      "אריאל"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_PROSE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ענבר",
+     "surfaces": [
+      "ענבר"
+     ],
+     "note": "never before a speech verb"
+    },
+    {
+     "cat": "P_ETHIOPIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מולו טגניה",
+     "surfaces": [
+      "מולו טגניה",
+      "טגניה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_ROLE_NOCOLON",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "סיון נבון",
+     "surfaces": [
+      "התובעת סיון נבון",
+      "נבון"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PRIVATE",
+     "kind": "ORG",
+     "must": true,
+     "canonical": "מעון גן הדובים",
+     "surfaces": [
+      "מעון גן הדובים",
+      "גן הדובים"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_LOOKS_PERSON",
+     "kind": "ORG",
+     "must": true,
+     "canonical": "שילה ואופק",
+     "surfaces": [
+      "מעון שילה ואופק",
+      "שילה ואופק"
+     ],
+     "note": "a daycare named like two children"
+    },
+    {
+     "cat": "L_NEIGHBOURHOOD",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "שכונת נווה רם",
+     "surfaces": [
+      "שכונת נווה רם",
+      "נווה רם"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "m3",
+   "genre": "meeting",
+   "title": "סיכום פגישה",
+   "file": "corpus/m3.docx",
+   "words": 80,
+   "entities": [
+    {
+     "cat": "P_SHARED_SURNAME",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מורן רוזנטל",
+     "surfaces": [
+      "מורן רוזנטל",
+      "מורן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_SHARED_SURNAME",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "נמרוד רוזנטל",
+     "surfaces": [
+      "נמרוד רוזנטל",
+      "רוזנטל"
+     ],
+     "note": "shares a surname with מורן"
+    },
+    {
+     "cat": "P_RUSSIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "איגור וולקוב",
+     "surfaces": [
+      "איגור וולקוב",
+      "וולקוב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_NIKUD",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מיקה",
+     "surfaces": [
+      "מיקה",
+      "מִיקָה"
+     ],
+     "note": "one occurrence carries nikud"
+    },
+    {
+     "cat": "P_PREFIX_ONCE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "הילי",
+     "surfaces": [
+      "בהילי"
+     ],
+     "note": "expected to fail: single mention, prefix letter only"
+    },
+    {
+     "cat": "P_LOOKS_ORG",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "עומרי גן",
+     "surfaces": [
+      "עומרי גן"
+     ],
+     "note": "surname is an org prefix word"
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "משרד הרווחה",
+     "surfaces": [
+      "משרד הרווחה"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "m4",
+   "genre": "meeting",
+   "title": "סיכום פגישה",
+   "file": "corpus/m4.docx",
+   "words": 105,
+   "entities": [
+    {
+     "cat": "P_ED1_PAIR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מורן אביטן",
+     "surfaces": [
+      "מורן אביטן",
+      "אביטן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_ED1_PAIR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ינון אביתן",
+     "surfaces": [
+      "ינון אביתן",
+      "אביתן"
+     ],
+     "note": "one letter from אביטן; a different person"
+    },
+    {
+     "cat": "P_CORRUPT_ONLY",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "טיטו וורקו",
+     "surfaces": [
+      "טיטו ווארקו",
+      "ווארקו"
+     ],
+     "note": "expected to fail: only the corrupted form appears"
+    },
+    {
+     "cat": "P_HYPHEN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אלה בן-רביב",
+     "surfaces": [
+      "אלה בן-רביב",
+      "בן רביב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_MINOR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אופק",
+     "surfaces": [
+      "אופק"
+     ],
+     "note": "minor, first name only"
+    },
+    {
+     "cat": "L_STREET",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "רחוב הארזים 12",
+     "surfaces": [
+      "רחוב הארזים 12",
+      "הארזים"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "f1",
+   "genre": "filing",
+   "title": "כתב תביעה",
+   "file": "corpus/f1.docx",
+   "words": 119,
+   "entities": [
+    {
+     "cat": "P_ROLE_NOCOLON",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "סיון נבון",
+     "surfaces": [
+      "התובעת סיון נבון",
+      "נבון"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_ROLE_NOCOLON",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "צור אסולין",
+     "surfaces": [
+      "הנתבע צור אסולין",
+      "אסולין"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_TITLE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "יערה ליפשיץ",
+     "surfaces": [
+      "עו\"ד יערה ליפשיץ",
+      "ליפשיץ"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_FORMS",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אריאל הורוביץ",
+     "surfaces": [
+      "אריאל הורוביץ",
+      "הורוביץ",
+      "אריאל"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_TWO_SPELL",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "נתנאל וייסמן",
+     "surfaces": [
+      "נתנאל וייסמן",
+      "ויסמן"
+     ],
+     "note": "second form drops a yod"
+    },
+    {
+     "cat": "P_RUSSIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "נטליה פטרובה",
+     "surfaces": [
+      "נטליה פטרובה",
+      "פטרובה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PRIVATE",
+     "kind": "ORG",
+     "must": true,
+     "canonical": "בית ספר ניצני הגליל",
+     "surfaces": [
+      "בית ספר ניצני הגליל"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "בית המשפט לענייני משפחה",
+     "surfaces": [
+      "בית המשפט לענייני משפחה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "המוסד לביטוח לאומי",
+     "surfaces": [
+      "המוסד לביטוח לאומי"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_TOWN",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "בית זית",
+     "surfaces": [
+      "בית זית"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_STREET",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "רחוב התאנה 4",
+     "surfaces": [
+      "רחוב התאנה 4"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_PLONI",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "פלונית",
+     "surfaces": [
+      "פלונית",
+      "פלוני"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "תלה\"מ 12345-06-24",
+     "surfaces": [
+      "תלה\"מ 12345-06-24",
+      "3.6.2026",
+      "סעיף 7(ב)"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "f2",
+   "genre": "filing",
+   "title": "בקשה לצו הגנה",
+   "file": "corpus/f2.docx",
+   "words": 130,
+   "entities": [
+    {
+     "cat": "P_WORD",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "גיל נבון",
+     "surfaces": [
+      "גיל נבון"
+     ],
+     "note": "lexicon-aided by design"
+    },
+    {
+     "cat": "P_WORD",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "שחר גולן",
+     "surfaces": [
+      "שחר גולן",
+      "שחר"
+     ],
+     "note": "lexicon-aided by design"
+    },
+    {
+     "cat": "P_SHARED_SURNAME",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מורן רוזנטל",
+     "surfaces": [
+      "מורן רוזנטל"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_SHARED_SURNAME",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "נמרוד רוזנטל",
+     "surfaces": [
+      "נמרוד רוזנטל",
+      "רוזנטל"
+     ],
+     "note": "shares a surname with מורן"
+    },
+    {
+     "cat": "P_TITLE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "נתנאל גולן",
+     "surfaces": [
+      "ד\"ר נתנאל גולן",
+      "גולן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_TITLE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "רויטל סבג",
+     "surfaces": [
+      "גב' רויטל סבג",
+      "סבג"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_ETHIOPIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אברה ברהנו",
+     "surfaces": [
+      "אברה ברהנו",
+      "ברהנו"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_HYPHEN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אלה בן-רביב",
+     "surfaces": [
+      "אלה בן-רביב",
+      "בן רביב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_LOOKS_ORG",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "עומרי גן",
+     "surfaces": [
+      "עומרי גן"
+     ],
+     "note": "surname is an org prefix word"
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "בית המשפט לענייני משפחה",
+     "surfaces": [
+      "בית המשפט לענייני משפחה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "משרד הרווחה",
+     "surfaces": [
+      "משרד הרווחה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_NEIGHBOURHOOD",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "שכונת גני אביב",
+     "surfaces": [
+      "שכונת גני אביב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_PLONI",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "פלוני",
+     "surfaces": [
+      "פלוני"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "סעיף 2",
+     "surfaces": [
+      "סעיף 2",
+      "18.7.2026",
+      "ת\"פ 4471-02-26"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_IDIOM",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "בגיל 8",
+     "surfaces": [
+      "בגיל 8",
+      "עם שחר"
+     ],
+     "note": "בגיל 8 beside גיל; עם שחר beside שחר"
+    }
+   ]
+  },
+  {
+   "id": "f3",
+   "genre": "filing",
+   "title": "תסקיר",
+   "file": "corpus/f3.docx",
+   "words": 98,
+   "entities": [
+    {
+     "cat": "P_ED1_PAIR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מורן אביטן",
+     "surfaces": [
+      "מורן אביטן",
+      "אביטן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_ED1_PAIR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ינון אביתן",
+     "surfaces": [
+      "ינון אביתן",
+      "אביתן"
+     ],
+     "note": "one letter from אביטן; a different person"
+    },
+    {
+     "cat": "P_ROLE_NOCOLON",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אלה בן-רביב",
+     "surfaces": [
+      "המבקשת אלה בן-רביב",
+      "בן-רביב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_TITLE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "משפחת בוזגלו",
+     "surfaces": [
+      "משפחת בוזגלו",
+      "בוזגלו"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_MINOR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "עומרי",
+     "surfaces": [
+      "עומרי"
+     ],
+     "note": "minor, first name only"
+    },
+    {
+     "cat": "P_PREFIX_ONCE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "רויטל",
+     "surfaces": [
+      "לרויטל"
+     ],
+     "note": "expected to fail: single mention, prefix letter only"
+    },
+    {
+     "cat": "P_SPLITRUN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ויקטור סמירנוב",
+     "surfaces": [
+      "ויקטור סמירנוב"
+     ],
+     "note": "split mid-word across two runs"
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "משרד הרווחה",
+     "surfaces": [
+      "משרד הרווחה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "המוסד לביטוח לאומי",
+     "surfaces": [
+      "המוסד לביטוח לאומי"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_TOWN",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "מבוא חורון",
+     "surfaces": [
+      "מבוא חורון"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "סעיף 14",
+     "surfaces": [
+      "סעיף 14",
+      "22.1.2026"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "f4",
+   "genre": "filing",
+   "title": "תצהיר",
+   "file": "corpus/f4.docx",
+   "words": 111,
+   "entities": [
+    {
+     "cat": "P_ARABIC",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "לינא מסאלחה",
+     "surfaces": [
+      "לינא מסאלחה",
+      "מסאלחה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_ARABIC",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ואיל שקור",
+     "surfaces": [
+      "ואיל שקור",
+      "שקור"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_ARABIC",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "עבד אל-האדי",
+     "surfaces": [
+      "עבד אל-האדי"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_TITLE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "רויטל סבג",
+     "surfaces": [
+      "גב' רויטל סבג",
+      "סבג"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_CORRUPT_ONLY",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "יערה שפרינצק",
+     "surfaces": [
+      "יערה שפרינסק",
+      "שפרינסק"
+     ],
+     "note": "expected to fail: only the corrupted form appears"
+    },
+    {
+     "cat": "P_NIKUD",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מיקה",
+     "surfaces": [
+      "מיקה",
+      "מִיקָה"
+     ],
+     "note": "one occurrence carries nikud"
+    },
+    {
+     "cat": "O_LOOKS_PERSON",
+     "kind": "ORG",
+     "must": true,
+     "canonical": "שילה ואופק",
+     "surfaces": [
+      "שילה ואופק"
+     ],
+     "note": "a daycare named like two children"
+    },
+    {
+     "cat": "L_STREET",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "שדרות הנשיאים 8",
+     "surfaces": [
+      "שדרות הנשיאים 8",
+      "הנשיאים"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "סעיף 5",
+     "surfaces": [
+      "סעיף 5",
+      "9.9.2025",
+      "ת/7"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "t1",
+   "genre": "transcript",
+   "title": "תמלול דיון",
+   "file": "corpus/t1.docx",
+   "words": 105,
+   "entities": [
+    {
+     "cat": "P_WORD",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "דור רביב",
+     "surfaces": [
+      "דור רביב",
+      "דור"
+     ],
+     "note": "lexicon-aided by design"
+    },
+    {
+     "cat": "P_WORD",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אלישע שר",
+     "surfaces": [
+      "אלישע שר",
+      "מר שר"
+     ],
+     "note": "lexicon-aided by design; beside שר הרווחה"
+    },
+    {
+     "cat": "P_FORMS",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אריאל הורוביץ",
+     "surfaces": [
+      "אריאל הורוביץ",
+      "הורוביץ",
+      "אריאל"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_PROSE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ענבר",
+     "surfaces": [
+      "ענבר"
+     ],
+     "note": "never before a speech verb"
+    },
+    {
+     "cat": "P_RUSSIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אנסטסיה קוזלוב",
+     "surfaces": [
+      "אנסטסיה קוזלוב",
+      "קוזלוב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_ROLE_NOCOLON",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "צור אסולין",
+     "surfaces": [
+      "הנתבע צור אסולין",
+      "אסולין"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "משרד הרווחה",
+     "surfaces": [
+      "משרד הרווחה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_TOWN",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "אלון שבות",
+     "surfaces": [
+      "אלון שבות"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_PLONI",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "פלוני",
+     "surfaces": [
+      "פלוני"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_IDIOM",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "שר הרווחה",
+     "surfaces": [
+      "שר הרווחה",
+      "דור שלישי"
+     ],
+     "note": "שר הרווחה beside שר; דור שלישי beside דור"
+    }
+   ]
+  },
+  {
+   "id": "t2",
+   "genre": "transcript",
+   "title": "תמלול שיחה",
+   "file": "corpus/t2.docx",
+   "words": 86,
+   "entities": [
+    {
+     "cat": "P_ARABIC",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "סאמר קעדאן",
+     "surfaces": [
+      "סאמר קעדאן",
+      "קעדאן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_ARABIC",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אבו ריא",
+     "surfaces": [
+      "אבו ריא"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_TWO_SPELL",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "דסטה טספאיי",
+     "surfaces": [
+      "דסטה טספאיי",
+      "תספאיי"
+     ],
+     "note": "second form swaps ט for ת"
+    },
+    {
+     "cat": "P_HYPHEN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אלה בן-רביב",
+     "surfaces": [
+      "אלה בן-רביב",
+      "בן רביב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_MINOR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אופק",
+     "surfaces": [
+      "אופק"
+     ],
+     "note": "minor, first name only"
+    },
+    {
+     "cat": "P_PREFIX_ONCE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "נהוראי",
+     "surfaces": [
+      "ונהוראי"
+     ],
+     "note": "expected to fail: single mention, prefix letter only"
+    },
+    {
+     "cat": "O_PRIVATE",
+     "kind": "ORG",
+     "must": true,
+     "canonical": "מרפאת עין הכרמים",
+     "surfaces": [
+      "מרפאת עין הכרמים",
+      "עין הכרמים"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_TOWN",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "גני יוחנן",
+     "surfaces": [
+      "גני יוחנן"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "t3",
+   "genre": "transcript",
+   "title": "תמלול דיון",
+   "file": "corpus/t3.docx",
+   "words": 107,
+   "entities": [
+    {
+     "cat": "P_WORD",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ניר אסולין",
+     "surfaces": [
+      "ניר אסולין",
+      "ניר"
+     ],
+     "note": "lexicon-aided by design"
+    },
+    {
+     "cat": "P_WORD",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אור בוזגלו",
+     "surfaces": [
+      "אור בוזגלו",
+      "אור"
+     ],
+     "note": "lexicon-aided by design"
+    },
+    {
+     "cat": "P_ED1_PAIR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מורן אביטן",
+     "surfaces": [
+      "מורן אביטן",
+      "אביטן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_ED1_PAIR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ינון אביתן",
+     "surfaces": [
+      "ינון אביתן",
+      "אביתן"
+     ],
+     "note": "one letter from אביטן; a different person"
+    },
+    {
+     "cat": "P_CORRUPT_ONLY",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "טיטו וורקו",
+     "surfaces": [
+      "טיטו ווארקו"
+     ],
+     "note": "expected to fail: only the corrupted form appears"
+    },
+    {
+     "cat": "P_NIKUD",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מיקה",
+     "surfaces": [
+      "מיקה",
+      "מִיקָה"
+     ],
+     "note": "one occurrence carries nikud"
+    },
+    {
+     "cat": "O_PRIVATE",
+     "kind": "ORG",
+     "must": true,
+     "canonical": "עמותת שביל הלב",
+     "surfaces": [
+      "עמותת שביל הלב",
+      "שביל הלב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_LOOKS_PERSON",
+     "kind": "ORG",
+     "must": true,
+     "canonical": "שילה ואופק",
+     "surfaces": [
+      "שילה ואופק"
+     ],
+     "note": "a daycare named like two children"
+    },
+    {
+     "cat": "L_NEIGHBOURHOOD",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "שכונת הדקלים",
+     "surfaces": [
+      "שכונת הדקלים",
+      "הדקלים"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_IDIOM",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "אור יום",
+     "surfaces": [
+      "אור יום",
+      "בחיים לא ראיתי"
+     ],
+     "note": "אור יום beside אור"
+    }
+   ]
+  },
+  {
+   "id": "t4",
+   "genre": "transcript",
+   "title": "תמלול ועדה",
+   "file": "corpus/t4.docx",
+   "words": 100,
+   "entities": [
+    {
+     "cat": "P_PROSE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ענבר",
+     "surfaces": [
+      "ענבר"
+     ],
+     "note": "never before a speech verb"
+    },
+    {
+     "cat": "P_SHARED_SURNAME",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מורן רוזנטל",
+     "surfaces": [
+      "מורן רוזנטל",
+      "מורן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_SHARED_SURNAME",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "נמרוד רוזנטל",
+     "surfaces": [
+      "נמרוד רוזנטל",
+      "רוזנטל"
+     ],
+     "note": "shares a surname with מורן"
+    },
+    {
+     "cat": "P_ETHIOPIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מולו טגניה",
+     "surfaces": [
+      "מולו טגניה",
+      "טגניה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_ETHIOPIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אברה ברהנו",
+     "surfaces": [
+      "אברה ברהנו",
+      "ברהנו"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_MINOR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "עומרי",
+     "surfaces": [
+      "עומרי"
+     ],
+     "note": "minor, first name only"
+    },
+    {
+     "cat": "P_SPLITRUN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "עמיחי אלמגור",
+     "surfaces": [
+      "עמיחי אלמגור",
+      "אלמגור"
+     ],
+     "note": "split mid-word across two runs"
+    },
+    {
+     "cat": "P_LOOKS_ORG",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "עומרי גן",
+     "surfaces": [
+      "עומרי גן"
+     ],
+     "note": "surname is an org prefix word"
+    },
+    {
+     "cat": "L_TOWN",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "הר אדר",
+     "surfaces": [
+      "הר אדר"
+     ],
+     "note": ""
+    }
+   ]
+  }
+ ]
+}

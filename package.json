@@ -10,7 +10,9 @@
     "test:unit": "node tests/run.js",
     "test:browser": "playwright test",
     "build:fixtures": "node tests/build-fixtures.js",
-    "report": "node tests/report.js"
+    "report": "node tests/report.js",
+    "bench": "node bench/generate.js && node bench/run.js",
+    "bench:nomodel": "node bench/generate.js && node bench/run.js --no-model"
   },
   "repository": {
     "type": "git",
@@ -21,6 +23,7 @@
   "type": "commonjs",
   "private": true,
   "devDependencies": {
+    "@huggingface/transformers": "^4.2.0",
     "@playwright/test": "^1.62.1",
     "@xmldom/xmldom": "^0.9.12",
     "jsdom": "^30.0.1"
