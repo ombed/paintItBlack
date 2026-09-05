@@ -222,6 +222,20 @@ a:hover{text-decoration:underline}
       </sc-if>
     </div>
 
+    <sc-if value="{{ hasPeoSug }}">
+      <div style="margin-top:12px;padding:10px 12px;border-radius:12px;border:1px dashed var(--line);background:var(--panel2)">
+        <div style="font-size:12px;color:var(--ink2);margin-bottom:8px">נמצאו גם, ולא בטוח שאלה אנשים. הקשה על השם מוסיפה לרשימה, הקשה על ✕ מסירה:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <sc-for list="{{ peoSugItems }}" as="x" hint-placeholder-count="3">
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 8px 5px 10px;border-radius:16px;border:1px solid var(--line);background:var(--panel);font-size:13px">
+              <button onClick="{{ x.onAdd }}" title="{{ x.why }}" style="font-weight:500;color:var(--accent-ink)">+ {{ x.value }}</button>
+              <button onClick="{{ x.onDrop }}" aria-label="לא אדם" style="width:18px;height:18px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:12px">✕</button>
+            </span>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
     <div style="display:flex;gap:8px;margin-top:16px">
       <input value="{{ peoIn }}" onChange="{{ onPeoIn }}" onKeyDown="{{ onPeoKey }}" onPaste="{{ onPeoPaste }}" placeholder="שם מלא — למשל רונית לוי. אפשר להדביק כמה שמות, שורה לכל אחד" style="flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:14px">
       <button onClick="{{ onPeoAdd }}" style="padding:0 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-size:14px;font-weight:500" style-hover="background:var(--panel2)">הוספה</button>
@@ -603,7 +617,7 @@ class Component extends DCLogic {
     screen:"entry", theme:"light", ready:false, E:null,
     mode:"real", o:{auto:true, places:true, ner:true, near:true},
     nerOff:false, nerHint:"", nerMsg:"", nerPct:null, nerBox:false, nerUsed:false,
-    buf:null, name:"", cands:[], peo:[], peoIn:"", peoNote:"", scanning:false,
+    buf:null, name:"", cands:[], peo:[], peoSug:[], peoIn:"", peoNote:"", scanning:false,
     rules:[], allow:[], res:null, profile:null,
     sel:null, filter:"all", cat:"", open:null, pane:"doc", hot:null,
     addV:"", addR:"", addK:"NAME",
@@ -832,7 +846,13 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       if(!c.speaker && (!w.every(x=>E.nameish(x,dt)) || w[0][0]==="ו" || w.some(x=>x[0]==="ה"))) continue;
       peo.push({value:c.value, note:c.speaker?"דובר בתמלול":"מהכותרת", auto:true, g:c.g, kind:"NAME"});
     }
-    this.setState({peo, peoIn:"", screen:"people", nerBox:false});
+    // מה ש-discover מצא ולא מילא מעצמו לא נעלם: הוא מוצג לאישור בהקשה אחת.
+    // ניחוש בינוני עולה הקשה; שם שהיא לא נשאלה עליו הוא הכשל שהכלי נועד למנוע.
+    const inList=v=>peo.some(p=>E.norm(p.value)===E.norm(v));
+    const peoSug=cands.filter(c=>!inList(c.value)).filter(c=>{const w=c.value.split(/\s+/);
+      return w.length<=3&&w.every(x=>x.length>=2)&&(w.length>=2||c.speaker||c.count>=2);})
+      .slice(0,8).map(c=>({value:c.value, why:c.why, count:c.count, kind:"NAME"}));
+    this.setState({peo, peoSug, peoIn:"", screen:"people", nerBox:false});
     if(!(this.state.o.ner && blocks && blocks.length)){
       this.setState({nerUsed:false, peoNote: peo.length
         ? `${peo.length===1?"זוהה שם אחד":"זוהו "+peo.length+" שמות"} בכותרת המסמך. כדאי להוסיף כל מי שמוזכר בגוף הטקסט — עדים, אנשי מקצוע, בני משפחה.`
@@ -1264,6 +1284,11 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g}))), 0); },
       onSkipNames:()=>{ if(S.scanning) return; this.setState({peo:[]}); this.toPlaces([]); },
       onLoadProf:this.loadProfileClick, onSaveProf:this.saveProfile,
+      hasPeoSug:S.peoSug.some(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))),
+      peoSugItems:S.peoSug.filter(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))).map(x=>({
+        value:x.value, why:x.why,
+        onAdd:()=>this.peoAdd(x.value,"מההקשר",true),
+        onDrop:()=>this.setState({peoSug:S.peoSug.filter(y=>y!==x)})})),
       peoItems:S.peo.map((p,i)=>({
         value:p.value, note:p.note, kindName:KIND_NAME[p.kind]||"אדם",
         style:"display:flex;align-items:center;gap:8px;padding:7px 10px 7px 12px;border-radius:20px;font-size:14px;white-space:nowrap;"+
