@@ -229,9 +229,9 @@ a:hover{text-decoration:underline}
     <p style="margin:11px 0 0;font-size:13px;color:var(--ink2);line-height:1.55">{{ peoNote }}</p>
 
     <div style="display:flex;gap:10px;margin-top:24px;align-items:center;flex-wrap:wrap">
-      <button onClick="{{ onPeoGo }}" style="{{ primaryBtn }}">{{ peoGoLabel }}</button>
+      <button onClick="{{ onPeoGo }}" disabled="{{ scanning }}" style="{{ primaryBtn }}">{{ peoGoLabel }}</button>
       <button onClick="{{ onLoadProf }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">טעינת פרופיל תיק</button>
-      <button onClick="{{ onSkipNames }}" style="font-size:13px;color:var(--ink2);padding:12px 8px" style-hover="color:var(--ink)">המשך בלי שמות — רק ת״ז, טלפונים וכתובות</button>
+      <button onClick="{{ onSkipNames }}" disabled="{{ scanning }}" style="font-size:13px;color:var(--ink2);padding:12px 8px" style-hover="color:var(--ink)">המשך בלי שמות — רק ת״ז, טלפונים וכתובות</button>
     </div>
   </main>
   </sc-if>
@@ -1243,7 +1243,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       nerBox:S.nerBox, nerMsg:S.nerMsg,
       nerBarStyle:"height:100%;border-radius:2px;background:var(--accent);transition:width .25s ease;width:"+Math.round(S.nerPct||0)+"%",
       peoIn:S.peoIn, peoNote:S.peoNote, peoEmpty:!S.peo.length,
-      peoGoLabel:S.scanning?"סורק את המסמך…":"המשך",
+      scanning:S.scanning, peoGoLabel:S.scanning?"סורק את המסמך…":"המשך",
       onPeoIn:e=>this.setState({peoIn:e.target.value}),
       onPeoKey:e=>{ if(e.key==="Enter"){ e.preventDefault(); this.peoAdd(S.peoIn); this.setState({peoIn:""}); } },
       onPeoPaste:e=>{ const t=(e.clipboardData||window.clipboardData).getData("text");

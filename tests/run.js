@@ -7,14 +7,16 @@
    drive the vanilla UI through jsdom, reaching for element ids like oNer and
    s1..s4 and calling globals like showPeople(). This build renders its UI
    from a template at runtime and has none of those ids, so the suites throw
-   before their first assertion. Making them run means rewriting them, and
-   they were handed over with an explicit instruction not to, because their
-   assertions encode bugs that took a while to find. race_t.js is the one
-   that stings: it covers name leakage between cases. The guard it checks is
-   present in index.html, but nothing here proves it still works.
+   before their first assertion. Their selectors are disposable; their intent
+   is not, so it was ported to e2e/, where it runs against the real UI in a
+   real browser:
 
-   Their equivalent now lives in e2e/, which drives the real UI in a real
-   browser. Porting these four is the way to close the gap.
+     race_t.js  -> e2e/race.spec.js   both scenarios, on the real guard
+     theme_t.js -> e2e/theme.spec.js  tokens, dark toggle, persistence
+     ui.js      -> e2e/ui.spec.js     controls per screen, no page errors
+     flow.js    -> not yet ported
+
+   The originals stay here untouched as the record of what they asserted.
 
    gap.js, real.js and perf.js are absent from both lists: per tests/README
    they are measurement tools that print a report, not a score. */
@@ -62,7 +64,7 @@ for (const [s, p, f, st] of rows) {
 }
 
 const skipped = BLOCKED.reduce((n, [, c]) => n + c, 0);
-console.log("\nnot run, vanilla UI only (see the note in this file):");
+console.log("\nnot run here, vanilla UI only; intent ported to e2e/ except flow.js:");
 for (const [s, c] of BLOCKED) console.log("  " + s.padEnd(12) + (c ? c + " assertions" : "element presence"));
 
 console.log(`\n${pass} passed, ${fail} failed, ${broke} could not run` +
