@@ -8,6 +8,10 @@ const { test, expect } = require("@playwright/test");
 test("the runtime renders and leaves no placeholders on screen", async ({ page }) => {
   const pageErrors = [];
   page.on("pageerror", (e) => pageErrors.push(e.message));
+  // Console errors during load, not only thrown ones. The map paths used to
+  // log an SVG parse error twice on every load, before the runtime ran.
+  const consoleErrors = [];
+  page.on("console", (m) => { if (m.type() === "error") consoleErrors.push(m.text()); });
 
   await page.goto("/index.html");
 
@@ -34,6 +38,13 @@ test("the runtime renders and leaves no placeholders on screen", async ({ page }
   expect(seen.visible).not.toContain("}}");
   expect(seen.visible.length).toBeGreaterThan(200);
   expect(pageErrors).toEqual([]);
+  expect(consoleErrors).toEqual([]);
+
+  // Geometry is carried in data-d and copied to d after render; the two
+  // must never disagree.
+  const paths = await page.evaluate(() =>
+    [...document.querySelectorAll("path[data-d]")].map((p) => [p.getAttribute("data-d") || "", p.getAttribute("d") || ""]));
+  for (const [dataD, d] of paths) expect(d).toBe(dataD);
 });
 
 test("the page and the service worker agree on the version", async ({ page }) => {
