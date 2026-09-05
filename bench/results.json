@@ -1,0 +1,2259 @@
+{
+ "rows": [
+  {
+   "doc": "m1",
+   "genre": "meeting",
+   "cat": "P_ARABIC",
+   "canonical": "סאמר קעדאן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "קעדאן",
+    "סאמר קעדאן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m1",
+   "genre": "meeting",
+   "cat": "P_WORD",
+   "canonical": "חיים סבג",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "חיים סבג",
+    "חיים"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m1",
+   "genre": "meeting",
+   "cat": "P_TITLE",
+   "canonical": "יערה ליפשיץ",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "יערה ליפשיץ",
+    "ליפשיץ"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m1",
+   "genre": "meeting",
+   "cat": "P_TWO_SPELL",
+   "canonical": "דסטה טספאיי",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "near",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "דסטה",
+    "טספאיי",
+    "שתספאיי"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m1",
+   "genre": "meeting",
+   "cat": "P_SPLITRUN",
+   "canonical": "עמיחי אלמגור",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "עמיחי אלמגור"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m1",
+   "genre": "meeting",
+   "cat": "O_PRIVATE",
+   "canonical": "עמותת שביל הלב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "עמותת שביל הלב",
+    "שביל"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m1",
+   "genre": "meeting",
+   "cat": "L_TOWN",
+   "canonical": "נוף הגליל",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "בנוף הגליל"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m1",
+   "genre": "meeting",
+   "cat": "T_NUMBERS",
+   "canonical": "14.5.2026",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m1",
+   "genre": "meeting",
+   "cat": "T_IDIOM",
+   "canonical": "בחיים לא ראיתי",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m2",
+   "genre": "meeting",
+   "cat": "P_FORMS",
+   "canonical": "אריאל הורוביץ",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "אריאל הורוביץ",
+    "אריאל",
+    "הורוביץ"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m2",
+   "genre": "meeting",
+   "cat": "P_PROSE",
+   "canonical": "ענבר",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "ענבר",
+    "ענבר מודאגת"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m2",
+   "genre": "meeting",
+   "cat": "P_ETHIOPIAN",
+   "canonical": "מולו טגניה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "טגניה",
+    "מולו טגניה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m2",
+   "genre": "meeting",
+   "cat": "P_ROLE_NOCOLON",
+   "canonical": "סיון נבון",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "סיון נבון",
+    "נבון"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m2",
+   "genre": "meeting",
+   "cat": "O_PRIVATE",
+   "canonical": "מעון גן הדובים",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "גן הדובים",
+    "מעון"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m2",
+   "genre": "meeting",
+   "cat": "O_LOOKS_PERSON",
+   "canonical": "שילה ואופק",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "ואופק",
+    "שילה",
+    "מעון שילה",
+    "מעון"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m2",
+   "genre": "meeting",
+   "cat": "L_NEIGHBOURHOOD",
+   "canonical": "שכונת נווה רם",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "נווה רם"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m3",
+   "genre": "meeting",
+   "cat": "P_SHARED_SURNAME",
+   "canonical": "מורן רוזנטל",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "מורן רוזנטל",
+    "רוזנטל",
+    "מורן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m3",
+   "genre": "meeting",
+   "cat": "P_SHARED_SURNAME",
+   "canonical": "נמרוד רוזנטל",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "ונמרוד רוזנטל",
+    "רוזנטל",
+    "מורן רוזנטל"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m3",
+   "genre": "meeting",
+   "cat": "P_RUSSIAN",
+   "canonical": "איגור וולקוב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "איגור וולקוב",
+    "וולקוב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m3",
+   "genre": "meeting",
+   "cat": "P_NIKUD",
+   "canonical": "מיקה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "מיקה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m3",
+   "genre": "meeting",
+   "cat": "P_PREFIX_ONCE",
+   "canonical": "הילי",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "הילי",
+    "בהילי"
+   ]
+  },
+  {
+   "doc": "m3",
+   "genre": "meeting",
+   "cat": "P_LOOKS_ORG",
+   "canonical": "עומרי גן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "עומרי"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m3",
+   "genre": "meeting",
+   "cat": "O_PUBLIC",
+   "canonical": "משרד הרווחה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m4",
+   "genre": "meeting",
+   "cat": "P_ED1_PAIR",
+   "canonical": "מורן אביטן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "מורן אביטן",
+    "אביטן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m4",
+   "genre": "meeting",
+   "cat": "P_ED1_PAIR",
+   "canonical": "ינון אביתן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "ינון אביתן",
+    "אביתן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m4",
+   "genre": "meeting",
+   "cat": "P_CORRUPT_ONLY",
+   "canonical": "טיטו וורקו",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "וארקו",
+    "טיטו ווארקו",
+    "טיטו"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m4",
+   "genre": "meeting",
+   "cat": "P_HYPHEN",
+   "canonical": "אלה בן-רביב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "אלה בן",
+    "בן רביב",
+    "רביב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m4",
+   "genre": "meeting",
+   "cat": "P_MINOR",
+   "canonical": "אופק",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "אופק"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "m4",
+   "genre": "meeting",
+   "cat": "L_STREET",
+   "canonical": "רחוב הארזים 12",
+   "found": true,
+   "leaked": true,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "רחוב הארזים"
+   ],
+   "leakedSurfaces": [
+    "הארזים"
+   ]
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "cat": "P_ROLE_NOCOLON",
+   "canonical": "סיון נבון",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "סיון נבון",
+    "נבון"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "cat": "P_ROLE_NOCOLON",
+   "canonical": "צור אסולין",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "צור אסולין",
+    "אסולין"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "cat": "P_TITLE",
+   "canonical": "יערה ליפשיץ",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "flagged",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "יערה",
+    "יערה ליפשיץ",
+    "ליפשיץ"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "cat": "P_FORMS",
+   "canonical": "אריאל הורוביץ",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "אריאל הורוביץ",
+    "אריאל",
+    "הורוביץ"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "cat": "P_TWO_SPELL",
+   "canonical": "נתנאל וייסמן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "נתנאל וייסמן",
+    "ויסמן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "cat": "P_RUSSIAN",
+   "canonical": "נטליה פטרובה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "נטליה פטרובה",
+    "פטרובה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "cat": "O_PRIVATE",
+   "canonical": "בית ספר ניצני הגליל",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "ניצני הגליל"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "cat": "O_PUBLIC",
+   "canonical": "בית המשפט לענייני משפחה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "cat": "O_PUBLIC",
+   "canonical": "המוסד לביטוח לאומי",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "cat": "L_TOWN",
+   "canonical": "בית זית",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "בית זית"
+   ]
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "cat": "L_STREET",
+   "canonical": "רחוב התאנה 4",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "רחוב התאנה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "cat": "T_PLONI",
+   "canonical": "פלונית",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "cat": "T_NUMBERS",
+   "canonical": "תלה\"מ 12345-06-24",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "cat": "P_WORD",
+   "canonical": "גיל נבון",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "גיל נבון"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "cat": "P_WORD",
+   "canonical": "שחר גולן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "שחר גולן",
+    "גולן",
+    "שחר"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "cat": "P_SHARED_SURNAME",
+   "canonical": "מורן רוזנטל",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "מורן רוזנטל",
+    "רוזנטל"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "cat": "P_SHARED_SURNAME",
+   "canonical": "נמרוד רוזנטל",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "נמרוד רוזנטל",
+    "רוזנטל",
+    "מורן רוזנטל",
+    "ורוזנטל נשואים"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "cat": "P_TITLE",
+   "canonical": "נתנאל גולן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "נתנאל גולן",
+    "גולן",
+    "שחר גולן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "cat": "P_TITLE",
+   "canonical": "רויטל סבג",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "רויטל סבג",
+    "סבג"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "cat": "P_ETHIOPIAN",
+   "canonical": "אברה ברהנו",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "רהנו",
+    "אברה ברהנו"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "cat": "P_HYPHEN",
+   "canonical": "אלה בן-רביב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "אלה בן",
+    "בן-רביב",
+    "בן רביב",
+    "רביב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "cat": "P_LOOKS_ORG",
+   "canonical": "עומרי גן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "עומרי גן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "cat": "O_PUBLIC",
+   "canonical": "בית המשפט לענייני משפחה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "cat": "O_PUBLIC",
+   "canonical": "משרד הרווחה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "cat": "L_NEIGHBOURHOOD",
+   "canonical": "שכונת גני אביב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "גני אביב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "cat": "T_PLONI",
+   "canonical": "פלוני",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "cat": "T_NUMBERS",
+   "canonical": "סעיף 2",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "cat": "T_IDIOM",
+   "canonical": "בגיל 8",
+   "found": null,
+   "leaked": null,
+   "fp": 1,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "altered: עם שחר"
+   ]
+  },
+  {
+   "doc": "f3",
+   "genre": "filing",
+   "cat": "P_ED1_PAIR",
+   "canonical": "מורן אביטן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "מורן אביטן",
+    "אביטן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f3",
+   "genre": "filing",
+   "cat": "P_ED1_PAIR",
+   "canonical": "ינון אביתן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "ינון אביתן",
+    "אביתן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f3",
+   "genre": "filing",
+   "cat": "P_ROLE_NOCOLON",
+   "canonical": "אלה בן-רביב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "אלה בן",
+    "המבקשת",
+    "בן-רביב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f3",
+   "genre": "filing",
+   "cat": "P_TITLE",
+   "canonical": "משפחת בוזגלו",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "בוזגלו"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f3",
+   "genre": "filing",
+   "cat": "P_MINOR",
+   "canonical": "עומרי",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "עומרי",
+    "עומרי פעם"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f3",
+   "genre": "filing",
+   "cat": "P_PREFIX_ONCE",
+   "canonical": "רויטל",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "רויטל"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f3",
+   "genre": "filing",
+   "cat": "P_SPLITRUN",
+   "canonical": "ויקטור סמירנוב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "יקטור סמירנוב",
+    "ויקטור",
+    "סמירנוב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f3",
+   "genre": "filing",
+   "cat": "O_PUBLIC",
+   "canonical": "משרד הרווחה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f3",
+   "genre": "filing",
+   "cat": "O_PUBLIC",
+   "canonical": "המוסד לביטוח לאומי",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f3",
+   "genre": "filing",
+   "cat": "L_TOWN",
+   "canonical": "מבוא חורון",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "מבוא חורון"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f3",
+   "genre": "filing",
+   "cat": "T_NUMBERS",
+   "canonical": "סעיף 14",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f4",
+   "genre": "filing",
+   "cat": "P_ARABIC",
+   "canonical": "לינא מסאלחה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "לינא מסאלחה",
+    "ינא מסאלחה",
+    "מסאלחה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f4",
+   "genre": "filing",
+   "cat": "P_ARABIC",
+   "canonical": "ואיל שקור",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "איל שקור",
+    "ואיל שקור",
+    "שקור"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f4",
+   "genre": "filing",
+   "cat": "P_ARABIC",
+   "canonical": "עבד אל-האדי",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "עבד אל"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f4",
+   "genre": "filing",
+   "cat": "P_TITLE",
+   "canonical": "רויטל סבג",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "רויטל סבג",
+    "סבג"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f4",
+   "genre": "filing",
+   "cat": "P_CORRUPT_ONLY",
+   "canonical": "יערה שפרינצק",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "יערה שפרינסק",
+    "שפרינסק"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f4",
+   "genre": "filing",
+   "cat": "P_NIKUD",
+   "canonical": "מיקה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "מיקה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f4",
+   "genre": "filing",
+   "cat": "O_LOOKS_PERSON",
+   "canonical": "שילה ואופק",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "שילה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "f4",
+   "genre": "filing",
+   "cat": "L_STREET",
+   "canonical": "שדרות הנשיאים 8",
+   "found": true,
+   "leaked": true,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "שדרות הנשיאים 8"
+   ],
+   "leakedSurfaces": [
+    "הנשיאים"
+   ]
+  },
+  {
+   "doc": "f4",
+   "genre": "filing",
+   "cat": "T_NUMBERS",
+   "canonical": "סעיף 5",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t1",
+   "genre": "transcript",
+   "cat": "P_WORD",
+   "canonical": "דור רביב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "דור רביב",
+    "דור"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t1",
+   "genre": "transcript",
+   "cat": "P_WORD",
+   "canonical": "אלישע שר",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "אלישע שר"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t1",
+   "genre": "transcript",
+   "cat": "P_FORMS",
+   "canonical": "אריאל הורוביץ",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "אריאל הורוביץ",
+    "אריאל",
+    "הורוביץ"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t1",
+   "genre": "transcript",
+   "cat": "P_PROSE",
+   "canonical": "ענבר",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "ענבר"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t1",
+   "genre": "transcript",
+   "cat": "P_RUSSIAN",
+   "canonical": "אנסטסיה קוזלוב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "אנסטסיה קוזלוב",
+    "קוזלוב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t1",
+   "genre": "transcript",
+   "cat": "P_ROLE_NOCOLON",
+   "canonical": "צור אסולין",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "צור אסולין",
+    "אסולין"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t1",
+   "genre": "transcript",
+   "cat": "O_PUBLIC",
+   "canonical": "משרד הרווחה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t1",
+   "genre": "transcript",
+   "cat": "L_TOWN",
+   "canonical": "אלון שבות",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "אלון שבות"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t1",
+   "genre": "transcript",
+   "cat": "T_PLONI",
+   "canonical": "פלוני",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t1",
+   "genre": "transcript",
+   "cat": "T_IDIOM",
+   "canonical": "שר הרווחה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t2",
+   "genre": "transcript",
+   "cat": "P_ARABIC",
+   "canonical": "סאמר קעדאן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "סאמר קעדאן",
+    "קעדאן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t2",
+   "genre": "transcript",
+   "cat": "P_ARABIC",
+   "canonical": "אבו ריא",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "אבו ריא"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t2",
+   "genre": "transcript",
+   "cat": "P_TWO_SPELL",
+   "canonical": "דסטה טספאיי",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "near",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "דסטה",
+    "טספאיי",
+    "תספאיי"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t2",
+   "genre": "transcript",
+   "cat": "P_HYPHEN",
+   "canonical": "אלה בן-רביב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "אלה בן-רביב",
+    "אלה בן",
+    "שבן רביב",
+    "ובן רביב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t2",
+   "genre": "transcript",
+   "cat": "P_MINOR",
+   "canonical": "אופק",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "אופק"
+   ]
+  },
+  {
+   "doc": "t2",
+   "genre": "transcript",
+   "cat": "P_PREFIX_ONCE",
+   "canonical": "נהוראי",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "נהוראי"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t2",
+   "genre": "transcript",
+   "cat": "O_PRIVATE",
+   "canonical": "מרפאת עין הכרמים",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "עין הכרמים"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t2",
+   "genre": "transcript",
+   "cat": "L_TOWN",
+   "canonical": "גני יוחנן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "גני יוחנן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t3",
+   "genre": "transcript",
+   "cat": "P_WORD",
+   "canonical": "ניר אסולין",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "ניר אסולין",
+    "ניר"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t3",
+   "genre": "transcript",
+   "cat": "P_WORD",
+   "canonical": "אור בוזגלו",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "אור בוזגלו",
+    "אור"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t3",
+   "genre": "transcript",
+   "cat": "P_ED1_PAIR",
+   "canonical": "מורן אביטן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "מורן אביטן",
+    "אביטן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t3",
+   "genre": "transcript",
+   "cat": "P_ED1_PAIR",
+   "canonical": "ינון אביתן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "ינון אביתן",
+    "אביתן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t3",
+   "genre": "transcript",
+   "cat": "P_CORRUPT_ONLY",
+   "canonical": "טיטו וורקו",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "טיטו ווארקו",
+    "טיטו"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t3",
+   "genre": "transcript",
+   "cat": "P_NIKUD",
+   "canonical": "מיקה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "מיקה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t3",
+   "genre": "transcript",
+   "cat": "O_PRIVATE",
+   "canonical": "עמותת שביל הלב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "עמותת שביל הלב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t3",
+   "genre": "transcript",
+   "cat": "O_LOOKS_PERSON",
+   "canonical": "שילה ואופק",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "שילה",
+    "ואופק"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t3",
+   "genre": "transcript",
+   "cat": "L_NEIGHBOURHOOD",
+   "canonical": "שכונת הדקלים",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "הדקלים"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t3",
+   "genre": "transcript",
+   "cat": "T_IDIOM",
+   "canonical": "אור יום",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t4",
+   "genre": "transcript",
+   "cat": "P_PROSE",
+   "canonical": "ענבר",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "ענבר"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t4",
+   "genre": "transcript",
+   "cat": "P_SHARED_SURNAME",
+   "canonical": "מורן רוזנטל",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "מורן רוזנטל",
+    "רוזנטל",
+    "מורן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t4",
+   "genre": "transcript",
+   "cat": "P_SHARED_SURNAME",
+   "canonical": "נמרוד רוזנטל",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "נמרוד רוזנטל",
+    "רוזנטל",
+    "מורן רוזנטל"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t4",
+   "genre": "transcript",
+   "cat": "P_ETHIOPIAN",
+   "canonical": "מולו טגניה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "מולו טגניה",
+    "טגניה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t4",
+   "genre": "transcript",
+   "cat": "P_ETHIOPIAN",
+   "canonical": "אברה ברהנו",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "אברה ברהנו",
+    "אברה",
+    "ברהנו"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t4",
+   "genre": "transcript",
+   "cat": "P_MINOR",
+   "canonical": "עומרי",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "עומרי גן",
+    "עומרי"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t4",
+   "genre": "transcript",
+   "cat": "P_SPLITRUN",
+   "canonical": "עמיחי אלמגור",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "עמיחי אלמגור",
+    "אלמגור"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t4",
+   "genre": "transcript",
+   "cat": "P_LOOKS_ORG",
+   "canonical": "עומרי גן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "עומרי גן",
+    "עומרי"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "t4",
+   "genre": "transcript",
+   "cat": "L_TOWN",
+   "canonical": "הר אדר",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "בהר אדר"
+   ],
+   "leakedSurfaces": []
+  }
+ ],
+ "unlisted": [
+  {
+   "doc": "m4",
+   "genre": "meeting",
+   "value": "סיכמנו",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "m4",
+   "genre": "meeting",
+   "value": "מהבניין",
+   "sources": [
+    "suggest"
+   ],
+   "why": "",
+   "applied": true
+  },
+  {
+   "doc": "m4",
+   "genre": "meeting",
+   "value": "נוער",
+   "sources": [
+    "suggest"
+   ],
+   "why": "",
+   "applied": true
+  },
+  {
+   "doc": "m4",
+   "genre": "meeting",
+   "value": "לבד",
+   "sources": [
+    "flagged"
+   ],
+   "why": "",
+   "applied": true
+  },
+  {
+   "doc": "m4",
+   "genre": "meeting",
+   "value": "אבל",
+   "sources": [
+    "flagged"
+   ],
+   "why": "",
+   "applied": true
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "value": "בי",
+   "sources": [
+    "discover",
+    "flagged"
+   ],
+   "why": "מופיע מיד לפני ת\"ז",
+   "applied": false
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "value": "נישאו",
+   "sources": [
+    "discover"
+   ],
+   "why": "מופיע אחרי מילת תפקיד בגוף הטקסט",
+   "applied": true
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "value": "המבקשת",
+   "sources": [
+    "discover",
+    "model"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "value": "לדירה בשכונת",
+   "sources": [
+    "discover"
+   ],
+   "why": "מופיע אחרי מילת תפקיד בגוף הטקסט",
+   "applied": true
+  },
+  {
+   "doc": "f2",
+   "genre": "filing",
+   "value": "ומצא סימני",
+   "sources": [
+    "discover"
+   ],
+   "why": "מופיע אחרי מילת תפקיד בגוף הטקסט",
+   "applied": true
+  },
+  {
+   "doc": "f3",
+   "genre": "filing",
+   "value": "המלצה",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "f4",
+   "genre": "filing",
+   "value": "לקבוע מזונו",
+   "sources": [
+    "discover",
+    "flagged"
+   ],
+   "why": "מופיע מיד לפני ת\"ז",
+   "applied": false
+  },
+  {
+   "doc": "f4",
+   "genre": "filing",
+   "value": "עלי",
+   "sources": [
+    "flagged"
+   ],
+   "why": "",
+   "applied": true
+  },
+  {
+   "doc": "t1",
+   "genre": "transcript",
+   "value": "שר",
+   "sources": [
+    "discover"
+   ],
+   "why": "מופיע אחרי תואר",
+   "applied": true
+  },
+  {
+   "doc": "t2",
+   "genre": "transcript",
+   "value": "לי",
+   "sources": [
+    "discover"
+   ],
+   "why": "מופיע אחרי תואר",
+   "applied": true
+  },
+  {
+   "doc": "t2",
+   "genre": "transcript",
+   "value": "במרפאת עין",
+   "sources": [
+    "suggest"
+   ],
+   "why": "",
+   "applied": true
+  },
+  {
+   "doc": "t3",
+   "genre": "transcript",
+   "value": "הראשון",
+   "sources": [
+    "discover"
+   ],
+   "why": "מופיע אחרי תואר",
+   "applied": true
+  },
+  {
+   "doc": "t4",
+   "genre": "transcript",
+   "value": "יו\"ר",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "t4",
+   "genre": "transcript",
+   "value": "ועדה",
+   "sources": [
+    "flagged"
+   ],
+   "why": "",
+   "applied": true
+  }
+ ],
+ "perDoc": [
+  {
+   "id": "m1",
+   "genre": "meeting",
+   "ms": 178,
+   "rules": 11,
+   "unlisted": 0
+  },
+  {
+   "id": "m2",
+   "genre": "meeting",
+   "ms": 134,
+   "rules": 13,
+   "unlisted": 0
+  },
+  {
+   "id": "m3",
+   "genre": "meeting",
+   "ms": 85,
+   "rules": 6,
+   "unlisted": 0
+  },
+  {
+   "id": "m4",
+   "genre": "meeting",
+   "ms": 134,
+   "rules": 13,
+   "unlisted": 5
+  },
+  {
+   "id": "f1",
+   "genre": "filing",
+   "ms": 148,
+   "rules": 14,
+   "unlisted": 2
+  },
+  {
+   "id": "f2",
+   "genre": "filing",
+   "ms": 178,
+   "rules": 19,
+   "unlisted": 3
+  },
+  {
+   "id": "f3",
+   "genre": "filing",
+   "ms": 119,
+   "rules": 13,
+   "unlisted": 1
+  },
+  {
+   "id": "f4",
+   "genre": "filing",
+   "ms": 133,
+   "rules": 11,
+   "unlisted": 2
+  },
+  {
+   "id": "t1",
+   "genre": "transcript",
+   "ms": 136,
+   "rules": 9,
+   "unlisted": 1
+  },
+  {
+   "id": "t2",
+   "genre": "transcript",
+   "ms": 119,
+   "rules": 15,
+   "unlisted": 2
+  },
+  {
+   "id": "t3",
+   "genre": "transcript",
+   "ms": 114,
+   "rules": 11,
+   "unlisted": 1
+  },
+  {
+   "id": "t4",
+   "genre": "transcript",
+   "ms": 111,
+   "rules": 14,
+   "unlisted": 2
+  }
+ ]
+}

@@ -9,13 +9,18 @@
 
    The one subtlety is ordering. Each suite cuts the script at the UI
    divider, then re-appends spans that lived on the UI side of it in the
-   vanilla build: pseudoRX (all of them) and TITLE_RX..peoAdd (edge.js).
-   Both spans sit inside the engine here, so if they are left in place the
-   generated core declares them twice and refuses to load. They are moved
-   back across the divider, in the order the slices expect.
+   vanilla build. pseudoRX is one such span for every suite: it sits inside
+   the engine here, so it is moved back across the divider, or the generated
+   core declares it twice and refuses to load.
 
-   Both spans are self-contained. Nothing above the divider references them,
-   and their only outward reference is trimEdges, which stays above it. */
+   edge.js also appends js.slice(indexOf("const TITLE_RX="), indexOf("function
+   peoAdd(")). That span used to be relocated too. It no longer can be:
+   bodyNames and nerClean reference TITLE_RX, and a core built without it
+   throws inside redactDocx's try and silently loses every suggestion, which
+   is how the real-transcript tool lost its prose-only name. So the span
+   stays in the body, the declaration is spelled with a space so edge.js's
+   indexOf does not find it, and no peoAdd stub is emitted: both markers come
+   back -1 and the appended slice is empty. */
 const fs = require("fs");
 const path = require("path");
 
@@ -39,25 +44,22 @@ const find = (needle) => {
   return i;
 };
 
-const titleStart = find("const TITLE_RX=");
 const pseudoStart = find("function pseudoRX(p){");
 const pseudoEnd = src.indexOf("\n}", pseudoStart) + 2;
-if (titleStart > pseudoStart) throw new Error("TITLE_RX is expected above pseudoRX");
-
-const spanTitle = src.slice(titleStart, pseudoStart); // TITLE_RX, ORG_RX, likelyOrg, cleanEntry
 const spanPseudo = src.slice(pseudoStart, pseudoEnd);
-const engine = src.slice(0, titleStart) + src.slice(pseudoEnd);
+const engine = (src.slice(0, pseudoStart) + src.slice(pseudoEnd))
+  .replace("const TITLE_RX=", "const TITLE_RX =");
+if (engine.includes("const TITLE_RX=")) throw new Error("TITLE_RX marker still visible to edge.js");
 
 // Take the divider from a suite rather than retyping 52 box-drawing chars.
 const marker = (fs.readFileSync(path.join(HERE, "e2e.js"), "utf8")
-  .match(/indexOf\('(\/\*[^']*\u05de\u05de\u05e9\u05e7[^']*\*\/)'\)/) || [])[1];
+  .match(/indexOf\('(\/\*[^']*ממשק[^']*\*\/)'\)/) || [])[1];
 if (!marker) throw new Error("could not read the UI divider out of e2e.js");
 
 fs.writeFileSync(path.join(HERE, "app.html"),
   '<!doctype html><meta charset="utf-8">\n<script>\n' + PRELUDE + engine +
   "\n" + marker + "\n" +
   spanPseudo + "\nfunction livePairs(){}\n" +
-  spanTitle + "\nfunction peoAdd(){}\n" +
   "</script>\n", "utf8");
 
 // core.js is required directly, never sliced, so it keeps the original order.

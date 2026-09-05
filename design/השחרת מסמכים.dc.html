@@ -823,11 +823,14 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     for(const c of cands) for(const w of c.value.split(/\s+/)) dt.add(w);
     const peo=[];
     for(const c of cands){
-      if(c.conf!=="high" || !c.value.includes(" ")) continue;
+      // דובר שחוזר בתמלול הוא אדם גם בשם אחד: "ענבר:" בראש כמה פסקאות.
+      if(c.conf!=="high" || (!c.value.includes(" ") && !c.speaker)) continue;
       const w=c.value.split(/\s+/);
-      if(w.length>3 || !w.every(x=>x.length>=2 && E.nameish(x,dt))) continue;
-      if(w[0][0]==="ו" || w.some(x=>x[0]==="ה")) continue;
-      peo.push({value:c.value, note:"מהכותרת", auto:true, g:c.g, kind:"NAME"});
+      // תור דיבור הוא עדות חזקה יותר ממבחני המילים של הכותרת: "דליה לב שדה"
+      // ו"הלל שר" הם דוברים גם כש"לב" היא מילה ו"הלל" מתחיל ב-ה.
+      if(w.length>3 || !w.every(x=>x.length>=2)) continue;
+      if(!c.speaker && (!w.every(x=>E.nameish(x,dt)) || w[0][0]==="ו" || w.some(x=>x[0]==="ה"))) continue;
+      peo.push({value:c.value, note:c.speaker?"דובר בתמלול":"מהכותרת", auto:true, g:c.g, kind:"NAME"});
     }
     this.setState({peo, peoIn:"", screen:"people", nerBox:false});
     if(!(this.state.o.ner && blocks && blocks.length)){

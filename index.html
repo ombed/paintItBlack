@@ -71,10 +71,10 @@ a:hover{text-decoration:underline}
   <b>נטען…</b>
   <p id="boot-msg">רגע אחד.</p>
 </div></div>
-<div id="ver">גרסה v10</div>
+<div id="ver">גרסה v11</div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v10");
+  console.log("השחרת מסמכים — גרסה v11");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -112,9 +112,9 @@ a:hover{text-decoration:underline}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v10") return;
+        if(served==="v11") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v10 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v11 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -910,11 +910,14 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     for(const c of cands) for(const w of c.value.split(/\s+/)) dt.add(w);
     const peo=[];
     for(const c of cands){
-      if(c.conf!=="high" || !c.value.includes(" ")) continue;
+      // דובר שחוזר בתמלול הוא אדם גם בשם אחד: "ענבר:" בראש כמה פסקאות.
+      if(c.conf!=="high" || (!c.value.includes(" ") && !c.speaker)) continue;
       const w=c.value.split(/\s+/);
-      if(w.length>3 || !w.every(x=>x.length>=2 && E.nameish(x,dt))) continue;
-      if(w[0][0]==="ו" || w.some(x=>x[0]==="ה")) continue;
-      peo.push({value:c.value, note:"מהכותרת", auto:true, g:c.g, kind:"NAME"});
+      // תור דיבור הוא עדות חזקה יותר ממבחני המילים של הכותרת: "דליה לב שדה"
+      // ו"הלל שר" הם דוברים גם כש"לב" היא מילה ו"הלל" מתחיל ב-ה.
+      if(w.length>3 || !w.every(x=>x.length>=2)) continue;
+      if(!c.speaker && (!w.every(x=>E.nameish(x,dt)) || w[0][0]==="ו" || w.some(x=>x[0]==="ה"))) continue;
+      peo.push({value:c.value, note:c.speaker?"דובר בתמלול":"מהכותרת", auto:true, g:c.g, kind:"NAME"});
     }
     this.setState({peo, peoIn:"", screen:"people", nerBox:false});
     if(!(this.state.o.ner && blocks && blocks.length)){
