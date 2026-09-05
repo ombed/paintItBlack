@@ -1225,7 +1225,10 @@ async function redactDocx(buf,subs,allow,opt){
   // "בחיים" הוא המילה, לא הבן אדם. חלק של שם שהוא גם מילה, או שמופיע
   // במסמך עם ה' הידיעה, מוחלף רק כשהוא עומד לבד — בלי אותיות שימוש —
   // ומסומן לבדיקה.
-  const wordy=p=>WORDLIKE.has(p)||docTokAll.has("ה"+p)||p.length<=3;
+  // שלוש אותיות לבדן אינן הופכות חלק של שם למילה: "סבג" ו"דהן" אינם מילים,
+  // ובלי אות שימוש הם דולפים ("וסבג" נשאר בטקסט). מילה של ממש נתפסת ברשימות
+  // ובצורת ה' הידיעה שבמסמך; שתי אותיות נשארות זהירות.
+  const wordy=p=>WORDLIKE.has(p)||COMMON.has(p)||docTokAll.has("ה"+p)||p.length<=2;
   const regPart=(value,rp,label)=>{
     if(!rp||rp==="███")return;
     if(label&&!label.startsWith("שם"))return;

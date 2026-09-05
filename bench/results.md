@@ -8,7 +8,7 @@
 |---|---|---|---|---|
 | person: Arabic name | 6 | 0 | 0 | 0 |
 | person: name that is also a common word (lexicon-aided) | 7 | 0 | 0 | 0 |
-| person: title attached | 6 | 0 | 1 | 0 |
+| person: title attached | 6 | 0 | 0 | 0 |
 | person: same person, one clean and one corrupted spelling | 3 | 0 | 0 | 0 |
 | person: name split across two runs mid-word | 3 | 0 | 0 | 0 |
 | org: private body, must be redacted | 5 | 0 | 0 | 0 |
@@ -39,7 +39,7 @@
 | genre | found | missed | leaked | false positives |
 |---|---|---|---|---|
 | meeting | 25 | 1 | 2 | 0 |
-| filing | 34 | 1 | 3 | 1 |
+| filing | 34 | 1 | 2 | 1 |
 | transcript | 32 | 1 | 2 | 0 |
 
 ## Unlisted suggestions (match nothing in the key; one tap each)
@@ -53,7 +53,6 @@
 - m3 · person: once, only with a prefix letter · הילי: missed, **leaked**: הילי, בהילי
 - m4 · place: street · רחוב הארזים 12: found via model+applied as «רחוב הארזים», **leaked**: הארזים
 - f1 · place: town · בית זית: missed, **leaked**: בית זית
-- f2 · person: title attached · רויטל סבג: found via discover+model+applied as «רויטל סבג», **leaked**: סבג
 - f4 · place: street · שדרות הנשיאים 8: found via applied as «שדרות הנשיאים 8», **leaked**: הנשיאים
 - t2 · person: minor, first name only · אופק: missed, **leaked**: אופק
 - t4 · person: Ethiopian name · אברה ברהנו: found via model+applied as «אברה», **leaked**: ברהנו
@@ -66,15 +65,15 @@
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 187 | 11 | 0 |
-| m2 | meeting | 153 | 13 | 0 |
-| m3 | meeting | 104 | 6 | 0 |
-| m4 | meeting | 147 | 12 | 4 |
-| f1 | filing | 157 | 14 | 2 |
-| f2 | filing | 178 | 19 | 3 |
-| f3 | filing | 111 | 12 | 0 |
-| f4 | filing | 190 | 11 | 2 |
-| t1 | transcript | 115 | 9 | 1 |
-| t2 | transcript | 114 | 15 | 2 |
-| t3 | transcript | 120 | 11 | 1 |
-| t4 | transcript | 114 | 11 | 1 |
+| m1 | meeting | 144 | 11 | 0 |
+| m2 | meeting | 102 | 13 | 0 |
+| m3 | meeting | 79 | 6 | 0 |
+| m4 | meeting | 115 | 12 | 4 |
+| f1 | filing | 140 | 14 | 2 |
+| f2 | filing | 158 | 19 | 3 |
+| f3 | filing | 103 | 12 | 0 |
+| f4 | filing | 121 | 11 | 2 |
+| t1 | transcript | 107 | 9 | 1 |
+| t2 | transcript | 102 | 15 | 2 |
+| t3 | transcript | 102 | 11 | 1 |
+| t4 | transcript | 98 | 11 | 1 |

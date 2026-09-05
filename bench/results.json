@@ -834,7 +834,7 @@
    "cat": "P_TITLE",
    "canonical": "רויטל סבג",
    "found": true,
-   "leaked": true,
+   "leaked": false,
    "fp": 0,
    "via": [
     "discover",
@@ -842,11 +842,10 @@
     "applied"
    ],
    "matched": [
-    "רויטל סבג"
-   ],
-   "leakedSurfaces": [
+    "רויטל סבג",
     "סבג"
-   ]
+   ],
+   "leakedSurfaces": []
   },
   {
    "doc": "f2",
@@ -2132,84 +2131,84 @@
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 187,
+   "ms": 144,
    "rules": 11,
    "unlisted": 0
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 153,
+   "ms": 102,
    "rules": 13,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 104,
+   "ms": 79,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 147,
+   "ms": 115,
    "rules": 12,
    "unlisted": 4
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 157,
+   "ms": 140,
    "rules": 14,
    "unlisted": 2
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 178,
+   "ms": 158,
    "rules": 19,
    "unlisted": 3
   },
   {
    "id": "f3",
    "genre": "filing",
-   "ms": 111,
+   "ms": 103,
    "rules": 12,
    "unlisted": 0
   },
   {
    "id": "f4",
    "genre": "filing",
-   "ms": 190,
+   "ms": 121,
    "rules": 11,
    "unlisted": 2
   },
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 115,
+   "ms": 107,
    "rules": 9,
    "unlisted": 1
   },
   {
    "id": "t2",
    "genre": "transcript",
-   "ms": 114,
+   "ms": 102,
    "rules": 15,
    "unlisted": 2
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 120,
+   "ms": 102,
    "rules": 11,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 114,
+   "ms": 98,
    "rules": 11,
    "unlisted": 1
   }
