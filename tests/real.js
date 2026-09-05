@@ -66,4 +66,13 @@ const words=paras.join(" ").split(/\s+/).length;
  console.log('   הבר התחתון: '+(!r.verification.passed?"אדום":
    sug.length?"כתום — שמות שאינם ברשימה":near.length?"כתום — שיבושים":
    r.verification.complete?"ירוק":"כתום"));
+
+ // שורה אחת בתחתית, כדי שיהיה קל לראות מתי משהו משתנה. שתי העובדות שהדוח
+ // הזה מדגים: הכתיב השני של שלוה נתפס לבדיקה, ושם שמופיע רק בפרוזה הוצע.
+ const twinFlagged=near.some(x=>x.value.includes("שלווה"));
+ const proseSurfaced=kid.length>0;
+ const verdict=(twinFlagged&&proseSurfaced)?"PASS":"FAIL";
+ console.log(`
+סיכום: ${verdict} — הכתיב השני «שלווה» ${twinFlagged?"נתפס לבדיקה":"לא נתפס"} · `+
+   `שם מהפרוזה ${proseSurfaced?"הוצע ("+kid.join(", ")+")":"לא הוצע"}`);
 })().catch(e=>{console.error(e);process.exit(1)});

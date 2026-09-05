@@ -14,7 +14,7 @@
      race_t.js  -> e2e/race.spec.js   both scenarios, on the real guard
      theme_t.js -> e2e/theme.spec.js  tokens, dark toggle, persistence
      ui.js      -> e2e/ui.spec.js     controls per screen, no page errors
-     flow.js    -> not yet ported
+     flow.js    -> e2e/flow.spec.js   header fill, list editing, fallback, env hints, regex
 
    The originals stay here untouched as the record of what they asserted.
 
@@ -64,7 +64,7 @@ for (const [s, p, f, st] of rows) {
 }
 
 const skipped = BLOCKED.reduce((n, [, c]) => n + c, 0);
-console.log("\nnot run here, vanilla UI only; intent ported to e2e/ except flow.js:");
+console.log("\nnot run here, vanilla UI only; intent ported to e2e/:");
 for (const [s, c] of BLOCKED) console.log("  " + s.padEnd(12) + (c ? c + " assertions" : "element presence"));
 
 console.log(`\n${pass} passed, ${fail} failed, ${broke} could not run` +
