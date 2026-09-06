@@ -54,6 +54,17 @@ class Engine{
     this.forbidden=new Set();
     if(docText)for(const w of (norm(docText).match(WRX)||[]))this.forbidden.add(w);
     this.gmap={}; for(const s of subs) if(s.g)this.gmap[s.value]=s.g;
+    // מה המסמך אומר על מילה בודדת: אחרי "הקטין", "האם", "מר", "התובעת:" היא שם
+    // פרטי, והמילה שלפניה מסגירה גם מגדר. זה מכריע שם פרטי מול שם משפחה בשם
+    // בדוי, ותוקן כאן אחרי שמסמך אמיתי החליף "גדעון" בשם משפחה ו"נריה" בשם אישה.
+    this.firstish=new Set();
+    if(docText){
+      const FCTX=/(?<![\u0590-\u05ff])(הקטינה|הילדה|הבת|האחות|האם|הסבתא|הדודה|גב'|הגב'|גברת|התובעת|הנתבעת|המבקשת|המשיבה|המנוחה|הפעוטה|התינוקת|הנערה|הקטין|הילד|הבן|האח|האב|הסבא|הדוד|מר|התובע|הנתבע|המבקש|המשיב|המנוח|הפעוט|התינוק|הנער)\s*:?\s+([\u05d0-\u05ea][\u05d0-\u05ea'"\u05f3\u05f4-]{1,14})(?![\u0590-\u05ff])/gu;
+      const FEMCTX=new Set(["הקטינה","הילדה","הבת","האחות","האם","הסבתא","הדודה","גב'","הגב'","גברת","התובעת","הנתבעת","המבקשת","המשיבה","המנוחה","הפעוטה","התינוקת","הנערה"]);
+      const nt=norm(docText); let m;
+      while((m=FCTX.exec(nt))){ const w=m[2]; if(STOP.has(w)||COMMON.has(w)||VRB.has(w))continue; this.firstish.add(w);
+        for(const s of subs) if(s.kind==="NAME"&&!this.gmap[s.value]&&norm(s.value).trim()===w) this.gmap[s.value]=FEMCTX.has(m[1])?"f":"m"; }
+    }
     this.used=new Set();
     // פרופיל שכופה "יעל רוזן" על מישהי, כשיעל רוזן אמיתית מופיעה במסמך
     // הזה — שתי נשים היו מתמזגות לשם אחד. עדיף לשבור עקביות פעם אחת
@@ -165,7 +176,7 @@ class Engine{
       const [fam,lab]=CANON[h.type]||[h.type,h.label];
       const n=(this.cnt[fam]||0)+1;this.cnt[fam]=n;
       if(fam==="NAME"&&this.opt.mode==="real")
-        base=fakeName(canonical,this.gmap[canonical]||h.g,this.used,this.forbidden);
+        base=fakeName(canonical,this.gmap[canonical]||h.g,this.used,this.forbidden,this.firstish);
       else base = fam==="NAME" ? "פלוני "+hord(n) : `[${lab} ${hord(n)}]`;
     }
     this.map[k]??=base;

@@ -207,11 +207,15 @@ function origin(v){
   return "he"}
 // המגדר נקבע קודם כל לפי מה שכתוב במסמך ("הנתבעת", "גב'"), ורק אחר כך
 // לפי השם עצמו. סיומת ה' היא ניחוש אחרון, לא כלל.
+// שמות זכר שנגמרים ב-ה': הכלל "ה' בסוף = נקבה" הפך את נריה, משה ויהודה לנשים
+const MALE_HE=new Set(["משה","אריה","יהודה","שלמה","עובדיה","נחמיה","זכריה","ירמיה","אליה","אוריה","נריה","עזריה","טוביה","שמריה","ידידיה","יונה","עוזיה","חזקיה","ישעיה","גדליה","שמעיה","מיכה","נתניה","רפאה","אלישע","יהושע","הושע","אלקנה","מנשה","מתתיהו","עמיחי","יחיא","מוסא","עיסא","מוחמד","ג'ומעה","עטיה","עוואד"]);
 function gender(v,hint){
   if(hint==="f"||hint==="m")return hint;
   const first=v.trim().split(/\s+/)[0];
   if(FEM.has(first))return "f";
-  if(MASC.has(first))return "m";
+  if(MASC.has(first)||MALE_HE.has(first))return "m";
+  // סיומת -יה (נריה, עזריה) היא תאופורית וזכרית; -ית/-את/-ה אחרת נקבית
+  if(/יה$/.test(first)&&first.length>=4)return "m";
   if(/(?:ית|את|ה)$/.test(first)&&first.length>=4)return "f";
   return "m"}
 function hash32(s){let h=0x811c9dc5;
@@ -228,13 +232,20 @@ function pickFrom(arr,seed,used,forbidden){
   return arr[seed%n]+" "+((seed%89)+11)}
 // שם פרטי לבד או שם משפחה לבד — נשמר אותו סוג, אחרת "כהן" הופך ל"יעל"
 // והמשפט "מר כהן טען" נשבר.
-function fakeName(value,hint,used,forbidden){
+// סיומות של שם משפחה: מילה בודדת כזאת מקבלת שם משפחה בדוי גם בלי ראיה אחרת
+const SUR_SUFFIX=/(?:וביץ|ביץ|ביץ'|סקי|סקה|ברג|בורג|שטיין|שטין|צקי|נסקי|ינסקי|ובסקי|ייב|ייבה|וביץ')$/;
+function fakeName(value,hint,used,forbidden,firstish){
   const org=origin(value), g=gender(value,hint);
   const parts=value.trim().split(/\s+/);
   const seed=hash32(norm(value).trim());
   const firsts=POOL[org+"_"+(g==="f"?"f":"m")], surs=POOL[org+"_s"];
   if(parts.length===1){
-    const isFirst=FEM.has(parts[0])||MASC.has(parts[0]);
+    // מילה אחת: שם פרטי כשהיא שם פרטי מוכר, או כשהמסמך מציג אותה אחרי מילת
+    // תפקיד או קרבה ("הקטין גדעון", "התובעת: שלהבת"); אחרת שם משפחה.
+    // עד עכשיו רק רשימת ה-POOL נחשבה, וכל שם פרטי שאינו בה קיבל שם משפחה בדוי.
+    const w=parts[0], nw=norm(w);
+    const knownFirst=FEM.has(w)||MASC.has(w)||MALE_HE.has(w)||(typeof KNOWN_FIRST!=="undefined"&&KNOWN_FIRST.has(w));
+    const isFirst=knownFirst||(!SUR_SUFFIX.test(nw)&&((firstish&&firstish.has(nw))||hint==="f"||hint==="m"));
     const out=pickFrom(isFirst?firsts:surs,seed,used,forbidden);
     used.add(out);return out}
   const f=pickFrom(firsts,seed,used,forbidden); used.add(f);
@@ -760,7 +771,8 @@ function anchorOK(c){
   // חלק של שם (בן, בת, אבו, אל, דה, בר) היא כינוי או מילת שאלה
   if(ws.some(w=>/^הח["״]מ$/.test(w)||(w.replace(/['"׳״-]/g,"").length<=2&&!["בן","בת","אבו","אל","דה","בר","ון","דל"].includes(w))))return false;
   return true}
-const ANCH=[["title",`(?:${TITLES})[,\\s]+(${NME})`,"מופיע אחרי תואר"],
+// גבול מילה לפני התואר: "מר" בתוך "אמר" סימן את המילה שאחריו כשם
+const ANCH=[["title",`${BD}(?:${TITLES})[,\\s]+(${NME})`,"מופיע אחרי תואר"],
  ["hcm",`אני\\s+הח"מ[,\\s]+(${NME})`,'מופיע אחרי "אני הח"מ" בתצהיר'],
  ["warned",`(${NME})[,\\s]+(?=לאחר\\s+שהוזהרת)`,"מופיע לפני נוסח האזהרה בתצהיר"],
  ["repby",`(?:מיוצג(?:ת)?\\s+ע"?י|באמצעות\\s+ב"כ|ע"י\\s+ב"כ)[,\\s]+(?:(?:${TITLES})[,\\s]+)?(${NME})`,"מופיע אחרי ציון ייצוג"],
@@ -1023,6 +1035,17 @@ class Engine{
     this.forbidden=new Set();
     if(docText)for(const w of (norm(docText).match(WRX)||[]))this.forbidden.add(w);
     this.gmap={}; for(const s of subs) if(s.g)this.gmap[s.value]=s.g;
+    // מה המסמך אומר על מילה בודדת: אחרי "הקטין", "האם", "מר", "התובעת:" היא שם
+    // פרטי, והמילה שלפניה מסגירה גם מגדר. זה מכריע שם פרטי מול שם משפחה בשם
+    // בדוי, ותוקן כאן אחרי שמסמך אמיתי החליף "גדעון" בשם משפחה ו"נריה" בשם אישה.
+    this.firstish=new Set();
+    if(docText){
+      const FCTX=/(?<![\u0590-\u05ff])(הקטינה|הילדה|הבת|האחות|האם|הסבתא|הדודה|גב'|הגב'|גברת|התובעת|הנתבעת|המבקשת|המשיבה|המנוחה|הפעוטה|התינוקת|הנערה|הקטין|הילד|הבן|האח|האב|הסבא|הדוד|מר|התובע|הנתבע|המבקש|המשיב|המנוח|הפעוט|התינוק|הנער)\s*:?\s+([\u05d0-\u05ea][\u05d0-\u05ea'"\u05f3\u05f4-]{1,14})(?![\u0590-\u05ff])/gu;
+      const FEMCTX=new Set(["הקטינה","הילדה","הבת","האחות","האם","הסבתא","הדודה","גב'","הגב'","גברת","התובעת","הנתבעת","המבקשת","המשיבה","המנוחה","הפעוטה","התינוקת","הנערה"]);
+      const nt=norm(docText); let m;
+      while((m=FCTX.exec(nt))){ const w=m[2]; if(STOP.has(w)||COMMON.has(w)||VRB.has(w))continue; this.firstish.add(w);
+        for(const s of subs) if(s.kind==="NAME"&&!this.gmap[s.value]&&norm(s.value).trim()===w) this.gmap[s.value]=FEMCTX.has(m[1])?"f":"m"; }
+    }
     this.used=new Set();
     // פרופיל שכופה "יעל רוזן" על מישהי, כשיעל רוזן אמיתית מופיעה במסמך
     // הזה — שתי נשים היו מתמזגות לשם אחד. עדיף לשבור עקביות פעם אחת
@@ -1134,7 +1157,7 @@ class Engine{
       const [fam,lab]=CANON[h.type]||[h.type,h.label];
       const n=(this.cnt[fam]||0)+1;this.cnt[fam]=n;
       if(fam==="NAME"&&this.opt.mode==="real")
-        base=fakeName(canonical,this.gmap[canonical]||h.g,this.used,this.forbidden);
+        base=fakeName(canonical,this.gmap[canonical]||h.g,this.used,this.forbidden,this.firstish);
       else base = fam==="NAME" ? "פלוני "+hord(n) : `[${lab} ${hord(n)}]`;
     }
     this.map[k]??=base;

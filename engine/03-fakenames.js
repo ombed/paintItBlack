@@ -57,11 +57,15 @@ function origin(v){
   return "he"}
 // המגדר נקבע קודם כל לפי מה שכתוב במסמך ("הנתבעת", "גב'"), ורק אחר כך
 // לפי השם עצמו. סיומת ה' היא ניחוש אחרון, לא כלל.
+// שמות זכר שנגמרים ב-ה': הכלל "ה' בסוף = נקבה" הפך את נריה, משה ויהודה לנשים
+const MALE_HE=new Set(["משה","אריה","יהודה","שלמה","עובדיה","נחמיה","זכריה","ירמיה","אליה","אוריה","נריה","עזריה","טוביה","שמריה","ידידיה","יונה","עוזיה","חזקיה","ישעיה","גדליה","שמעיה","מיכה","נתניה","רפאה","אלישע","יהושע","הושע","אלקנה","מנשה","מתתיהו","עמיחי","יחיא","מוסא","עיסא","מוחמד","ג'ומעה","עטיה","עוואד"]);
 function gender(v,hint){
   if(hint==="f"||hint==="m")return hint;
   const first=v.trim().split(/\s+/)[0];
   if(FEM.has(first))return "f";
-  if(MASC.has(first))return "m";
+  if(MASC.has(first)||MALE_HE.has(first))return "m";
+  // סיומת -יה (נריה, עזריה) היא תאופורית וזכרית; -ית/-את/-ה אחרת נקבית
+  if(/יה$/.test(first)&&first.length>=4)return "m";
   if(/(?:ית|את|ה)$/.test(first)&&first.length>=4)return "f";
   return "m"}
 function hash32(s){let h=0x811c9dc5;
@@ -78,13 +82,20 @@ function pickFrom(arr,seed,used,forbidden){
   return arr[seed%n]+" "+((seed%89)+11)}
 // שם פרטי לבד או שם משפחה לבד — נשמר אותו סוג, אחרת "כהן" הופך ל"יעל"
 // והמשפט "מר כהן טען" נשבר.
-function fakeName(value,hint,used,forbidden){
+// סיומות של שם משפחה: מילה בודדת כזאת מקבלת שם משפחה בדוי גם בלי ראיה אחרת
+const SUR_SUFFIX=/(?:וביץ|ביץ|ביץ'|סקי|סקה|ברג|בורג|שטיין|שטין|צקי|נסקי|ינסקי|ובסקי|ייב|ייבה|וביץ')$/;
+function fakeName(value,hint,used,forbidden,firstish){
   const org=origin(value), g=gender(value,hint);
   const parts=value.trim().split(/\s+/);
   const seed=hash32(norm(value).trim());
   const firsts=POOL[org+"_"+(g==="f"?"f":"m")], surs=POOL[org+"_s"];
   if(parts.length===1){
-    const isFirst=FEM.has(parts[0])||MASC.has(parts[0]);
+    // מילה אחת: שם פרטי כשהיא שם פרטי מוכר, או כשהמסמך מציג אותה אחרי מילת
+    // תפקיד או קרבה ("הקטין גדעון", "התובעת: שלהבת"); אחרת שם משפחה.
+    // עד עכשיו רק רשימת ה-POOL נחשבה, וכל שם פרטי שאינו בה קיבל שם משפחה בדוי.
+    const w=parts[0], nw=norm(w);
+    const knownFirst=FEM.has(w)||MASC.has(w)||MALE_HE.has(w)||(typeof KNOWN_FIRST!=="undefined"&&KNOWN_FIRST.has(w));
+    const isFirst=knownFirst||(!SUR_SUFFIX.test(nw)&&((firstish&&firstish.has(nw))||hint==="f"||hint==="m"));
     const out=pickFrom(isFirst?firsts:surs,seed,used,forbidden);
     used.add(out);return out}
   const f=pickFrom(firsts,seed,used,forbidden); used.add(f);
