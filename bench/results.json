@@ -4315,6 +4315,367 @@
    "via": [],
    "matched": [],
    "leakedSurfaces": []
+  },
+  {
+   "doc": "a1",
+   "genre": "audio",
+   "cat": "P_SPEAKERLINE",
+   "canonical": "נופר",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "נופר"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a1",
+   "genre": "audio",
+   "cat": "P_TWO_SPELL",
+   "canonical": "בוסקילה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "בוסקילה",
+    "בושקילה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a1",
+   "genre": "audio",
+   "cat": "P_TWO_SPELL",
+   "canonical": "אביתר",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "אביתר",
+    "אביטר"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a1",
+   "genre": "audio",
+   "cat": "P_PROSE",
+   "canonical": "צליל",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "צליל"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a1",
+   "genre": "audio",
+   "cat": "P_CORRUPT_ONLY",
+   "canonical": "וסילייב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "וסיליב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a2",
+   "genre": "audio",
+   "cat": "P_SPEAKERLINE",
+   "canonical": "שיראל",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "applied"
+   ],
+   "matched": [
+    "שיראל"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a2",
+   "genre": "audio",
+   "cat": "P_TWO_SPELL",
+   "canonical": "מורוזוב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "מורוזוב",
+    "מורוזוו"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a2",
+   "genre": "audio",
+   "cat": "P_TWO_SPELL",
+   "canonical": "אלמליח",
+   "found": true,
+   "leaked": true,
+   "fp": 0,
+   "via": [
+    "suggest"
+   ],
+   "matched": [
+    "אתמול ואלמליך"
+   ],
+   "leakedSurfaces": [
+    "אלמליח",
+    "אלמליך"
+   ]
+  },
+  {
+   "doc": "a2",
+   "genre": "audio",
+   "cat": "P_FORMS",
+   "canonical": "ולריה עודה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "ולריה",
+    "ולריה עודה",
+    "עודה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a2",
+   "genre": "audio",
+   "cat": "P_MINOR",
+   "canonical": "אסיף",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "אסיף"
+   ]
+  },
+  {
+   "doc": "a3",
+   "genre": "audio",
+   "cat": "P_SPEAKERLINE",
+   "canonical": "טוהר",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "טוהר"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a3",
+   "genre": "audio",
+   "cat": "P_SPEAKERLINE",
+   "canonical": "פיראס",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "פיראס"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a3",
+   "genre": "audio",
+   "cat": "P_TWO_SPELL",
+   "canonical": "קוזנצוב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "קוזנצוב",
+    "קוזנצב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a3",
+   "genre": "audio",
+   "cat": "P_SHARED_SURNAME",
+   "canonical": "יונס אגבריה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "יונס אגבריה",
+    "אגבריה",
+    "יונס"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a3",
+   "genre": "audio",
+   "cat": "P_SHARED_SURNAME",
+   "canonical": "סוהא אגבריה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "וסוהא אגבריה",
+    "אגבריה",
+    "יונס אגבריה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a4",
+   "genre": "audio",
+   "cat": "P_SPEAKERLINE",
+   "canonical": "ארטיום",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "ארטיום"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a4",
+   "genre": "audio",
+   "cat": "P_TWO_SPELL",
+   "canonical": "תורגמן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "תורגמן",
+    "טורגמן",
+    "בסוף טורגמן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a4",
+   "genre": "audio",
+   "cat": "P_TWO_SPELL",
+   "canonical": "מקונן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "near",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "מקונן",
+    "ומכונן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a4",
+   "genre": "audio",
+   "cat": "P_PROSE",
+   "canonical": "ניב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "ניב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "a4",
+   "genre": "audio",
+   "cat": "I_PHONE",
+   "canonical": "052-8814903",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "052-8814903"
+   ],
+   "leakedSurfaces": []
   }
  ],
  "unlisted": [
@@ -4376,6 +4737,27 @@
     "discover"
    ],
    "why": "מופיע אחרי מילת תפקיד בגוף הטקסט",
+   "applied": true
+  },
+  {
+   "doc": "f4",
+   "genre": "filing",
+   "value": "תצהיר",
+   "sources": [
+    "discover"
+   ],
+   "why": "פסקה שכולה שם, ואחריה דיבור",
+   "applied": true
+  },
+  {
+   "doc": "f4",
+   "genre": "filing",
+   "value": "תצהירי",
+   "sources": [
+    "near",
+    "flagged"
+   ],
+   "why": "",
    "applied": true
   },
   {
@@ -4537,238 +4919,276 @@
    ],
    "why": "",
    "applied": true
+  },
+  {
+   "doc": "a3",
+   "genre": "audio",
+   "value": "ושניהם",
+   "sources": [
+    "suggest"
+   ],
+   "why": "",
+   "applied": true
   }
  ],
  "perDoc": [
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 233,
+   "ms": 214,
    "rules": 9,
    "unlisted": 0
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 131,
+   "ms": 159,
    "rules": 13,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 103,
+   "ms": 102,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 137,
+   "ms": 145,
    "rules": 9,
    "unlisted": 3
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 158,
+   "ms": 157,
    "rules": 14,
    "unlisted": 2
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 178,
+   "ms": 192,
    "rules": 16,
    "unlisted": 1
   },
   {
    "id": "f3",
    "genre": "filing",
-   "ms": 126,
+   "ms": 132,
    "rules": 9,
    "unlisted": 0
   },
   {
    "id": "f4",
    "genre": "filing",
-   "ms": 148,
-   "rules": 9,
-   "unlisted": 1
+   "ms": 141,
+   "rules": 11,
+   "unlisted": 3
   },
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 148,
+   "ms": 132,
    "rules": 8,
    "unlisted": 0
   },
   {
    "id": "t2",
    "genre": "transcript",
-   "ms": 133,
+   "ms": 131,
    "rules": 12,
    "unlisted": 1
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 132,
+   "ms": 133,
    "rules": 11,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 127,
+   "ms": 117,
    "rules": 13,
    "unlisted": 1
   },
   {
    "id": "w1",
    "genre": "welfare",
-   "ms": 132,
+   "ms": 112,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "w2",
    "genre": "welfare",
-   "ms": 99,
+   "ms": 138,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "w3",
    "genre": "welfare",
-   "ms": 126,
+   "ms": 124,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "w4",
    "genre": "welfare",
-   "ms": 120,
+   "ms": 98,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "h1",
    "genre": "medical",
-   "ms": 104,
+   "ms": 115,
    "rules": 7,
    "unlisted": 2
   },
   {
    "id": "h2",
    "genre": "medical",
-   "ms": 107,
+   "ms": 122,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "h3",
    "genre": "medical",
-   "ms": 101,
+   "ms": 79,
    "rules": 5,
    "unlisted": 3
   },
   {
    "id": "p1",
    "genre": "police",
-   "ms": 108,
+   "ms": 101,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "p2",
    "genre": "police",
-   "ms": 89,
+   "ms": 101,
    "rules": 4,
    "unlisted": 1
   },
   {
    "id": "p3",
    "genre": "police",
-   "ms": 98,
+   "ms": 97,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "p4",
    "genre": "police",
-   "ms": 77,
+   "ms": 81,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "b1",
    "genre": "bank",
-   "ms": 89,
+   "ms": 100,
    "rules": 7,
    "unlisted": 2
   },
   {
    "id": "b2",
    "genre": "bank",
-   "ms": 59,
+   "ms": 73,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "b3",
    "genre": "bank",
-   "ms": 65,
+   "ms": 67,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "c1",
    "genre": "chat",
-   "ms": 104,
+   "ms": 91,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "c2",
    "genre": "chat",
-   "ms": 113,
+   "ms": 112,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "c3",
    "genre": "chat",
-   "ms": 101,
+   "ms": 115,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "c4",
    "genre": "chat",
-   "ms": 118,
+   "ms": 116,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "x1",
    "genre": "position",
-   "ms": 162,
+   "ms": 180,
    "rules": 8,
    "unlisted": 2
   },
   {
    "id": "x2",
    "genre": "position",
-   "ms": 111,
+   "ms": 122,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "x3",
    "genre": "position",
-   "ms": 95,
+   "ms": 113,
    "rules": 4,
+   "unlisted": 0
+  },
+  {
+   "id": "a1",
+   "genre": "audio",
+   "ms": 110,
+   "rules": 7,
+   "unlisted": 0
+  },
+  {
+   "id": "a2",
+   "genre": "audio",
+   "ms": 100,
+   "rules": 6,
+   "unlisted": 0
+  },
+  {
+   "id": "a3",
+   "genre": "audio",
+   "ms": 129,
+   "rules": 8,
+   "unlisted": 1
+  },
+  {
+   "id": "a4",
+   "genre": "audio",
+   "ms": 83,
+   "rules": 7,
    "unlisted": 0
   }
  ]

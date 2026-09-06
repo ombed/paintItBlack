@@ -59,7 +59,9 @@ moves the junk count, the report says so and the decision is made on leaks.
 
 ## Corpus
 
-Thirty documents in eight genres: meeting summaries, court filings, raw
+Thirty-seven documents in nine genres, the ninth being transcribed audio: speech typed from a recording, with no speaker turns, no titles and no case header, the speaker written on a line of its own, and deliberate typing errors. It is the shape of the documents the client works on daily.
+
+The others are: meeting summaries, court filings, raw
 transcripts, welfare reports, medical summaries, police statements, bank
 letters, WhatsApp exports. 35 categories, each in at least three documents
 so one lucky hit does not read as a pass. Two are marked expected to fail

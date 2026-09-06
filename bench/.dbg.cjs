@@ -1,6 +1,6 @@
 /* מנוע ההשחרה — הועבר כמו שהוא. אין כאן DOM. */
 let nerSayFn=()=>{};
-export const setNerSay=f=>{nerSayFn=f||(()=>{})};
+const setNerSay=f=>{nerSayFn=f||(()=>{})};
 const nerSay=(t,p)=>nerSayFn(t,p);
 const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;
   for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
@@ -8,8 +8,8 @@ function crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CRC[(c^u8[i])&
   return (c^0xFFFFFFFF)>>>0}
 async function pipe(u8,S,fmt){const s=new Blob([u8]).stream().pipeThrough(new S(fmt));
   return new Uint8Array(await new Response(s).arrayBuffer())}
-const inflate=u8=>pipe(u8,DecompressionStream,"deflate-raw");
-const deflate=u8=>pipe(u8,CompressionStream,"deflate-raw");
+const inflate=async u8=>global.__inflate(u8);
+const deflate=async u8=>global.__deflate(u8);
 
 async function unzip(buf){
   const dv=new DataView(buf),N=buf.byteLength;let e=-1;
@@ -356,10 +356,6 @@ const KIN=new Set(("אמא אבא אמו אביו אמה אביה הורי הו�
  "גיסתנו דודה דוד סבתא סבא אשתו בעלה גרושתו בת-זוגו").split(" "));
 const CARE=new Set(("תמיכה תמיכת טיפול טיפולה ליווי עזרה סיוע מעקב קשר "+
  "פגישה מפגש דאגה אחריות השמה").split(" "));
-// מילות מילוי שעומדות לבדן בשורה בתמלול, ונראות בדיוק כמו שורת דובר
-const FILLER=new Set(("טוב בסדר כן לא נכון בטח אוקיי אוקי רגע שנייה יודעת יודע מבינה מבין "+
- "בדיוק ברור מצוין יופי אה אהה אמ בטוח נו הנה אז ואז כאילו ממש לגמרי בכלל הכול הכל "+
- "תודה סליחה שלום ביי מה איך למה מתי איפה מי כמה אולי בטוחה מסכימה מסכים").split(" "));
 const REL=new Set(["שהוא","שהיא","שהם","שהן","אשר"]);
 const ROLE2=("עובדת סוציאלית|עובד סוציאלי|מנהלת בית הספר|מנהל בית הספר|"+
  "מנהלת המחלקה|מנהל המחלקה|יועצת חינוכית|קצינת מבחן|קצין מבחן|"+
@@ -1612,28 +1608,18 @@ function discover(blocks){
   // discover החזיר אפס מועמדים. פסקה קצרה בלי פיסוק בסוף, שאחריה פסקה של ממש, היא דובר.
   const extra=[];
   for(let bi=0;bi<blocks.length;bi++){
-    const t=trimEdges(blocks[bi].text||""), w=t.split(/\s+/).filter(Boolean);
+    const t=trimEdges(blocks[bi].text||""), w=t.split(/s+/).filter(Boolean);
     const nxt=blocks[bi+1]&&trimEdges(blocks[bi+1].text||"");
     if(!t||w.length>3||t.length>25||/[.,?!:;]$/.test(t))continue;
-    if(!nxt||nxt.split(/\s+/).length<4)continue;
+    if(!nxt||nxt.split(/s+/).length<4)continue;
     const c=cleanName(t); if(!c||!anchorOK(c))continue;
-    if(!c.split(/\s+/).every(x=>x.length>=2))continue;
-    // תמלול מלא בשורות קצרות שאינן שמות: "הבנתי", "טוב", "יודעת". הן נראות בדיוק
-    // כמו שורת דובר, ושתיים מהן אף חזרו ולכן קיבלו ביטחון גבוה ומילוי אוטומטי.
-    if(c.split(/\s+/).some(x=>FILLER.has(norm(x))||/(?:תי|נו)$/.test(norm(x))))continue;
-    // תווית דובר היא שם חשוף: בלי פיסוק בתוכה, בלי רבים ובלי שייכות.
-    // "תראי, עקרונים", "לטפל בפצעים", "הפצעים נקרות", "מניסיון שלך" נראו כמו שורת דובר.
-    if(/[,;:"'()׳״]/.test(t))continue;
-    if(c.split(/\s+/).some(x=>/(?:ים|ות|יים|יות)$/.test(norm(x))&&!KNOWN_FIRST.has(norm(x))))continue;
-    if(c.split(/\s+/).some(x=>/^של[ךכםןנהוי]?$/.test(norm(x))))continue;
+    if(!c.split(/s+/).every(x=>x.length>=2))continue;
     const s0=blocks[bi].text.indexOf(c); if(s0<0)continue;
     extra.push({b:blocks[bi],h:{text:c,s:s0,e:s0+c.length,why:"פסקה שכולה שם, ואחריה דיבור",anchor:"speakerline",g:null,role:null}});
   }
   for(const {b,h} of extra){
     const r=found[h.text]||(found[h.text]={count:0,why:new Set(),conf:"medium",ctx:"",role:null,g:null,gf:0,gm:0});
-    // בניגוד לתור דיבור עם נקודתיים, שורה בודדת היא רמז חלש: היא נשארת הצעה
-    // בהקשה אחת ולעולם לא מתמלאת מעצמה, גם כשהיא חוזרת.
-    r.count++;r.why.add(h.why);r.spk=(r.spk||0)+1;
+    r.count++;r.why.add(h.why);r.spk=(r.spk||0)+1; if(r.spk>=2)r.conf="high";
     if(!r.ctx)r.ctx=ctxHTML(b.text,h.s,h.e);
   }
   for(const b of blocks) for(const h of anchored(b.text)){
@@ -1803,7 +1789,7 @@ function nerFixRegExp(){
 // השורה הזו (GF, GM, PLACE_RX) תקינות תחת הדגל u — אחרת המודול לא היה נטען.
 // בדיקת הדפדפן ב-e2e/flow.spec.js ממתינה ל-window.__nerRx לפני שהיא שואלת.
 nerFixRegExp();
-export async function nerPrepTokenizer(report){
+async function nerPrepTokenizer(report){
   const say=m=>{console.log("טוקנייזר: "+m); if(report)report(m)};
   const url=TOK_URL();
   const out={url,steps:[]};
@@ -2024,9 +2010,6 @@ function restoreNames(txt,pairs){
 }
 
 
-export {nerLast, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
-  variants, validID, ibanOK, luhn, hord, POOL, WORDLIKE, FEM, MASC, fakeName, near1, HOMO, WEAK,
-  findNear, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
-  resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,
-  discover, PLACES, PLACE_BY, geoMap, nerEnv, nerCached, nerPersist, nerLoad, nerRun,
-  TITLE_RX, ORG_RX, likelyOrg, cleanEntry, trimEdges, pseudoRX, restoreNames, STOP};
+
+
+module.exports={cleanName,anchorOK,trimEdges,nerLast,crc32,unzip,zip,parseXML,serXML,TEXTPART,TXT,ENC,norm,esc,flex,H,A,variants,validID,ibanOK,luhn,hord,POOL,WORDLIKE,FEM,MASC,fakeName,near1,HOMO,WEAK,findNear,nameish,bodyNames,nerChunks,nerClean,PAT,WHYP,KINDS,KINDLBL,CANON,ckey,resolve,Engine,flatten,acceptTracked,stripComments,redactDocx,partName,ctxHTML,verify,discover,PLACES,PLACE_BY,geoMap,nerEnv,nerCached,nerPersist,nerLoad,nerRun,TITLE_RX,ORG_RX,likelyOrg,cleanEntry,trimEdges,pseudoRX,restoreNames,STOP,nerAlign,nerGroup,KNOWN_FIRST,COMMON,VRB,GF,GM};

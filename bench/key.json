@@ -42,7 +42,8 @@
   "I_EMAIL": "pii: email address",
   "I_BANK": "pii: bank account",
   "I_PLATE": "pii: licence plate",
-  "I_DOB": "pii: date of birth"
+  "I_DOB": "pii: date of birth",
+  "P_SPEAKERLINE": "person: speaker written on a line of its own (no colon)"
  },
  "exemptFromDisjoint": [
   "P_WORD",
@@ -3140,6 +3141,252 @@
       "לשם"
      ],
      "note": "ordinary words that are also locality names"
+    }
+   ]
+  },
+  {
+   "id": "a1",
+   "genre": "audio",
+   "title": "תמלול שיחה",
+   "file": "corpus/a1.docx",
+   "words": 85,
+   "entities": [
+    {
+     "cat": "P_SPEAKERLINE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "נופר",
+     "surfaces": [
+      "נופר"
+     ],
+     "note": "speaker written on a line of its own"
+    },
+    {
+     "cat": "P_TWO_SPELL",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "בוסקילה",
+     "surfaces": [
+      "בוסקילה",
+      "בושקילה"
+     ],
+     "note": "ס typed as ש"
+    },
+    {
+     "cat": "P_TWO_SPELL",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אביתר",
+     "surfaces": [
+      "אביתר",
+      "אביטר"
+     ],
+     "note": "ת typed as ט"
+    },
+    {
+     "cat": "P_PROSE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "צליל",
+     "surfaces": [
+      "צליל"
+     ],
+     "note": "only in prose, never before a speech verb"
+    },
+    {
+     "cat": "P_CORRUPT_ONLY",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "וסילייב",
+     "surfaces": [
+      "וסיליב"
+     ],
+     "note": "expected to fail: only the corrupted form appears"
+    }
+   ]
+  },
+  {
+   "id": "a2",
+   "genre": "audio",
+   "title": "תמלול שיחה",
+   "file": "corpus/a2.docx",
+   "words": 75,
+   "entities": [
+    {
+     "cat": "P_SPEAKERLINE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "שיראל",
+     "surfaces": [
+      "שיראל"
+     ],
+     "note": "speaker written on a line of its own"
+    },
+    {
+     "cat": "P_TWO_SPELL",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מורוזוב",
+     "surfaces": [
+      "מורוזוב",
+      "מורוזוו"
+     ],
+     "note": "ב typed as ו"
+    },
+    {
+     "cat": "P_TWO_SPELL",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אלמליח",
+     "surfaces": [
+      "אלמליח",
+      "אלמליך"
+     ],
+     "note": "ח typed as ך"
+    },
+    {
+     "cat": "P_FORMS",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ולריה עודה",
+     "surfaces": [
+      "ולריה עודה",
+      "עודה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_MINOR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אסיף",
+     "surfaces": [
+      "אסיף"
+     ],
+     "note": "minor, first name only"
+    }
+   ]
+  },
+  {
+   "id": "a3",
+   "genre": "audio",
+   "title": "תמלול שיחה מוקלטת",
+   "file": "corpus/a3.docx",
+   "words": 83,
+   "entities": [
+    {
+     "cat": "P_SPEAKERLINE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "טוהר",
+     "surfaces": [
+      "טוהר"
+     ],
+     "note": "speaker written on a line of its own"
+    },
+    {
+     "cat": "P_SPEAKERLINE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "פיראס",
+     "surfaces": [
+      "פיראס"
+     ],
+     "note": "second speaker line, later in the file"
+    },
+    {
+     "cat": "P_TWO_SPELL",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "קוזנצוב",
+     "surfaces": [
+      "קוזנצוב",
+      "קוזנצב"
+     ],
+     "note": "matres lectionis: the vav dropped"
+    },
+    {
+     "cat": "P_SHARED_SURNAME",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "יונס אגבריה",
+     "surfaces": [
+      "יונס אגבריה",
+      "יונס"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_SHARED_SURNAME",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "סוהא אגבריה",
+     "surfaces": [
+      "סוהא אגבריה",
+      "אגבריה"
+     ],
+     "note": "shares a surname with יונס"
+    }
+   ]
+  },
+  {
+   "id": "a4",
+   "genre": "audio",
+   "title": "תמלול שיחת טלפון",
+   "file": "corpus/a4.docx",
+   "words": 63,
+   "entities": [
+    {
+     "cat": "P_SPEAKERLINE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ארטיום",
+     "surfaces": [
+      "ארטיום"
+     ],
+     "note": "speaker written on a line of its own"
+    },
+    {
+     "cat": "P_TWO_SPELL",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "תורגמן",
+     "surfaces": [
+      "תורגמן",
+      "טורגמן"
+     ],
+     "note": "ת typed as ט"
+    },
+    {
+     "cat": "P_TWO_SPELL",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מקונן",
+     "surfaces": [
+      "מקונן",
+      "מכונן"
+     ],
+     "note": "ק typed as כ"
+    },
+    {
+     "cat": "P_PROSE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ניב",
+     "surfaces": [
+      "ניב"
+     ],
+     "note": "only in prose, never before a speech verb"
+    },
+    {
+     "cat": "I_PHONE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "052-8814903",
+     "surfaces": [
+      "052-8814903"
+     ],
+     "note": ""
     }
    ]
   }

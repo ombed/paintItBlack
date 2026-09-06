@@ -347,6 +347,9 @@ const PUBLIC = ["בית המשפט לענייני משפחה", "משרד הרו�
 
 // the second half: five more genres, two-letter surnames, anchored minors, PII
 docs.push(...require("./corpus-more.js")(Doc, C));
+// transcribed audio: the shape her real transcripts have, and the typos the
+// near-miss layer exists for
+docs.push(...require("./corpus-audio.js")(Doc, C));
 
 // ── assertions: the key cannot drift, every category is covered, nothing is known ──
 const strip = (s) => s.replace(/[֑-ׇ]/g, "");

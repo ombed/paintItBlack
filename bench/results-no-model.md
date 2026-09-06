@@ -1,6 +1,6 @@
 # Benchmark results (no model)
 
-33 documents, 262 keyed entities, model off. Generated 2026-09-06.
+37 documents, 282 keyed entities, model off. Generated 2026-09-06.
 
 ## Per category
 
@@ -9,34 +9,34 @@
 | person: Arabic name | 6 | 4 | 4 | 0 |
 | person: name that is also a common word (lexicon-aided) | 6 | 1 | 1 | 0 |
 | person: title attached | 7 | 1 | 1 | 0 |
-| person: same person, one clean and one corrupted spelling | 3 | 2 | 5 | 0 |
+| person: same person, one clean and one corrupted spelling | 9 | 3 | 10 | 0 |
 | person: name split across two runs mid-word | 2 | 1 | 1 | 0 |
 | org: private body, must be redacted | 7 | 3 | 4 | 0 |
 | place: town | 10 | 2 | 2 | 0 |
 | trap: case numbers, dates, section references | – | – | – | 1 |
 | trap: idiom or public title beside a same-word name | – | – | – | 1 |
-| person: full name, surname alone, first name alone | 7 | 0 | 3 | 0 |
-| person: only in prose, never before a speech verb | 5 | 0 | 0 | 0 |
+| person: full name, surname alone, first name alone | 8 | 0 | 3 | 0 |
+| person: only in prose, never before a speech verb | 7 | 0 | 0 | 0 |
 | person: Ethiopian name | 5 | 3 | 3 | 0 |
 | person: role word directly before, no colon | 6 | 0 | 0 | 0 |
 | org: body whose name reads like a person's | 3 | 0 | 0 | 0 |
 | place: neighbourhood | 4 | 2 | 2 | 0 |
-| person: two people sharing a surname | 8 | 0 | 4 | 0 |
+| person: two people sharing a surname | 10 | 0 | 5 | 0 |
 | person: Russian name | 6 | 2 | 2 | 0 |
 | person: nikud on one occurrence | 0 | 3 | 3 | 0 |
 | person: once, only with a prefix letter (expected to fail) | 0 | 3 | 3 | 0 |
 | person: name that reads like a body's | 0 | 3 | 3 | 0 |
 | org: public body, must not be redacted | – | – | – | 0 |
 | person: two people edit-distance 1 apart (must not merge) | 2 | 4 | 4 | 0 |
-| person: only in corrupted form, never cleanly (expected to fail) | 2 | 1 | 1 | 0 |
+| person: only in corrupted form, never cleanly (expected to fail) | 2 | 2 | 2 | 0 |
 | person: hyphenated surname, elsewhere with a space | 2 | 3 | 3 | 0 |
-| person: minor, first name only | 1 | 5 | 5 | 0 |
+| person: minor, first name only | 1 | 6 | 6 | 0 |
 | place: street | 8 | 0 | 0 | 0 |
 | trap: פלוני / פלונית | – | – | – | 0 |
 | person: two-letter surname | 0 | 5 | 5 | 0 |
 | person: minor introduced by הקטין / הקטינה | 0 | 7 | 7 | 0 |
 | pii: ID number | 10 | 0 | 0 | 0 |
-| pii: mobile phone | 9 | 0 | 0 | 0 |
+| pii: mobile phone | 10 | 0 | 0 | 0 |
 | pii: date of birth | 6 | 0 | 0 | 0 |
 | pii: email address | 6 | 0 | 0 | 0 |
 | pii: bank account | 5 | 0 | 0 | 0 |
@@ -48,6 +48,7 @@
 | trap: הח"מ before a verb (not a name) | – | – | – | 0 |
 | trap: role word in any spelling (אפוטרופא, אפוטרופוס) | – | – | – | 0 |
 | trap: ordinary word that is also a locality name (קדימה, לשם, גבעות) | – | – | – | 2 |
+| person: speaker written on a line of its own (no colon) | 5 | 0 | 0 | 0 |
 
 ## Per genre
 
@@ -62,19 +63,21 @@
 | bank | 13 | 2 | 2 | 0 |
 | chat | 12 | 8 | 9 | 0 |
 | position | 10 | 3 | 3 | 2 |
+| audio | 17 | 3 | 8 | 0 |
 
-## Unlisted suggestions (match nothing in the key; one tap each) — 20 in total
+## Unlisted suggestions (match nothing in the key; one tap each) — 23 in total
 
 Counted, not optimised for: the list is read, accept-all is not how the tool is used.
 
 - **meeting** (3, 3 applied): סיכמנו [discover; פותח תור דיבור בתמלול] **applied** · מהבניין [suggest] **applied** · נוער [suggest] **applied**
-- **filing** (3, 3 applied): נישאו [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · ומצא סימני [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · עלי [flagged] **applied**
+- **filing** (5, 5 applied): נישאו [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · ומצא סימני [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · תצהיר [discover; פסקה שכולה שם, ואחריה דיבור] **applied** · תצהירי [near+flagged] **applied** · עלי [flagged] **applied**
 - **transcript** (3, 3 applied): במרפאת עין [suggest] **applied** · הראשון [discover; מופיע אחרי תואר] **applied** · יו"ר [discover; פותח תור דיבור בתמלול] **applied**
 - **medical** (5, 5 applied): המטופלת [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · הנבדק [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · קלינית [suggest] **applied**
 - **police** (2, 2 applied): ראיתי רכב [suggest] **applied** · המתלוננת [discover; פותח תור דיבור בתמלול] **applied**
 - **bank** (2, 2 applied): החשבון [discover; פותח תור דיבור בתמלול] **applied** · יתרה לסוף התקופה [discover; פותח תור דיבור בתמלול] **applied**
 - **chat** (1, 1 applied): מהוועד [suggest] **applied**
 - **position** (1, 1 applied): הבהרה [discover; פותח תור דיבור בתמלול] **applied**
+- **audio** (1, 1 applied): ושניהם [suggest] **applied**
 
 ## Missed and leaked, by document
 
@@ -145,6 +148,14 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 - x1 · person: minor introduced by הקטין / הקטינה · אביתר: missed, **leaked**: אביתר, האח אביתר
 - x3 · person: name right after a discourse word (כאמור, משכך, לדבריה) · יונס: missed, **leaked**: יונס
 - x3 · person: minor introduced by הקטין / הקטינה · מייסא: missed, **leaked**: מייסא, האחות מייסא
+- a1 · person: same person, one clean and one corrupted spelling · בוסקילה: missed, **leaked**: בוסקילה, בושקילה
+- a1 · person: same person, one clean and one corrupted spelling · אביתר: found via suggest+applied as «אביטר», **leaked**: אביתר
+- a1 · person: only in corrupted form, never cleanly · וסילייב: missed, **leaked**: וסיליב
+- a2 · person: same person, one clean and one corrupted spelling · אלמליח: found via suggest as «אתמול ואלמליך», **leaked**: אלמליח, אלמליך
+- a2 · person: minor, first name only · אסיף: missed, **leaked**: אסיף
+- a3 · person: two people sharing a surname · סוהא אגבריה: found via suggest+applied as «וסוהא אגבריה», «יונס אגבריה», **leaked**: אגבריה
+- a4 · person: same person, one clean and one corrupted spelling · תורגמן: found via suggest+applied as «בסוף טורגמן», **leaked**: תורגמן
+- a4 · person: same person, one clean and one corrupted spelling · מקונן: found via suggest+applied as «מקונן», **leaked**: מכונן
 
 ## Traps and public bodies touched
 
@@ -157,36 +168,40 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 90 | 3 | 0 |
-| m2 | meeting | 38 | 6 | 0 |
-| m3 | meeting | 22 | 3 | 0 |
-| m4 | meeting | 29 | 5 | 3 |
-| f1 | filing | 44 | 10 | 1 |
-| f2 | filing | 70 | 13 | 1 |
-| f3 | filing | 27 | 5 | 0 |
-| f4 | filing | 30 | 6 | 1 |
-| t1 | transcript | 32 | 6 | 0 |
-| t2 | transcript | 23 | 5 | 1 |
-| t3 | transcript | 27 | 6 | 1 |
+| m1 | meeting | 105 | 3 | 0 |
+| m2 | meeting | 42 | 6 | 0 |
+| m3 | meeting | 23 | 3 | 0 |
+| m4 | meeting | 40 | 5 | 3 |
+| f1 | filing | 53 | 10 | 1 |
+| f2 | filing | 75 | 13 | 1 |
+| f3 | filing | 29 | 5 | 0 |
+| f4 | filing | 38 | 8 | 3 |
+| t1 | transcript | 33 | 6 | 0 |
+| t2 | transcript | 25 | 5 | 1 |
+| t3 | transcript | 23 | 6 | 1 |
 | t4 | transcript | 32 | 7 | 1 |
 | w1 | welfare | 10 | 0 | 0 |
-| w2 | welfare | 20 | 2 | 0 |
-| w3 | welfare | 15 | 2 | 0 |
+| w2 | welfare | 18 | 2 | 0 |
+| w3 | welfare | 17 | 2 | 0 |
 | w4 | welfare | 17 | 3 | 0 |
-| h1 | medical | 29 | 6 | 2 |
-| h2 | medical | 18 | 2 | 0 |
-| h3 | medical | 17 | 3 | 3 |
+| h1 | medical | 26 | 6 | 2 |
+| h2 | medical | 16 | 2 | 0 |
+| h3 | medical | 19 | 3 | 3 |
 | p1 | police | 16 | 2 | 1 |
-| p2 | police | 13 | 2 | 1 |
+| p2 | police | 17 | 2 | 1 |
 | p3 | police | 11 | 1 | 0 |
-| p4 | police | 20 | 3 | 0 |
-| b1 | bank | 22 | 5 | 2 |
-| b2 | bank | 11 | 1 | 0 |
-| b3 | bank | 10 | 2 | 0 |
-| c1 | chat | 9 | 1 | 0 |
+| p4 | police | 15 | 3 | 0 |
+| b1 | bank | 27 | 5 | 2 |
+| b2 | bank | 9 | 1 | 0 |
+| b3 | bank | 11 | 2 | 0 |
+| c1 | chat | 8 | 1 | 0 |
 | c2 | chat | 13 | 2 | 1 |
-| c3 | chat | 7 | 1 | 0 |
-| c4 | chat | 14 | 3 | 0 |
-| x1 | position | 30 | 5 | 1 |
-| x2 | position | 23 | 4 | 0 |
-| x3 | position | 14 | 2 | 0 |
+| c3 | chat | 9 | 1 | 0 |
+| c4 | chat | 15 | 3 | 0 |
+| x1 | position | 24 | 5 | 1 |
+| x2 | position | 22 | 4 | 0 |
+| x3 | position | 16 | 2 | 0 |
+| a1 | audio | 13 | 3 | 0 |
+| a2 | audio | 18 | 5 | 0 |
+| a3 | audio | 28 | 7 | 1 |
+| a4 | audio | 16 | 4 | 0 |
