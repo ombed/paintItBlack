@@ -346,6 +346,29 @@ function findPlaces(text){
       apply:!risky,src:"pattern",prio:2,conf:risky?"medium":"high",
       review:risky,place:nm});
   }
+  // מאגר היישובים המלא (07-gazetteer.js): בלי קואורדינטות, אז בלי מיפוי מרחקים, אבל
+  // כל יישוב בארץ נתפס. הומוגרף — יישוב בן מילה אחת שהוא גם מילה, שם פרטי, או
+  // מילה שהמסמך משתמש בה עם ה' הידיעה ("באזור" ליד "האזור") — מסומן לבדיקה ולא
+  // מוחלף (Q10 ב-docs/PLAN-v18.md). שם בן שתי מילים כמעט אינו דו-משמעי.
+  if(typeof GAZ_RX!=="undefined"){
+    const docTokG=new Set(n.match(WRX)||[]);
+    GAZ_RX.lastIndex=0;
+    while((m=GAZ_RX.exec(n))){
+      const nm=m[1], s=m.index+m[0].indexOf(nm), e=s+nm.length;
+      const k=s+":"+e; if(seen.has(k))continue; seen.add(k);
+      const one=!nm.includes(" ");
+      // יישוב בן מילה אחת שהוא גם שם פרטי או מילה מהרשימות (שחר, אור, גן) דו-משמעי מדי אפילו לסימון;
+      // "משרד הרווחה" ליד היישוב רווחה הוא גוף ציבורי, לא מקום
+      if(one&&(WORDLIKE.has(nm)||KNOWN_FIRST.has(nm)||FEM.has(nm)||MASC.has(nm)))continue;
+      {const back=n.slice(Math.max(0,m.index-30),m.index).split(/\s+/).filter(Boolean).slice(-2); const full=m[0].trim(); const c2=[...back,full].join(" "), c1=[...back.slice(-1),full].join(" ");
+       if([c2,c1].some(x=>PUBLIC_ORG.test(x)||PUBLIC_ORG.test(x.replace(/^[בהולמכש]/,""))))continue;}
+      const risky=nm.length<=3||AMBIG.has(nm)||(one&&(COMMON.has(nm)||WORDLIKE.has(nm)||KNOWN_FIRST.has(nm)||STOP.has(nm)||FEM.has(nm)||MASC.has(nm)||docTokG.has("ה"+nm)));
+      out.push({s,e,type:"PLACE_CITY",label:"יישוב",text:text.slice(s,e),
+        why:"שם יישוב מהמאגר"+(risky?" — אבל המילה דו-משמעית, אשר ידנית":""),
+        apply:!risky,src:"pattern",prio:2,conf:risky?"medium":"high",
+        review:risky,place:nm});
+    }
+  }
   for(const v of VENUE){
     v.rx.lastIndex=0; let g;
     while((g=v.rx.exec(n))){
