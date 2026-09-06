@@ -20,7 +20,7 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator("[data-mark]").first()).toBeVisible({ timeout: 15000 });
 });
 
-test("the profile survives a reload and is offered on the entry screen", async ({ page }) => {
+test("the profile survives a reload and is offered on the entry screen as a named case", async ({ page }) => {
   // name the case in the profile section
   await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
   await page.getByPlaceholder(/שם התיק/).fill("לוי נ׳ לוי");
@@ -33,9 +33,12 @@ test("the profile survives a reload and is offered on the entry screen", async (
   // a fresh visit: the card names the case and one tap restores the rules
   await page.reload();
   await expect(page.locator("#dc-root")).toBeAttached({ timeout: 60000 });
-  await expect(page.getByText("להמשיך את התיק «לוי נ׳ לוי»?")).toBeVisible();
-  await page.getByRole("button", { name: "המשך עם הפרופיל" }).click();
-  await expect(page.getByText("להמשיך את התיק")).toHaveCount(0);
+  // a named case sits in the case list, not in the single-slot card
+  const row = page.locator("[data-case=\"לוי נ׳ לוי\"]");
+  await expect(row).toBeVisible();
+  await expect(row).toContainText("ערכים");
+  await row.getByRole("button", { name: "המשך", exact: true }).click();
+  await expect(page.locator("[data-case]")).toHaveCount(0);
   // the rules are back: uploading the same document pre-fills from the profile
   await page.getByRole("checkbox").first().uncheck();
   await H.upload(page, "case2.docx", DOC);

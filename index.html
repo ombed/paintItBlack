@@ -53,6 +53,7 @@ a:hover{text-decoration:underline}
   [data-bar-text]{flex:1 1 200px!important}
   [data-bar] button{flex:1 1 auto;padding:8px 10px!important;font-size:12.5px!important}
   [data-bar]{padding:6px 12px!important}
+  [data-steps]{flex:1 1 100%;justify-content:center}
   [data-wrap]{flex-wrap:wrap}
   [data-wrap]>span:first-child{min-width:0!important;flex:1 1 100%}
   [data-wrap] input{flex:1 1 140px!important}
@@ -249,6 +250,19 @@ a:hover{text-decoration:underline}
       </sc-if>
     </div>
 
+    <sc-if value="{{ hasCases }}">
+      <div style="margin-top:12px;padding:12px 16px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow)">
+        <div style="font-size:12px;font-weight:500;color:var(--ink3);letter-spacing:.05em;margin-bottom:6px">תיקים אחרונים — אותם שמות חלופיים בכל מסמך של התיק</div>
+        <sc-for list="{{ caseItems }}" as="c" hint-placeholder-count="3">
+          <div data-case="{{ c.name }}" style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line2);flex-wrap:wrap">
+            <b style="font-weight:500;font-size:14px">{{ c.name }}</b>
+            <small style="color:var(--ink2);font-size:12.5px;flex:1 1 160px">{{ c.meta }}</small>
+            <button onClick="{{ c.onResume }}" style="padding:7px 14px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500;white-space:nowrap">המשך</button>
+            <button onClick="{{ c.onDelete }}" aria-label="מחיקת התיק מהרשימה" title="מחיקה מהרשימה בדפדפן; קובץ שיוצא נשאר" style="width:26px;height:26px;border-radius:50%;color:var(--ink3);display:grid;place-items:center" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
     <sc-if value="{{ hasLast }}">
       <div style="margin-top:12px;display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);flex-wrap:wrap">
         <span style="width:26px;height:26px;border-radius:50%;background:var(--panel2);color:var(--ink2);display:grid;place-items:center;font-size:13px;flex:none;border:1px solid var(--line)">↻</span>
@@ -737,6 +751,14 @@ a:hover{text-decoration:underline}
         <span style="{{ statusDot }}">{{ statusIcon }}</span>
         <div data-bar-text style="flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{ statusText }}"><b style="font-weight:500">{{ statusTitle }}</b><span style="color:var(--ink3)"> · {{ statusText }}</span></div>
       </sc-if>
+      <div data-steps style="display:flex;gap:6px;align-items:center;font-size:11.5px;white-space:nowrap" title="שלושת השלבים: השחרה, העתקה ל-AI, החזרת השמות לתשובה">
+        <span style="{{ step1Style }}">1 השחרה ✓</span><span style="color:var(--ink3)">›</span>
+        <span style="{{ step2Style }}">2 העתקה ל-AI{{ step2Mark }}</span><span style="color:var(--ink3)">›</span>
+        <span style="{{ step3Style }}">3 החזרת השמות</span>
+      </div>
+      <sc-if value="{{ copied }}">
+        <button onClick="{{ onReverse }}" style="padding:11px 16px;border-radius:10px;border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent-ink);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--accent);color:var(--panel)">הדבקת תשובת ה-AI</button>
+      </sc-if>
       <sc-if value="{{ hasReview }}">
         <button onClick="{{ onOpenReview }}" style="font-size:13px;padding:10px 14px;border-radius:9px;border:1px solid var(--line);white-space:nowrap;color:var(--warn)" style-hover="background:var(--warn-soft)">פתיחת הבדיקה</button>
       </sc-if>
@@ -778,7 +800,7 @@ class Component extends DCLogic {
     copyLabel:"העתקה ל-AI", busyT:"מעבד…", err:"",
     geo:null, geoV:0, geoNames:[], geoEdits:{}, popup:null, repDraft:"",
     // הפרופיל של התיק נשמר בדפדפן אחרי כל שינוי; lastProfile הוא מה שנמצא בכניסה
-    caseName:"", lastProfile:null, profileDirty:false, leaks:[]
+    caseName:"", lastProfile:null, profileDirty:false, leaks:[], cases:[], copied:false
   };
 
   async componentDidMount(){
@@ -794,7 +816,7 @@ class Component extends DCLogic {
     this.applyTheme(th);
     let seen=false; try{ seen = localStorage.getItem("redact-intro-seen")==="1"; }catch(_){}
     let lastProfile=null; try{ const j=localStorage.getItem("redact-profile-last"); const p=j&&JSON.parse(j); if(p&&p.v===1&&(p.rules||[]).length) lastProfile=p; }catch(_){}
-    this.setState({theme:th, intro:!seen, lastProfile});
+    this.setState({theme:th, intro:!seen, lastProfile, cases:this.readCases()});
     this.applyProps();
     this._resize = () => { const n = innerWidth < 1120; if(n!==this.state.narrow) this.setState({narrow:n}); };
     this._resize();
@@ -1178,7 +1200,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const res = await E.redactDocx(this.state.buf.slice(0), rules, this.state.allow, this.opts());
       // מגיעים למסמך עצמו קודם: הפאנלים מקופלים, פס הסטטוס אומר מה מחכה
       const toReview=(res.verification.near||[]).length+(res.verification.suggest||[]).length;
-      this.setState({res, screen:"work", open:toReview?["review","findings"]:["findings"], pane:"doc", docView:"red", markIdx:0}, ()=>this.persistProfile());
+      this.setState({res, screen:"work", open:toReview?["review","findings"]:["findings"], pane:"doc", docView:"red", markIdx:0, copied:false}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה בעיבוד: "+(e.message||e), screen:"entry", res:null}); }
   }
   async rerun(){
@@ -1311,6 +1333,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   copyAi = () => {
     if(!this.state.res) return;
     this.copyTo(this.redactedText(), "copyLabel", "העתקה ל-AI");
+    // שלב 2 מתוך 3 (Q12 ב-docs/PLAN-v18.md): אחרי ההעתקה הסרגל מציע את שלב 3 —
+    // הדבקת התשובה שחזרה מה-AI והחזרת השמות האמיתיים
+    this.setState({copied:true});
     const v=this.state.res.verification;
     const bits=[]; const sg=this.sugList().length, nr=this.nearList().length;
     if(sg) bits.push(`${sg} שמות שאינם ברשימה`);
@@ -1332,9 +1357,25 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   // הפרופיל הוא ההבטחה שאותו אדם מקבל את אותו שם בכל מסמך בתיק. עד עכשיו הוא
   // חי רק כקובץ שהיא זוכרת לשמור; עכשיו הוא נכתב לדפדפן אחרי כל שינוי, מוצע
   // בכניסה הבאה, ומזהיר לפני יציאה בלי ייצוא. הדפדפן אינו גיבוי — הייצוא הוא.
+  // היא עובדת על כמה תיקים במקביל (Q11 ב-docs/PLAN-v18.md): כל תיק בשם נשמר
+  // ברשימה בדפדפן, ומסך הכניסה מציע אותם. תיק בלי שם נשאר ב"פרופיל אחרון".
+  readCases(){
+    try{ const m=JSON.parse(localStorage.getItem("redact-cases")||"{}");
+      return Object.values(m).filter(p=>p&&p.v===1&&p.name).sort((a,b)=>String(b.updated||"").localeCompare(String(a.updated||""))); }catch(_){ return []; }
+  }
+  writeCase(prof){
+    try{ const m=JSON.parse(localStorage.getItem("redact-cases")||"{}"); m[prof.name]=prof; localStorage.setItem("redact-cases", JSON.stringify(m)); }catch(_){}
+  }
+  deleteCase = name => {
+    try{ const m=JSON.parse(localStorage.getItem("redact-cases")||"{}"); delete m[name]; localStorage.setItem("redact-cases", JSON.stringify(m)); }catch(_){}
+    this.setState({cases:this.readCases()});
+  };
+  resumeCase = name => { const p=this.readCases().find(c=>c.name===name); if(!p) return; this.setState({caseName:name, lastProfile:null}); this.applyProfile(p); };
   persistProfile(){
     if(!this.state.res||!this.state.rules.length) return;
-    try{ localStorage.setItem("redact-profile-last", JSON.stringify(this.profileObj())); }catch(_){}
+    const prof=this.profileObj();
+    try{ localStorage.setItem("redact-profile-last", JSON.stringify(prof)); }catch(_){}
+    if(prof.name){ this.writeCase(prof); this.setState({cases:this.readCases()}); }
     if(!this.state.profileDirty) this.setState({profileDirty:true});
   }
   saveProfile = () => {
@@ -1502,12 +1543,16 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g}))), 0); },
       onSkipNames:()=>{ if(S.scanning) return; this.setState({peo:[]}); this.toPlaces([]); },
       onLoadProf:this.loadProfileClick, onSaveProf:this.saveProfile,
-      hasLast:!!S.lastProfile&&S.screen==="entry"&&!S.profile,
+      hasCases:S.cases.length>0&&S.screen==="entry"&&!S.profile,
+      caseItems:S.cases.map(c=>({name:c.name, meta:(c.rules||[]).length+" ערכים · עודכן "+new Date(c.updated||c.created).toLocaleString("he-IL",{dateStyle:"short",timeStyle:"short"}),
+        onResume:()=>this.resumeCase(c.name), onDelete:()=>{ if(confirm("למחוק את «"+c.name+"» מרשימת התיקים בדפדפן? קובץ פרופיל שיוצא לא נמחק.")) this.deleteCase(c.name); }})),
+      // הפרופיל האחרון בלי שם מוצע רק כשאין תיק בשם שמכסה אותו
+      hasLast:!!S.lastProfile&&!S.lastProfile.name&&S.screen==="entry"&&!S.profile,
       lastTitle:S.lastProfile?(S.lastProfile.name?"להמשיך את התיק «"+S.lastProfile.name+"»?":"להמשיך עם הפרופיל מהפעם הקודמת?"):"",
       lastMeta:S.lastProfile?((S.lastProfile.rules||[]).length+" ערכים ברשימה · עודכן "+new Date(S.lastProfile.updated||S.lastProfile.created).toLocaleString("he-IL",{dateStyle:"short",timeStyle:"short"})+" · אותם שמות חלופיים כמו במסמך הקודם"):"",
       onResumeLast:this.resumeLast, onDismissLast:this.dismissLast,
       caseName:S.caseName, onCaseName:e=>this.setState({caseName:e.target.value}, ()=>this.persistProfile()),
-      profileNote:S.profileDirty?"נשמר בדפדפן הזה אחרי כל שינוי. הדפדפן אינו גיבוי — ייצוא לקובץ שומר את הפרופיל גם אם המטמון ינוקה.":"נשמר בדפדפן הזה אחרי כל שינוי, ויוצא לקובץ.",
+      profileNote:(S.caseName?"נשמר ברשימת התיקים בדפדפן הזה אחרי כל שינוי, ומוצע בכניסה הבאה. ":"בלי שם התיק נשמר רק כ«פרופיל אחרון». ")+(S.profileDirty?"הדפדפן אינו גיבוי — ייצוא לקובץ שומר את הפרופיל גם אם המטמון ינוקה.":"יוצא לקובץ."),
       hasPeoSug:S.peoSug.some(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))),
       peoSugItems:S.peoSug.filter(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))).map(x=>({
         value:x.value, why:x.why,
@@ -1779,6 +1824,9 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.statusIcon=cmap[kind][2]; v.statusTitle=title; v.statusText=text;
     // שגיאה של המסך הזה יושבת בסרגל, לא בראש העמוד מעבר לגלילה; ✕ מנקה אותה
     v.barErr=S.err||""; v.barOk=!S.err; v.onClearErr=()=>this.setState({err:""});
+    // שלושת השלבים בסרגל: הנוכחי מודגש
+    const stepOn="padding:3px 8px;border-radius:10px;background:var(--accent-soft);color:var(--accent-ink);font-weight:500", stepOff="padding:3px 8px;border-radius:10px;color:var(--ink3)";
+    v.copied=!!S.copied; v.step1Style=stepOff; v.step2Style=S.copied?stepOff:stepOn; v.step3Style=S.copied?stepOn:stepOff; v.step2Mark=S.copied?" ✓":"";
     v.copyLabel=S.copyLabel;
     v.copyBtnStyle="padding:11px 20px;border-radius:10px;font-weight:500;font-size:14px;white-space:nowrap;color:var(--panel);background:"+(kind==="ok"?"var(--accent)":kind==="warn"?"var(--warn)":"var(--bad)");
     v.onCopyAi=this.copyAi; v.onDownload=this.download;
