@@ -295,6 +295,9 @@ a:hover{text-decoration:underline}
     <div style="display:flex;gap:10px;margin-top:24px;align-items:center;flex-wrap:wrap">
       <button onClick="{{ onPeoGo }}" disabled="{{ scanning }}" style="{{ primaryBtn }}">{{ peoGoLabel }}</button>
       <button onClick="{{ onLoadProf }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">טעינת פרופיל תיק</button>
+      <sc-if value="{{ scanning }}">
+        <button onClick="{{ onGoNow }}" title="המודל ימשיך לרדת ברקע ויהיה מוכן למסמך הבא" style="font-size:13px;color:var(--warn);padding:12px 10px;border-radius:9px;border:1px solid var(--warn)" style-hover="background:var(--warn-soft)">להמשיך בלי לחכות למודל — עם השמות שנמצאו עד כה</button>
+      </sc-if>
       <button onClick="{{ onSkipNames }}" disabled="{{ scanning }}" style="font-size:13px;color:var(--ink2);padding:12px 8px" style-hover="color:var(--ink)">המשך בלי שמות — רק ת״ז, טלפונים וכתובות</button>
     </div>
   </main>
@@ -622,6 +625,15 @@ a:hover{text-decoration:underline}
                   <span style="color:var(--ink2)">{{ st.label }}</span><b style="font-weight:500">{{ st.value }}</b>
                 </div>
               </sc-for>
+              <div style="margin-top:12px;padding:10px 12px;border-radius:10px;border:1px solid var(--line2);font-size:12.5px;line-height:1.55">
+                <b style="font-weight:500">שליחה לבדיקה</b>
+                <p style="margin:4px 0 8px;color:var(--ink2)">יומן הסשן רושם זמנים ולחיצות בלי טקסט — איפה הלכה הדקה. חבילת הבדיקה מורידה את המסמך הנקי עם היומן ודוח הדליפה לקובץ אחד ופותחת מייל; שום דבר לא נשלח מעצמו.</p>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+                  <button onClick="{{ onCopyLog }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">{{ logCopyLabel }}</button>
+                  <button onClick="{{ onPackage }}" title="{{ packageTitle }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">חבילת בדיקה + מייל</button>
+                </div>
+                <input value="{{ feedbackMail }}" onChange="{{ onFeedbackMail }}" placeholder="כתובת המייל לשליחת קבצי בדיקה (ריק = בלי מייל)" style="width:100%;margin-top:8px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:12.5px;direction:ltr;text-align:left">
+              </div>
               <sc-if value="{{ hasLeaks }}">
                 <div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--warn-soft);font-size:12.5px;line-height:1.55">
                   <b style="font-weight:500;color:var(--warn)">שמות שסימנת בעצמך: {{ leakCount }}</b>
@@ -713,7 +725,7 @@ class Component extends DCLogic {
     copyLabel:"העתקה ל-AI", busyT:"מעבד…", err:"",
     geo:null, geoV:0, geoNames:[], geoEdits:{}, popup:null, repDraft:"",
     // הפרופיל של התיק נשמר בדפדפן אחרי כל שינוי; lastProfile הוא מה שנמצא בכניסה
-    caseName:"", lastProfile:null, profileDirty:false, leaks:[], cases:[], copied:false
+    caseName:"", lastProfile:null, profileDirty:false, leaks:[], cases:[], copied:false, feedbackMail:"", logCopyLabel:""
   };
 
   async componentDidMount(){
@@ -729,6 +741,11 @@ class Component extends DCLogic {
     let seen=false; try{ seen = localStorage.getItem("redact-intro-seen")==="1"; }catch(_){}
     let lastProfile=null; try{ const j=localStorage.getItem("redact-profile-last"); const p=j&&JSON.parse(j); if(p&&p.v===1&&(p.rules||[]).length) lastProfile=p; }catch(_){}
     this.setState({theme:th, intro:!seen, lastProfile, cases:this.readCases()});
+    // יומן הסשן (Q16): זמנים ואירועים בלי טקסט, בדפדפן בלבד, מיוצא בכפתור ליד דוח הדליפה
+    const ver=((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"");
+    this.log=window.PL?window.PL.sessionLog(ver):{add(){},export(){return "{}"}};
+    let feedbackMail=""; try{ feedbackMail=localStorage.getItem("redact-feedback-mail")||""; }catch(_){}
+    this.setState({feedbackMail});
     this.applyProps();
     this._resize = () => { const n = innerWidth < 1120; if(n!==this.state.narrow) this.setState({narrow:n}); };
     this._resize();
@@ -737,7 +754,8 @@ class Component extends DCLogic {
     document.addEventListener("mousedown", this._docClick);
   }
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); removeEventListener("resize", this._resize); }
-  componentDidUpdate(){ this.applyProps(); }
+  componentDidUpdate(prev){ this.applyProps();
+    if(prev&&prev.screen!==this.state.screen&&this.log) this.log.add("screen",{to:this.state.screen, from:prev.screen}); }
   applyProps(){
     const r=document.documentElement.style;
     const accents={forest:["#1F5B44","#E6EFE9","#79D3A8"], ink:["#1F3F63","#E4EBF3","#7FB6EE"], plum:["#5A2B4C","#F0E6EE","#DC9BC9"]};
@@ -956,6 +974,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.setState({nerBox:true, peoNote:"", scanning:true, nerMsg:"טוען את המודל…", nerPct:0});
     try{
       const t0=Date.now();
+      this.log.add("model-start",{blocks:blocks.length, words:blocks.reduce((n,b)=>n+(b.text||"").split(/\s+/).length,0)});
       const found = await E.nerRun(blocks, pct=>{
         if(my!==this._scan) return;
         const el=Math.round((Date.now()-t0)/1000);
@@ -1112,13 +1131,15 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const res = await E.redactDocx(this.state.buf.slice(0), rules, this.state.allow, this.opts());
       // מגיעים למסמך עצמו קודם: הפאנלים מקופלים, פס הסטטוס אומר מה מחכה
       const toReview=(res.verification.near||[]).length+(res.verification.suggest||[]).length;
+      this.log.add("run",{applied:res.applied.length, flagged:res.flagged.length, near:(res.verification.near||[]).length, suggest:(res.verification.suggest||[]).length, passed:!!res.verification.passed});
       this.setState({res, screen:"work", open:toReview?["review","findings"]:["findings"], pane:"doc", docView:"red", markIdx:0, copied:false}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה בעיבוד: "+(e.message||e), screen:"entry", res:null}); }
   }
   async rerun(){
-    const E=this.state.E;
+    const E=this.state.E; const t0=Date.now();
     try{
       const res = await E.redactDocx(this.state.buf.slice(0), this.state.rules, this.state.allow, this.opts());
+      this.log.add("rerun",{ms:Date.now()-t0, applied:res.applied.length, flagged:res.flagged.length});
       this.setState({res, sel:null, err:""}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה: "+(e.message||e)}); }
   }
@@ -1134,6 +1155,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     // סימון ידני בטקסט אחרי העיבוד הוא ההגדרה של דליפה: הכלי פספס, והיא תיקנה.
     // הצורה של המקרה נרשמת (page-logic.js, leakShape) — בלי הטקסט — כדי שיהיה
     // אפשר לשחזר אותו בלי המסמך.
+    this.log.add("add-rule",{origin:origin||"list", kind:kind||"NAME", words:value.split(/\s+/).length});
     if(origin==="mark"&&this.state.res&&this.state.buf&&window.PL) this.recordLeak(value, kind||"NAME");
     this.setState({rules:[...this.state.rules, {value, kind:kind||"NAME", replacement:(rep||"").trim(), auto:false}],
       addV:"", addR:"", popup:null, err:""}, ()=>this.rerun());
@@ -1149,13 +1171,14 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
   // מוסיף מקטע לפתוחים בלי לסגור אחרים
   openWith = k => { const o=Array.isArray(this.state.open)?this.state.open:[]; return o.includes(k)?o:[...o,k]; };
-  dropRule = v => this.setState({rules:this.state.rules.filter(r=>r.value!==v)}, ()=>this.rerun());
+  dropRule = v => { this.log.add("drop-rule",{}); this.setState({rules:this.state.rules.filter(r=>r.value!==v)}, ()=>this.rerun()); };
   // "לא שם": הכלל יורד מהרשימה על כל צורותיו, והטקסט הזה לא יוצע שוב
-  notAName = (base, v) => this.setState({allow:this.state.allow.includes(v)?this.state.allow:[...this.state.allow, v],
-    rules:this.state.rules.filter(r=>r.value!==base && r.value!==v)}, ()=>this.rerun());
-  addAllow = v => { if(this.state.allow.includes(v)) return;
+  notAName = (base, v) => { this.log.add("not-a-name",{}); return this.setState({allow:this.state.allow.includes(v)?this.state.allow:[...this.state.allow, v],
+    rules:this.state.rules.filter(r=>r.value!==base && r.value!==v)}, ()=>this.rerun()); };
+  addAllow = v => { if(this.state.allow.includes(v)) return; this.log.add("allow",{});
     this.setState({allow:[...this.state.allow, v], rules:this.state.rules.filter(r=>r.value!==v)}, ()=>this.rerun()); };
   setRep = (v, rep) => {
+    this.log.add("set-rep",{});
     const rules=[...this.state.rules]; const r=rules.find(x=>x.value===v);
     if(r) r.replacement=rep.trim(); else rules.push({value:v, kind:"OTHER", replacement:rep.trim()});
     this.setState({rules}, ()=>this.rerun());
@@ -1244,6 +1267,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
   copyAi = () => {
     if(!this.state.res) return;
+    this.log.add("copy",{applied:this.state.res.applied.length, open:this.state.res.flagged.length});
     this.copyTo(this.redactedText(), "copyLabel", "העתקה ל-AI");
     // שלב 2 מתוך 3 (Q12 ב-docs/PLAN-v18.md): אחרי ההעתקה הסרגל מציע את שלב 3 —
     // הדבקת התשובה שחזרה מה-AI והחזרת השמות האמיתיים
@@ -1255,8 +1279,29 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(v.remaining.length) bits.push(`${v.remaining.length} ממצאים שלא הוחלפו`);
     if(bits.length) this.setState({err:`הועתק, אבל בטקסט יש ${bits.join(" ו-")} — הם יגיעו ל-AI כמו שהם.`});
   };
+  // חבילת בדיקה (Q9): המסמך הנקי, יומן הסשן ודוח הדליפה בקובץ zip אחד, ואז
+  // מייל שנפתח אצלה עם הכתובת מלאה. בלי שרת: היא מצרפת את הקובץ ולוחצת שלח.
+  sendPackage = async () => {
+    const RES=this.state.res, E=this.state.E; if(!RES) return;
+    this.log.add("package",{});
+    try{
+      const enc=new TextEncoder(); const files=[];
+      files.push({name:(this.state.name.replace(/\.(docx|pdf|txt)$/i,"")||"מסמך")+"_מושחר.docx", data:new Uint8Array(await RES.blob.arrayBuffer())});
+      files.push({name:"session-log.json", data:enc.encode(this.log.export())});
+      if(this.state.leaks.length&&window.PL) files.push({name:"leak-report.json", data:enc.encode(window.PL.leakReport(this.state.leaks,{version:this.log.v}))});
+      files.push({name:"README.txt", data:enc.encode("paintItBlack "+this.log.v+"\nחבילת בדיקה: המסמך אחרי ההשחרה, יומן סשן בלי טקסט, ודוח דליפה אם סומנו שמות ביד.\n")});
+      const blob=await E.zip(files);
+      const u=URL.createObjectURL(blob), a=document.createElement("a");
+      a.href=u; a.download="paintItBlack-package-"+new Date().toISOString().slice(0,10)+".zip"; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(u), 4000);
+      if(this.state.feedbackMail){
+        const subj=encodeURIComponent("paintItBlack "+this.log.v+" — חבילת בדיקה"), body=encodeURIComponent("מצורפת חבילת הבדיקה שירדה עכשיו (paintItBlack-package-*.zip).\nמה היה לא בסדר:\n");
+        setTimeout(()=>{ location.href="mailto:"+this.state.feedbackMail+"?subject="+subj+"&body="+body; }, 600);
+      }
+    }catch(e){ this.setState({err:"הכנת החבילה נכשלה: "+(e.message||e)}); }
+  };
   download = () => {
-    const RES=this.state.res; if(!RES) return;
+    const RES=this.state.res; if(!RES) return; this.log.add("download",{});
     const u=URL.createObjectURL(RES.blob), a=document.createElement("a");
     a.href=u; a.download=(this.state.name.replace(/\.(docx|pdf|txt)$/i,"")||"מסמך")+"_מושחר.docx";
     document.body.appendChild(a); a.click(); a.remove();
@@ -1454,6 +1499,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onPeoGo:()=>{ if(S.scanning) return; this.peoAdd(S.peoIn);
         setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g}))), 0); },
       onSkipNames:()=>{ if(S.scanning) return; this.setState({peo:[]}); this.toPlaces([]); },
+      // בקו איטי ההורדה הראשונה לוקחת דקות; השמות מהכותרת כבר על המסך. הסריקה
+      // הזאת מבוטלת (כמו מסמך שהוחלף באמצע), המודל ממשיך לרדת ברקע למסמך הבא.
+      onGoNow:()=>{ if(!S.scanning) return; this._scan=(this._scan||0)+1; this.log.add("go-without-model",{names:S.peo.length});
+        this.setState({scanning:false, nerBox:false, nerUsed:false, peoNote:"המשכת בלי המודל. השמות שברשימה הם מהכותרת ומתורות הדיבור; שמות מגוף הטקסט יוצעו במסך הבדיקה."});
+        this.peoAdd(S.peoIn); setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g}))), 0); },
       onLoadProf:this.loadProfileClick, onSaveProf:this.saveProfile,
       hasCases:S.cases.length>0&&S.screen==="entry"&&!S.profile,
       caseItems:S.cases.map(c=>({name:c.name, meta:(c.rules||[]).length+" ערכים · עודכן "+new Date(c.updated||c.created).toLocaleString("he-IL",{dateStyle:"short",timeStyle:"short"}),
@@ -1517,6 +1567,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         "background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;box-shadow:0 12px 34px rgba(0,0,0,.22)"):"",
       popupKinds:KINDS.map(([k,l])=>({label:l, onClick:()=>{ this.addRule(S.popup.text, k, "", "mark"); getSelection().removeAllRanges(); }})),
       hasLeaks:S.leaks.length>0, leakCount:S.leaks.length, leakCopyLabel:S.leakCopyLabel||"העתקת דוח הדליפה",
+      logCopyLabel:S.logCopyLabel||"העתקת יומן הסשן",
+      onCopyLog:()=>{ try{ this.copyTo(this.log.export(), "logCopyLabel", "העתקת יומן הסשן"); }catch(e){ this.setState({err:String(e.message||e)}); } },
+      feedbackMail:S.feedbackMail, onFeedbackMail:e=>{ const v=e.target.value.trim(); this.setState({feedbackMail:v}); try{ localStorage.setItem("redact-feedback-mail", v); }catch(_){} },
+      packageTitle:S.feedbackMail?"מוריד חבילה ופותח מייל אל "+S.feedbackMail:"מוריד חבילה; בלי כתובת לא נפתח מייל",
+      onPackage:()=>this.sendPackage(),
       onCopyLeaks:()=>{ try{ this.copyTo(window.PL.leakReport(S.leaks,{version:((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"")}), "leakCopyLabel", "העתקת דוח הדליפה"); }catch(e){ this.setState({err:String(e.message||e)}); } },
       addV:S.addV, addR:S.addR,
       onAddV:e=>this.setState({addV:e.target.value}), onAddR:e=>this.setState({addR:e.target.value}),

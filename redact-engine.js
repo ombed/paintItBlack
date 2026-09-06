@@ -1732,7 +1732,13 @@ export async function nerPrepTokenizer(report){
   const step=(k,v)=>{out.steps.push(k+": "+v); say(k+": "+v)};
   if(!nerEnv().canCache){step("סביבה","אין מטמון — מדלגים");return out}
   const c=await caches.open(NER_CACHE);
-  // כל עותק קיים חשוד; מוחקים ומתחילים נקי
+  // עותק שמור שנקרא כ-JSON תקין משמש כמו שהוא: 2.9MB פחות בכל ביקור, והשניות
+  // הראשונות של כל סשן בקו איטי. רק עותק פגום נמחק ומוריד מחדש.
+  const prior=await c.match(url);
+  if(prior){
+    try{ const pt=await prior.text(); JSON.parse(pt); step("במטמון","עותק תקין — בלי הורדה"); out.ok=true; out.cached=true; return out; }
+    catch(_){ step("במטמון","עותק פגום — מוריד מחדש"); }
+  }
   let dropped=0;
   for(const k of await c.keys())
     if(/tokenizer\.json/.test(k.url)){await c.delete(k);dropped++}
@@ -1786,9 +1792,13 @@ let nerLoad=async function(){
       dtype:"q8",
       progress_callback:p=>{
         if(p.status==="progress"&&p.file){
-          seen[p.file]=p.progress||0;
-          const v=Object.values(seen), avg=v.reduce((a,b)=>a+b,0)/v.length;
-          nerSay(`מוריד את המודל, פעם אחת בלבד… ${Math.round(avg)}%`,avg);
+          // לפי בייטים, לא ממוצע של קבצים: הקבצים הקטנים נגמרים מיד וממוצע
+          // כזה קפץ ל-76% ואז זחל דרך קובץ המשקולות היחיד (130MB)
+          seen[p.file]={loaded:p.loaded||0,total:p.total||0,pct:p.progress||0};
+          const v=Object.values(seen), tot=v.reduce((a,b)=>a+b.total,0);
+          const pct=tot?100*v.reduce((a,b)=>a+b.loaded,0)/tot:v.reduce((a,b)=>a+b.pct,0)/v.length;
+          const mb=x=>(x/1048576).toFixed(0);
+          nerSay(tot?`מוריד את המודל, פעם אחת בלבד: ${mb(v.reduce((a,b)=>a+b.loaded,0))} מתוך ${mb(tot)} MB`:`מוריד את המודל, פעם אחת בלבד… ${Math.round(pct)}%`,pct);
         } else if(p.status==="ready")nerSay("המודל מוכן.",null);
       }});
     NERSTATE="ready";

@@ -48,5 +48,15 @@ ok("a shape carrying text is refused", threw);
 const s4 = PL.leakShape(E, blocks, "איגור וולקוב", { cands, nerRaw: [{ type: "PER", score: 0.93, s: blocks.slice(0, 2).map((b) => b.text).join("\n").length + 1 + "הפסיכולוג ".length, e: blocks.slice(0, 2).map((b) => b.text).join("\n").length + 1 + "הפסיכולוג איגור וול".length }] });
 ok("model span bounds classified", s4.layers.model && s4.layers.model.bounds === "cut-right");
 
+// the session log keeps timings and counts, and refuses text
+const L = PL.sessionLog("v18");
+L.add("screen", { to: "people", from: "entry" });
+L.add("add-rule", { origin: "mark", kind: "NAME", words: 2, name: "רונית לוי" });
+L.add("rerun", { ms: 120, applied: 5, flagged: 1 });
+const exp = L.export();
+ok("log exports", typeof exp === "string" && JSON.parse(exp).events.length === 3);
+ok("a text field is dropped, not exported", !exp.includes("רונית") && JSON.parse(exp).events[1].words === 2);
+ok("no Hebrew word in the log", !/[֐-׿]{3,}/.test(exp));
+
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
