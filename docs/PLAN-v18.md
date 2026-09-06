@@ -103,3 +103,20 @@ broken download:
 
 Second-visit total of 5.9 s says the weight cache works; the trial's first
 run is where the minutes go, and item 4 in the list above is the work.
+
+## Status, end of the same day
+
+| item | state |
+|---|---|
+| 1. licence, blocking gate, bar logic | done |
+| 2. case list | done, `e2e/profile.spec.js` |
+| 3. restore as step three | done, `e2e/steps.spec.js` |
+| 4. loading: byte progress, tokenizer cache reuse, continue without waiting | done, `e2e/wait.spec.js` |
+| 5. session log and mail package | done; the mail address is a field in the profile section, empty until she sets it |
+| 6. settlement list with homograph handling | done: 1,116 localities, the two town leaks closed, no new false positives |
+| 7. her cleaned transcripts | waiting on the files |
+| 8. the trial | ready once #12 is merged and the chip reads v18 |
+
+Benchmark after this round, model on, product options: 3 leaks (the two
+expected-fail categories and one two-letter surname the model does not see),
+2 false positives (bench artefacts), 28 junk suggestions.
