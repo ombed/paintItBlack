@@ -1,6 +1,6 @@
 # Benchmark results
 
-30 documents, 234 keyed entities, model on (q8, same artifact as the browser). Generated 2026-09-06.
+33 documents, 259 keyed entities, model on (q8, same artifact as the browser). Generated 2026-09-06.
 
 ## Per category
 
@@ -12,7 +12,7 @@
 | person: same person, one clean and one corrupted spelling | 5 | 0 | 0 | 0 |
 | person: name split across two runs mid-word | 3 | 0 | 0 | 0 |
 | org: private body, must be redacted | 10 | 0 | 0 | 0 |
-| place: town | 10 | 1 | 1 | 0 |
+| place: town | 11 | 1 | 1 | 0 |
 | trap: case numbers, dates, section references | – | – | – | 1 |
 | trap: idiom or public title beside a same-word name | – | – | – | 1 |
 | person: full name, surname alone, first name alone | 7 | 0 | 0 | 0 |
@@ -31,16 +31,22 @@
 | person: only in corrupted form, never cleanly (expected to fail) | 3 | 0 | 0 | 0 |
 | person: hyphenated surname, elsewhere with a space | 5 | 0 | 0 | 0 |
 | person: minor, first name only | 5 | 1 | 1 | 0 |
-| place: street | 7 | 0 | 0 | 0 |
+| place: street | 8 | 0 | 0 | 0 |
 | trap: פלוני / פלונית | – | – | – | 0 |
 | person: two-letter surname | 4 | 1 | 1 | 0 |
-| person: minor introduced by הקטין / הקטינה | 5 | 0 | 0 | 0 |
+| person: minor introduced by הקטין / הקטינה | 7 | 0 | 0 | 0 |
 | pii: ID number | 10 | 0 | 0 | 0 |
 | pii: mobile phone | 9 | 0 | 0 | 0 |
 | pii: date of birth | 6 | 0 | 0 | 0 |
 | pii: email address | 6 | 0 | 0 | 0 |
 | pii: bank account | 5 | 0 | 0 | 0 |
 | pii: licence plate | 4 | 0 | 0 | 0 |
+| person: party by role word and colon, first name only | 6 | 0 | 0 | 0 |
+| person: name right after a discourse word (כאמור, משכך, לדבריה) | 3 | 0 | 0 | 0 |
+| trap: form label with a colon (not a speaker) | – | – | – | 0 |
+| trap: word ending in ת before a word starting with ז (not ת"ז) | – | – | – | 0 |
+| trap: הח"מ before a verb (not a name) | – | – | – | 0 |
+| trap: role word in any spelling (אפוטרופא, אפוטרופוס) | – | – | – | 0 |
 
 ## Per genre
 
@@ -54,19 +60,20 @@
 | police | 21 | 0 | 0 | 0 |
 | bank | 15 | 0 | 0 | 0 |
 | chat | 20 | 0 | 0 | 0 |
+| position | 13 | 0 | 0 | 0 |
 
-## Unlisted suggestions (match nothing in the key; one tap each) — 42 in total
+## Unlisted suggestions (match nothing in the key; one tap each) — 23 in total
 
 Counted, not optimised for: the list is read, accept-all is not how the tool is used.
 
-- **meeting** (5, 5 applied): סיכמנו [discover; פותח תור דיבור בתמלול] **applied** · מהבניין [suggest] **applied** · נוער [suggest] **applied** · לבד [flagged] **applied** · אבל [flagged] **applied**
-- **filing** (9, 7 applied): בי [discover+flagged; מופיע מיד לפני ת"ז] · נישאו [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · ירושלים [model] **applied** · המבקשת [discover+model; פותח תור דיבור בתמלול] **applied** · לדירה בשכונת [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · ומצא סימני [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · המלצה [discover; פותח תור דיבור בתמלול] **applied** · לקבוע מזונו [discover+flagged; מופיע מיד לפני ת"ז] · עלי [flagged] **applied**
-- **transcript** (6, 6 applied): שר [discover; מופיע אחרי תואר] **applied** · לי [discover; מופיע אחרי תואר] **applied** · במרפאת עין [suggest] **applied** · הראשון [discover; מופיע אחרי תואר] **applied** · יו"ר [discover; פותח תור דיבור בתמלול] **applied** · ועדה [flagged] **applied**
-- **welfare** (3, 3 applied): המלצה [discover; פותח תור דיבור בתמלול] **applied** · המלצה [discover; פותח תור דיבור בתמלול] **applied** · המלצה [discover; פותח תור דיבור בתמלול] **applied**
-- **medical** (7, 7 applied): המטופלת [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · המלצה [discover; פותח תור דיבור בתמלול] **applied** · הנבדק [discover; פותח תור דיבור בתמלול] **applied** · פסיכולוגית קלינית [discover; מופיע באזור החתימה] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · הנוכחי [flagged] **applied**
-- **police** (5, 4 applied): ראיתי רכב [suggest] **applied** · המתלוננת [discover; פותח תור דיבור בתמלול] **applied** · שאלה [discover; פותח תור דיבור בתמלול] **applied** · דו [discover+flagged; מופיע מיד לפני ת"ז] · המשך טיפול [discover; פותח תור דיבור בתמלול] **applied**
-- **bank** (5, 4 applied): יתרה לסוף התקופה [discover; פותח תור דיבור בתמלול] **applied** · החשבון [discover; פותח תור דיבור בתמלול] **applied** · הנדון [discover; פותח תור דיבור בתמלול] **applied** · צו עיקול [flagged] **applied** · יתר [discover+flagged; מופיע מיד לפני ת"ז]
-- **chat** (2, 2 applied): שצריך שוב [discover; מופיע אחרי תואר] **applied** · מהוועד [suggest] **applied**
+- **meeting** (3, 3 applied): סיכמנו [discover; פותח תור דיבור בתמלול] **applied** · מהבניין [suggest] **applied** · נוער [suggest] **applied**
+- **filing** (4, 4 applied): נישאו [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · ירושלים [model] **applied** · ומצא סימני [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · עלי [flagged] **applied**
+- **transcript** (3, 3 applied): במרפאת עין [suggest] **applied** · הראשון [discover; מופיע אחרי תואר] **applied** · יו"ר [discover; פותח תור דיבור בתמלול] **applied**
+- **medical** (6, 6 applied): המטופלת [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · הנבדק [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · קלינית [suggest] **applied** · הנוכחי [flagged] **applied**
+- **police** (2, 2 applied): ראיתי רכב [suggest] **applied** · המתלוננת [discover; פותח תור דיבור בתמלול] **applied**
+- **bank** (2, 2 applied): החשבון [discover; פותח תור דיבור בתמלול] **applied** · יתרה לסוף התקופה [discover; פותח תור דיבור בתמלול] **applied**
+- **chat** (1, 1 applied): מהוועד [suggest] **applied**
+- **position** (2, 2 applied): משה [model+flagged] **applied** · שמשה [flagged] **applied**
 
 ## Missed and leaked, by document
 
@@ -84,33 +91,36 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 166 | 9 | 0 |
-| m2 | meeting | 113 | 13 | 0 |
-| m3 | meeting | 83 | 6 | 0 |
-| m4 | meeting | 113 | 11 | 5 |
-| f1 | filing | 152 | 15 | 3 |
-| f2 | filing | 168 | 18 | 3 |
-| f3 | filing | 104 | 11 | 1 |
-| f4 | filing | 126 | 10 | 2 |
-| t1 | transcript | 105 | 9 | 1 |
-| t2 | transcript | 98 | 13 | 2 |
-| t3 | transcript | 110 | 11 | 1 |
-| t4 | transcript | 99 | 14 | 2 |
-| w1 | welfare | 79 | 5 | 1 |
-| w2 | welfare | 72 | 6 | 1 |
-| w3 | welfare | 75 | 6 | 0 |
-| w4 | welfare | 72 | 7 | 1 |
-| h1 | medical | 69 | 7 | 2 |
-| h2 | medical | 74 | 5 | 1 |
-| h3 | medical | 96 | 7 | 4 |
-| p1 | police | 95 | 5 | 1 |
-| p2 | police | 85 | 4 | 1 |
-| p3 | police | 82 | 3 | 1 |
-| p4 | police | 77 | 5 | 2 |
-| b1 | bank | 78 | 7 | 2 |
-| b2 | bank | 70 | 5 | 2 |
-| b3 | bank | 74 | 4 | 1 |
-| c1 | chat | 98 | 5 | 0 |
-| c2 | chat | 119 | 6 | 2 |
-| c3 | chat | 98 | 4 | 0 |
-| c4 | chat | 92 | 5 | 0 |
+| m1 | meeting | 399 | 9 | 0 |
+| m2 | meeting | 244 | 13 | 0 |
+| m3 | meeting | 170 | 6 | 0 |
+| m4 | meeting | 246 | 9 | 3 |
+| f1 | filing | 305 | 14 | 2 |
+| f2 | filing | 320 | 16 | 1 |
+| f3 | filing | 219 | 9 | 0 |
+| f4 | filing | 249 | 9 | 1 |
+| t1 | transcript | 203 | 8 | 0 |
+| t2 | transcript | 206 | 12 | 1 |
+| t3 | transcript | 215 | 11 | 1 |
+| t4 | transcript | 209 | 13 | 1 |
+| w1 | welfare | 157 | 4 | 0 |
+| w2 | welfare | 147 | 5 | 0 |
+| w3 | welfare | 169 | 6 | 0 |
+| w4 | welfare | 189 | 6 | 0 |
+| h1 | medical | 138 | 7 | 2 |
+| h2 | medical | 133 | 4 | 0 |
+| h3 | medical | 137 | 7 | 4 |
+| p1 | police | 152 | 5 | 1 |
+| p2 | police | 138 | 4 | 1 |
+| p3 | police | 142 | 2 | 0 |
+| p4 | police | 105 | 3 | 0 |
+| b1 | bank | 131 | 7 | 2 |
+| b2 | bank | 117 | 3 | 0 |
+| b3 | bank | 96 | 3 | 0 |
+| c1 | chat | 142 | 5 | 0 |
+| c2 | chat | 177 | 5 | 1 |
+| c3 | chat | 160 | 4 | 0 |
+| c4 | chat | 149 | 5 | 0 |
+| x1 | position | 220 | 7 | 2 |
+| x2 | position | 143 | 4 | 0 |
+| x3 | position | 127 | 4 | 0 |

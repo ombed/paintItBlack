@@ -67,3 +67,22 @@ A name that appears in the document only in its corrupted form, never cleanly. T
 **Question.** "ליפשיץ" was replaced alone and "סבג" was not. Is there a length threshold, and is it right?
 
 **Finding.** There was: the uniformity sweep marked any part of three letters or fewer as word-like (`p.length<=3`), which limits it to standalone occurrences with review, so "וסבג" and "לסבג" stayed in the text. Commit 507a0c5 (PR #5) lowered that to two. The threshold that remained is the sweep's entry rule, which drops parts shorter than a minimum outright: it was 3, so a two-letter surname ("כץ", "נץ") was never swept at all. A probe confirmed it: "סבג" and "דהן" alone and behind every prefix letter are replaced today; "כץ" leaked five times. The sweep put the minimum at 2 at no cost, and two-letter parts stay review-only through the word-like rule. So the number was 3, it was wrong for two-letter surnames, and it is now 2.
+
+## A real filing, 2026-09-06
+
+**Question.** The corpus is synthetic. What does the chain do on a real document?
+
+**Method.** A client's position paper (`כתב עמדה מטעם האפוטרופא לדין`, 1,031 words), already de-identified by the client, run through the product chain locally with the model on. The file was not committed and is not quoted here; the shapes are.
+
+**Finding.** No ID numbers, phones or digit runs remained. The two parties, introduced by role and colon, were found. But discover produced 23 candidates, of which 21 were not names, and 5 of those were high confidence and would have been auto-filled and replaced:
+
+| anchor | what it matched | why |
+|---|---|---|
+| "right before ת"ז" (high) | three sentence fragments ending mid-word | a word ending in ת followed by a word starting with ז read as the label "ת ז"; the name pattern had no end boundary |
+| speaker turn (high) | two form labels ("מועד אחרון לתגובה:") | two words made a single occurrence high |
+| after a title, after "הח"מ", after "בפני" (medium) | twelve verbs and phrases | in a filing the parties are role words and "the undersigned" is the lawyer speaking; a name almost never follows |
+| model | "כאמור גדעון", "משה אפטרופא", "אפוטרופא" | discourse word glued to the name; role word taken as a name |
+
+**Fix and measure.** The ID anchor requires a whole label and a word-boundary end. A speaker is high only when it recurs. Every anchor rejects candidates containing a verb, a common word, a role word, a form label or a two-letter pronoun; bare "הח"מ" is no longer an anchor. The cleaner strips a leading discourse word and role words in any spelling. Three position papers with these traps joined the corpus (categories T_FORMLABEL, T_TZSPLIT, T_UNDERSIGNED, O_ROLEWORD, P_ROLE_COLON, P_AFTER_LEAD). On the document: candidates 23 → 2, replacements 95 → 28, no fragment replaced. On the corpus: junk suggestions 42 → 23, leaks unchanged at 4, the new position papers 13 found, 0 missed, 0 leaked.
+
+**What remains on the document.** Two towns named in passing (the client left them), a verb the model reads as a first name because the same letters are a common name ("שמשה" as ש+משה), and the ambiguous town word "אזור", flagged for review as designed. All three are one tap each.

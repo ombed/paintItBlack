@@ -126,6 +126,8 @@ function bodyNames(blocks,known){
           // "איוונוב ואינו מהווה" — מילת שלילה, מילת יחס או פועל אחרי ו' החיבור
           // אינם חלק מהשם. הצעה כזאת אושרה, ואז שם המשפחה לבדו נחשב משותף
           // לשני ערכים ולא הוחלף.
+          // "משכך גדעון": מילת קישור בראש אינה חלק מהשם
+          if(LEAD.has(raw[0].w))continue;
           const w2=raw[1].w.replace(/^ו/,"");
           if(/^אינ[והםן]$/.test(w2)||STOP.has(w2)||COMMON.has(w2)||VRB.has(w2)||TRAIL.has(w2))continue;
         }

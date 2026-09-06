@@ -305,7 +305,82 @@ module.exports = function more(Doc, C) {
     docs.push(d);
   }
 
+  // ── position papers: the shape of a real filing that broke the anchors ──
+  // Parties by role and colon, form labels with colons, "the undersigned" before
+  // verbs, a word ending in ת before a word starting with ז, a discourse word
+  // before the minor's name, role words the model calls names.
+  {
+    const d = new Doc("x1", "position", "כתב עמדה");
+    const [rn1] = d.ent("P_ROLE_COLON", "NAME", true, "נופר", ["נופר", "התובע:  נופר"], "party by role and colon, first name only");
+    const [rn2] = d.ent("P_ROLE_COLON", "NAME", true, "טוהר", ["טוהר", "הנתבעת:  טוהר"], "party by role and colon, first name only");
+    const [mn] = d.ent("P_AFTER_LEAD", "NAME", true, "ליעד", ["ליעד"], "minor, appears after כאמור / משכך and after הקטין");
+    const [sib] = d.ent("P_MINOR_ANCH", "NAME", true, "אביתר", ["האח אביתר", "אביתר"], "sibling introduced by a kin word");
+    const [l1] = d.ent("L_TOWN", "PLACE", true, "בית אריה", ["בית אריה"]);
+    d.ent("T_FORMLABEL", "TRAP", false, "מועד אחרון לתגובה", ["מועד אחרון לתגובה", "מועד המצאת ההחלטה"], "form label with a colon is not a speaker");
+    d.ent("T_TZSPLIT", "TRAP", false, "בהחלפת זמני", ["בהחלפת זמני", "שנקבעו ותחת זאת"], "a ת ending a word before a ז starting the next is not ת\"ז");
+    d.ent("T_UNDERSIGNED", "TRAP", false, 'הח"מ סבורה', ['הח"מ סבורה', 'הח"מ להשיג', 'הח"מ עולה'], "the undersigned before a verb is not a name");
+    d.ent("O_ROLEWORD", "TRAP", false, "אפוטרופא לדין", ["אפוטרופא לדין", "אפטרופא"], "a role word in any spelling is not a name");
+    d.p("כתב עמדה מטעם האפוטרופא לדין")
+     .p(`התובע:  ${rn1} .....(להלן: גם האב)`)
+     .p("נ ג ד -")
+     .p(`הנתבעת:  ${rn2}(להלן: גם האם)`)
+     .p("מועד המצאת ההחלטה: ...........")
+     .p("מועד אחרון לתגובה: ............")
+     .p(`בעניין הקטין ${mn}, יליד 2015, המתגורר בבית האב ב${l1} יחד עם ${sib}, כאשר ${sib.split(" ").pop()} משרת שירות צבאי.`)
+     .p(`כאמור ${mn} שיתף את הח"מ וציין כי מועדי השהות אינם קבועים. משכך ${mn} מבקש גמישות בהחלפת זמני השהות שלו עם האם.`)
+     .p(`הח"מ סבורה כי פניות למשטרה אינן הדרך. כל ניסיונות הח"מ להשיג את האם לא צלחו. מהמידע שהובא בפני הח"מ עולה כי האם אינה מגיעה במועדים שנקבעו ותחת זאת נוצרו שינויים.`)
+     .p(`יוזכר כי הח"מ גם שמשה אפטרופא לדין של הקטין ${mn} בהליך הקודם. האפוטרופא לדין ממליצה על הרחבת השהות אצל האב.`);
+    docs.push(d);
+  }
+  {
+    const d = new Doc("x2", "position", "תגובת האפוטרופא לדין");
+    const [rn1] = d.ent("P_ROLE_COLON", "NAME", true, "שיראל", ["שיראל", "המבקשת:  שיראל"], "party by role and colon, first name only");
+    const [rn2] = d.ent("P_ROLE_COLON", "NAME", true, "לביא", ["לביא", "המשיב:  לביא"], "party by role and colon, first name only");
+    const [mn] = d.ent("P_AFTER_LEAD", "NAME", true, "אגם", ["אגם"], "minor, appears after לדבריה / בנוסף and after הקטינה");
+    const [st, stb] = d.ent("L_STREET", "PLACE", true, "רחוב הדקל 7", ["רחוב הדקל 7", "הדקל"]);
+    d.ent("T_FORMLABEL", "TRAP", false, "הנדון", ["הנדון", "סימוכין", "מועד הדיון"], "form label with a colon is not a speaker");
+    d.ent("T_TZSPLIT", "TRAP", false, "לעניין אכיפת זכויות", ["לעניין אכיפת זכויות", "בקשת זמנים"], "a ת ending a word before a ז starting the next is not ת\"ז");
+    d.ent("T_UNDERSIGNED", "TRAP", false, 'הח"מ ממליצה', ['הח"מ ממליצה', 'הח"מ השאירה'], "the undersigned before a verb is not a name");
+    d.ent("O_ROLEWORD", "TRAP", false, "האפוטרופוס לדין", ["האפוטרופוס לדין", "אפוטרופסית"], "a role word in any spelling is not a name");
+    d.p("תגובת האפוטרופוס לדין")
+     .p(`המבקשת:  ${rn1}`)
+     .p(`המשיב:  ${rn2}`)
+     .p("הנדון: הסדרי שהות")
+     .p("סימוכין: החלטה מיום 3.3.2026")
+     .p("מועד הדיון: ............")
+     .p(`בעניין הקטינה ${mn}, המתגוררת עם האם ב${st}. לדבריה ${mn} מעדיפה להישאר ב${stb}. בנוסף ${mn} ביקשה שדבריה לא יובאו בפני מי מההורים.`)
+     .p(`הח"מ ממליצה על השמעת הקטינה. הח"מ השאירה לאם הודעה אך האם לא השיבה. לעניין אכיפת זכויות ההורה, בקשת זמנים נוספים תידון בנפרד.`)
+     .p(`הח"מ מונתה כאפוטרופסית לדין בהליך זה. האפוטרופוס לדין הקודם סיים את תפקידו.`);
+    docs.push(d);
+  }
+  {
+    const d = new Doc("x3", "position", "עמדת האפוטרופא לדין");
+    const [rn1] = d.ent("P_ROLE_COLON", "NAME", true, "אלינה", ["אלינה", "התובעת:  אלינה"], "party by role and colon, first name only");
+    const [rn2] = d.ent("P_ROLE_COLON", "NAME", true, "ארטיום", ["ארטיום", "הנתבע:  ארטיום"], "party by role and colon, first name only");
+    const [mn] = d.ent("P_AFTER_LEAD", "NAME", true, "יונס", ["יונס"], "minor, appears after ואולם / יצוין and after הקטין");
+    const [sib] = d.ent("P_MINOR_ANCH", "NAME", true, "מייסא", ["האחות מייסא", "מייסא"], "sibling introduced by a kin word");
+    d.ent("T_FORMLABEL", "TRAP", false, "נושא", ["נושא", "מועד הגשה"], "form label with a colon is not a speaker");
+    d.ent("T_TZSPLIT", "TRAP", false, "ברכישת זכויות", ["ברכישת זכויות", "הצעת זמנים"], "a ת ending a word before a ז starting the next is not ת\"ז");
+    d.ent("T_UNDERSIGNED", "TRAP", false, 'הח"מ נפגשה', ['הח"מ נפגשה', 'הח"מ מציעה'], "the undersigned before a verb is not a name");
+    d.ent("O_ROLEWORD", "TRAP", false, "אפוטרופוס לדין", ["אפוטרופוס לדין", "האפוטרופא"], "a role word in any spelling is not a name");
+    d.p("עמדת האפוטרופא לדין")
+     .p(`התובעת:  ${rn1}`)
+     .p(`הנתבע:  ${rn2}`)
+     .p("נושא: משמורת")
+     .p("מועד הגשה: ............")
+     .p(`הח"מ נפגשה עם הקטין ${mn} פעמיים. ואולם ${mn} מסרב לדבר על האב. יצוין ${mn} מתגורר עם ${sib}, ו${sib.split(" ").pop()} מסייעת לו.`)
+     .p(`הח"מ מציעה הסדר הדרגתי. ברכישת זכויות בדירה אין כדי לשנות את המסקנה, והצעת זמנים חדשה תוגש בנפרד.`)
+     .p(`האפוטרופא ממליצה כי אפוטרופוס לדין ימשיך ללוות את ההליך.`);
+    docs.push(d);
+  }
+
   Object.assign(C, {
+    P_ROLE_COLON: "person: party by role word and colon, first name only",
+    P_AFTER_LEAD: "person: name right after a discourse word (כאמור, משכך, לדבריה)",
+    T_FORMLABEL: "trap: form label with a colon (not a speaker)",
+    T_TZSPLIT: "trap: word ending in ת before a word starting with ז (not ת\"ז)",
+    T_UNDERSIGNED: "trap: הח\"מ before a verb (not a name)",
+    O_ROLEWORD: "trap: role word in any spelling (אפוטרופא, אפוטרופוס)",
     P_SUR2: "person: two-letter surname",
     P_MINOR_ANCH: "person: minor introduced by הקטין / הקטינה",
     I_ID: "pii: ID number",
