@@ -80,6 +80,7 @@ a:hover{text-decoration:underline}
   color:var(--ink3);font-family:Rubik,system-ui,sans-serif;letter-spacing:.02em;
   pointer-events:none;user-select:none}
 </style>
+<script src="./page-logic.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -90,7 +91,7 @@ a:hover{text-decoration:underline}
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v13");
+  console.log("השחרת מסמכים — גרסה v14");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -128,9 +129,9 @@ a:hover{text-decoration:underline}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v13") return;
+        if(served==="v14") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v13 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v14 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -145,8 +146,6 @@ a:hover{text-decoration:underline}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600&family=Noto+Serif+Hebrew:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
 
 </helmet>
 
@@ -248,6 +247,18 @@ a:hover{text-decoration:underline}
         </div>
       </sc-if>
     </div>
+
+    <sc-if value="{{ hasLast }}">
+      <div style="margin-top:12px;display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);flex-wrap:wrap">
+        <span style="width:26px;height:26px;border-radius:50%;background:var(--panel2);color:var(--ink2);display:grid;place-items:center;font-size:13px;flex:none;border:1px solid var(--line)">↻</span>
+        <div style="min-width:0;flex:1 1 220px">
+          <b style="display:block;font-weight:500;font-size:14px">{{ lastTitle }}</b>
+          <small style="color:var(--ink2);font-size:12.5px">{{ lastMeta }}</small>
+        </div>
+        <button onClick="{{ onDismissLast }}" style="font-size:13px;color:var(--ink2);padding:9px 12px;border-radius:9px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel2)">תיק אחר</button>
+        <button onClick="{{ onResumeLast }}" style="padding:9px 16px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500;white-space:nowrap">המשך עם הפרופיל</button>
+      </div>
+    </sc-if>
 
     <div data-stack style="display:grid;grid-template-columns:1.15fr .85fr;gap:22px;margin-top:30px;align-items:start">
       <section>
@@ -648,10 +659,12 @@ a:hover{text-decoration:underline}
           <sc-if value="{{ s.openProfile }}">
             <div style="padding:0 15px 15px">
               <p style="margin:0 0 10px;font-size:12.5px;color:var(--ink2);line-height:1.55">שמירת רשימת הצדדים והשמות החלופיים, כדי שאותו אדם יקבל את אותו שם בכל מסמכי התיק.</p>
+              <input value="{{ caseName }}" onChange="{{ onCaseName }}" placeholder="שם התיק (למשל: לוי נ׳ לוי)" style="width:100%;margin-bottom:8px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px">
               <div style="display:flex;gap:7px">
                 <button onClick="{{ onSaveProf }}" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500" style-hover="background:var(--panel2)">שמירת פרופיל</button>
                 <button onClick="{{ onLoadProf }}" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500" style-hover="background:var(--panel2)">טעינת פרופיל</button>
               </div>
+              <p style="margin:8px 0 0;font-size:12px;color:var(--ink3);line-height:1.6">{{ profileNote }}</p>
               <sc-if value="{{ hasMine }}">
                 <div style="margin-top:13px;border-top:1px solid var(--line2)">
                   <sc-for list="{{ mineItems }}" as="m" hint-placeholder-count="2">
@@ -674,6 +687,13 @@ a:hover{text-decoration:underline}
                   <span style="color:var(--ink2)">{{ st.label }}</span><b style="font-weight:500">{{ st.value }}</b>
                 </div>
               </sc-for>
+              <sc-if value="{{ hasLeaks }}">
+                <div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--warn-soft);font-size:12.5px;line-height:1.55">
+                  <b style="font-weight:500;color:var(--warn)">שמות שסימנת בעצמך: {{ leakCount }}</b>
+                  <p style="margin:4px 0 8px;color:var(--ink2)">כל סימון כזה הוא שם שהכלי פספס. דוח הדליפה מתאר את הצורה של המקרה — אורכי מילים, מה עמד לפני ואחרי, מה כל שכבה חשבה — בלי הטקסט ובלי השם. אפשר להדביק אותו ב-issue.</p>
+                  <button onClick="{{ onCopyLeaks }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--warn);font-size:12.5px;font-weight:500;color:var(--warn)">{{ leakCopyLabel }}</button>
+                </div>
+              </sc-if>
               <button onClick="{{ onReport }}" style="margin-top:12px;width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500" style-hover="background:var(--panel2)">הורדת דוח השחרה</button>
               <p style="margin:8px 0 0;font-size:12px;color:var(--ink3);line-height:1.6">הדוח מפרט מה הוחלף במה, מה סומן לבדיקה ומה נוקה מהקובץ — לתיק הפנימי, לא לשליחה.</p>
               <p style="margin:12px 0 0;font-size:12px;color:var(--ink3);line-height:1.6">האימות מוודא שהערכים שזוהו נעלמו מכל חלקי הקובץ, ומחפש כתיב שנבדל מהם בתו אחד. שיבוש של שני תווים ומעלה, טקסט בתוך תמונה או קובץ מוטמע, ושם שאף פעם לא זוהה — אינם נסרקים.</p>
@@ -728,7 +748,7 @@ a:hover{text-decoration:underline}
 
 </div>
 </x-dc>
-<div id="ver">גרסה v13</div>
+<div id="ver">גרסה v14</div>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
@@ -744,7 +764,9 @@ class Component extends DCLogic {
     aiIn:"", aiWarn:"", aiCopyLabel:"העתקת טקסט מושחר",
     rvIn:"", rvOut:"", rvCopyLabel:"העתקת הטקסט המשוחזר",
     copyLabel:"העתקה ל-AI", busyT:"מעבד…", err:"",
-    geo:null, geoV:0, geoNames:[], geoEdits:{}, popup:null, repDraft:""
+    geo:null, geoV:0, geoNames:[], geoEdits:{}, popup:null, repDraft:"",
+    // הפרופיל של התיק נשמר בדפדפן אחרי כל שינוי; lastProfile הוא מה שנמצא בכניסה
+    caseName:"", lastProfile:null, profileDirty:false, leaks:[]
   };
 
   async componentDidMount(){
@@ -759,7 +781,8 @@ class Component extends DCLogic {
     try{ th = localStorage.getItem("redact-theme") || (matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"); }catch(_){}
     this.applyTheme(th);
     let seen=false; try{ seen = localStorage.getItem("redact-intro-seen")==="1"; }catch(_){}
-    this.setState({theme:th, intro:!seen});
+    let lastProfile=null; try{ const j=localStorage.getItem("redact-profile-last"); const p=j&&JSON.parse(j); if(p&&p.v===1&&(p.rules||[]).length) lastProfile=p; }catch(_){}
+    this.setState({theme:th, intro:!seen, lastProfile});
     this.applyProps();
     this._resize = () => { const n = innerWidth < 1120; if(n!==this.state.narrow) this.setState({narrow:n}); };
     this._resize();
@@ -1030,7 +1053,6 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const rules = rows.map(r=>({...r}));
     this.setState({rules, allow:[]});
     if(!this.state.o.places){ this.run(rules); return; }
-    this.loadAtlas();
     try{
       const blocks = await this.blocksOf(this.state.buf);
       const text = E.norm(blocks.map(b=>b.text).join("\n"));
@@ -1046,7 +1068,11 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   loadAtlas = async () => {
     if(this.state.atlas || this._atlasBusy) return;
     this._atlasBusy = true;
-    for(let i=0;i<30 && !(window.d3 && window.topojson);i++) await new Promise(r=>setTimeout(r,150));
+    // הספריות של המפה נטענות רק כשמבקשים לראות אותה, לא בכל ביקור
+    const libs=[["d3","https://unpkg.com/d3@7.9.0/dist/d3.min.js","sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i"],["topojson","https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js","sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67"]];
+    for(const [g,src,integrity] of libs){ if(window[g]) continue;
+      await new Promise(res=>{ const el=document.createElement("script"); el.src=src; el.integrity=integrity; el.crossOrigin="anonymous";
+        el.onload=res; el.onerror=res; document.head.appendChild(el); }); }
     if(!(window.d3 && window.topojson)){ this._atlasBusy=false; return; }
     try{
       const t = await (await fetch((window.__resources && window.__resources.atlas) || "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json")).json();
@@ -1123,7 +1149,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const flag=new Set(E.PAT.filter(p=>!p.on).map(p=>p.n));
     flag.add("NAME_ANCHORED");
     if(this.state.o.places) on.add("PLACES"); else flag.add("PLACES");
-    return {on, flag, mode:this.state.mode, near:this.state.o.near, body:!this.state.nerUsed, prefixes:"normal"};
+    // שכבת הפעלים רצה גם כשהמודל רץ: על הקורפוס היא סוגרת ארבע דליפות שהמודל
+    // מפספס (שם רוסי, «משפחת X», שם שמופיע רק בפרוזה) תמורת ארבע הצעות עודפות.
+    return {on, flag, mode:this.state.mode, near:this.state.o.near, body:true, prefixes:"normal"};
   }
   async run(rows){
     const E=this.state.E;
@@ -1133,23 +1161,36 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const res = await E.redactDocx(this.state.buf.slice(0), rules, this.state.allow, this.opts());
       // מגיעים למסמך עצמו קודם: הפאנלים מקופלים, פס הסטטוס אומר מה מחכה
       const toReview=(res.verification.near||[]).length+(res.verification.suggest||[]).length;
-      this.setState({res, screen:"work", open:toReview?["review","findings"]:["findings"], pane:"doc", docView:"red", markIdx:0});
+      this.setState({res, screen:"work", open:toReview?["review","findings"]:["findings"], pane:"doc", docView:"red", markIdx:0}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה בעיבוד: "+(e.message||e), screen:"entry", res:null}); }
   }
   async rerun(){
     const E=this.state.E;
     try{
       const res = await E.redactDocx(this.state.buf.slice(0), this.state.rules, this.state.allow, this.opts());
-      this.setState({res, sel:null});
+      this.setState({res, sel:null}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה: "+(e.message||e)}); }
   }
-  addRule = (value, kind, rep) => {
+  addRule = (value, kind, rep, origin) => {
     const E=this.state.E; value=E.trimEdges(value);
     if(value.length<2){ this.setState({err:"נדרשים לפחות שני תווים."}); return; }
     if(this.state.rules.some(r=>r.value===value)){ this.setState({err:"«"+value+"» כבר ברשימה."}); return; }
+    // סימון ידני בטקסט אחרי העיבוד הוא ההגדרה של דליפה: הכלי פספס, והיא תיקנה.
+    // הצורה של המקרה נרשמת (page-logic.js, leakShape) — בלי הטקסט — כדי שיהיה
+    // אפשר לשחזר אותו בלי המסמך.
+    if(origin==="mark"&&this.state.res&&this.state.buf&&window.PL) this.recordLeak(value, kind||"NAME");
     this.setState({rules:[...this.state.rules, {value, kind:kind||"NAME", replacement:(rep||"").trim(), auto:false}],
       addV:"", addR:"", popup:null, err:""}, ()=>this.rerun());
   };
+  async recordLeak(value, kind){
+    try{
+      const S=this.state, E=S.E, blocks=await this.blocksOf(S.buf);
+      const ver=((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"");
+      const shape=window.PL.leakShape(E, blocks, value, {kind, version:ver, modelUsed:S.nerUsed, cands:S.cands,
+        nerRaw:S.nerUsed&&E.nerLast?E.nerLast():[], rules:S.rules, near:(S.res.verification.near)||[], suggest:(S.res.verification.suggest)||[]});
+      this.setState({leaks:[...this.state.leaks, shape]});
+    }catch(_){}
+  }
   // מוסיף מקטע לפתוחים בלי לסגור אחרים
   openWith = k => { const o=Array.isArray(this.state.open)?this.state.open:[]; return o.includes(k)?o:[...o,k]; };
   dropRule = v => this.setState({rules:this.state.rules.filter(r=>r.value!==v)}, ()=>this.rerun());
@@ -1259,20 +1300,41 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(u), 4000);
   };
+  profileObj(){
+    return {v:1, created:(this.state.profile&&this.state.profile.created)||new Date().toISOString(), updated:new Date().toISOString(),
+      name:this.state.caseName||"", mode:this.state.mode, rules:this.state.rules, allow:this.state.allow, map:this.currentMap()};
+  }
+  // הפרופיל הוא ההבטחה שאותו אדם מקבל את אותו שם בכל מסמך בתיק. עד עכשיו הוא
+  // חי רק כקובץ שהיא זוכרת לשמור; עכשיו הוא נכתב לדפדפן אחרי כל שינוי, מוצע
+  // בכניסה הבאה, ומזהיר לפני יציאה בלי ייצוא. הדפדפן אינו גיבוי — הייצוא הוא.
+  persistProfile(){
+    if(!this.state.res||!this.state.rules.length) return;
+    try{ localStorage.setItem("redact-profile-last", JSON.stringify(this.profileObj())); }catch(_){}
+    if(!this.state.profileDirty) this.setState({profileDirty:true});
+  }
   saveProfile = () => {
-    const prof={v:1, created:new Date().toISOString(), mode:this.state.mode,
-      rules:this.state.rules, allow:this.state.allow, map:this.currentMap()};
+    const prof=this.profileObj();
     const blob=new Blob([JSON.stringify(prof,null,1)],{type:"application/json"});
     const u=URL.createObjectURL(blob), a=document.createElement("a");
-    a.href=u; a.download="פרופיל-תיק.json"; document.body.appendChild(a); a.click(); a.remove();
+    a.href=u; a.download=(this.state.caseName?"פרופיל-"+this.state.caseName.replace(/[\\/:*?"<>|]+/g," ").trim():"פרופיל-תיק")+".json";
+    document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(u), 4000);
+    this.setState({profileDirty:false});
   };
   loadProfileClick = () => this.profEl && this.profEl.click();
+  resumeLast = () => { const p=this.state.lastProfile; if(!p) return; this.setState({lastProfile:null, caseName:p.name||""}); this.applyProfile(p); };
+  dismissLast = () => this.setState({lastProfile:null});
   onProfFile = async e => {
     const f=e.target.files[0]; e.target.value=""; if(!f) return;
     try{
       const prof=JSON.parse(await f.text());
       if(!prof || prof.v!==1) throw new Error("קובץ פרופיל לא מזוהה");
+      this.setState({caseName:prof.name||this.state.caseName});
+      this.applyProfile(prof);
+    }catch(err){ this.setState({err:"טעינת הפרופיל נכשלה: "+(err.message||err)}); }
+  };
+  applyProfile(prof){
+    try{
       const rules=(prof.rules||[]).slice();
       for(const [value, replacement] of Object.entries(prof.map||{})){
         if(!value||!replacement) continue;
@@ -1292,7 +1354,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         } else if(this.state.res) this.rerun();
       });
     }catch(err){ this.setState({err:"טעינת הפרופיל נכשלה: "+(err.message||err)}); }
-  };
+  }
 
   /* ── סימון בטקסט ── */
   onSheetSelect = () => {
@@ -1415,6 +1477,12 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g}))), 0); },
       onSkipNames:()=>{ if(S.scanning) return; this.setState({peo:[]}); this.toPlaces([]); },
       onLoadProf:this.loadProfileClick, onSaveProf:this.saveProfile,
+      hasLast:!!S.lastProfile&&S.screen==="entry"&&!S.profile,
+      lastTitle:S.lastProfile?(S.lastProfile.name?"להמשיך את התיק «"+S.lastProfile.name+"»?":"להמשיך עם הפרופיל מהפעם הקודמת?"):"",
+      lastMeta:S.lastProfile?((S.lastProfile.rules||[]).length+" ערכים ברשימה · עודכן "+new Date(S.lastProfile.updated||S.lastProfile.created).toLocaleString("he-IL",{dateStyle:"short",timeStyle:"short"})+" · אותם שמות חלופיים כמו במסמך הקודם"):"",
+      onResumeLast:this.resumeLast, onDismissLast:this.dismissLast,
+      caseName:S.caseName, onCaseName:e=>this.setState({caseName:e.target.value}, ()=>this.persistProfile()),
+      profileNote:S.profileDirty?"נשמר בדפדפן הזה אחרי כל שינוי. הדפדפן אינו גיבוי — ייצוא לקובץ שומר את הפרופיל גם אם המטמון ינוקה.":"נשמר בדפדפן הזה אחרי כל שינוי, ויוצא לקובץ.",
       hasPeoSug:S.peoSug.some(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))),
       peoSugItems:S.peoSug.filter(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))).map(x=>({
         value:x.value, why:x.why,
@@ -1455,14 +1523,18 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         onRemove:()=>this.geoRemove(m.from)})),
       hasExcluded:(S.geoExcluded||[]).length>0,
       excluded:(S.geoExcluded||[]).map(n=>({name:n, onUndo:()=>this.geoRestore(n)})),
-      mapLand:MV?MV.land:"", hasLand:!!(MV&&MV.hasLand), showMap:!!S.showMap, mapLabel:S.showMap?"הסתרת המפה":"הצגת המפה", onToggleMap:()=>this.setState({showMap:!S.showMap}),
+      mapLand:MV?MV.land:"", hasLand:!!(MV&&MV.hasLand), showMap:!!S.showMap, mapLabel:S.showMap?"הסתרת המפה":"הצגת המפה", onToggleMap:()=>{ if(!S.showMap) this.loadAtlas(); this.setState({showMap:!S.showMap}); },
       mapFrom:MV?MV.from:[], mapTo:MV?MV.to:[],
       onGeoAlt:this.geoAlt, onGeoApply:this.geoApply, onGeoSkip:()=>this.run(S.rules),
-      onBackHome:()=>this.setState({screen:"entry", res:null, err:""}),
+      // יציאה בלי ייצוא: הפרופיל נשאר בדפדפן הזה בלבד, וזו הבטחה חלשה מדי לתיק
+      onBackHome:()=>{ if(S.profileDirty&&S.rules.length&&!confirm("הפרופיל של התיק נשמר בדפדפן הזה בלבד ולא יוצא לקובץ. אם הדפדפן ינוקה הוא יאבד. לצאת בכל זאת?")) return;
+        this.setState({screen:"entry", res:null, err:""}); },
       popup:!!S.popup, popupText:S.popup?S.popup.text:"",
       popupStyle:S.popup?("position:fixed;z-index:60;left:"+S.popup.x+"px;top:"+S.popup.y+"px;max-width:270px;"+
         "background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;box-shadow:0 12px 34px rgba(0,0,0,.22)"):"",
-      popupKinds:KINDS.map(([k,l])=>({label:l, onClick:()=>{ this.addRule(S.popup.text, k, ""); getSelection().removeAllRanges(); }})),
+      popupKinds:KINDS.map(([k,l])=>({label:l, onClick:()=>{ this.addRule(S.popup.text, k, "", "mark"); getSelection().removeAllRanges(); }})),
+      hasLeaks:S.leaks.length>0, leakCount:S.leaks.length, leakCopyLabel:S.leakCopyLabel||"העתקת דוח הדליפה",
+      onCopyLeaks:()=>{ try{ this.copyTo(window.PL.leakReport(S.leaks,{version:((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"")}), "leakCopyLabel", "העתקת דוח הדליפה"); }catch(e){ this.setState({err:String(e.message||e)}); } },
       addV:S.addV, addR:S.addR,
       onAddV:e=>this.setState({addV:e.target.value}), onAddR:e=>this.setState({addR:e.target.value}),
       onAddKey:e=>{ if(e.key==="Enter") this.addRule(this.state.addV, this.state.addK, this.state.addR); },

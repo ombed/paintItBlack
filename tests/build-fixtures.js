@@ -63,9 +63,8 @@ fs.writeFileSync(path.join(HERE, "app.html"),
   "</script>\n", "utf8");
 
 // core.js is required directly, never sliced, so it keeps the original order.
-const exp = (fs.readFileSync(path.join(HERE, "extract.py"), "utf8")
-  .match(/module\.exports=\{[^}]*\}/) || [])[0];
-if (!exp) throw new Error("could not read the export list out of extract.py");
+// The export list is what extract.py used to append; the suites destructure these.
+const exp = "module.exports={norm,near1,findNear,restoreNames,fakeName,gender,origin,POOL,STOP,PLACE_BY,Engine,ckey,variants,hord,words,pseudoRX,hash32,discover,anchored,partName,ctxHTML,findPlaces,esc,GF,GM,bodyNames,nameish,VRB,COMMON,nerClean,nerChunks,PUBLIC_ORG,nerAlign,nerGroup,fixTokJSON,rxClean}";
 fs.writeFileSync(path.join(HERE, "core.js"), PRELUDE + src + "\n" + exp + ";\n", "utf8");
 
 console.log("built tests/app.html and tests/core.js from redact-engine.js");

@@ -6,13 +6,18 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "node tests/run.js && playwright test",
+    "test": "eslint . && node tests/run.js && playwright test",
     "test:unit": "node tests/run.js",
     "test:browser": "playwright test",
     "build:fixtures": "node tests/build-fixtures.js",
+    "build:design": "node scripts/build-design.js",
+    "build:engine": "node scripts/build-engine.js",
+    "lint": "eslint .",
     "report": "node tests/report.js",
     "bench": "node bench/generate.js && node bench/run.js",
-    "bench:nomodel": "node bench/generate.js && node bench/run.js --no-model"
+    "bench:nomodel": "node bench/generate.js && node bench/run.js --no-model",
+    "gate": "node bench/gate.js",
+    "bump": "node scripts/bump.js"
   },
   "repository": {
     "type": "git",
@@ -26,6 +31,7 @@
     "@huggingface/transformers": "^4.2.0",
     "@playwright/test": "^1.62.1",
     "@xmldom/xmldom": "^0.9.12",
+    "eslint": "^9.39.5",
     "jsdom": "^30.0.1"
   }
 }

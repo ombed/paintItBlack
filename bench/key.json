@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-05",
+ "generated": "2026-09-06",
  "categories": {
   "P_WORD": "person: name that is also a common word",
   "P_PROSE": "person: only in prose, never before a speech verb",
@@ -27,7 +27,15 @@
   "L_STREET": "place: street",
   "T_PLONI": "trap: פלוני / פלונית",
   "T_NUMBERS": "trap: case numbers, dates, section references",
-  "T_IDIOM": "trap: idiom or public title beside a same-word name"
+  "T_IDIOM": "trap: idiom or public title beside a same-word name",
+  "P_SUR2": "person: two-letter surname",
+  "P_MINOR_ANCH": "person: minor introduced by הקטין / הקטינה",
+  "I_ID": "pii: ID number",
+  "I_PHONE": "pii: mobile phone",
+  "I_EMAIL": "pii: email address",
+  "I_BANK": "pii: bank account",
+  "I_PLATE": "pii: licence plate",
+  "I_DOB": "pii: date of birth"
  },
  "exemptFromDisjoint": [
   "P_WORD",
@@ -1359,6 +1367,1432 @@
      "canonical": "הר אדר",
      "surfaces": [
       "הר אדר"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "w1",
+   "genre": "welfare",
+   "title": "תסקיר סעד",
+   "file": "corpus/w1.docx",
+   "words": 73,
+   "entities": [
+    {
+     "cat": "P_SUR2",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ליעד כץ",
+     "surfaces": [
+      "ליעד כץ",
+      "כץ"
+     ],
+     "note": "two-letter surname"
+    },
+    {
+     "cat": "P_MINOR_ANCH",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אגם",
+     "surfaces": [
+      "הקטינה אגם",
+      "אגם"
+     ],
+     "note": "minor introduced by הקטינה"
+    },
+    {
+     "cat": "P_TITLE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "שיראל שטרית",
+     "surfaces": [
+      "עו\"ס שיראל שטרית",
+      "שטרית"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_ID",
+     "kind": "PII",
+     "must": true,
+     "canonical": "314277062",
+     "surfaces": [
+      "ת\"ז 314277062"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_PHONE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "052-6613874",
+     "surfaces": [
+      "052-6613874"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_TOWN",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "כפר האורנים",
+     "surfaces": [
+      "כפר האורנים"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "משרד הרווחה",
+     "surfaces": [
+      "משרד הרווחה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "סעיף 3",
+     "surfaces": [
+      "סעיף 3",
+      "11.2.2026"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "w2",
+   "genre": "welfare",
+   "title": "תסקיר סעד",
+   "file": "corpus/w2.docx",
+   "words": 63,
+   "entities": [
+    {
+     "cat": "P_FORMS",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "טוהר בוסקילה",
+     "surfaces": [
+      "טוהר בוסקילה",
+      "בוסקילה",
+      "טוהר"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_MINOR_ANCH",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ניב",
+     "surfaces": [
+      "הקטין ניב",
+      "ניב"
+     ],
+     "note": "minor introduced by הקטין"
+    },
+    {
+     "cat": "I_DOB",
+     "kind": "PII",
+     "must": true,
+     "canonical": "3.4.2017",
+     "surfaces": [
+      "יליד 3.4.2017"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_ETHIOPIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "טסנש מקונן",
+     "surfaces": [
+      "טסנש מקונן",
+      "מקונן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PRIVATE",
+     "kind": "ORG",
+     "must": true,
+     "canonical": "פנימיית גבעת הרימון",
+     "surfaces": [
+      "פנימיית גבעת הרימון",
+      "גבעת הרימון"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_NEIGHBOURHOOD",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "שכונת נווה חן",
+     "surfaces": [
+      "שכונת נווה חן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_PLONI",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "פלוני",
+     "surfaces": [
+      "פלוני"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "w3",
+   "genre": "welfare",
+   "title": "דוח ביקור בית",
+   "file": "corpus/w3.docx",
+   "words": 73,
+   "entities": [
+    {
+     "cat": "P_ARABIC",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מרווה עבאס",
+     "surfaces": [
+      "מרווה עבאס",
+      "עבאס"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_SUR2",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מתן צח",
+     "surfaces": [
+      "מתן צח",
+      "צח"
+     ],
+     "note": "two-letter surname"
+    },
+    {
+     "cat": "P_SHARED_SURNAME",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "סלים מנסור",
+     "surfaces": [
+      "סלים מנסור",
+      "סלים"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_SHARED_SURNAME",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "חנין מנסור",
+     "surfaces": [
+      "חנין מנסור",
+      "מנסור"
+     ],
+     "note": "shares a surname with סלים"
+    },
+    {
+     "cat": "I_ID",
+     "kind": "PII",
+     "must": true,
+     "canonical": "205549611",
+     "surfaces": [
+      "205549611"
+     ],
+     "note": "bare, unlabeled"
+    },
+    {
+     "cat": "I_PHONE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "054-9920317",
+     "surfaces": [
+      "054-9920317"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "המוסד לביטוח לאומי",
+     "surfaces": [
+      "המוסד לביטוח לאומי"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "סעיף 12",
+     "surfaces": [
+      "סעיף 12",
+      "7.7.2026"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "w4",
+   "genre": "welfare",
+   "title": "חוות דעת",
+   "file": "corpus/w4.docx",
+   "words": 68,
+   "entities": [
+    {
+     "cat": "P_RUSSIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אלינה פופוב",
+     "surfaces": [
+      "אלינה פופוב",
+      "פופוב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_MINOR_ANCH",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ליה",
+     "surfaces": [
+      "הקטינה ליה",
+      "ליה"
+     ],
+     "note": "minor introduced by הקטינה"
+    },
+    {
+     "cat": "I_EMAIL",
+     "kind": "PII",
+     "must": true,
+     "canonical": "alina.p1984@gmail.com",
+     "surfaces": [
+      "alina.p1984@gmail.com"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_BANK",
+     "kind": "PII",
+     "must": true,
+     "canonical": "חשבון 0418822",
+     "surfaces": [
+      "חשבון 0418822"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_STREET",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "רחוב הגפן 3",
+     "surfaces": [
+      "רחוב הגפן 3",
+      "הגפן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_PROSE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אסיף",
+     "surfaces": [
+      "אסיף"
+     ],
+     "note": "never before a speech verb"
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "סעיף 8(א)",
+     "surfaces": [
+      "סעיף 8(א)",
+      "1.1.2026"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "h1",
+   "genre": "medical",
+   "title": "סיכום ביקור",
+   "file": "corpus/h1.docx",
+   "words": 53,
+   "entities": [
+    {
+     "cat": "P_TITLE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אביתר יפרח",
+     "surfaces": [
+      "ד\"ר אביתר יפרח",
+      "יפרח"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_MINOR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אבישג",
+     "surfaces": [
+      "אבישג"
+     ],
+     "note": "minor, first name only"
+    },
+    {
+     "cat": "I_ID",
+     "kind": "PII",
+     "must": true,
+     "canonical": "338120470",
+     "surfaces": [
+      "ת.ז. 338120470"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_DOB",
+     "kind": "PII",
+     "must": true,
+     "canonical": "14.6.2019",
+     "surfaces": [
+      "ילידת 14.6.2019"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_PHONE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "050-2278461",
+     "surfaces": [
+      "050-2278461"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PRIVATE",
+     "kind": "ORG",
+     "must": true,
+     "canonical": "מרפאת נוף הים",
+     "surfaces": [
+      "מרפאת נוף הים",
+      "נוף הים"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "משרד הבריאות",
+     "surfaces": [
+      "משרד הבריאות"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "2.3.2026",
+     "surfaces": [
+      "2.3.2026",
+      "סעיף 4"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "h2",
+   "genre": "medical",
+   "title": "סיכום אשפוז",
+   "file": "corpus/h2.docx",
+   "words": 59,
+   "entities": [
+    {
+     "cat": "P_FORMS",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "יסמין אלמליח",
+     "surfaces": [
+      "יסמין אלמליח",
+      "אלמליח",
+      "יסמין"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_HYPHEN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "כרים אבו-סרחאן",
+     "surfaces": [
+      "כרים אבו-סרחאן",
+      "אבו סרחאן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_ID",
+     "kind": "PII",
+     "must": true,
+     "canonical": "287113096",
+     "surfaces": [
+      "ת\"ז 287113096"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_EMAIL",
+     "kind": "PII",
+     "must": true,
+     "canonical": "yasmin.alm@walla.co.il",
+     "surfaces": [
+      "yasmin.alm@walla.co.il"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_TOWN",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "צור יצחק",
+     "surfaces": [
+      "צור יצחק"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "18.8.2025",
+     "surfaces": [
+      "18.8.2025",
+      "סעיף 2(ג)"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "h3",
+   "genre": "medical",
+   "title": "חוות דעת פסיכולוגית",
+   "file": "corpus/h3.docx",
+   "words": 57,
+   "entities": [
+    {
+     "cat": "P_RUSSIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ולריה קוזנצוב",
+     "surfaces": [
+      "ולריה קוזנצוב",
+      "קוזנצוב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_ETHIOPIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "יונס גטהון",
+     "surfaces": [
+      "יונס גטהון",
+      "גטהון"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_SUR2",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "איה נץ",
+     "surfaces": [
+      "איה נץ",
+      "נץ"
+     ],
+     "note": "two-letter surname"
+    },
+    {
+     "cat": "I_DOB",
+     "kind": "PII",
+     "must": true,
+     "canonical": "9.11.2014",
+     "surfaces": [
+      "יליד 9.11.2014"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_PHONE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "053-7761120",
+     "surfaces": [
+      "053-7761120"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PRIVATE",
+     "kind": "ORG",
+     "must": true,
+     "canonical": "מכון שורשים",
+     "surfaces": [
+      "מכון שורשים",
+      "שורשים"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_PLONI",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "פלונית",
+     "surfaces": [
+      "פלונית"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "p1",
+   "genre": "police",
+   "title": "הודעת עד",
+   "file": "corpus/p1.docx",
+   "words": 56,
+   "entities": [
+    {
+     "cat": "P_ROLE_NOCOLON",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "פיראס חטיב",
+     "surfaces": [
+      "העד פיראס חטיב",
+      "חטיב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_TWO_SPELL",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ארטיום מורוזוב",
+     "surfaces": [
+      "ארטיום מורוזוב",
+      "מורוזב"
+     ],
+     "note": "second form drops a vav"
+    },
+    {
+     "cat": "I_ID",
+     "kind": "PII",
+     "must": true,
+     "canonical": "301988226",
+     "surfaces": [
+      "ת\"ז 301988226"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_PHONE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "052-3390047",
+     "surfaces": [
+      "052-3390047"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_PLATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "34-712-58",
+     "surfaces": [
+      "34-712-58"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_STREET",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "רחוב הדקל 7",
+     "surfaces": [
+      "רחוב הדקל 7",
+      "הדקל"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "משטרת ישראל",
+     "surfaces": [
+      "משטרת ישראל"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "תיק 4471/26",
+     "surfaces": [
+      "תיק 4471/26",
+      "23.5.2026"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "p2",
+   "genre": "police",
+   "title": "תלונה",
+   "file": "corpus/p2.docx",
+   "words": 57,
+   "entities": [
+    {
+     "cat": "P_ARABIC",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "סוהא אגבריה",
+     "surfaces": [
+      "סוהא אגבריה",
+      "אגבריה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_MINOR_ANCH",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "לביא",
+     "surfaces": [
+      "הקטין לביא",
+      "לביא"
+     ],
+     "note": "minor introduced by הקטין"
+    },
+    {
+     "cat": "I_PLATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "718-44-201",
+     "surfaces": [
+      "718-44-201"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_ID",
+     "kind": "PII",
+     "must": true,
+     "canonical": "270631583",
+     "surfaces": [
+      "ת\"ז 270631583"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_TOWN",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "גבעת עדה",
+     "surfaces": [
+      "גבעת עדה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "משטרת ישראל",
+     "surfaces": [
+      "משטרת ישראל"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "סעיף 192",
+     "surfaces": [
+      "סעיף 192",
+      "4.4.2026"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "p3",
+   "genre": "police",
+   "title": "הודעת חשוד",
+   "file": "corpus/p3.docx",
+   "words": 53,
+   "entities": [
+    {
+     "cat": "P_RUSSIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "דניס וסילייב",
+     "surfaces": [
+      "דניס וסילייב",
+      "וסילייב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_SUR2",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "עלמה כץ",
+     "surfaces": [
+      "עלמה כץ",
+      "כץ"
+     ],
+     "note": "two-letter surname"
+    },
+    {
+     "cat": "I_PHONE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "058-6104477",
+     "surfaces": [
+      "058-6104477"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_PLATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "92-118-34",
+     "surfaces": [
+      "92-118-34"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_EMAIL",
+     "kind": "PII",
+     "must": true,
+     "canonical": "denis.v@outlook.com",
+     "surfaces": [
+      "denis.v@outlook.com"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "תיק 118/26",
+     "surfaces": [
+      "תיק 118/26",
+      "סעיף 2"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "p4",
+   "genre": "police",
+   "title": "דוח פעולה",
+   "file": "corpus/p4.docx",
+   "words": 45,
+   "entities": [
+    {
+     "cat": "P_ETHIOPIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מאזה טספה",
+     "surfaces": [
+      "מאזה טספה",
+      "טספה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_FORMS",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "עמנואל שוורץ",
+     "surfaces": [
+      "עמנואל שוורץ",
+      "שוורץ",
+      "עמנואל"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_ID",
+     "kind": "PII",
+     "must": true,
+     "canonical": "355401183",
+     "surfaces": [
+      "355401183"
+     ],
+     "note": "bare, unlabeled"
+    },
+    {
+     "cat": "I_DOB",
+     "kind": "PII",
+     "must": true,
+     "canonical": "21.12.1988",
+     "surfaces": [
+      "יליד 21.12.1988"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_NEIGHBOURHOOD",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "שכונת הפרדס",
+     "surfaces": [
+      "שכונת הפרדס",
+      "הפרדס"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_PLONI",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "פלוני",
+     "surfaces": [
+      "פלוני"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "b1",
+   "genre": "bank",
+   "title": "דף חשבון",
+   "file": "corpus/b1.docx",
+   "words": 40,
+   "entities": [
+    {
+     "cat": "P_FORMS",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ירדן ברזילי",
+     "surfaces": [
+      "ירדן ברזילי",
+      "ברזילי",
+      "ירדן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_BANK",
+     "kind": "PII",
+     "must": true,
+     "canonical": "חשבון 5521907",
+     "surfaces": [
+      "חשבון 5521907"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_ID",
+     "kind": "PII",
+     "must": true,
+     "canonical": "299174060",
+     "surfaces": [
+      "ת\"ז 299174060"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_EMAIL",
+     "kind": "PII",
+     "must": true,
+     "canonical": "yarden.brz@gmail.com",
+     "surfaces": [
+      "yarden.brz@gmail.com"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_STREET",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "שדרות הברוש 21",
+     "surfaces": [
+      "שדרות הברוש 21"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "1,250.00",
+     "surfaces": [
+      "1,250.00",
+      "31.3.2026"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "b2",
+   "genre": "bank",
+   "title": "מכתב מהבנק",
+   "file": "corpus/b2.docx",
+   "words": 43,
+   "entities": [
+    {
+     "cat": "P_ARABIC",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "טהא עודה",
+     "surfaces": [
+      "טהא עודה",
+      "עודה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_BANK",
+     "kind": "PII",
+     "must": true,
+     "canonical": "חשבון 0093344",
+     "surfaces": [
+      "חשבון 0093344"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_DOB",
+     "kind": "PII",
+     "must": true,
+     "canonical": "5.5.1979",
+     "surfaces": [
+      "יליד 5.5.1979"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_ID",
+     "kind": "PII",
+     "must": true,
+     "canonical": "244783155",
+     "surfaces": [
+      "ת.ז. 244783155"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PRIVATE",
+     "kind": "ORG",
+     "must": true,
+     "canonical": "חברת קו הזהב הובלות",
+     "surfaces": [
+      "חברת קו הזהב הובלות",
+      "קו הזהב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "12.6.2026",
+     "surfaces": [
+      "12.6.2026",
+      "סעיף 5"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "b3",
+   "genre": "bank",
+   "title": "אישור יתרה",
+   "file": "corpus/b3.docx",
+   "words": 32,
+   "entities": [
+    {
+     "cat": "P_RUSSIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אולג איוונוב",
+     "surfaces": [
+      "אולג איוונוב",
+      "איוונוב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_BANK",
+     "kind": "PII",
+     "must": true,
+     "canonical": "חשבון 7710265",
+     "surfaces": [
+      "חשבון 7710265"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_EMAIL",
+     "kind": "PII",
+     "must": true,
+     "canonical": "oleg.ivanov77@mail.ru",
+     "surfaces": [
+      "oleg.ivanov77@mail.ru"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_PHONE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "055-8823910",
+     "surfaces": [
+      "055-8823910"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_TOWN",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "בית אריה",
+     "surfaces": [
+      "בית אריה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "30.6.2026",
+     "surfaces": [
+      "30.6.2026",
+      "42,000"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "c1",
+   "genre": "chat",
+   "title": "ייצוא וואטסאפ",
+   "file": "corpus/c1.docx",
+   "words": 49,
+   "entities": [
+    {
+     "cat": "P_SUR2",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מיקי צח",
+     "surfaces": [
+      "מיקי צח",
+      "צח"
+     ],
+     "note": "two-letter surname"
+    },
+    {
+     "cat": "P_MINOR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "טרקה",
+     "surfaces": [
+      "טרקה"
+     ],
+     "note": "minor, first name only"
+    },
+    {
+     "cat": "I_PHONE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "052-7715803",
+     "surfaces": [
+      "052-7715803"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_TOWN",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "נופית",
+     "surfaces": [
+      "נופית"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_PROSE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "צליל",
+     "surfaces": [
+      "צליל"
+     ],
+     "note": "never before a speech verb"
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "12.3.2026",
+     "surfaces": [
+      "12.3.2026",
+      "21:14"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "c2",
+   "genre": "chat",
+   "title": "ייצוא וואטסאפ",
+   "file": "corpus/c2.docx",
+   "words": 52,
+   "entities": [
+    {
+     "cat": "P_ARABIC",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מייסא סרחאן",
+     "surfaces": [
+      "מייסא סרחאן",
+      "סרחאן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_HYPHEN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ליעד בן-עמיאל",
+     "surfaces": [
+      "ליעד בן-עמיאל",
+      "בן עמיאל"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_EMAIL",
+     "kind": "PII",
+     "must": true,
+     "canonical": "maisa.s@gmail.com",
+     "surfaces": [
+      "maisa.s@gmail.com"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_ID",
+     "kind": "PII",
+     "must": true,
+     "canonical": "312888746",
+     "surfaces": [
+      "ת\"ז 312888746"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PRIVATE",
+     "kind": "ORG",
+     "must": true,
+     "canonical": "גן ילדים שלהבת",
+     "surfaces": [
+      "גן ילדים שלהבת",
+      "שלהבת"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_PLONI",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "פלוני",
+     "surfaces": [
+      "פלוני"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "c3",
+   "genre": "chat",
+   "title": "ייצוא וואטסאפ",
+   "file": "corpus/c3.docx",
+   "words": 52,
+   "entities": [
+    {
+     "cat": "P_ETHIOPIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ברהאנה וורקנה",
+     "surfaces": [
+      "ברהאנה וורקנה",
+      "וורקנה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_MINOR_ANCH",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "גפן",
+     "surfaces": [
+      "הקטינה גפן",
+      "גפן"
+     ],
+     "note": "minor introduced by הקטינה"
+    },
+    {
+     "cat": "I_PHONE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "050-6650912",
+     "surfaces": [
+      "050-6650912"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_PLATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "45-903-16",
+     "surfaces": [
+      "45-903-16"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_STREET",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "רחוב הנרקיס 9",
+     "surfaces": [
+      "רחוב הנרקיס 9",
+      "הנרקיס"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "15.4.2026",
+     "surfaces": [
+      "15.4.2026",
+      "17:40"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "c4",
+   "genre": "chat",
+   "title": "ייצוא וואטסאפ",
+   "file": "corpus/c4.docx",
+   "words": 51,
+   "entities": [
+    {
+     "cat": "P_RUSSIAN",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "פולינה סמירנובה",
+     "surfaces": [
+      "פולינה סמירנובה",
+      "סמירנובה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "P_TWO_SPELL",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "קסאי אלמו",
+     "surfaces": [
+      "קסאי אלמו",
+      "עלמו"
+     ],
+     "note": "second form swaps א for ע"
+    },
+    {
+     "cat": "I_DOB",
+     "kind": "PII",
+     "must": true,
+     "canonical": "30.10.2016",
+     "surfaces": [
+      "ילידת 30.10.2016"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "I_BANK",
+     "kind": "PII",
+     "must": true,
+     "canonical": "חשבון 3306178",
+     "surfaces": [
+      "חשבון 3306178"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "L_NEIGHBOURHOOD",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "שכונת כרם הזיתים",
+     "surfaces": [
+      "שכונת כרם הזיתים",
+      "כרם הזיתים"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "800",
+     "surfaces": [
+      "800",
+      "20.2.2026"
      ],
      "note": ""
     }

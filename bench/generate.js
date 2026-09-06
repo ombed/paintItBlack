@@ -345,6 +345,9 @@ const PUBLIC = ["בית המשפט לענייני משפחה", "משרד הרו�
   docs.push(d);
 }
 
+// the second half: five more genres, two-letter surnames, anchored minors, PII
+docs.push(...require("./corpus-more.js")(Doc, C));
+
 // ── assertions: the key cannot drift, every category is covered, nothing is known ──
 const strip = (s) => s.replace(/[֑-ׇ]/g, "");
 for (const d of docs) {
@@ -361,7 +364,7 @@ const KNOWN = new Set([...E.FEM, ...E.MASC, ...E.WORDLIKE, ...pool, ...E.KNOWN_F
 const KNOWN_PLACES = new Set(Object.keys(E.PLACE_BY).map((s) => E.norm(s)));
 const bad = [];
 for (const d of docs) for (const e of d.ents) {
-  if (e.kind === "TRAP" || EXEMPT_FROM_DISJOINT.has(e.cat)) continue;
+  if (e.kind === "TRAP" || e.kind === "PII" || EXEMPT_FROM_DISJOINT.has(e.cat)) continue;
   if (e.kind === "PLACE") {
     for (const s of e.surfaces) if (KNOWN_PLACES.has(E.norm(s))) bad.push(`${d.id} ${e.cat} place known to PLACE_BY: ${s}`);
     continue;
