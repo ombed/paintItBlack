@@ -34,11 +34,15 @@ setTimeout(async()=>{
  ok(r2.steps.some(x=>/עותקים ישנים שנמחקו: 1/.test(x)),"והמחיקה דווחה");
 
  console.log("\n— הורדה נכשלת —");
+ // מאז v18 עותק תקין במטמון משמש בלי הורדה (docs/PLAN-v18.md, Q13); התרחישים הבאים
+ // בודקים את מסלול ההורדה, ולכן מתחילים בלי עותק
+ store.clear();
  ev(`RAW_FETCH=async()=>({ok:false,status:404,text:async()=>""})`);
  let threw=false; try{ await ev(`nerPrepTokenizer(()=>{})`) }catch(e){ threw=true }
  ok(threw,"כשל הורדה מדווח ולא נבלע");
 
  console.log("\n— המקור עצמו פגום —");
+ store.clear();
  ev(`RAW_FETCH=async()=>({ok:true,status:200,text:async()=>${JSON.stringify(tok+"\u0000זנב")}})`);
  const r3=await ev(`nerPrepTokenizer(()=>{})`);
  ok(r3.ok,"זנב במקור מזוהה, נחתך, וההכנה מצליחה");

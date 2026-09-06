@@ -105,5 +105,36 @@
     return JSON.stringify(out, null, 1);
   }
 
-  return { classify, docShape, leakShape, leakReport };
+  /* The session log (decision Q16 in docs/PLAN-v18.md): where did the minute
+     go. Always on, local only, exported by a button next to the leak report.
+     It records timings and events, never text: an event carries counts and
+     kinds, and the same guard as the leak report refuses anything that looks
+     like a Hebrew word. */
+  function sessionLog(version) {
+    const t0 = Date.now();
+    const events = [];
+    const log = {
+      v: version || "", started: new Date(t0).toISOString(), events,
+      at: () => Date.now() - t0,
+      add(ev, data) {
+        const d = {};
+        for (const [k, v] of Object.entries(data || {})) {
+          if (typeof v === "number" || typeof v === "boolean") d[k] = v;
+          else if (typeof v === "string" && !/[֐-׿]{3,}/.test(v) && v.length <= 24) d[k] = v;
+        }
+        events.push({ t: Date.now() - t0, ev, ...d });
+        if (events.length > 2000) events.splice(0, events.length - 2000);
+      },
+      export() {
+        const out = { tool: "paintItBlack", v: log.v, started: log.started, ms: Date.now() - t0, events };
+        const s = JSON.stringify(out);
+        const leak = s.match(/[֐-׿]{3,}/g);
+        if (leak) throw new Error("session log would carry text: " + leak.slice(0, 3).join(","));
+        return JSON.stringify(out, null, 1);
+      },
+    };
+    return log;
+  }
+
+  return { classify, docShape, leakShape, leakReport, sessionLog };
 });

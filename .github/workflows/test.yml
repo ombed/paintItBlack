@@ -25,8 +25,13 @@ jobs:
         run: npm test
       - name: Benchmark, deterministic layers
         run: npm run bench:nomodel
-      - name: Recall gate (report only)
+      # Blocking since v18 (decision Q7 in docs/PLAN-v18.md): a PR that increases
+      # leaks or misses in any category fails until fixed or the baseline is
+      # updated in the same PR.
+      - name: Recall gate
         run: node bench/gate.js
+        env:
+          GATE_BLOCKING: "1"
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
