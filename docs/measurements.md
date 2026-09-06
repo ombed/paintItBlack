@@ -146,3 +146,32 @@ document. That layer earns its place elsewhere: it is what finds a name that
 appears only in prose. Tuning it further needs the same treatment as the
 near-miss layer, a keyed real document, and her transcripts are now the
 place to get one.
+
+### A fifth file: elderly care, and a public official replaced by a name
+
+A position paper on moving an elderly man out of a care home. Two corruptions:
+
+1. **The Attorney General became a woman.** "המשיבה: היועץ המשפט לממשלה" — the
+   role-and-colon anchor took "היועץ" at high confidence, auto-filled it and
+   replaced it. The public-body guard knows "היועץ המשפטי" and the document
+   writes "היועץ המשפט", one letter short. The guard now accepts both, plus
+   the other office titles a filing names, and office titles are role words
+   that are never a person on their own.
+2. **The case caption's "versus"**, written as three spaced letters between
+   the parties, was replaced with a full invented name. Single letters
+   separated by spaces are now rejected in the anchors, in the verb layer and
+   in the model output.
+
+Plus noise: after a role word in running prose comes a verb far more often
+than a name. A single word beginning with ה that is not a known first name is
+rejected for that anchor; הדס, הילה and הלל are in the lists and still pass.
+
+On the document: replaced values 21 to 16, all of them real entities; review
+items 6 to 2; verification passes; no digits left. The corpus is unchanged.
+
+**What the five files have taught, together.** Every one of them broke
+something the 33-document synthetic corpus did not: transcripts with no
+structure, a public body behind a prefix, a preposition read as an anchor, a
+gazetteer that replaced people with place names, an office title taken for a
+person. The corpus is a regression net, not a discovery instrument. Real
+documents, cleaned by her, are the only source of new failure modes so far.

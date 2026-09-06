@@ -146,6 +146,8 @@ function bodyNames(blocks,known){
         if(wds.length>1&&wds.some(w=>/(?:ים|יים|ית|יות)$/.test(w)&&!KNOWN_FIRST.has(w)))continue;
         // "פלוני מהוועד": הכינוי המשפטי אינו אדם, גם לפני פועל
         if(wds.some(w=>NER_DROP.has(w)))continue;
+        // אותיות בודדות מופרדות ברווח ("נ ג ד") אינן שם
+        if(wds.every(w=>w.replace(/['"׳״]/g,"").length<=1))continue;
         const cand=wds.join(" ");
         if(kn.has(cand))continue;
         const s=raw[0].s,e=raw[len-1].e;

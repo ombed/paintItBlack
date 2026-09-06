@@ -4303,49 +4303,49 @@
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 96,
+   "ms": 90,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 41,
+   "ms": 38,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 27,
+   "ms": 22,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 33,
+   "ms": 29,
    "rules": 5,
    "unlisted": 3
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 52,
+   "ms": 44,
    "rules": 10,
    "unlisted": 1
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 73,
+   "ms": 70,
    "rules": 13,
    "unlisted": 1
   },
   {
    "id": "f3",
    "genre": "filing",
-   "ms": 32,
+   "ms": 27,
    "rules": 5,
    "unlisted": 0
   },
@@ -4359,91 +4359,91 @@
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 33,
+   "ms": 32,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "t2",
    "genre": "transcript",
-   "ms": 31,
+   "ms": 23,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 33,
+   "ms": 27,
    "rules": 6,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 40,
+   "ms": 32,
    "rules": 7,
    "unlisted": 1
   },
   {
    "id": "w1",
    "genre": "welfare",
-   "ms": 13,
+   "ms": 10,
    "rules": 0,
    "unlisted": 0
   },
   {
    "id": "w2",
    "genre": "welfare",
-   "ms": 23,
+   "ms": 20,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "w3",
    "genre": "welfare",
-   "ms": 21,
+   "ms": 15,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "w4",
    "genre": "welfare",
-   "ms": 23,
+   "ms": 17,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "h1",
    "genre": "medical",
-   "ms": 30,
+   "ms": 29,
    "rules": 6,
    "unlisted": 2
   },
   {
    "id": "h2",
    "genre": "medical",
-   "ms": 21,
+   "ms": 18,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "h3",
    "genre": "medical",
-   "ms": 16,
+   "ms": 17,
    "rules": 3,
    "unlisted": 3
   },
   {
    "id": "p1",
    "genre": "police",
-   "ms": 23,
+   "ms": 16,
    "rules": 2,
    "unlisted": 1
   },
   {
    "id": "p2",
    "genre": "police",
-   "ms": 15,
+   "ms": 13,
    "rules": 2,
    "unlisted": 1
   },
@@ -4478,56 +4478,56 @@
   {
    "id": "b3",
    "genre": "bank",
-   "ms": 12,
+   "ms": 10,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "c1",
    "genre": "chat",
-   "ms": 10,
+   "ms": 9,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "c2",
    "genre": "chat",
-   "ms": 14,
+   "ms": 13,
    "rules": 2,
    "unlisted": 1
   },
   {
    "id": "c3",
    "genre": "chat",
-   "ms": 8,
+   "ms": 7,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "c4",
    "genre": "chat",
-   "ms": 17,
+   "ms": 14,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "x1",
    "genre": "position",
-   "ms": 25,
+   "ms": 30,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "x2",
    "genre": "position",
-   "ms": 25,
+   "ms": 23,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "x3",
    "genre": "position",
-   "ms": 20,
+   "ms": 14,
    "rules": 2,
    "unlisted": 0
   }
