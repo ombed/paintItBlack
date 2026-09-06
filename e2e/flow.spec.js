@@ -59,7 +59,7 @@ test.describe("people screen", () => {
     // An org prefix sets the kind, shown on the chip's kind button.
     await input.fill("עמותת פנים מאירות");
     await add.click();
-    await expect(rows.filter({ hasText: "פנים מאירות" }).getByRole("button", { name: "גוף", exact: true })).toBeVisible();
+    await expect(rows.filter({ hasText: "פנים מאירות" }).getByRole("combobox")).toHaveValue("ORG");
 
     // Pasting a list splits on newlines and commas.
     await input.evaluate((el) => {
