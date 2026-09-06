@@ -23,6 +23,8 @@ global.XMLSerializer = xd.XMLSerializer;
       get() { return Array.from(this.childNodes || []).filter((n) => n.nodeType === 1); } });
     if (!proto.querySelector) proto.querySelector = function (t) {
       const l = this.getElementsByTagName(t); return l && l.length ? l[0] : null; };
+    // xmldom has no Element.remove(); the engine uses it in stripComments
+    if (!proto.remove) proto.remove = function () { if (this.parentNode) this.parentNode.removeChild(this); };
   }
 }
 global.__deflate = (b) => new Uint8Array(zlib.deflateRawSync(Buffer.from(b)));

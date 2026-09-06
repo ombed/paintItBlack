@@ -1,6 +1,6 @@
 # Benchmark results
 
-33 documents, 259 keyed entities, model on (q8, same artifact as the browser). Generated 2026-09-06.
+33 documents, 262 keyed entities, model on (q8, same artifact as the browser). Generated 2026-09-06.
 
 ## Per category
 
@@ -11,7 +11,7 @@
 | person: title attached | 8 | 0 | 0 | 0 |
 | person: same person, one clean and one corrupted spelling | 5 | 0 | 0 | 0 |
 | person: name split across two runs mid-word | 3 | 0 | 0 | 0 |
-| org: private body, must be redacted | 10 | 0 | 0 | 0 |
+| org: private body, must be redacted | 9 | 1 | 1 | 0 |
 | place: town | 12 | 0 | 0 | 0 |
 | trap: case numbers, dates, section references | – | – | – | 1 |
 | trap: idiom or public title beside a same-word name | – | – | – | 1 |
@@ -47,6 +47,7 @@
 | trap: word ending in ת before a word starting with ז (not ת"ז) | – | – | – | 0 |
 | trap: הח"מ before a verb (not a name) | – | – | – | 0 |
 | trap: role word in any spelling (אפוטרופא, אפוטרופוס) | – | – | – | 0 |
+| trap: ordinary word that is also a locality name (קדימה, לשם, גבעות) | – | – | – | 2 |
 
 ## Per genre
 
@@ -56,71 +57,73 @@
 | filing | 35 | 0 | 0 | 2 |
 | transcript | 32 | 1 | 1 | 0 |
 | welfare | 24 | 0 | 0 | 0 |
-| medical | 16 | 1 | 1 | 0 |
+| medical | 15 | 2 | 2 | 0 |
 | police | 21 | 0 | 0 | 0 |
 | bank | 15 | 0 | 0 | 0 |
 | chat | 20 | 0 | 0 | 0 |
-| position | 13 | 0 | 0 | 0 |
+| position | 13 | 0 | 0 | 2 |
 
-## Unlisted suggestions (match nothing in the key; one tap each) — 28 in total
+## Unlisted suggestions (match nothing in the key; one tap each) — 22 in total
 
 Counted, not optimised for: the list is read, accept-all is not how the tool is used.
 
 - **meeting** (3, 3 applied): סיכמנו [discover; פותח תור דיבור בתמלול] **applied** · מהבניין [suggest] **applied** · נוער [suggest] **applied**
-- **filing** (5, 5 applied): נישאו [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · ירושלים [model] **applied** · ומצא סימני [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · עלי [flagged] **applied** · קבועה [flagged] **applied**
-- **transcript** (5, 5 applied): במרפאת עין [suggest] **applied** · מלאה [flagged] **applied** · חבר [flagged] **applied** · הראשון [discover; מופיע אחרי תואר] **applied** · יו"ר [discover; פותח תור דיבור בתמלול] **applied**
-- **welfare** (2, 2 applied): סעד [flagged] **applied** · סעד [flagged] **applied**
-- **medical** (6, 6 applied): המטופלת [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · הנבדק [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · קלינית [suggest] **applied** · הנוכחי [flagged] **applied**
+- **filing** (4, 4 applied): נישאו [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · ירושלים [model] **applied** · ומצא סימני [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · עלי [flagged] **applied**
+- **transcript** (3, 3 applied): במרפאת עין [suggest] **applied** · הראשון [discover; מופיע אחרי תואר] **applied** · יו"ר [discover; פותח תור דיבור בתמלול] **applied**
+- **medical** (5, 5 applied): המטופלת [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · הנבדק [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · קלינית [suggest] **applied**
 - **police** (2, 2 applied): ראיתי רכב [suggest] **applied** · המתלוננת [discover; פותח תור דיבור בתמלול] **applied**
 - **bank** (2, 2 applied): החשבון [discover; פותח תור דיבור בתמלול] **applied** · יתרה לסוף התקופה [discover; פותח תור דיבור בתמלול] **applied**
 - **chat** (1, 1 applied): מהוועד [suggest] **applied**
-- **position** (2, 2 applied): משה [model+flagged] **applied** · שמשה [flagged] **applied**
+- **position** (2, 2 applied): הבהרה [discover; פותח תור דיבור בתמלול] **applied** · משה [model] **applied**
 
 ## Missed and leaked, by document
 
 - m3 · person: once, only with a prefix letter · הילי: missed, **leaked**: הילי, בהילי
 - t2 · person: minor, first name only · אופק: missed, **leaked**: אופק
 - h3 · person: two-letter surname · איה נץ: missed, **leaked**: איה נץ
+- h3 · org: private body, must be redacted · מכון שורשים: missed, **leaked**: מכון שורשים, שורשים
 
 ## Traps and public bodies touched
 
 - f2 · trap: case numbers, dates, section references · סעיף 2: suggested as «ת"פ 4471-02-26 [flagged]»; altered: ת"פ 4471-02-26
 - f2 · trap: idiom or public title beside a same-word name · בגיל 8: altered: עם שחר
+- x1 · trap: ordinary word that is also a locality name (קדימה, לשם, גבעות) · לשם: suggested as «קדימה [flagged]»; altered: קדימה
+- x2 · trap: ordinary word that is also a locality name (קדימה, לשם, גבעות) · אורה: suggested as «עלי [flagged]»; altered: עלי
 
 ## Timing
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 197 | 9 | 0 |
+| m1 | meeting | 233 | 9 | 0 |
 | m2 | meeting | 131 | 13 | 0 |
-| m3 | meeting | 80 | 6 | 0 |
-| m4 | meeting | 116 | 9 | 3 |
-| f1 | filing | 157 | 14 | 2 |
-| f2 | filing | 180 | 16 | 1 |
-| f3 | filing | 108 | 9 | 0 |
-| f4 | filing | 137 | 10 | 2 |
-| t1 | transcript | 115 | 8 | 0 |
-| t2 | transcript | 152 | 14 | 3 |
-| t3 | transcript | 128 | 11 | 1 |
-| t4 | transcript | 112 | 13 | 1 |
-| w1 | welfare | 104 | 5 | 1 |
-| w2 | welfare | 87 | 6 | 1 |
-| w3 | welfare | 133 | 6 | 0 |
-| w4 | welfare | 134 | 7 | 0 |
-| h1 | medical | 115 | 7 | 2 |
-| h2 | medical | 115 | 4 | 0 |
-| h3 | medical | 120 | 6 | 4 |
-| p1 | police | 92 | 5 | 1 |
-| p2 | police | 98 | 4 | 1 |
-| p3 | police | 93 | 2 | 0 |
-| p4 | police | 82 | 3 | 0 |
-| b1 | bank | 90 | 7 | 2 |
-| b2 | bank | 62 | 3 | 0 |
-| b3 | bank | 69 | 3 | 0 |
-| c1 | chat | 112 | 5 | 0 |
-| c2 | chat | 114 | 5 | 1 |
-| c3 | chat | 104 | 4 | 0 |
-| c4 | chat | 108 | 5 | 0 |
-| x1 | position | 144 | 7 | 2 |
-| x2 | position | 95 | 4 | 0 |
-| x3 | position | 100 | 4 | 0 |
+| m3 | meeting | 103 | 6 | 0 |
+| m4 | meeting | 137 | 9 | 3 |
+| f1 | filing | 158 | 14 | 2 |
+| f2 | filing | 178 | 16 | 1 |
+| f3 | filing | 126 | 9 | 0 |
+| f4 | filing | 148 | 9 | 1 |
+| t1 | transcript | 148 | 8 | 0 |
+| t2 | transcript | 133 | 12 | 1 |
+| t3 | transcript | 132 | 11 | 1 |
+| t4 | transcript | 127 | 13 | 1 |
+| w1 | welfare | 132 | 4 | 0 |
+| w2 | welfare | 99 | 5 | 0 |
+| w3 | welfare | 126 | 6 | 0 |
+| w4 | welfare | 120 | 5 | 0 |
+| h1 | medical | 104 | 7 | 2 |
+| h2 | medical | 107 | 4 | 0 |
+| h3 | medical | 101 | 5 | 3 |
+| p1 | police | 108 | 5 | 1 |
+| p2 | police | 89 | 4 | 1 |
+| p3 | police | 98 | 2 | 0 |
+| p4 | police | 77 | 3 | 0 |
+| b1 | bank | 89 | 7 | 2 |
+| b2 | bank | 59 | 3 | 0 |
+| b3 | bank | 65 | 3 | 0 |
+| c1 | chat | 104 | 5 | 0 |
+| c2 | chat | 113 | 5 | 1 |
+| c3 | chat | 101 | 4 | 0 |
+| c4 | chat | 118 | 5 | 0 |
+| x1 | position | 162 | 8 | 2 |
+| x2 | position | 111 | 5 | 0 |
+| x3 | position | 95 | 4 | 0 |

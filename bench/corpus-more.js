@@ -320,6 +320,7 @@ module.exports = function more(Doc, C) {
     d.ent("T_TZSPLIT", "TRAP", false, "בהחלפת זמני", ["בהחלפת זמני", "שנקבעו ותחת זאת"], "a ת ending a word before a ז starting the next is not ת\"ז");
     d.ent("T_UNDERSIGNED", "TRAP", false, 'הח"מ סבורה', ['הח"מ סבורה', 'הח"מ להשיג', 'הח"מ עולה'], "the undersigned before a verb is not a name");
     d.ent("O_ROLEWORD", "TRAP", false, "אפוטרופא לדין", ["אפוטרופא לדין", "אפטרופא"], "a role word in any spelling is not a name");
+    d.ent("T_GAZWORD", "TRAP", false, "לשם", ["לשם", "קדימה", "חבר", "מיטב"], "ordinary words that are also locality names");
     d.p("כתב עמדה מטעם האפוטרופא לדין")
      .p(`התובע:  ${rn1} .....(להלן: גם האב)`)
      .p("נ ג ד -")
@@ -329,7 +330,8 @@ module.exports = function more(Doc, C) {
      .p(`בעניין הקטין ${mn}, יליד 2015, המתגורר בבית האב ב${l1} יחד עם ${sib}, כאשר ${sib.split(" ").pop()} משרת שירות צבאי.`)
      .p(`כאמור ${mn} שיתף את הח"מ וציין כי מועדי השהות אינם קבועים. משכך ${mn} מבקש גמישות בהחלפת זמני השהות שלו עם האם.`)
      .p(`הח"מ סבורה כי פניות למשטרה אינן הדרך. כל ניסיונות הח"מ להשיג את האם לא צלחו. מהמידע שהובא בפני הח"מ עולה כי האם אינה מגיעה במועדים שנקבעו ותחת זאת נוצרו שינויים.`)
-     .p(`יוזכר כי הח"מ גם שמשה אפטרופא לדין של הקטין ${mn} בהליך הקודם. האפוטרופא לדין ממליצה על הרחבת השהות אצל האב.`);
+     .p(`יוזכר כי הח"מ גם שמשה אפטרופא לדין של הקטין ${mn} בהליך הקודם. האפוטרופא לדין ממליצה על הרחבת השהות אצל האב.`)
+     .p("לשם הבהרה: האב ביקש להתקדם קדימה בהסדר, וחבר של המשפחה הציע לסייע. מיטב המאמצים הושקעו.");
     docs.push(d);
   }
   {
@@ -342,6 +344,7 @@ module.exports = function more(Doc, C) {
     d.ent("T_TZSPLIT", "TRAP", false, "לעניין אכיפת זכויות", ["לעניין אכיפת זכויות", "בקשת זמנים"], "a ת ending a word before a ז starting the next is not ת\"ז");
     d.ent("T_UNDERSIGNED", "TRAP", false, 'הח"מ ממליצה', ['הח"מ ממליצה', 'הח"מ השאירה'], "the undersigned before a verb is not a name");
     d.ent("O_ROLEWORD", "TRAP", false, "האפוטרופוס לדין", ["האפוטרופוס לדין", "אפוטרופסית"], "a role word in any spelling is not a name");
+    d.ent("T_GAZWORD", "TRAP", false, "אורה", ["אורה", "חוסן", "עלי", "גבעות"], "ordinary words that are also locality names");
     d.p("תגובת האפוטרופוס לדין")
      .p(`המבקשת:  ${rn1}`)
      .p(`המשיב:  ${rn2}`)
@@ -350,7 +353,8 @@ module.exports = function more(Doc, C) {
      .p("מועד הדיון: ............")
      .p(`בעניין הקטינה ${mn}, המתגוררת עם האם ב${st}. לדבריה ${mn} מעדיפה להישאר ב${stb}. בנוסף ${mn} ביקשה שדבריה לא יובאו בפני מי מההורים.`)
      .p(`הח"מ ממליצה על השמעת הקטינה. הח"מ השאירה לאם הודעה אך האם לא השיבה. לעניין אכיפת זכויות ההורה, בקשת זמנים נוספים תידון בנפרד.`)
-     .p(`הח"מ מונתה כאפוטרופסית לדין בהליך זה. האפוטרופוס לדין הקודם סיים את תפקידו.`);
+     .p(`הח"מ מונתה כאפוטרופסית לדין בהליך זה. האפוטרופוס לדין הקודם סיים את תפקידו.`)
+     .p("אורה של תקווה עדיין קיימת, וחוסן המשפחה נבדק. עלי לציין כי גבעות הקושי לא נעלמו.");
     docs.push(d);
   }
   {
@@ -363,6 +367,7 @@ module.exports = function more(Doc, C) {
     d.ent("T_TZSPLIT", "TRAP", false, "ברכישת זכויות", ["ברכישת זכויות", "הצעת זמנים"], "a ת ending a word before a ז starting the next is not ת\"ז");
     d.ent("T_UNDERSIGNED", "TRAP", false, 'הח"מ נפגשה', ['הח"מ נפגשה', 'הח"מ מציעה'], "the undersigned before a verb is not a name");
     d.ent("O_ROLEWORD", "TRAP", false, "אפוטרופוס לדין", ["אפוטרופוס לדין", "האפוטרופא"], "a role word in any spelling is not a name");
+    d.ent("T_GAZWORD", "TRAP", false, "דברת", ["דברת", "שקף", "לשם"], "ordinary words that are also locality names");
     d.p("עמדת האפוטרופא לדין")
      .p(`התובעת:  ${rn1}`)
      .p(`הנתבע:  ${rn2}`)
@@ -370,7 +375,8 @@ module.exports = function more(Doc, C) {
      .p("מועד הגשה: ............")
      .p(`הח"מ נפגשה עם הקטין ${mn} פעמיים. ואולם ${mn} מסרב לדבר על האב. יצוין ${mn} מתגורר עם ${sib}, ו${sib.split(" ").pop()} מסייעת לו.`)
      .p(`הח"מ מציעה הסדר הדרגתי. ברכישת זכויות בדירה אין כדי לשנות את המסקנה, והצעת זמנים חדשה תוגש בנפרד.`)
-     .p(`האפוטרופא ממליצה כי אפוטרופוס לדין ימשיך ללוות את ההליך.`);
+     .p(`האפוטרופא ממליצה כי אפוטרופוס לדין ימשיך ללוות את ההליך.`)
+     .p("דברת האם נרשמה בפרוטוקול. שקף ההסבר הוצג, ולשם הזהירות צורף נספח.");
     docs.push(d);
   }
 
@@ -381,6 +387,7 @@ module.exports = function more(Doc, C) {
     T_TZSPLIT: "trap: word ending in ת before a word starting with ז (not ת\"ז)",
     T_UNDERSIGNED: "trap: הח\"מ before a verb (not a name)",
     O_ROLEWORD: "trap: role word in any spelling (אפוטרופא, אפוטרופוס)",
+    T_GAZWORD: "trap: ordinary word that is also a locality name (קדימה, לשם, גבעות)",
     P_SUR2: "person: two-letter surname",
     P_MINOR_ANCH: "person: minor introduced by הקטין / הקטינה",
     I_ID: "pii: ID number",

@@ -17,7 +17,9 @@ document from entity objects and write `key.json` from those same objects
 in the same pass. The generator then asserts that every recorded surface
 form actually occurs in the text. Nothing is annotated after the fact.
 
-**The tool has never seen the names.** Every corpus name was probed against
+**The tool has never seen the names — with one documented exception.** Since v18 the detector carries a list of 1,116 localities, and thirteen corpus place and org surfaces are in it. Town detection is a lexicon lookup by design, so this is marked rather than removed: `L_TOWN` hits are lexicon-aided in the same sense as `P_WORD`. What the corpus still measures honestly there is over-triggering, through `T_GAZWORD`.
+
+**Every other name.** Every corpus name was probed against
 every lexicon the detector carries: `FEM`, `MASC`, `WORDLIKE`, the fake-name
 `POOL`, and `KNOWN_FIRST`, which unions them. Places are checked against
 `PLACE_BY` as whole strings. The generator asserts this and refuses to

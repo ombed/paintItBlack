@@ -71,17 +71,14 @@
    "genre": "meeting",
    "cat": "P_SPLITRUN",
    "canonical": "עמיחי אלמגור",
-   "found": true,
-   "leaked": false,
+   "found": false,
+   "leaked": true,
    "fp": 0,
-   "via": [
-    "applied"
-   ],
-   "matched": [
-    "עמיחי",
-    "אלמגור"
-   ],
-   "leakedSurfaces": []
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "עמיחי אלמגור"
+   ]
   },
   {
    "doc": "m1",
@@ -255,16 +252,15 @@
    "genre": "meeting",
    "cat": "L_NEIGHBOURHOOD",
    "canonical": "שכונת נווה רם",
-   "found": true,
-   "leaked": false,
+   "found": false,
+   "leaked": true,
    "fp": 0,
-   "via": [
-    "applied"
-   ],
-   "matched": [
-    "נווה"
-   ],
-   "leakedSurfaces": []
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "שכונת נווה רם",
+    "נווה רם"
+   ]
   },
   {
    "doc": "m3",
@@ -275,11 +271,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "suggest",
     "applied"
    ],
    "matched": [
-    "מורן",
-    "רוזנטל"
+    "מורן רוזנטל",
+    "מורן"
    ],
    "leakedSurfaces": []
   },
@@ -289,7 +286,7 @@
    "cat": "P_SHARED_SURNAME",
    "canonical": "נמרוד רוזנטל",
    "found": true,
-   "leaked": false,
+   "leaked": true,
    "fp": 0,
    "via": [
     "suggest",
@@ -297,10 +294,11 @@
    ],
    "matched": [
     "ונמרוד רוזנטל",
-    "נמרוד",
-    "רוזנטל"
+    "מורן רוזנטל"
    ],
-   "leakedSurfaces": []
+   "leakedSurfaces": [
+    "רוזנטל"
+   ]
   },
   {
    "doc": "m3",
@@ -389,7 +387,6 @@
    ],
    "matched": [
     "מורן אביטן",
-    "מורן",
     "אביטן"
    ],
    "leakedSurfaces": []
@@ -399,16 +396,13 @@
    "genre": "meeting",
    "cat": "P_ED1_PAIR",
    "canonical": "ינון אביתן",
-   "found": true,
+   "found": false,
    "leaked": true,
    "fp": 0,
-   "via": [
-    "applied"
-   ],
-   "matched": [
-    "ינון"
-   ],
+   "via": [],
+   "matched": [],
    "leakedSurfaces": [
+    "ינון אביתן",
     "אביתן"
    ]
   },
@@ -934,16 +928,13 @@
    "genre": "filing",
    "cat": "P_ED1_PAIR",
    "canonical": "מורן אביטן",
-   "found": true,
+   "found": false,
    "leaked": true,
    "fp": 0,
-   "via": [
-    "applied"
-   ],
-   "matched": [
-    "מורן"
-   ],
+   "via": [],
+   "matched": [],
    "leakedSurfaces": [
+    "מורן אביטן",
     "אביטן"
    ]
   },
@@ -960,8 +951,8 @@
     "applied"
    ],
    "matched": [
-    "אביתן",
-    "ינון"
+    "ינון אביתן",
+    "אביתן"
    ],
    "leakedSurfaces": []
   },
@@ -1184,8 +1175,8 @@
     "applied"
    ],
    "matched": [
-    "שפרינסק",
-    "יערה"
+    "יערה שפרינסק",
+    "שפרינסק"
    ],
    "leakedSurfaces": []
   },
@@ -1516,8 +1507,7 @@
     "applied"
    ],
    "matched": [
-    "עין הכרמים",
-    "כרמים"
+    "עין הכרמים"
    ],
    "leakedSurfaces": []
   },
@@ -1578,16 +1568,13 @@
    "genre": "transcript",
    "cat": "P_ED1_PAIR",
    "canonical": "מורן אביטן",
-   "found": true,
+   "found": false,
    "leaked": true,
    "fp": 0,
-   "via": [
-    "applied"
-   ],
-   "matched": [
-    "מורן"
-   ],
+   "via": [],
+   "matched": [],
    "leakedSurfaces": [
+    "מורן אביטן",
     "אביטן"
    ]
   },
@@ -1596,16 +1583,13 @@
    "genre": "transcript",
    "cat": "P_ED1_PAIR",
    "canonical": "ינון אביתן",
-   "found": true,
+   "found": false,
    "leaked": true,
    "fp": 0,
-   "via": [
-    "applied"
-   ],
-   "matched": [
-    "ינון"
-   ],
+   "via": [],
+   "matched": [],
    "leakedSurfaces": [
+    "ינון אביתן",
     "אביתן"
    ]
   },
@@ -1731,8 +1715,8 @@
    ],
    "matched": [
     "מורן רוזנטל",
-    "מורן",
-    "רוזנטל"
+    "רוזנטל",
+    "מורן"
    ],
    "leakedSurfaces": []
   },
@@ -1861,17 +1845,14 @@
    "genre": "welfare",
    "cat": "P_SUR2",
    "canonical": "ליעד כץ",
-   "found": true,
-   "leaked": false,
+   "found": false,
+   "leaked": true,
    "fp": 0,
-   "via": [
-    "flagged",
-    "applied"
-   ],
-   "matched": [
-    "יעד"
-   ],
-   "leakedSurfaces": []
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "ליעד כץ"
+   ]
   },
   {
    "doc": "w1",
@@ -2064,16 +2045,14 @@
    "genre": "welfare",
    "cat": "L_NEIGHBOURHOOD",
    "canonical": "שכונת נווה חן",
-   "found": true,
-   "leaked": false,
+   "found": false,
+   "leaked": true,
    "fp": 0,
-   "via": [
-    "applied"
-   ],
-   "matched": [
-    "נווה"
-   ],
-   "leakedSurfaces": []
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "שכונת נווה חן"
+   ]
   },
   {
    "doc": "w2",
@@ -2110,17 +2089,14 @@
    "genre": "welfare",
    "cat": "P_SUR2",
    "canonical": "מתן צח",
-   "found": true,
-   "leaked": false,
+   "found": false,
+   "leaked": true,
    "fp": 0,
-   "via": [
-    "flagged",
-    "applied"
-   ],
-   "matched": [
-    "מתן"
-   ],
-   "leakedSurfaces": []
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "מתן צח"
+   ]
   },
   {
    "doc": "w3",
@@ -2292,11 +2268,9 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "flagged",
     "applied"
    ],
    "matched": [
-    "גפן",
     "רחוב הגפן 3",
     "הגפן"
    ],
@@ -2311,6 +2285,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "suggest",
     "applied"
    ],
    "matched": [
@@ -2631,16 +2606,15 @@
    "genre": "medical",
    "cat": "O_PRIVATE",
    "canonical": "מכון שורשים",
-   "found": true,
-   "leaked": false,
+   "found": false,
+   "leaked": true,
    "fp": 0,
-   "via": [
-    "applied"
-   ],
-   "matched": [
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "מכון שורשים",
     "שורשים"
-   ],
-   "leakedSurfaces": []
+   ]
   },
   {
    "doc": "h3",
@@ -2799,16 +2773,15 @@
    "genre": "police",
    "cat": "P_MINOR_ANCH",
    "canonical": "לביא",
-   "found": true,
-   "leaked": false,
+   "found": false,
+   "leaked": true,
    "fp": 0,
-   "via": [
-    "applied"
-   ],
-   "matched": [
-    "לביא"
-   ],
-   "leakedSurfaces": []
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "לביא",
+    "הקטין לביא"
+   ]
   },
   {
    "doc": "p2",
@@ -2903,16 +2876,14 @@
    "genre": "police",
    "cat": "P_SUR2",
    "canonical": "עלמה כץ",
-   "found": true,
-   "leaked": false,
+   "found": false,
+   "leaked": true,
    "fp": 0,
-   "via": [
-    "applied"
-   ],
-   "matched": [
-    "עלמה"
-   ],
-   "leakedSurfaces": []
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "עלמה כץ"
+   ]
   },
   {
    "doc": "p3",
@@ -3405,16 +3376,14 @@
    "genre": "chat",
    "cat": "L_TOWN",
    "canonical": "נופית",
-   "found": true,
-   "leaked": false,
+   "found": false,
+   "leaked": true,
    "fp": 0,
-   "via": [
-    "applied"
-   ],
-   "matched": [
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
     "נופית"
-   ],
-   "leakedSurfaces": []
+   ]
   },
   {
    "doc": "c1",
@@ -3466,17 +3435,13 @@
    "genre": "chat",
    "cat": "P_HYPHEN",
    "canonical": "ליעד בן-עמיאל",
-   "found": true,
+   "found": false,
    "leaked": true,
    "fp": 0,
-   "via": [
-    "flagged",
-    "applied"
-   ],
-   "matched": [
-    "יעד"
-   ],
+   "via": [],
+   "matched": [],
    "leakedSurfaces": [
+    "ליעד בן-עמיאל",
     "בן עמיאל"
    ]
   },
@@ -3562,17 +3527,15 @@
    "genre": "chat",
    "cat": "P_MINOR_ANCH",
    "canonical": "גפן",
-   "found": true,
-   "leaked": false,
+   "found": false,
+   "leaked": true,
    "fp": 0,
-   "via": [
-    "flagged",
-    "applied"
-   ],
-   "matched": [
-    "גפן"
-   ],
-   "leakedSurfaces": []
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "גפן",
+    "הקטינה גפן"
+   ]
   },
   {
    "doc": "c3",
@@ -3776,12 +3739,10 @@
    "fp": 0,
    "via": [
     "suggest",
-    "flagged",
     "applied"
    ],
    "matched": [
-    "ליעד",
-    "יעד"
+    "ליעד"
    ],
    "leakedSurfaces": []
   },
@@ -3863,6 +3824,22 @@
    "via": [],
    "matched": [],
    "leakedSurfaces": []
+  },
+  {
+   "doc": "x1",
+   "genre": "position",
+   "cat": "T_GAZWORD",
+   "canonical": "לשם",
+   "found": null,
+   "leaked": null,
+   "fp": 1,
+   "via": [],
+   "matched": [
+    "קדימה [flagged]"
+   ],
+   "leakedSurfaces": [
+    "altered: קדימה"
+   ]
   },
   {
    "doc": "x2",
@@ -3981,6 +3958,22 @@
    "leakedSurfaces": []
   },
   {
+   "doc": "x2",
+   "genre": "position",
+   "cat": "T_GAZWORD",
+   "canonical": "אורה",
+   "found": null,
+   "leaked": null,
+   "fp": 1,
+   "via": [],
+   "matched": [
+    "עלי [flagged]"
+   ],
+   "leakedSurfaces": [
+    "altered: עלי"
+   ]
+  },
+  {
    "doc": "x3",
    "genre": "position",
    "cat": "P_ROLE_COLON",
@@ -4090,6 +4083,18 @@
    "via": [],
    "matched": [],
    "leakedSurfaces": []
+  },
+  {
+   "doc": "x3",
+   "genre": "position",
+   "cat": "T_GAZWORD",
+   "canonical": "דברת",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
   }
  ],
  "unlisted": [
@@ -4154,41 +4159,11 @@
    "applied": true
   },
   {
-   "doc": "f4",
-   "genre": "filing",
-   "value": "קבועה",
-   "sources": [
-    "flagged"
-   ],
-   "why": "",
-   "applied": true
-  },
-  {
    "doc": "t2",
    "genre": "transcript",
    "value": "במרפאת עין",
    "sources": [
     "suggest"
-   ],
-   "why": "",
-   "applied": true
-  },
-  {
-   "doc": "t2",
-   "genre": "transcript",
-   "value": "מלאה",
-   "sources": [
-    "flagged"
-   ],
-   "why": "",
-   "applied": true
-  },
-  {
-   "doc": "t2",
-   "genre": "transcript",
-   "value": "חבר",
-   "sources": [
-    "flagged"
    ],
    "why": "",
    "applied": true
@@ -4211,26 +4186,6 @@
     "discover"
    ],
    "why": "פותח תור דיבור בתמלול",
-   "applied": true
-  },
-  {
-   "doc": "w1",
-   "genre": "welfare",
-   "value": "סעד",
-   "sources": [
-    "flagged"
-   ],
-   "why": "",
-   "applied": true
-  },
-  {
-   "doc": "w2",
-   "genre": "welfare",
-   "value": "סעד",
-   "sources": [
-    "flagged"
-   ],
-   "why": "",
    "applied": true
   },
   {
@@ -4284,16 +4239,6 @@
    "applied": true
   },
   {
-   "doc": "h3",
-   "genre": "medical",
-   "value": "הנוכחי",
-   "sources": [
-    "flagged"
-   ],
-   "why": "",
-   "applied": true
-  },
-  {
    "doc": "p1",
    "genre": "police",
    "value": "ראיתי רכב",
@@ -4342,174 +4287,184 @@
    ],
    "why": "",
    "applied": true
+  },
+  {
+   "doc": "x1",
+   "genre": "position",
+   "value": "הבהרה",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
   }
  ],
  "perDoc": [
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 99,
+   "ms": 90,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 39,
+   "ms": 38,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 26,
-   "rules": 2,
+   "ms": 22,
+   "rules": 3,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 35,
+   "ms": 29,
    "rules": 5,
    "unlisted": 3
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 43,
+   "ms": 44,
    "rules": 10,
    "unlisted": 1
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 69,
+   "ms": 70,
    "rules": 13,
    "unlisted": 1
   },
   {
    "id": "f3",
    "genre": "filing",
-   "ms": 29,
+   "ms": 27,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "f4",
    "genre": "filing",
-   "ms": 37,
-   "rules": 7,
-   "unlisted": 2
+   "ms": 30,
+   "rules": 6,
+   "unlisted": 1
   },
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 33,
+   "ms": 32,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "t2",
    "genre": "transcript",
-   "ms": 35,
-   "rules": 8,
-   "unlisted": 3
+   "ms": 23,
+   "rules": 5,
+   "unlisted": 1
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 32,
+   "ms": 27,
    "rules": 6,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 25,
+   "ms": 32,
    "rules": 7,
    "unlisted": 1
   },
   {
    "id": "w1",
    "genre": "welfare",
-   "ms": 18,
-   "rules": 2,
-   "unlisted": 1
+   "ms": 10,
+   "rules": 0,
+   "unlisted": 0
   },
   {
    "id": "w2",
    "genre": "welfare",
-   "ms": 18,
-   "rules": 3,
-   "unlisted": 1
+   "ms": 20,
+   "rules": 2,
+   "unlisted": 0
   },
   {
    "id": "w3",
    "genre": "welfare",
-   "ms": 17,
-   "rules": 3,
+   "ms": 15,
+   "rules": 2,
    "unlisted": 0
   },
   {
    "id": "w4",
    "genre": "welfare",
-   "ms": 18,
+   "ms": 17,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "h1",
    "genre": "medical",
-   "ms": 25,
+   "ms": 29,
    "rules": 6,
    "unlisted": 2
   },
   {
    "id": "h2",
    "genre": "medical",
-   "ms": 19,
+   "ms": 18,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "h3",
    "genre": "medical",
-   "ms": 20,
-   "rules": 4,
-   "unlisted": 4
+   "ms": 17,
+   "rules": 3,
+   "unlisted": 3
   },
   {
    "id": "p1",
    "genre": "police",
-   "ms": 19,
+   "ms": 16,
    "rules": 2,
    "unlisted": 1
   },
   {
    "id": "p2",
    "genre": "police",
-   "ms": 15,
+   "ms": 13,
    "rules": 2,
    "unlisted": 1
   },
   {
    "id": "p3",
    "genre": "police",
-   "ms": 10,
+   "ms": 11,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "p4",
    "genre": "police",
-   "ms": 17,
+   "ms": 20,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "b1",
    "genre": "bank",
-   "ms": 26,
+   "ms": 22,
    "rules": 5,
    "unlisted": 2
   },
@@ -4523,56 +4478,56 @@
   {
    "id": "b3",
    "genre": "bank",
-   "ms": 13,
+   "ms": 10,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "c1",
    "genre": "chat",
-   "ms": 10,
+   "ms": 9,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "c2",
    "genre": "chat",
-   "ms": 15,
-   "rules": 3,
+   "ms": 13,
+   "rules": 2,
    "unlisted": 1
   },
   {
    "id": "c3",
    "genre": "chat",
-   "ms": 11,
-   "rules": 2,
+   "ms": 7,
+   "rules": 1,
    "unlisted": 0
   },
   {
    "id": "c4",
    "genre": "chat",
-   "ms": 15,
+   "ms": 14,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "x1",
    "genre": "position",
-   "ms": 17,
-   "rules": 4,
-   "unlisted": 0
+   "ms": 30,
+   "rules": 5,
+   "unlisted": 1
   },
   {
    "id": "x2",
    "genre": "position",
-   "ms": 21,
-   "rules": 3,
+   "ms": 23,
+   "rules": 4,
    "unlisted": 0
   },
   {
    "id": "x3",
    "genre": "position",
-   "ms": 16,
+   "ms": 14,
    "rules": 2,
    "unlisted": 0
   }

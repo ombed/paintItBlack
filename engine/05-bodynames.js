@@ -135,8 +135,19 @@ function bodyNames(blocks,known){
         const wds=raw.map(x=>
           PFX.has(x.w[0])&&docTok.has(x.w.slice(1))?x.w.slice(1):x.w);
         if(!wds.every(w=>nameish(w,docTok)))continue;
+        // "עמדה שאינה", "וערכית אינו": מילת שלילה אינה חלק משם
+        if(wds.some(w=>/^[בהולמכש]?(?:אינ[הוםן]|איני|אין|לא|בלי|ללא)$/.test(w)))continue;
+        // "שדיברתי אומר": נטיית עבר בגוף ראשון היא פועל. רק ־תי/־נו, ורק מאורך שש:
+        // "אביתן" הוא שם משפחה שנגמר ב־תן, ו"אביטן" נשאר צמוד אליו במלכודת הזוגות.
+        if(wds.some(w=>/(?:תי|נו)$/.test(w)&&w.length>=6))continue;
+        // צירוף של שתי מילים שאחת מהן בצורת רבים או תואר ("שינוי משמעותי",
+        // "מאפיינים חרדיים", "רמה לימודית גבוהה") אינו שם של אדם. שם בודד לא נפסל כאן,
+        // כדי לא לפסול שמות נשים שנגמרים ב-ה או ב-ית.
+        if(wds.length>1&&wds.some(w=>/(?:ים|יים|ית|יות)$/.test(w)&&!KNOWN_FIRST.has(w)))continue;
         // "פלוני מהוועד": הכינוי המשפטי אינו אדם, גם לפני פועל
         if(wds.some(w=>NER_DROP.has(w)))continue;
+        // אותיות בודדות מופרדות ברווח ("נ ג ד") אינן שם
+        if(wds.every(w=>w.replace(/['"׳״]/g,"").length<=1))continue;
         const cand=wds.join(" ");
         if(kn.has(cand))continue;
         const s=raw[0].s,e=raw[len-1].e;
