@@ -360,6 +360,25 @@ async function verify(buf,secrets){
 
 function discover(blocks){
   const found={};
+  // התמלולים שלה מסמנים דובר בשורה משל עצמה, בלי נקודתיים: פסקה שכולה שם ואחריה
+  // פסקאות הדיבור. עוגן הדוברים דורש נקודתיים, ולכן על שני תמלולים אמיתיים
+  // discover החזיר אפס מועמדים. פסקה קצרה בלי פיסוק בסוף, שאחריה פסקה של ממש, היא דובר.
+  const extra=[];
+  for(let bi=0;bi<blocks.length;bi++){
+    const t=trimEdges(blocks[bi].text||""), w=t.split(/s+/).filter(Boolean);
+    const nxt=blocks[bi+1]&&trimEdges(blocks[bi+1].text||"");
+    if(!t||w.length>3||t.length>25||/[.,?!:;]$/.test(t))continue;
+    if(!nxt||nxt.split(/s+/).length<4)continue;
+    const c=cleanName(t); if(!c||!anchorOK(c))continue;
+    if(!c.split(/s+/).every(x=>x.length>=2))continue;
+    const s0=blocks[bi].text.indexOf(c); if(s0<0)continue;
+    extra.push({b:blocks[bi],h:{text:c,s:s0,e:s0+c.length,why:"פסקה שכולה שם, ואחריה דיבור",anchor:"speakerline",g:null,role:null}});
+  }
+  for(const {b,h} of extra){
+    const r=found[h.text]||(found[h.text]={count:0,why:new Set(),conf:"medium",ctx:"",role:null,g:null,gf:0,gm:0});
+    r.count++;r.why.add(h.why);r.spk=(r.spk||0)+1; if(r.spk>=2)r.conf="high";
+    if(!r.ctx)r.ctx=ctxHTML(b.text,h.s,h.e);
+  }
   for(const b of blocks) for(const h of anchored(b.text)){
     const r=found[h.text]||(found[h.text]={count:0,why:new Set(),conf:"medium",ctx:"",role:null,g:null,gf:0,gm:0});
     r.count++;r.why.add(h.why);

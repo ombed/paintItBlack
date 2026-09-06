@@ -562,7 +562,7 @@ function bodyNames(blocks,known){
    בהתחלה ("במיש" במקום "במישל"), מחזיר תארים כישות נפרדת,
    ומסמן גם מוסדות ציבוריים שאין טעם להשחיר. */
 const trimEdges=s=>(s||"").replace(/^[\s,.;:()\[\]"'\u05f3\u05f4-]+|[\s,.;:()\[\]"'\u05f3\u05f4-]+$/g,"").trim();
-const PUBLIC_ORG=/^(?:בי?ת ה?משפט|שרת? ה|לשכת ה|בתי המשפט|משרד ה|הכנסת|ועד[תה]\s|הוועד[הת]|המוסד לביטוח|ביטוח לאומי|הביטוח הלאומי|משטרת ישראל|צה"ל|היועץ המשפטי|פרקליטות|רשות ה|המשרד ל|בנק ישראל|מס הכנסה)/u;
+const PUBLIC_ORG=/^(?:בי?ת ה?משפט|שרת? ה|לשכת ה|בתי המשפט|משרד ה|ה?כנסת|ועד[תה]\s|הוועד[הת]|המוסד לביטוח|ביטוח לאומי|הביטוח הלאומי|משטרת ישראל|צה"ל|היועץ המשפטי|פרקליטות|רשות ה|המשרד ל|בנק ישראל|מס הכנסה)/u;
 const NER_DROP=new Set(["מרח","מרח'","רח'","רחוב","שד'","ת.ז","ת\"ז","נ'","עמ'","סע'","בע\"מ","הנ\"ל",
   // הכינויים המשפטיים אינם אנשים; המודל מציע אותם כשם
   "פלוני","פלונית","אלמוני","אלמונית","פלונים"]);
@@ -672,6 +672,8 @@ function nerClean(ents,text,opt){
     if(v&&v.split(/\s+/).every(w=>ROLEWORD.test(norm(w))))continue;
     if(v){let ws=v.split(/\s+/); while(ws.length>1&&ROLEWORD.test(norm(ws[ws.length-1])))ws.pop(); while(ws.length>1&&ROLEWORD.test(norm(ws[0])))ws.shift(); v=ws.join(" ");}
     if(!v||v.length<2||NER_DROP.has(v)||NER_DROP.has(norm(v)))continue;
+    // "33" הוצע כשם גוף והוחלף. ערך בלי אות עברית אחת אינו שם של גוף או אדם.
+    if(!/[֐-׿]/.test(v))continue;
     let kind=NER_KIND[e.type];
     // "שחר - שירותי חברה רווחה משפחה" סומן כאדם. שם עם מקף מפריד או
     // חמש מילים ומעלה הוא גוף, ושם בדוי של אדם שם היה מבלבל.
@@ -763,6 +765,8 @@ const FORMLABEL=new Set(["מועד","תאריך","שעה","מקום","נושא",
 function anchorOK(c){
   const ws=c.split(/\s+/);
   if(ws.some(w=>VRB.has(w)||COMMON.has(w)||STOP.has(w)||FORMLABEL.has(w)||TRAIL.has(w)||ROLEWORD.test(w)||TITLE_RX.test(w+" ")))return false;
+  // "עמדה שאינה", "וערכית אינו": מילת שלילה אינה חלק משם, גם עם אות שימוש
+  if(ws.some(w=>/^[בהולמכש]?(?:אינ[הוםן]|איני|אין|לא|בלי|ללא)$/.test(w)))return false;
   // "להשיג", "לקטין": ל+פועל או ל+מילת תפקיד
   // ה" הידיעה אינה אות שימוש לעניין זה: "שכונת הפרדס" ו"רחוב הארזים" הם מקומות
   if(ws.some(w=>w.length>=4&&PFX.has(w[0])&&w[0]!=="ה"&&(VRB.has(w.slice(1))||COMMON.has(w.slice(1))||ROLEWORD.test(w.slice(1)))))return false;
@@ -783,7 +787,9 @@ const ANCH=[["title",`${BD}(?:${TITLES})[,\\s]+(${NME})`,"מופיע אחרי ת
    'מופיע אחרי שדה "שם:"'],
  ["idfield",`(?:מס'?\\s*זהות|מספר\\s+זהות|ת\\.?ז\\.?)\\s*:?[^\\n]{0,40}?\\b(${NME})\\s*$`,
    'מופיע בשורת זהות'],
- ["before",`${BD}(?:בפני|אישר(?:ה)?\\s+בפני|נחתם\\s+בפני|הופיע(?:ה)?\\s+בפני)\\s+(?:עו"ד\\s+)?(${NME})`,
+ // "הציגה בפני עמדה שאינה חד משמעית": בפרוזה "בפני" הוא מילת יחס, לא פתיח של תצהיר.
+ // רק תואר אחריו ("נחתם בפני עו\"ד X") הופך אותו לעוגן.
+ ["before",`${BD}(?:בפני|אישר(?:ה)?\\s+בפני|נחתם\\s+בפני|הופיע(?:ה)?\\s+בפני)\\s+(?:${TITLES})[,\\s]+(${NME})`,
    'מופיע אחרי "בפני"'],
  ["signed",`(?:בכבוד\\s+רב|ולראיה\\s+באתי\\s+על\\s+החתום|חתימה)\\s*[,:\\-–]?\\s*(${NME})`,
    "מופיע באזור החתימה"],
@@ -912,7 +918,12 @@ function findPlaces(text){
     while((m=GAZ_RX.exec(n))){
       const nm=m[1], s=m.index+m[0].indexOf(nm), e=s+nm.length;
       const k=s+":"+e; if(seen.has(k))continue; seen.add(k);
-      const one=!nm.includes(" ");
+      // רק שמות בני שתי מילים ומעלה מהמאגר. הזנב הארוך של שמות יישוב בני מילה אחת
+      // הוא ברובו מילים רגילות ("קדימה", "לשם", "חבר", "מתן", "דברת", "גבעות"), ועל ארבעה
+      // מסמכים אמיתיים הוא נתן שמונה סימונים מיותרים ואפס תפיסות. הערים הגדולות
+      // ממילא ב-PLACES עם קואורדינטות. ראו docs/measurements.md.
+      if(!nm.includes(" "))continue;
+      const one=false;
       // יישוב בן מילה אחת שהוא גם שם פרטי או מילה מהרשימות (שחר, אור, גן) דו-משמעי מדי אפילו לסימון;
       // "משרד הרווחה" ליד היישוב רווחה הוא גוף ציבורי, לא מקום
       if(one&&(WORDLIKE.has(nm)||KNOWN_FIRST.has(nm)||FEM.has(nm)||MASC.has(nm)))continue;
@@ -1558,6 +1569,25 @@ async function verify(buf,secrets){
 
 function discover(blocks){
   const found={};
+  // התמלולים שלה מסמנים דובר בשורה משל עצמה, בלי נקודתיים: פסקה שכולה שם ואחריה
+  // פסקאות הדיבור. עוגן הדוברים דורש נקודתיים, ולכן על שני תמלולים אמיתיים
+  // discover החזיר אפס מועמדים. פסקה קצרה בלי פיסוק בסוף, שאחריה פסקה של ממש, היא דובר.
+  const extra=[];
+  for(let bi=0;bi<blocks.length;bi++){
+    const t=trimEdges(blocks[bi].text||""), w=t.split(/s+/).filter(Boolean);
+    const nxt=blocks[bi+1]&&trimEdges(blocks[bi+1].text||"");
+    if(!t||w.length>3||t.length>25||/[.,?!:;]$/.test(t))continue;
+    if(!nxt||nxt.split(/s+/).length<4)continue;
+    const c=cleanName(t); if(!c||!anchorOK(c))continue;
+    if(!c.split(/s+/).every(x=>x.length>=2))continue;
+    const s0=blocks[bi].text.indexOf(c); if(s0<0)continue;
+    extra.push({b:blocks[bi],h:{text:c,s:s0,e:s0+c.length,why:"פסקה שכולה שם, ואחריה דיבור",anchor:"speakerline",g:null,role:null}});
+  }
+  for(const {b,h} of extra){
+    const r=found[h.text]||(found[h.text]={count:0,why:new Set(),conf:"medium",ctx:"",role:null,g:null,gf:0,gm:0});
+    r.count++;r.why.add(h.why);r.spk=(r.spk||0)+1; if(r.spk>=2)r.conf="high";
+    if(!r.ctx)r.ctx=ctxHTML(b.text,h.s,h.e);
+  }
   for(const b of blocks) for(const h of anchored(b.text)){
     const r=found[h.text]||(found[h.text]={count:0,why:new Set(),conf:"medium",ctx:"",role:null,g:null,gf:0,gm:0});
     r.count++;r.why.add(h.why);
