@@ -92,7 +92,7 @@ a:hover{text-decoration:underline}
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v16");
+  console.log("השחרת מסמכים — גרסה v17");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -130,9 +130,9 @@ a:hover{text-decoration:underline}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v16") return;
+        if(served==="v17") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v16 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v17 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -509,9 +509,9 @@ a:hover{text-decoration:underline}
         <div style="margin-inline-start:auto;display:flex;align-items:center;gap:10px">
           <sc-if value="{{ hasMarks }}">
             <div style="display:flex;align-items:center;gap:2px">
-              <button onClick="{{ onPrevMark }}" aria-label="החלפה קודמת" style="width:26px;height:26px;border-radius:7px;color:var(--ink2);font-size:12px" style-hover="background:var(--panel2)">›</button>
+              <button onClick="{{ onPrevMark }}" aria-label="החלפה קודמת" title="ההחלפה הקודמת במסמך" style="width:26px;height:26px;border-radius:7px;color:var(--ink2);font-size:11px" style-hover="background:var(--panel2)">▲</button>
               <span style="font-size:12px;color:var(--ink3);min-width:52px;text-align:center">{{ markNav }}</span>
-              <button onClick="{{ onNextMark }}" aria-label="החלפה הבאה" style="width:26px;height:26px;border-radius:7px;color:var(--ink2);font-size:12px" style-hover="background:var(--panel2)">‹</button>
+              <button onClick="{{ onNextMark }}" aria-label="החלפה הבאה" title="ההחלפה הבאה במסמך" style="width:26px;height:26px;border-radius:7px;color:var(--ink2);font-size:11px" style-hover="background:var(--panel2)">▼</button>
             </div>
           </sc-if>
           <div style="display:flex;gap:4px;background:var(--panel2);border-radius:8px;padding:3px">
@@ -760,7 +760,7 @@ a:hover{text-decoration:underline}
 
 </div>
 </x-dc>
-<div id="ver">גרסה v16</div>
+<div id="ver">גרסה v17</div>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
@@ -1058,13 +1058,17 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   cycleKind = i => { const list=[...this.state.peo]; const ks=["NAME","ORG","PLACE"];
     list[i]={...list[i], kind:ks[(ks.indexOf(list[i].kind)+1)%ks.length], note:""};
     this.setState({peo:list}); };
-  delPeo = i => { const list=[...this.state.peo]; list.splice(i,1); this.setState({peo:list}); };
+  // מחיקה מהרשימה היא החלטה: השם נכנס ל"אל תחליף", אחרת שכבת הפעלים והמודל מציעים
+  // אותו שוב במסך הבדיקה. שם שנוסף ביד ונמחק אינו החלטה על המסמך.
+  delPeo = i => { const list=[...this.state.peo]; const [p]=list.splice(i,1);
+    const allow=(p&&p.auto&&p.value&&!this.state.allow.includes(p.value))?[...this.state.allow, p.value]:this.state.allow;
+    this.setState({peo:list, allow}); };
 
   /* ── מקומות ── */
   async toPlaces(rows){
     const E=this.state.E;
     const rules = rows.map(r=>({...r}));
-    this.setState({rules, allow:[]});
+    this.setState({rules});
     if(!this.state.o.places){ this.run(rules); return; }
     try{
       const blocks = await this.blocksOf(this.state.buf);
@@ -1508,7 +1512,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       peoSugItems:S.peoSug.filter(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))).map(x=>({
         value:x.value, why:x.why,
         onAdd:()=>this.peoAdd(x.value,"מההקשר",true),
-        onDrop:()=>this.setState({peoSug:S.peoSug.filter(y=>y!==x)})})),
+        onDrop:()=>this.setState({peoSug:S.peoSug.filter(y=>y!==x), allow:S.allow.includes(x.value)?S.allow:[...S.allow, x.value]})})),
       nerFailed:!!S.nerFailed, nerOk:!S.nerFailed,
       onRetryScan:()=>{ const L=this._lastScan; if(!L)return; this.setState({nerFailed:false, peoNote:""}); this.showPeople(L.blocks, L.cands); },
       // הרשימה מקובצת: אנשים, גופים, מקומות. הסדר לתצוגה בלבד; המחיקה והחלפת הסוג
@@ -1569,6 +1573,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     if(!v.isWork) return v;
 
     const RES=S.res, near=this.nearList(), sug=this.sugList(), groups=this.groupsOf();
+    let mpos=0; const firstPos={}; // מיקום רץ של סימונים במסמך, ומיקום ראשון לכל ערך
     const ver=RES.verification;
 
     const narrow=!!S.narrow, pane=S.pane||"find";
@@ -1604,11 +1609,13 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.sheet = RES.preview.map((b,bi)=>{
       const segs=[]; let last=0;
       for(const m of b.marks){
+        // מיקום רץ במסמך: כל מופע מקבל מספר משלו, גם כשכמה מופעים שייכים לאותו ערך
+        const pos=mpos++; if(!(m.id in firstPos))firstPos[m.id]=pos;
         if(m.s>last) segs.push({plain:true, mark:false, t:b.text.slice(last,m.s)});
         const src=RES.applied[m.id];
         const orig=(!m.amb && src)?src.value:"";
         const selected = S.sel && src && ("a|"+E.norm(src.value).trim())===S.sel;
-        segs.push({plain:false, mark:true, id:m.id, t:b.text.slice(m.s,m.e),
+        segs.push({plain:false, mark:true, id:pos, t:b.text.slice(m.s,m.e),
           title: orig ? orig+" ← במקור" : "הוחלף — המקור אינו חד-משמעי",
           style:"cursor:pointer;border-radius:3px;box-decoration-break:clone;padding:1px 2px;"+
             ((selected||S.hot===m.id)
@@ -1616,7 +1623,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
               : "background:var(--accent-soft);color:var(--accent-ink);"),
           onClick:()=>{
             const r=RES.applied[m.id]; if(!r) return;
-            this.setState({filter:"all", cat:"", open:this.openWith("findings"), sel:"a|"+E.norm(r.value).trim(),
+            // הסמן של החיצים עוקב אחרי מה שנלחץ, אחרת "הבא" קופץ מהמקום הקודם
+            this.setState({markIdx:pos, filter:"all", cat:"", open:this.openWith("findings"), sel:"a|"+E.norm(r.value).trim(),
               pane:this.state.narrow?"find":this.state.pane, repDraft:r.rep||""}, ()=>{
               const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape("a|"+E.norm(r.value).trim())+'"]');
               if(node && this.listEl){ const nr=node.getBoundingClientRect(), lr=this.listEl.getBoundingClientRect();
@@ -1631,7 +1639,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       return {part:b.part, head:b.part!==prev, n:bi+1, segs};
     });
 
-    const order=[]; RES.preview.forEach(b=>b.marks.forEach(m=>order.push(m.id)));
+    const order=[]; RES.preview.forEach(b=>b.marks.forEach(m=>order.push(m.id))); // id of the group at each position
     v.hasMarks=order.length>0;
     const cur=Math.min(S.markIdx??0, Math.max(order.length-1,0));
     v.markNav=order.length?(cur+1)+" / "+order.length:"";
@@ -1639,7 +1647,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       const i=(cur+d+order.length)%order.length;
       const r=RES.applied[order[i]];
       this.setState({markIdx:i, docView:"red", sel:r?"a|"+E.norm(r.value).trim():null,
-        repDraft:r?(r.rep||""):"", open:this.openWith("findings")}, ()=>this.scrollToMark(order[i]));
+        repDraft:r?(r.rep||""):"", open:this.openWith("findings")}, ()=>this.scrollToMark(i));
     };
     v.onPrevMark=()=>jump(-1); v.onNextMark=()=>jump(1);
 
@@ -1689,7 +1697,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       style:"padding:12px 15px;border-bottom:1px solid var(--line2);cursor:pointer;"+
         (S.sel===g.key?"background:var(--panel2);":""),
       onClick:()=>{ const nowSel = S.sel===g.key ? null : g.key;
-        this.setState({sel:nowSel, repDraft:g.rep||""}, ()=>{ if(nowSel && g.ids.length && !this.state.narrow) this.scrollToMark(g.ids[0]); }); },
+        const at=g.ids.length&&(g.ids[0] in firstPos)?firstPos[g.ids[0]]:-1;
+        this.setState({sel:nowSel, repDraft:g.rep||"", markIdx:at>=0?at:S.markIdx}, ()=>{ if(nowSel && at>=0 && !this.state.narrow) this.scrollToMark(at); }); },
       onEnter:()=>{ if(g.ids.length) this.setState({hot:g.ids[0]}); },
       onLeave:()=>this.setState({hot:null}),
       stop:e=>e.stopPropagation(),

@@ -9,13 +9,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "discover",
     "suggest",
     "applied"
    ],
    "matched": [
-    "קעדאן",
-    "סאמר קעדאן"
+    "סאמר קעדאן",
+    "קעדאן"
    ],
    "leakedSurfaces": []
   },
@@ -4245,231 +4244,231 @@
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 171,
-   "rules": 4,
+   "ms": 100,
+   "rules": 3,
    "unlisted": 0
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 58,
+   "ms": 41,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 35,
+   "ms": 22,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 57,
+   "ms": 35,
    "rules": 5,
    "unlisted": 3
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 95,
+   "ms": 52,
    "rules": 10,
    "unlisted": 1
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 123,
+   "ms": 65,
    "rules": 13,
    "unlisted": 1
   },
   {
    "id": "f3",
    "genre": "filing",
-   "ms": 52,
+   "ms": 27,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "f4",
    "genre": "filing",
-   "ms": 54,
+   "ms": 28,
    "rules": 6,
    "unlisted": 1
   },
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 58,
+   "ms": 32,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "t2",
    "genre": "transcript",
-   "ms": 46,
+   "ms": 25,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 54,
+   "ms": 33,
    "rules": 6,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 54,
+   "ms": 26,
    "rules": 7,
    "unlisted": 1
   },
   {
    "id": "w1",
    "genre": "welfare",
-   "ms": 29,
+   "ms": 14,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "w2",
    "genre": "welfare",
-   "ms": 42,
+   "ms": 24,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "w3",
    "genre": "welfare",
-   "ms": 43,
+   "ms": 14,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "w4",
    "genre": "welfare",
-   "ms": 47,
+   "ms": 17,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "h1",
    "genre": "medical",
-   "ms": 67,
+   "ms": 26,
    "rules": 6,
    "unlisted": 2
   },
   {
    "id": "h2",
    "genre": "medical",
-   "ms": 46,
+   "ms": 22,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "h3",
    "genre": "medical",
-   "ms": 48,
+   "ms": 18,
    "rules": 5,
    "unlisted": 4
   },
   {
    "id": "p1",
    "genre": "police",
-   "ms": 31,
+   "ms": 19,
    "rules": 2,
    "unlisted": 1
   },
   {
    "id": "p2",
    "genre": "police",
-   "ms": 31,
+   "ms": 14,
    "rules": 2,
    "unlisted": 1
   },
   {
    "id": "p3",
    "genre": "police",
-   "ms": 26,
+   "ms": 12,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "p4",
    "genre": "police",
-   "ms": 32,
+   "ms": 16,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "b1",
    "genre": "bank",
-   "ms": 33,
+   "ms": 23,
    "rules": 5,
    "unlisted": 2
   },
   {
    "id": "b2",
    "genre": "bank",
-   "ms": 16,
+   "ms": 10,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "b3",
    "genre": "bank",
-   "ms": 23,
+   "ms": 11,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "c1",
    "genre": "chat",
-   "ms": 21,
+   "ms": 13,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "c2",
    "genre": "chat",
-   "ms": 26,
+   "ms": 12,
    "rules": 2,
    "unlisted": 1
   },
   {
    "id": "c3",
    "genre": "chat",
-   "ms": 18,
+   "ms": 9,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "c4",
    "genre": "chat",
-   "ms": 27,
+   "ms": 13,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "x1",
    "genre": "position",
-   "ms": 31,
+   "ms": 20,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "x2",
    "genre": "position",
-   "ms": 31,
+   "ms": 18,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "x3",
    "genre": "position",
-   "ms": 24,
+   "ms": 14,
    "rules": 2,
    "unlisted": 0
   }
