@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="ext-resource-dependency" content="./redact-engine.js" data-resource-id="engine" />
+<meta name="ext-resource-dependency" content="./pdf-text.js" data-resource-id="pdftext" />
+<meta name="ext-resource-dependency" content="./text-to-docx.js" data-resource-id="todocx" />
+<meta name="ext-resource-dependency" content="https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json" data-resource-id="atlas" />
+<template id="__bundler_thumbnail" data-bg-color="#F4F2ED">
+  <svg viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg">
+    <rect width="480" height="480" fill="#F4F2ED"/>
+    <rect x="96" y="96" width="288" height="288" rx="76" fill="#1F5B44"/>
+    <g stroke="#FFFDF8" stroke-width="22" stroke-linecap="round" opacity="0.45">
+      <path d="M168 192h144"/><path d="M168 240h144"/><path d="M168 288h72"/>
+    </g>
+    <rect x="156" y="215" width="118" height="50" rx="25" fill="#FFFDF8"/>
+  </svg>
+</template>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>השחרת מסמכים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600&family=Noto+Serif+Hebrew:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
+<style>
+:root{
+  --bg:#F4F2ED; --panel:#FFFFFF; --panel2:#F7F6F1; --line:rgba(22,33,28,.13);
+  --line2:rgba(22,33,28,.07); --ink:#16211C; --ink2:#5D6A63; --ink3:#98A29B;
+  --accent:#1F5B44; --accent-soft:#E6EFE9; --accent-ink:#1F5B44;
+  --warn:#9C5511; --warn-soft:#FAF0E2; --bad:#9E2A20; --bad-soft:#FBEAE7;
+  --paper:#FFFDF8; --shadow:0 1px 2px rgba(22,33,28,.05),0 8px 24px -16px rgba(22,33,28,.18);
+  --rail-w:404px; --doc-font:'Noto Serif Hebrew',serif;
+}
+html.dark{
+  --bg:#111412; --panel:#1A1F1C; --panel2:#212824; --line:rgba(236,240,236,.13);
+  --line2:rgba(236,240,236,.07); --ink:#ECF0EC; --ink2:#9DA9A2; --ink3:#6D7973;
+  --accent:#79D3A8; --accent-soft:rgba(121,211,168,.13); --accent-ink:#8FE0B8;
+  --warn:#E3A458; --warn-soft:rgba(227,164,88,.12); --bad:#EE8177; --bad-soft:rgba(238,129,119,.13);
+  --paper:#191E1B; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -16px rgba(0,0,0,.6);
+}
+html,body{margin:0;padding:0;background:var(--bg)}
+body{color:var(--ink);font-family:Rubik,"Noto Sans Hebrew",system-ui,sans-serif;
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+::selection{background:var(--accent-soft)}
+@keyframes flash{0%,100%{background:transparent}30%{background:var(--accent-soft)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+
+<div dir="rtl" style="min-height:100vh;background:var(--bg);color:var(--ink)">
+
+  <header style="position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;background:var(--panel);border-bottom:1px solid var(--line)">
+    <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;overflow:hidden">
+      <svg width="24" height="24" viewBox="0 0 24 24" style="flex:none" aria-hidden="true">
+        <rect x="1" y="1" width="22" height="22" rx="6.5" fill="var(--accent)"></rect>
+        <g stroke="var(--panel)" stroke-width="1.7" stroke-linecap="round" opacity=".5">
+          <path d="M7 8h10"></path><path d="M7 12h10"></path><path d="M7 16h5.5"></path>
+        </g>
+        <rect x="6.2" y="10.4" width="7.6" height="3.2" rx="1.6" fill="var(--panel)"></rect>
+      </svg>
+      <span style="font-weight:500;letter-spacing:-.01em;white-space:nowrap">השחרת מסמכים</span>
+      <sc-if value="{{ showTagline }}">
+        <span style="font-size:12.5px;color:var(--ink3);border-inline-start:1px solid var(--line);padding-inline-start:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">הכול רץ בדפדפן. המסמך לא נשלח לשום מקום</span>
+      </sc-if>
+    </div>
+    <sc-if value="{{ showSteps }}" hint-placeholder-val="{{ true }}">
+      <nav style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink3)">
+        <button onClick="{{ goStep1 }}" style="{{ step1 }}">קובץ</button><span>›</span>
+        <button onClick="{{ goStep2 }}" style="{{ step2 }}">מי בתיק</button><span>›</span>
+        <button onClick="{{ goStep3 }}" style="{{ step3 }}">מקומות</button><span>›</span>
+        <span style="{{ step4 }}">בדיקה</span>
+      </nav>
+    </sc-if>
+    <button onClick="{{ onReverse }}" style="font-size:13px;color:var(--ink2);padding:7px 11px;border-radius:8px;white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)">החזרת שמות מתשובת AI</button>
+    <button onClick="{{ onTheme }}" aria-label="מצב יום או לילה" style="width:34px;height:34px;border-radius:9px;display:grid;place-items:center;border:1px solid var(--line);color:var(--ink2)" style-hover="background:var(--panel2);color:var(--ink)">{{ themeIcon }}</button>
+  </header>
+
+  <sc-if value="{{ showBack }}">
+    <div style="display:flex;padding:14px 22px 0">
+      <button onClick="{{ onBack }}" style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink2);padding:7px 13px 7px 11px;border-radius:9px;border:1px solid var(--line);background:var(--panel);white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)"><span style="font-size:15px;line-height:1;margin-top:-1px">‹</span>{{ backLabel }}</button>
+    </div>
+  </sc-if>
+
+  <input type="file" accept=".docx,.pdf" ref="{{ fileRef }}" onChange="{{ onFile }}" style="display:none">
+  <input type="file" accept=".json,.txt" ref="{{ profRef }}" onChange="{{ onProfFile }}" style="display:none">
+
+  <sc-if value="{{ showIntro }}">
+    <div style="position:fixed;inset:0;z-index:70;background:rgba(10,14,12,.5);display:grid;place-items:center;padding:24px">
+      <div style="max-width:560px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px 30px;box-shadow:0 24px 60px rgba(0,0,0,.35)">
+        <h2 style="margin:0 0 6px;font-size:21px;font-weight:500;letter-spacing:-.02em">לפני שמתחילים</h2>
+        <p style="margin:0 0 18px;color:var(--ink2);font-size:14px;line-height:1.6">הכלי מכין מסמך משפטי לשליחה לכלי AI: הוא מחליף פרטים מזהים בשמות חלופיים, בודק מה נשאר, ומאפשר להחזיר את השמות האמיתיים לתשובה שחוזרת. הכול רץ בדפדפן — שום קובץ לא נשלח לשרת.</p>
+        <sc-for list="{{ introSteps }}" as="s" hint-placeholder-count="4">
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line2)">
+            <span style="width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center;font-size:11.5px;font-weight:500;flex:none;margin-top:2px">{{ s.n }}</span>
+            <span><b style="display:block;font-weight:500;font-size:14px">{{ s.title }}</b>
+            <small style="color:var(--ink2);font-size:12.5px;line-height:1.5">{{ s.text }}</small></span>
+          </div>
+        </sc-for>
+        <button onClick="{{ onCloseIntro }}" style="{{ primaryBtn }}">הבנתי, נתחיל</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ err }}">
+    <div style="margin:14px 22px 0;padding:11px 14px;border-radius:10px;background:var(--bad-soft);color:var(--bad);font-size:13.5px">{{ err }}</div>
+  </sc-if>
+
+  <!-- ═════ מסך פתיחה ═════ -->
+  <sc-if value="{{ isEntry }}" hint-placeholder-val="{{ true }}">
+  <main style="max-width:1120px;margin:0 auto;padding:38px 22px 70px;animation:rise .3s ease">
+    <h1 style="font-size:29px;font-weight:500;letter-spacing:-.02em;margin:0 0 6px">מה יוצא מהמסמך, ומה נכנס במקומו</h1>
+    <p style="margin:0 0 26px;color:var(--ink2);font-size:14.5px;max-width:62ch">מעלים קובץ Word, מאשרים את רשימת האנשים, ומקבלים מסמך מושחר עם דוח מלא של כל החלפה. הזיהוי, ההחלפה והאימות רצים כאן בדפדפן.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch">
+      <button onClick="{{ onPick }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDropFile }}" style="{{ dropStyle }}">
+        <span style="width:38px;height:38px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none;font-size:17px">↑</span>
+        <span style="text-align:start">
+          <b style="display:block;font-weight:500;font-size:15px">בחירת קובץ</b>
+          <small style="color:var(--ink2);font-size:12.5px">Word (docx) או PDF עם טקסט · אפשר גם לגרור לכאן</small>
+        </span>
+        <span style="margin-inline-start:auto;font-size:12.5px;color:var(--ink3)">{{ fileName }}</span>
+      </button>
+      <div style="display:flex;flex-direction:column;gap:9px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);box-shadow:var(--shadow)">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="width:38px;height:38px;border-radius:10px;background:var(--panel2);color:var(--ink2);display:grid;place-items:center;flex:none;border:1px solid var(--line)">¶</span>
+          <span>
+            <b style="display:block;font-weight:500;font-size:15px">הדבקת טקסט</b>
+            <small style="color:var(--ink2);font-size:12.5px">תמלול, מייל או קטע מתוך מסמך — עובר את אותו תהליך</small>
+          </span>
+          <sc-if value="{{ hasPaste }}">
+            <button onClick="{{ onPasteGo }}" style="margin-inline-start:auto;padding:9px 16px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500;white-space:nowrap">{{ pasteLabel }}</button>
+          </sc-if>
+        </div>
+        <textarea value="{{ pasteText }}" onChange="{{ onPasteText }}" placeholder="הדבקת טקסט לבדיקה…" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font:13.5px/1.6 Rubik,sans-serif;min-height:64px;resize:vertical"></textarea>
+      </div>
+      <sc-if value="{{ hasPending }}">
+        <div style="grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--line)">
+          <span style="width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--panel);display:grid;place-items:center;font-size:13px;flex:none">✓</span>
+          <div style="min-width:0">
+            <b style="display:block;font-weight:500;font-size:14px">{{ pendName }}</b>
+            <small style="color:var(--ink2);font-size:12.5px">{{ pendMeta }}</small>
+          </div>
+          <button onClick="{{ onPick }}" style="margin-inline-start:auto;font-size:13px;color:var(--ink2);padding:9px 12px;border-radius:9px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel)">החלפת קובץ</button>
+          <button onClick="{{ onStart }}" style="{{ primaryBtn }}">{{ startLabel }}</button>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.15fr .85fr;gap:22px;margin-top:30px;align-items:start">
+      <section>
+        <div style="font-size:12px;font-weight:500;color:var(--ink3);letter-spacing:.06em;margin-bottom:9px">זיהוי</div>
+        <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden">
+          <label style="display:flex;gap:13px;align-items:flex-start;padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--line2)">
+            <input type="checkbox" checked="{{ oNer }}" onChange="{{ tNer }}" disabled="{{ nerOff }}" style="width:17px;height:17px;margin:2px 0 0;accent-color:var(--accent);flex:none">
+            <span><b style="display:block;font-weight:500">מודל זיהוי עברי מקומי</b>
+            <small style="color:var(--ink2);font-size:12.5px;line-height:1.45">ממלא את רשימת השמות מראש. רץ על המחשב הזה; המסמך לא נשלח לשום מקום.</small>
+            <sc-if value="{{ nerHint }}"><small style="display:block;margin-top:6px;padding:8px 10px;border-radius:8px;background:var(--panel2);color:var(--ink2);font-size:12px;line-height:1.5">{{ nerHint }}</small></sc-if></span>
+          </label>
+          <label style="display:flex;gap:13px;align-items:flex-start;padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--line2)">
+            <input type="checkbox" checked="{{ oAuto }}" onChange="{{ tAuto }}" style="width:17px;height:17px;margin:2px 0 0;accent-color:var(--accent);flex:none">
+            <span><b style="display:block;font-weight:500">איתור שמות אוטומטי</b>
+            <small style="color:var(--ink2);font-size:12.5px;line-height:1.45">מזהה שמות לפי ההקשר שסביבם. הרשימה מוצגת לאישור לפני ההחלפה.</small></span>
+          </label>
+          <label style="display:flex;gap:13px;align-items:flex-start;padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--line2)">
+            <input type="checkbox" checked="{{ oPlaces }}" onChange="{{ tPlaces }}" style="width:17px;height:17px;margin:2px 0 0;accent-color:var(--accent);flex:none">
+            <span><b style="display:block;font-weight:500">החלפת מקומות</b>
+            <small style="color:var(--ink2);font-size:12.5px;line-height:1.45">יישובים, בתי ספר, מוסדות ועסקים. יש מסך נפרד לשמירת מרחקים בין יישובים.</small></span>
+          </label>
+          <label style="display:flex;gap:13px;align-items:flex-start;padding:14px 16px;cursor:pointer">
+            <input type="checkbox" checked="{{ oNear }}" onChange="{{ tNear }}" style="width:17px;height:17px;margin:2px 0 0;accent-color:var(--accent);flex:none">
+            <span><b style="display:block;font-weight:500">סורק שיבושי תמלול</b>
+            <small style="color:var(--ink2);font-size:12.5px;line-height:1.45">מסמן מילים שנכתבו כמעט כמו שם שהוחלף — «פנים מהירות» במקום «פנים מאירות».</small></span>
+          </label>
+        </div>
+      </section>
+
+      <section>
+        <div style="font-size:12px;font-weight:500;color:var(--ink3);letter-spacing:.06em;margin-bottom:9px">מה נכנס במקום</div>
+        <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:14px 16px">
+          <div style="display:flex;gap:6px;background:var(--panel2);border-radius:9px;padding:3px">
+            <button onClick="{{ mReal }}" style="{{ segReal }}">שם חלופי</button>
+            <button onClick="{{ mLabel }}" style="{{ segLabel }}">פלוני א׳</button>
+            <button onClick="{{ mBlock }}" style="{{ segBlock }}">███</button>
+          </div>
+          <p style="margin:12px 0 0;font-size:12.5px;line-height:1.55;color:var(--ink2)">{{ modeNote }}</p>
+        </div>
+        <div style="margin-top:12px;padding:13px 15px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);font-size:12.5px;color:var(--ink2);line-height:1.55">
+          <b style="display:block;color:var(--ink);font-weight:500;margin-bottom:3px">פרופיל תיק</b>
+          אותו אדם מקבל את אותו שם חלופי בכל מסמכי התיק. אפשר לטעון פרופיל קיים בשלב הבא.
+        </div>
+      </section>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- ═════ מי בתיק ═════ -->
+  <sc-if value="{{ isPeople }}">
+  <main style="max-width:820px;margin:0 auto;padding:38px 22px 70px;animation:rise .3s ease">
+    <h1 style="font-size:26px;font-weight:500;letter-spacing:-.02em;margin:0 0 6px">מי מופיע בתיק</h1>
+    <p style="margin:0 0 22px;color:var(--ink2);font-size:14px;max-width:66ch">כל שם ברשימה מכוסה בכל צורה שהוא מופיע בה: שם מלא, שם משפחה לבד, שם פרטי לבד, עם אות שימוש ובשיבושי תמלול. בסוף התהליך יש בדיקה אם נשאר מי שלא נרשם.</p>
+
+    <sc-if value="{{ nerBox }}">
+      <div style="padding:13px 15px;border-radius:12px;border:1px solid var(--line);background:var(--panel);margin-bottom:16px;font-size:13px;color:var(--ink2)">
+        <div>{{ nerMsg }}</div>
+        <div style="height:4px;border-radius:2px;background:var(--line);margin-top:9px;overflow:hidden">
+          <div style="{{ nerBarStyle }}"></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <sc-for list="{{ peoItems }}" as="p" hint-placeholder-count="4">
+        <div style="{{ p.style }}">
+          <button onClick="{{ p.onKind }}" title="החלפת סוג: אדם · גוף · מקום" style="font-size:11px;font-weight:500;color:var(--ink2);background:var(--panel2);border-radius:6px;padding:2px 7px">{{ p.kindName }}</button>
+          <span style="font-weight:500">{{ p.value }}</span>
+          <sc-if value="{{ p.note }}"><small style="color:var(--ink3);font-size:11.5px">{{ p.note }}</small></sc-if>
+          <button onClick="{{ p.onDel }}" aria-label="הסרה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:13px" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
+        </div>
+      </sc-for>
+      <sc-if value="{{ peoEmpty }}">
+        <div style="color:var(--ink3);font-size:13.5px;padding:6px 0">הרשימה ריקה. אפשר להקליד שמות למטה, או להמשיך בלי שמות.</div>
+      </sc-if>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <input value="{{ peoIn }}" onChange="{{ onPeoIn }}" onKeyDown="{{ onPeoKey }}" onPaste="{{ onPeoPaste }}" placeholder="שם מלא — למשל רונית לוי. אפשר להדביק כמה שמות, שורה לכל אחד" style="flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:14px">
+      <button onClick="{{ onPeoAdd }}" style="padding:0 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-size:14px;font-weight:500" style-hover="background:var(--panel2)">הוספה</button>
+    </div>
+    <p style="margin:11px 0 0;font-size:13px;color:var(--ink2);line-height:1.55">{{ peoNote }}</p>
+
+    <div style="display:flex;gap:10px;margin-top:24px;align-items:center;flex-wrap:wrap">
+      <button onClick="{{ onPeoGo }}" style="{{ primaryBtn }}">{{ peoGoLabel }}</button>
+      <button onClick="{{ onLoadProf }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">טעינת פרופיל תיק</button>
+      <button onClick="{{ onSkipNames }}" style="font-size:13px;color:var(--ink2);padding:12px 8px" style-hover="color:var(--ink)">המשך בלי שמות — רק ת״ז, טלפונים וכתובות</button>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- ═════ מקומות ═════ -->
+  <sc-if value="{{ isPlaces }}">
+  <main style="max-width:900px;margin:0 auto;padding:38px 22px 70px;animation:rise .3s ease">
+    <h1 style="font-size:26px;font-weight:500;letter-spacing:-.02em;margin:0 0 6px">יישובים — החלפה ששומרת על המרחקים</h1>
+    <p style="margin:0 0 22px;color:var(--ink2);font-size:14px;max-width:68ch">החלפת יישוב בשם אקראי הורסת את הגיאוגרפיה של התיק: נסיעה של עשר דקות הופכת לנסיעה של שעתיים. הקבוצה החלופית שלמטה שומרת על אותם מרחקים וכיוונים יחסיים בין היישובים שנמצאו במסמך.</p>
+
+    <sc-if value="{{ hasGeo }}">
+      <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden">
+        <div style="display:flex;align-items:baseline;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line2)">
+          <b style="font-weight:500">{{ geoCount }} יישובים במסמך</b>
+          <span style="font-size:12.5px;color:var(--ink2)">סטיית מרחק {{ geoErr }} ק״מ · {{ geoQuality }}</span>
+          <button onClick="{{ onGeoAlt }}" style="margin-inline-start:auto;font-size:13px;color:var(--accent);padding:6px 10px;border-radius:8px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--accent-soft)">קבוצה אחרת</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line2);border-bottom:1px solid var(--line2)">
+          <div style="background:var(--panel);padding:14px 16px 18px">
+            <div style="font-size:11.5px;font-weight:500;letter-spacing:.05em;color:var(--ink3);margin-bottom:10px">המיקומים במסמך</div>
+            <div style="position:relative;width:150px;height:340px;margin:0 auto">
+              <svg viewBox="0 0 150 340" width="150" height="340" style="position:absolute;inset:0;display:block">
+                <path d="{{ mapLand }}" fill="var(--panel2)" stroke="var(--line)" stroke-width="0.8"></path>
+              </svg>
+              <sc-for list="{{ mapFrom }}" as="p" hint-placeholder-count="3">
+                <div style="{{ p.style }}">
+                  <span style="width:7px;height:7px;border-radius:50%;background:var(--ink2);display:block;margin:0 auto;box-shadow:0 0 0 3px var(--panel)"></span>
+                  <span style="font-size:10.5px;color:var(--ink2);white-space:nowrap;background:var(--panel);padding:0 2px;border-radius:3px">{{ p.label }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background:var(--panel);padding:14px 16px 18px">
+            <div style="font-size:11.5px;font-weight:500;letter-spacing:.05em;color:var(--accent-ink);margin-bottom:10px">הקבוצה החלופית</div>
+            <div style="position:relative;width:150px;height:340px;margin:0 auto">
+              <svg viewBox="0 0 150 340" width="150" height="340" style="position:absolute;inset:0;display:block">
+                <path d="{{ mapLand }}" fill="var(--panel2)" stroke="var(--line)" stroke-width="0.8"></path>
+              </svg>
+              <sc-for list="{{ mapTo }}" as="p" hint-placeholder-count="3">
+                <div style="{{ p.style }}">
+                  <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:block;margin:0 auto;box-shadow:0 0 0 3px var(--panel)"></span>
+                  <span style="font-size:10.5px;color:var(--accent-ink);white-space:nowrap;background:var(--panel);padding:0 2px;border-radius:3px">{{ p.label }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <sc-if value="{{ hasLand }}">
+          <div style="padding:0 18px 12px;font-size:11px;color:var(--ink3);text-align:center">מפת רקע: Natural Earth · קובץ מיפוי אחד, זהה לכל מסמך. שמות היישובים לא יוצאים מהדפדפן.</div>
+        </sc-if>
+        <sc-for list="{{ geoRows }}" as="g" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--line2)">
+            <span style="min-width:130px;font-weight:500">{{ g.from }}</span>
+            <span style="color:var(--ink3)">←</span>
+            <input value="{{ g.to }}" onChange="{{ g.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
+            <button onClick="{{ g.onRemove }}" title="להשאיר את שם היישוב כמו שהוא" style="font-size:12.5px;color:var(--ink2);padding:7px 11px;border-radius:8px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)">אל תחליף</button>
+          </div>
+        </sc-for>
+        <sc-if value="{{ hasExcluded }}">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--line2);font-size:12.5px;color:var(--ink2)">
+            <span>נשארים כמו שהם:</span>
+            <sc-for list="{{ excluded }}" as="x" hint-placeholder-count="2">
+              <button onClick="{{ x.onUndo }}" title="להחזיר להחלפה" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:12.5px">{{ x.name }} <span style="color:var(--ink3)">↩</span></button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div style="display:flex;gap:9px;padding:15px 18px">
+          <button onClick="{{ onGeoApply }}" style="{{ primaryBtn }}">החלת הקבוצה והמשך</button>
+          <button onClick="{{ onGeoSkip }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">דילוג — החלפה רגילה</button>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ noGeo }}">
+      <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;text-align:center;color:var(--ink2);font-size:14px">
+        {{ noGeoText }}
+        <sc-if value="{{ hasExcluded }}">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px;font-size:12.5px">
+            <span>נשארים כמו שהם:</span>
+            <sc-for list="{{ excluded }}" as="x" hint-placeholder-count="2">
+              <button onClick="{{ x.onUndo }}" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:12.5px">{{ x.name }} <span style="color:var(--ink3)">↩</span></button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div style="margin-top:16px"><button onClick="{{ onGeoSkip }}" style="{{ primaryBtn }}">המשך לעיבוד</button></div>
+      </div>
+    </sc-if>
+  </main>
+  </sc-if>
+
+  <!-- ═════ עיבוד ═════ -->
+  <sc-if value="{{ isBusy }}">
+    <main style="padding:22vh 22px;text-align:center;color:var(--ink2)">
+      <div style="width:28px;height:28px;border:2.5px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px"></div>
+      <div style="font-size:14px">{{ busyT }}</div>
+    </main>
+  </sc-if>
+
+  <!-- ═════ החזרת שמות ═════ -->
+  <sc-if value="{{ isReverse }}">
+  <main style="max-width:760px;margin:0 auto;padding:38px 22px 70px;animation:rise .3s ease">
+    <h1 style="font-size:26px;font-weight:500;letter-spacing:-.02em;margin:0 0 6px">החזרת שמות לתשובה מ-AI</h1>
+    <p style="margin:0 0 14px;color:var(--ink2);font-size:14px;max-width:68ch">השלב האחרון במסלול: אחרי שהטקסט המושחר נשלח לכלי AI, מדביקים כאן את התשובה שחזרה והשמות החלופיים מוחלפים בשמות האמיתיים. הכול על המחשב הזה.</p>
+    <div style="{{ rvCtxStyle }}">
+      <b style="display:block;font-weight:500;margin-bottom:2px">{{ rvCtxTitle }}</b>
+      <span style="color:var(--ink2)">{{ rvCtxText }}</span>
+    </div>
+    <textarea value="{{ rvIn }}" onChange="{{ onRvIn }}" rows="8" placeholder="הדבקת תשובת ה-AI…" style="width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;font:14px/1.7 Rubik,sans-serif;resize:vertical"></textarea>
+    <div style="display:flex;gap:9px;margin-top:12px">
+      <button onClick="{{ onRvGo }}" style="{{ primaryBtn }}">החזרת שמות</button>
+      <button onClick="{{ onLoadProf }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">טעינת פרופיל תיק</button>
+    </div>
+    <sc-if value="{{ rvOut }}">
+      <div style="margin-top:20px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;font:15px/1.9 'Noto Serif Hebrew',serif;white-space:pre-wrap">{{ rvOut }}</div>
+      <button onClick="{{ onRvCopy }}" style="margin-top:11px;padding:11px 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-size:14px;font-weight:500" style-hover="background:var(--panel2)">{{ rvCopyLabel }}</button>
+    </sc-if>
+  </main>
+  </sc-if>
+
+  <!-- ═════ סביבת העבודה ═════ -->
+  <sc-if value="{{ isWork }}">
+  <main style="{{ workGrid }}">
+
+    <sc-if value="{{ narrow }}">
+      <div style="display:flex;gap:6px;background:var(--panel2);border-radius:9px;padding:3px;margin-bottom:12px">
+        <button onClick="{{ onPaneFind }}" style="{{ paneFindStyle }}">ממצאים ובדיקה</button>
+        <button onClick="{{ onPaneDoc }}" style="{{ paneDocStyle }}">המסמך</button>
+      </div>
+    </sc-if>
+
+    <section style="{{ docPaneStyle }}">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line2);background:var(--panel)">
+        <b style="font-weight:500;font-size:13.5px">{{ docTitle }}</b>
+        <span style="font-size:12.5px;color:var(--ink3)">{{ docSub }}</span>
+        <div style="margin-inline-start:auto;display:flex;align-items:center;gap:10px">
+          <sc-if value="{{ hasMarks }}">
+            <div style="display:flex;align-items:center;gap:2px">
+              <button onClick="{{ onPrevMark }}" aria-label="החלפה קודמת" style="width:26px;height:26px;border-radius:7px;color:var(--ink2);font-size:12px" style-hover="background:var(--panel2)">›</button>
+              <span style="font-size:12px;color:var(--ink3);min-width:52px;text-align:center">{{ markNav }}</span>
+              <button onClick="{{ onNextMark }}" aria-label="החלפה הבאה" style="width:26px;height:26px;border-radius:7px;color:var(--ink2);font-size:12px" style-hover="background:var(--panel2)">‹</button>
+            </div>
+          </sc-if>
+          <div style="display:flex;gap:4px;background:var(--panel2);border-radius:8px;padding:3px">
+            <button onClick="{{ onViewRed }}" style="{{ viewRedStyle }}">מושחר</button>
+            <button onClick="{{ onViewOrig }}" style="{{ viewOrigStyle }}">מקור</button>
+          </div>
+        </div>
+      </div>
+      <div ref="{{ sheetRef }}" onMouseUp="{{ onSheetSelect }}" style="background:var(--panel2);max-height:calc(100vh - 220px);overflow:auto;padding:22px 0 40px">
+        <div style="width:min(720px,calc(100% - 44px));margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 18px 40px -30px rgba(0,0,0,.5);padding:56px 60px;font-size:16px;line-height:1.95;font-family:var(--doc-font)">
+          <sc-for list="{{ sheet }}" as="blk" hint-placeholder-count="8">
+            <sc-if value="{{ blk.head }}">
+              <div style="font:500 10.5px/1 Rubik,sans-serif;letter-spacing:.09em;color:var(--ink3);border-bottom:1px solid var(--line2);padding-bottom:7px;margin:26px 0 14px">{{ blk.part }}</div>
+            </sc-if>
+            <div style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:14px;margin-bottom:11px;align-items:baseline">
+              <span style="font:400 10.5px/2 Rubik,sans-serif;color:var(--ink3);text-align:end">{{ blk.n }}</span>
+              <p style="margin:0;text-wrap:pretty"><sc-for list="{{ blk.segs }}" as="sg" hint-placeholder-count="3"><sc-if value="{{ sg.plain }}"><span>{{ sg.t }}</span></sc-if><sc-if value="{{ sg.mark }}"><span data-mark="{{ sg.id }}" onClick="{{ sg.onClick }}" title="{{ sg.title }}" style="{{ sg.style }}">{{ sg.t }}</span></sc-if></sc-for></p>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <aside style="{{ railStyle }}">
+
+      <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:13px 15px">
+        <div style="font-size:12px;font-weight:500;color:var(--ink3);letter-spacing:.05em;margin-bottom:9px">הוספה ידנית</div>
+        <div style="display:flex;gap:7px">
+          <input value="{{ addV }}" onChange="{{ onAddV }}" onKeyDown="{{ onAddKey }}" placeholder="ערך שפוספס" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px">
+          <input value="{{ addR }}" onChange="{{ onAddR }}" onKeyDown="{{ onAddKey }}" placeholder="תחליף" style="flex:0 0 106px;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px">
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:9px">
+          <sc-for list="{{ kindChips }}" as="k" hint-placeholder-count="7">
+            <button onClick="{{ k.onClick }}" style="{{ k.style }}">{{ k.label }}</button>
+          </sc-for>
+          <button onClick="{{ onAdd }}" style="margin-inline-start:auto;padding:6px 14px;border-radius:16px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:500">הוספה והחלפה</button>
+        </div>
+      </div>
+
+      <sc-for list="{{ sections }}" as="s" hint-placeholder-count="5">
+        <div style="{{ s.wrapStyle }}">
+          <button onClick="{{ s.onToggle }}" style="display:flex;align-items:center;gap:10px;width:100%;padding:13px 15px;text-align:start">
+            <span style="{{ s.dotStyle }}"></span>
+            <b style="font-weight:500;font-size:13.5px">{{ s.title }}</b>
+            <span style="font-size:12px;color:var(--ink3)">{{ s.count }}</span>
+            <span style="margin-inline-start:auto;color:var(--ink3);font-size:11px">{{ s.chev }}</span>
+          </button>
+
+          <sc-if value="{{ s.openReview }}">
+            <div style="padding:0 15px 15px">
+              <sc-for list="{{ nearItems }}" as="x" hint-placeholder-count="1">
+                <div style="border-top:1px solid var(--line2);padding:12px 0">
+                  <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+                    <span style="font-weight:500;color:var(--warn)">{{ x.value }}</span>
+                    <span style="font-size:12px;color:var(--ink2)">{{ x.tag }}</span>
+                  </div>
+                  <div style="font:13px/1.7 var(--doc-font);color:var(--ink2);margin-top:5px;padding-inline-start:9px;border-inline-start:2px solid var(--line)">{{ x.ctx.pre }}<b style="background:var(--warn-soft);color:var(--warn);font-weight:500">{{ x.ctx.hit }}</b>{{ x.ctx.post }}</div>
+                  <div style="display:flex;gap:6px;margin-top:8px">
+                    <button onClick="{{ x.onFix }}" style="padding:6px 12px;border-radius:15px;background:var(--warn);color:var(--panel);font-size:12.5px;font-weight:500">{{ x.fixLabel }}</button>
+                    <button onClick="{{ x.onSkip }}" style="padding:6px 12px;border-radius:15px;border:1px solid var(--line);font-size:12.5px;color:var(--ink2)">מילה אחרת</button>
+                  </div>
+                </div>
+              </sc-for>
+              <sc-for list="{{ sugItems }}" as="x" hint-placeholder-count="1">
+                <div style="border-top:1px solid var(--line2);padding:12px 0">
+                  <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+                    <span style="font-weight:500">{{ x.value }}</span>
+                    <span style="font-size:12px;color:var(--ink2)">{{ x.tag }}</span>
+                  </div>
+                  <div style="font:13px/1.7 var(--doc-font);color:var(--ink2);margin-top:5px;padding-inline-start:9px;border-inline-start:2px solid var(--line)">{{ x.ctx.pre }}<b style="background:var(--accent-soft);font-weight:500">{{ x.ctx.hit }}</b>{{ x.ctx.post }}</div>
+                  <div style="display:flex;gap:6px;margin-top:8px">
+                    <button onClick="{{ x.onAdd }}" style="padding:6px 12px;border-radius:15px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:500">כן, זה שם</button>
+                    <button onClick="{{ x.onNo }}" style="padding:6px 12px;border-radius:15px;border:1px solid var(--line);font-size:12.5px;color:var(--ink2)">לא</button>
+                  </div>
+                </div>
+              </sc-for>
+              <sc-if value="{{ reviewClean }}">
+                <div style="border-top:1px solid var(--line2);padding:14px 0 4px;font-size:13px;color:var(--ink2)">אין כאן ממצאים פתוחים. שיבושי כתיב ושמות שלא ברשימה יופיעו כאן אם יימצאו.</div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ s.openFindings }}">
+            <div style="padding:0 0 8px">
+              <div style="display:flex;gap:5px;padding:0 15px 10px;flex-wrap:wrap">
+                <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+                  <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+                </sc-for>
+              </div>
+              <div style="padding:0 15px 10px">
+                <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="חיפוש בממצאים" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:13px">
+              </div>
+              <div style="display:flex;gap:5px;padding:0 15px 10px;overflow-x:auto;scrollbar-width:none">
+                <sc-for list="{{ cats }}" as="c" hint-placeholder-count="4">
+                  <button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button>
+                </sc-for>
+              </div>
+              <div ref="{{ listRef }}" style="max-height:52vh;overflow:auto;border-top:1px solid var(--line2)">
+                <sc-for list="{{ groups }}" as="g" hint-placeholder-count="6">
+                  <div data-group="{{ g.key }}" onClick="{{ g.onClick }}" onMouseEnter="{{ g.onEnter }}" onMouseLeave="{{ g.onLeave }}" style="{{ g.style }}">
+                    <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+                      <span style="font-weight:500;font-size:14px">{{ g.value }}</span>
+                      <span style="color:var(--ink3);font-size:13px">{{ g.arrow }}</span>
+                      <span style="{{ g.repStyle }}">{{ g.rep }}</span>
+                      <sc-if value="{{ g.review }}"><span style="font-size:10.5px;font-weight:500;padding:2px 7px;border-radius:12px;background:var(--warn-soft);color:var(--warn)">לאישור</span></sc-if>
+                      <span style="margin-inline-start:auto;font-size:11.5px;font-weight:500;color:var(--ink3);background:var(--panel2);border-radius:10px;padding:1px 7px">{{ g.count }}×</span>
+                    </div>
+                    <div style="font-size:12.5px;color:var(--ink2);margin-top:3px;line-height:1.45">{{ g.why }}</div>
+                    <div style="font-size:11.5px;color:var(--ink3);margin-top:2px">{{ g.meta }}</div>
+                    <div style="font:13px/1.7 var(--doc-font);color:var(--ink2);margin-top:6px;padding-inline-start:9px;border-inline-start:2px solid var(--line)">{{ g.ctx.pre }}<b style="background:var(--accent-soft);font-weight:500">{{ g.ctx.hit }}</b>{{ g.ctx.post }}</div>
+                    <sc-if value="{{ g.selected }}">
+                      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--line2)">
+                        <sc-if value="{{ g.applied }}">
+                          <input value="{{ g.repDraft }}" onChange="{{ g.onRepChange }}" onClick="{{ g.stop }}" onKeyDown="{{ g.onRepKey }}" placeholder="תחליף" style="width:120px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12.5px">
+                          <button onClick="{{ g.onSave }}" style="padding:6px 11px;border-radius:14px;background:var(--accent);color:var(--panel);font-size:12px;font-weight:500">שמירת תחליף</button>
+                          <button onClick="{{ g.onAllow }}" style="padding:6px 11px;border-radius:14px;border:1px solid var(--line);font-size:12px;color:var(--ink2)">אל תחליף</button>
+                          <sc-if value="{{ g.showSame }}">
+                            <select onChange="{{ g.onSame }}" onClick="{{ g.stop }}" style="background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:6px 10px;font-size:12px;max-width:150px;color:var(--ink2)">
+                              <option value="">זה אותו אחד כמו…</option>
+                              <sc-for list="{{ g.sameOpts }}" as="o" hint-placeholder-count="2">
+                                <option value="{{ o.value }}">{{ o.label }}</option>
+                              </sc-for>
+                            </select>
+                          </sc-if>
+                        </sc-if>
+                        <sc-if value="{{ g.flagged }}">
+                          <span style="font-size:12px;color:var(--ink2);align-self:center">מה זה?</span>
+                          <sc-for list="{{ g.kinds }}" as="k" hint-placeholder-count="4">
+                            <button onClick="{{ k.onClick }}" style="padding:6px 11px;border-radius:14px;border:1px solid var(--line);font-size:12px" style-hover="background:var(--accent-soft);color:var(--accent)">{{ k.label }}</button>
+                          </sc-for>
+                        </sc-if>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ groupsEmpty }}">
+                  <div style="padding:16px;color:var(--ink3);font-size:13px">אין ממצאים בקטגוריה הזאת.</div>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ s.openAi }}">
+            <div style="padding:0 15px 15px">
+              <p style="margin:0 0 10px;font-size:12.5px;color:var(--ink2);line-height:1.55">מעתיקים את הטקסט המושחר לכלי ה-AI במקום את המסמך המקורי, ואת התשובה מדביקים כאן — השמות החלופיים יוחלפו בשמות האמיתיים.</p>
+              <textarea value="{{ aiIn }}" onChange="{{ onAiIn }}" placeholder="הדבקת תשובת ה-AI…" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px;font:13.5px/1.6 Rubik,sans-serif;min-height:88px;resize:vertical"></textarea>
+              <div style="display:flex;gap:7px;margin-top:8px">
+                <button onClick="{{ onAiGo }}" style="flex:1;padding:10px;border-radius:10px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500">החזרת שמות</button>
+                <button onClick="{{ onAiCopy }}" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500">{{ aiCopyLabel }}</button>
+              </div>
+              <sc-if value="{{ aiWarn }}"><div style="margin-top:9px;font-size:12.5px;color:var(--warn);line-height:1.5">{{ aiWarn }}</div></sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ s.openProfile }}">
+            <div style="padding:0 15px 15px">
+              <p style="margin:0 0 10px;font-size:12.5px;color:var(--ink2);line-height:1.55">שמירת רשימת הצדדים והשמות החלופיים, כדי שאותו אדם יקבל את אותו שם בכל מסמכי התיק.</p>
+              <div style="display:flex;gap:7px">
+                <button onClick="{{ onSaveProf }}" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500" style-hover="background:var(--panel2)">שמירת פרופיל</button>
+                <button onClick="{{ onLoadProf }}" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500" style-hover="background:var(--panel2)">טעינת פרופיל</button>
+              </div>
+              <sc-if value="{{ hasMine }}">
+                <div style="margin-top:13px;border-top:1px solid var(--line2)">
+                  <sc-for list="{{ mineItems }}" as="m" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line2);font-size:13px">
+                      <span style="font-size:11px;font-weight:500;color:var(--ink2);background:var(--panel2);border-radius:10px;padding:2px 8px">{{ m.kind }}</span>
+                      <span>{{ m.value }}</span>
+                      <sc-if value="{{ m.rep }}"><span style="color:var(--accent-ink);font-size:12.5px">← {{ m.rep }}</span></sc-if>
+                      <button onClick="{{ m.onDel }}" style="margin-inline-start:auto;color:var(--ink3);width:24px;height:24px;border-radius:50%" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ s.openClean }}">
+            <div style="padding:0 15px 15px">
+              <sc-for list="{{ stats }}" as="st" hint-placeholder-count="4">
+                <div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line2);font-size:13px">
+                  <span style="color:var(--ink2)">{{ st.label }}</span><b style="font-weight:500">{{ st.value }}</b>
+                </div>
+              </sc-for>
+              <button onClick="{{ onReport }}" style="margin-top:12px;width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500" style-hover="background:var(--panel2)">הורדת דוח השחרה</button>
+              <p style="margin:8px 0 0;font-size:12px;color:var(--ink3);line-height:1.6">הדוח מפרט מה הוחלף במה, מה סומן לבדיקה ומה נוקה מהקובץ — לתיק הפנימי, לא לשליחה.</p>
+              <p style="margin:12px 0 0;font-size:12px;color:var(--ink3);line-height:1.6">האימות מוודא שהערכים שזוהו נעלמו מכל חלקי הקובץ, ומחפש כתיב שנבדל מהם בתו אחד. שיבוש של שני תווים ומעלה, טקסט בתוך תמונה או קובץ מוטמע, ושם שאף פעם לא זוהה — אינם נסרקים.</p>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </aside>
+  </main>
+
+  <div style="position:fixed;inset-inline:0;bottom:0;z-index:35;background:var(--panel);border-top:1px solid var(--line);padding:11px 22px">
+    <div style="max-width:1520px;margin:0 auto;display:flex;align-items:center;gap:16px">
+      <span style="{{ statusDot }}">{{ statusIcon }}</span>
+      <div style="flex:1;min-width:0">
+        <b style="display:block;font-weight:500;font-size:13.5px">{{ statusTitle }}</b>
+        <small style="display:block;color:var(--ink2);font-size:12.5px;line-height:1.45">{{ statusText }}</small>
+      </div>
+      <sc-if value="{{ hasReview }}">
+        <button onClick="{{ onOpenReview }}" style="font-size:13px;padding:10px 14px;border-radius:9px;border:1px solid var(--line);white-space:nowrap;color:var(--warn)" style-hover="background:var(--warn-soft)">פתיחת הבדיקה</button>
+      </sc-if>
+      <button onClick="{{ onBackHome }}" style="font-size:13px;color:var(--ink2);padding:10px;white-space:nowrap" style-hover="color:var(--ink)">מסמך חדש</button>
+      <button onClick="{{ onCopyAi }}" style="{{ copyBtnStyle }}">{{ copyLabel }}</button>
+      <button onClick="{{ onDownload }}" style="padding:11px 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">הורדת Word</button>
+    </div>
+  </div>
+
+  <sc-if value="{{ popup }}">
+    <div style="{{ popupStyle }}">
+      <div style="font-size:12.5px;color:var(--ink2);margin-bottom:8px">הוספת <b style="color:var(--ink)">{{ popupText }}</b> בתור:</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        <sc-for list="{{ popupKinds }}" as="k" hint-placeholder-count="4">
+          <button onClick="{{ k.onClick }}" style="padding:6px 11px;border-radius:14px;border:1px solid var(--line);font-size:12.5px" style-hover="background:var(--accent-soft);color:var(--accent)">{{ k.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},
+&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
+&quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
+&quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen:"entry", theme:"light", ready:false, E:null,
+    mode:"real", o:{auto:true, places:true, ner:true, near:true},
+    nerOff:false, nerHint:"", nerMsg:"", nerPct:null, nerBox:false, nerUsed:false,
+    buf:null, name:"", cands:[], peo:[], peoIn:"", peoNote:"", scanning:false,
+    rules:[], allow:[], res:null, profile:null,
+    sel:null, filter:"all", cat:"", open:null, pane:"doc", hot:null,
+    addV:"", addR:"", addK:"NAME",
+    aiIn:"", aiWarn:"", aiCopyLabel:"העתקת טקסט מושחר",
+    rvIn:"", rvOut:"", rvCopyLabel:"העתקת הטקסט המשוחזר",
+    copyLabel:"העתקה ל-AI", busyT:"מעבד…", err:"",
+    geo:null, geoV:0, geoNames:[], geoEdits:{}, popup:null, repDraft:""
+  };
+
+  async componentDidMount(){
+    try{
+      const E = await import((window.__resources && window.__resources.engine) || "./redact-engine.js");
+      window.__RE = E;
+      E.setNerSay((t,p)=>this.setState({nerMsg:t||"", nerPct:p}));
+      this.setState({E, ready:true});
+      this.nerStatus(E);
+    }catch(e){ this.setState({err:"טעינת המנוע נכשלה: "+(e.message||e)}); }
+    let th="light";
+    try{ th = localStorage.getItem("redact-theme") || (matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"); }catch(_){}
+    this.applyTheme(th);
+    let seen=false; try{ seen = localStorage.getItem("redact-intro-seen")==="1"; }catch(_){}
+    this.setState({theme:th, intro:!seen});
+    this.applyProps();
+    this._resize = () => { const n = innerWidth < 1120; if(n!==this.state.narrow) this.setState({narrow:n}); };
+    this._resize();
+    addEventListener("resize", this._resize);
+    this._docClick = e => { if(this.state.popup && !e.target.closest("[data-popup]")) this.setState({popup:null}); };
+    document.addEventListener("mousedown", this._docClick);
+  }
+  componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); removeEventListener("resize", this._resize); }
+  componentDidUpdate(){ this.applyProps(); }
+  applyProps(){
+    const r=document.documentElement.style;
+    const accents={forest:["#1F5B44","#E6EFE9","#79D3A8"], ink:["#1F3F63","#E4EBF3","#7FB6EE"], plum:["#5A2B4C","#F0E6EE","#DC9BC9"]};
+    const a=accents[this.props.accent] || accents.forest;
+    const dark=document.documentElement.classList.contains("dark");
+    r.setProperty("--accent", dark?a[2]:a[0]);
+    r.setProperty("--accent-ink", dark?a[2]:a[0]);
+    r.setProperty("--accent-soft", dark?a[2]+"22":a[1]);
+    r.setProperty("--doc-font", this.props.docFont==="sans"?"Rubik,sans-serif":"'Noto Serif Hebrew',serif");
+    r.setProperty("--rail-w", (this.props.railWidth ?? 404)+"px");
+  }
+
+  applyTheme(t){
+    document.documentElement.classList.toggle("dark", t==="dark");
+    try{ localStorage.setItem("redact-theme", t); }catch(_){}
+  }
+  toggleTheme = () => { const t = this.state.theme==="dark"?"light":"dark"; this.applyTheme(t); this.setState({theme:t}); };
+
+  async nerStatus(E){
+    const env = E.nerEnv();
+    if(env.local){
+      this.setState({nerOff:true, o:{...this.state.o, ner:false},
+        nerHint:"מקובץ מקומי המודל לא נטען — דפדפנים חוסמים טעינת מודלים בקבצים שנפתחים ישירות מהמחשב. שאר הזיהוי עובד כרגיל."});
+      return;
+    }
+    const has = await E.nerCached();
+    this.setState({nerOff:false, nerHint: has
+      ? "המודל שמור במחשב. אין הורדה נוספת, וזה עובד גם בלי אינטרנט."
+      : "בהפעלה הראשונה יורדים כ-180MB. אחר כך המודל נשאר במחשב."});
+  }
+
+  /* ── קליטת קובץ ── */
+  pickFile = () => this.fileEl && this.fileEl.click();
+  onDragOver = e => { e.preventDefault(); this.setState({drag:true}); };
+  onDragLeave = () => this.setState({drag:false});
+  onDropFile = e => { e.preventDefault(); this.setState({drag:false});
+    const f = e.dataTransfer && e.dataTransfer.files[0]; if(f) this.load(f); };
+  onFile = e => { const f=e.target.files[0]; if(f) this.load(f); e.target.value=""; };
+
+  async load(f){
+    const E=this.state.E; if(!E) return;
+    if(!/\.(docx|pdf)$/i.test(f.name)){ this.setState({err:"נדרש קובץ docx או PDF. קובץ doc ישן דורש המרה ב-Word."}); return; }
+    let buf; try{ buf = await f.arrayBuffer(); }catch(_){ this.setState({err:"קריאת הקובץ נכשלה."}); return; }
+    if(/\.pdf$/i.test(f.name)) return this.loadPdf(buf, f);
+    let meta="";
+    try{
+      const blocks=await this.blocksOf(buf);
+      const chars=blocks.reduce((a,b)=>a+b.text.length,0);
+      const size = chars>=1000 ? `כ-${(chars/1000).toFixed(1)} אלף תווים` : `${chars} תווים`;
+      meta=`${blocks.length===1?"פסקה אחת":blocks.length+" פסקאות"} · ${size} · ${Math.round(f.size/1024)} KB`;
+      this.setState({origBlocks:blocks.map(b=>({part:b.part, text:b.text}))});
+    }catch(_){ meta=Math.round(f.size/1024)+" KB"; }
+    this.setState({err:"", name:f.name, buf, pending:true, pendMeta:meta});
+  }
+
+  async loadPdf(raw, f){
+    this.setState({err:"", screen:"busy", busyT:"קורא את ה-PDF…"});
+    try{
+      const {pdfToText} = await import((window.__resources && window.__resources.pdftext) || "./pdf-text.js");
+      const {text, pages, scanned} = await pdfToText(raw);
+      if(scanned || !text){
+        this.setState({screen:"entry", err:"ב-PDF הזה כמעט אין טקסט — כנראה מסמך סרוק או צילום. הכלי עובד על טקסט בלבד, ולכן אין בו מה להחליף. אפשר להריץ המרה ל-Word עם זיהוי תווים, ואז להעלות את הקובץ."});
+        return;
+      }
+      const {textToDocx} = await import((window.__resources && window.__resources.todocx) || "./text-to-docx.js");
+      const buf = await textToDocx(text);
+      const blocks = await this.blocksOf(buf);
+      this.setState({screen:"entry", buf, name:f.name, pending:true,
+        origBlocks:blocks.map(b=>({part:b.part, text:b.text})),
+        pendMeta:`${pages===1?"עמוד אחד":pages+" עמודים"} · ${blocks.length} פסקאות · טקסט חולץ מ-PDF`});
+    }catch(e){
+      this.setState({screen:"entry", err:"קריאת ה-PDF נכשלה ("+String(e.message||e).slice(0,60)+"). אפשר להמיר ל-Word ולהעלות שוב."});
+    }
+  }
+
+  buildReport(){
+    const S=this.state, RES=S.res, E=S.E;
+    const esc=s=>String(s==null?"":s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+    const rows=new Map();
+    for(const r of RES.applied){
+      const k=E.norm(r.value).trim()+"|"+(r.rep||"");
+      const g=rows.get(k)||{value:r.value, rep:r.rep, label:r.label, parts:new Set(), n:0};
+      g.n++; g.parts.add(r.part); rows.set(k,g);
+    }
+    const flagged=new Map();
+    for(const r of RES.flagged){
+      const k=E.norm(r.value).trim();
+      const g=flagged.get(k)||{value:r.value, label:r.label, why:r.why, n:0};
+      g.n++; flagged.set(k,g);
+    }
+    const v=RES.verification;
+    const st=RES.structural;
+    const clean=[["טקסט שנמחק במעקב שינויים",st.del],["שינויים שהתקבלו",st.ins],["סימוני הערות",st.cm],
+      ["חלקים שהוסרו",st.dropped.length],["שדות מטא-דאטה",st.meta.length],["קישורים שנוטרלו",st.rels.length],
+      ["מזהי עריכה",st.rsid],["החלפות אחידות",st.sweep]].filter(x=>x[1]);
+    const modeName={real:"שם חלופי",label:"פלוני א׳",block:"███"}[S.mode];
+    return `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
+<title>דוח השחרה — ${esc(S.name)}</title>
+<style>body{font:14px/1.6 "Rubik",system-ui,sans-serif;color:#16211C;max-width:820px;margin:40px auto;padding:0 24px}
+h1{font-size:22px;font-weight:500;margin:0 0 4px}h2{font-size:15px;font-weight:500;margin:28px 0 8px}
+.sub{color:#5D6A63;font-size:13px;margin:0 0 6px}
+table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:start;font-weight:500;color:#5D6A63;border-bottom:1px solid #ddd;padding:6px 4px}
+td{border-bottom:1px solid #f0f0f0;padding:6px 4px;vertical-align:top}
+.warn{background:#FAF0E2;padding:10px 12px;border-radius:8px;font-size:13px;margin:14px 0}
+@media print{body{margin:0}}</style></head><body>
+<h1>דוח השחרה</h1>
+<p class="sub">${esc(S.name)} · ${new Date().toLocaleString("he-IL")} · מצב החלפה: ${esc(modeName)}</p>
+<div class="warn">הדוח מכיל את הפרטים המקוריים לצד התחליפים. הוא נועד לתיק הפנימי — אין לשלוח אותו לכלי AI או לצד שלישי.</div>
+<h2>סטטוס אימות</h2>
+<p class="sub">${v.passed?"לא נמצאו שרידים של ערכים שהוחלפו בקובץ המושחר":"האימות נכשל — נמצאו שרידים"} ·
+נסרקו ${v.parts} חלקים · ${(v.near||[]).length} מילים בכתיב דומה · ${(v.suggest||[]).length} שמות שלא ברשימה · ${v.embedded.length} קבצים מוטמעים שלא נסרקו</p>
+<h2>הוחלף (${rows.size})</h2>
+<table><tr><th>ערך במקור</th><th>הוחלף ב</th><th>סוג</th><th>מופעים</th><th>היכן</th></tr>
+${[...rows.values()].sort((a,b)=>b.n-a.n).map(r=>`<tr><td>${esc(r.value)}</td><td>${esc(r.rep)}</td><td>${esc(r.label)}</td><td>${r.n}</td><td>${esc([...r.parts].join(", "))}</td></tr>`).join("")}</table>
+${flagged.size?`<h2>סומן לבדיקה ולא הוחלף (${flagged.size})</h2>
+<table><tr><th>ערך</th><th>סוג</th><th>סיבה</th><th>מופעים</th></tr>
+${[...flagged.values()].map(r=>`<tr><td>${esc(r.value)}</td><td>${esc(r.label)}</td><td>${esc(r.why)}</td><td>${r.n}</td></tr>`).join("")}</table>`:""}
+${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><td>${esc(l)}</td><td>${n}</td></tr>`).join("")}</table>`:""}
+<h2>מגבלות</h2>
+<p class="sub">האימות מוודא שהערכים שזוהו נעלמו מערוצי הטקסט של הקובץ, ומחפש כתיב שנבדל מהם בתו אחד. טקסט בתוך תמונה, קובץ מוטמע או תרשים אינו נסרק, וגם שם שלא זוהה מעולם לא ייתפס.</p>
+</body></html>`;
+  }
+  downloadReport = () => {
+    if(!this.state.res) return;
+    const blob=new Blob([this.buildReport()],{type:"text/html;charset=utf-8"});
+    const u=URL.createObjectURL(blob), a=document.createElement("a");
+    a.href=u; a.download=(this.state.name.replace(/\.(docx|pdf)$/i,"")||"מסמך")+"_דוח-השחרה.html";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(u), 4000);
+  };
+
+  usePastedText = async () => {
+    const txt=(this.state.pasteText||"").trim();
+    if(txt.length<20){ this.setState({err:"צריך קצת יותר טקסט כדי שהזיהוי יעבוד."}); return; }
+    try{
+      const {textToDocx} = await import((window.__resources && window.__resources.todocx) || "./text-to-docx.js");
+      const buf = await textToDocx(txt);
+      const blocks = await this.blocksOf(buf);
+      const chars = txt.length;
+      this.setState({err:"", buf, name:"טקסט שהודבק", pending:true,
+        origBlocks:blocks.map(b=>({part:b.part, text:b.text})),
+        pendMeta:`${blocks.length===1?"פסקה אחת":blocks.length+" פסקאות"} · ${chars>=1000?`כ-${(chars/1000).toFixed(1)} אלף תווים`:chars+" תווים"} · טקסט מודבק`});
+    }catch(e){ this.setState({err:"הכנת הטקסט נכשלה: "+(e.message||e)}); }
+  };
+
+  start = async () => {
+    if(!this.state.buf) return;
+    this.setState({pending:false});
+    if(!this.state.o.auto){ this.setState({peo:[], cands:[]}); this.toPlaces([]); return; }
+    return this.scanNames();
+  };
+
+  async scanNames(){
+    const E=this.state.E, buf=this.state.buf;
+    this.setState({screen:"busy", busyT:"מאתר שמות…"});
+    try{
+      const blocks = await this.blocksOf(buf);
+      const cands = E.discover(blocks);
+      this.setState({cands, nerUsed:false});
+      this.showPeople(blocks, cands);
+    }catch(e){ this.setState({err:e.message||"שגיאה בקריאת הקובץ", screen:"entry"}); }
+  }
+
+  async blocksOf(buf){
+    const E=this.state.E;
+    const files = await E.unzip(buf.slice(0));
+    let blocks=[];
+    for(const fl of files) if(E.TEXTPART.test(fl.name)){
+      const d = E.parseXML(E.TXT.decode(fl.data)); E.acceptTracked(d);
+      blocks = blocks.concat(E.flatten(d, fl.name));
+    }
+    return blocks;
+  }
+
+  /* ── מי בתיק ── */
+  async showPeople(blocks, cands){
+    const E=this.state.E;
+    const dt=new Set();
+    for(const c of cands) for(const w of c.value.split(/\s+/)) dt.add(w);
+    const peo=[];
+    for(const c of cands){
+      if(c.conf!=="high" || !c.value.includes(" ")) continue;
+      const w=c.value.split(/\s+/);
+      if(w.length>3 || !w.every(x=>x.length>=2 && E.nameish(x,dt))) continue;
+      if(w[0][0]==="ו" || w.some(x=>x[0]==="ה")) continue;
+      peo.push({value:c.value, note:"מהכותרת", auto:true, g:c.g, kind:"NAME"});
+    }
+    this.setState({peo, peoIn:"", screen:"people", nerBox:false});
+    if(!(this.state.o.ner && blocks && blocks.length)){
+      this.setState({nerUsed:false, peoNote: peo.length
+        ? `${peo.length===1?"זוהה שם אחד":"זוהו "+peo.length+" שמות"} בכותרת המסמך. כדאי להוסיף כל מי שמוזכר בגוף הטקסט — עדים, אנשי מקצוע, בני משפחה.`
+        : "לא זוהו שמות בכותרת. אפשר להקליד את מי שמוזכר במסמך."});
+      return;
+    }
+    const my = this._scan = (this._scan||0) + 1;
+    this.setState({nerBox:true, peoNote:"", scanning:true, nerMsg:"טוען את המודל…", nerPct:0});
+    try{
+      const t0=Date.now();
+      const found = await E.nerRun(blocks, pct=>{
+        if(my!==this._scan) return;
+        const el=Math.round((Date.now()-t0)/1000);
+        const left = pct>4 ? Math.round(el*(100-pct)/pct) : 0;
+        this.setState({nerMsg:`סורק את המסמך… ${Math.round(pct)}%`+(left>4?`  ·  נותרו כ-${left} שניות`:""), nerPct:pct});
+      });
+      if(my!==this._scan) return;
+      const list=[...this.state.peo]; let added=0;
+      for(const f of found){
+        if(list.some(p=>E.norm(p.value)===E.norm(f.value))) continue;
+        list.push({value:f.value, kind:f.kind, g:null, auto:true, note:f.n>1?`נמצא ${f.n}×`:"נמצא במסמך"});
+        added++;
+      }
+      this.setState({peo:list, nerBox:false, nerUsed:added>0, peoNote: added
+        ? `נמצאו ${list.length} שמות ומולאו ברשימה. כדאי לעבור עליהם: להסיר מה שאינו פרט מזהה, ולתקן סוג בלחיצה על התג.`
+        : "המודל רץ ולא מצא שמות מעבר למה שברשימה. אפשר להקליד שמות נוספים למטה."});
+    }catch(e){
+      if(my!==this._scan) return;
+      this.setState({nerBox:false, peoNote:"המודל לא נטען ("+String(e.message||e).slice(0,70)+"). ממשיכים בלעדיו — הזיהוי הרגיל פועל, ובסוף התהליך תוצג בדיקה על שמות שלא נרשמו."});
+    }finally{ if(my===this._scan) this.setState({scanning:false}); }
+  }
+
+  peoAdd = (txt, note, auto) => {
+    const E=this.state.E; const list=[...this.state.peo];
+    for(const raw of String(txt||"").split(/[\n,;]+/)){
+      const {v, note:n2, kind} = E.cleanEntry(raw);
+      if(v.length<2) continue;
+      if(list.some(p=>E.norm(p.value)===E.norm(v))) continue;
+      list.push({value:v, kind, g:null, auto:!!auto, note:note||n2});
+    }
+    this.setState({peo:list});
+  };
+  cycleKind = i => { const list=[...this.state.peo]; const ks=["NAME","ORG","PLACE"];
+    list[i]={...list[i], kind:ks[(ks.indexOf(list[i].kind)+1)%ks.length], note:""};
+    this.setState({peo:list}); };
+  delPeo = i => { const list=[...this.state.peo]; list.splice(i,1); this.setState({peo:list}); };
+
+  /* ── מקומות ── */
+  async toPlaces(rows){
+    const E=this.state.E;
+    const rules = rows.map(r=>({...r}));
+    this.setState({rules, allow:[]});
+    if(!this.state.o.places){ this.run(rules); return; }
+    this.loadAtlas();
+    try{
+      const blocks = await this.blocksOf(this.state.buf);
+      const text = E.norm(blocks.map(b=>b.text).join("\n"));
+      const found = E.PLACES.map(p=>p.n).filter(n =>
+        new RegExp("(?<![\\u0590-\\u05ff])(?:[בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?"+E.esc(n)+"(?![\\u0590-\\u05ff])","u").test(text));
+      if(found.length<2){ this.setState({screen:"places", geo:null, geoNames:[]}); return; }
+      const geo = E.geoMap(found, 0);
+      this.setState({screen:"places", geo, geoNames:found, geoEdits:{}, geoV:0});
+    }catch(e){ this.run(rules); }
+  }
+  /* קובץ גיאומטריה אחד (Natural Earth דרך world-atlas) נטען פעם אחת ונשמר במטמון הדפדפן.
+     הבקשה זהה לכל מסמך ולא מכילה שום דבר מהתיק — בלי אריחי מפה לפי מיקום. */
+  loadAtlas = async () => {
+    if(this.state.atlas || this._atlasBusy) return;
+    this._atlasBusy = true;
+    for(let i=0;i<30 && !(window.d3 && window.topojson);i++) await new Promise(r=>setTimeout(r,150));
+    if(!(window.d3 && window.topojson)){ this._atlasBusy=false; return; }
+    try{
+      const t = await (await fetch((window.__resources && window.__resources.atlas) || "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json")).json();
+      this.setState({atlas: window.topojson.feature(t, t.objects.countries)});
+    }catch(_){ }
+    this._atlasBusy = false;
+  };
+  mapView(){
+    const E=this.state.E, geo=this.state.geo; if(!geo||!E) return null;
+    const P=E.PLACE_BY, W=150, H=340, pad=12;
+    const rows=geo.map.map(m=>({fl:m.from, tl:m.to, f:P[m.from], t:P[m.to]})).filter(r=>r.f&&r.t);
+    if(!rows.length) return null;
+    const d3=window.d3, A=this.state.atlas;
+    let land="", proj=null;
+    if(A && d3){
+      try{
+        proj=d3.geoMercator().fitExtent([[pad,pad],[W-pad,H-pad]],
+          {type:"MultiPoint", coordinates:[[34.15,29.35],[35.95,33.4]]});
+        land=d3.geoPath(proj)(A)||"";
+      }catch(_){ proj=null; land=""; }
+    }
+    let from, to;
+    if(proj){
+      const at=p=>{ const c=proj([p.o, p.a]); return {x:c[0], y:c[1]}; };
+      from=rows.map(r=>({label:r.fl, ...at(r.f)}));
+      to=rows.map(r=>({label:r.tl, ...at(r.t)}));
+    } else {
+      const pr=p=>({x:p.o*Math.cos(p.a*Math.PI/180), y:-p.a});
+      const F=rows.map(r=>pr(r.f)), T=rows.map(r=>pr(r.t));
+      const span=a=>{ const xs=a.map(p=>p.x), ys=a.map(p=>p.y);
+        return Math.max(Math.max(...xs)-Math.min(...xs), Math.max(...ys)-Math.min(...ys)) || 0.02; };
+      const sc=(H-2*pad)/Math.max(span(F), span(T));
+      const fit=(a, labels)=>{ const xs=a.map(p=>p.x), ys=a.map(p=>p.y);
+        const cx=(Math.min(...xs)+Math.max(...xs))/2, cy=(Math.min(...ys)+Math.max(...ys))/2;
+        return a.map((p,i)=>({label:labels[i], x:W/2+(p.x-cx)*sc, y:H/2+(p.y-cy)*sc})); };
+      from=fit(F, rows.map(r=>r.fl)); to=fit(T, rows.map(r=>r.tl));
+    }
+    const dot=p=>({label:p.label,
+      style:`position:absolute;left:${p.x.toFixed(1)}px;top:${p.y.toFixed(1)}px;`+
+        "transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none"});
+    return {land, hasLand:!!land, from:from.map(dot), to:to.map(dot)};
+  }
+
+  geoAlt = () => { const E=this.state.E; const v=this.state.geoV+1;
+    this.setState({geoV:v, geo:E.geoMap(this.state.geoNames, v), geoEdits:{}}); };
+  geoRemove = name => {
+    const E=this.state.E;
+    const names=this.state.geoNames.filter(n=>n!==name);
+    const allow=this.state.allow.includes(name)?this.state.allow:[...this.state.allow, name];
+    this.setState({geoNames:names, allow, geoEdits:{}, geoV:0,
+      geoExcluded:[...(this.state.geoExcluded||[]), name],
+      geo: names.length>=2 ? E.geoMap(names,0) : null});
+  };
+  geoRestore = name => {
+    const E=this.state.E;
+    const names=[...this.state.geoNames, name];
+    this.setState({geoNames:names, allow:this.state.allow.filter(a=>a!==name),
+      geoExcluded:(this.state.geoExcluded||[]).filter(x=>x!==name), geoEdits:{}, geoV:0,
+      geo: names.length>=2 ? E.geoMap(names,0) : null});
+  };
+  geoApply = () => {
+    const rules=[...this.state.rules], g=this.state.geo;
+    if(g) g.map.forEach((m,i)=>{
+      const to = (this.state.geoEdits[i] ?? m.to).trim();
+      if(to && !rules.some(r=>r.value===m.from)) rules.push({value:m.from, kind:"PLACE", replacement:to, auto:false});
+    });
+    this.setState({rules}); this.run(rules);
+  };
+
+  /* ── עיבוד ── */
+  opts(){
+    const E=this.state.E;
+    const on=new Set(E.PAT.filter(p=>p.on).map(p=>p.n));
+    const flag=new Set(E.PAT.filter(p=>!p.on).map(p=>p.n));
+    flag.add("NAME_ANCHORED");
+    if(this.state.o.places) on.add("PLACES"); else flag.add("PLACES");
+    return {on, flag, mode:this.state.mode, near:this.state.o.near, body:!this.state.nerUsed, prefixes:"normal"};
+  }
+  async run(rows){
+    const E=this.state.E;
+    const rules = rows ? rows.map(r=>({...r})) : this.state.rules;
+    this.setState({rules, sel:null, screen:"busy", busyT:"מעבד את המסמך…", err:""});
+    try{
+      const res = await E.redactDocx(this.state.buf.slice(0), rules, this.state.allow, this.opts());
+      // מגיעים למסמך עצמו קודם: הפאנלים מקופלים, פס הסטטוס אומר מה מחכה
+      this.setState({res, screen:"work", open:null, pane:"doc", docView:"red", markIdx:0});
+    }catch(e){ this.setState({err:"שגיאה בעיבוד: "+(e.message||e), screen:"entry", res:null}); }
+  }
+  async rerun(){
+    const E=this.state.E;
+    try{
+      const res = await E.redactDocx(this.state.buf.slice(0), this.state.rules, this.state.allow, this.opts());
+      this.setState({res, sel:null});
+    }catch(e){ this.setState({err:"שגיאה: "+(e.message||e)}); }
+  }
+  addRule = (value, kind, rep) => {
+    const E=this.state.E; value=E.trimEdges(value);
+    if(value.length<2){ this.setState({err:"נדרשים לפחות שני תווים."}); return; }
+    if(this.state.rules.some(r=>r.value===value)){ this.setState({err:"«"+value+"» כבר ברשימה."}); return; }
+    this.setState({rules:[...this.state.rules, {value, kind:kind||"NAME", replacement:(rep||"").trim(), auto:false}],
+      addV:"", addR:"", popup:null, err:""}, ()=>this.rerun());
+  };
+  dropRule = v => this.setState({rules:this.state.rules.filter(r=>r.value!==v)}, ()=>this.rerun());
+  addAllow = v => { if(this.state.allow.includes(v)) return;
+    this.setState({allow:[...this.state.allow, v], rules:this.state.rules.filter(r=>r.value!==v)}, ()=>this.rerun()); };
+  setRep = (v, rep) => {
+    const rules=[...this.state.rules]; const r=rules.find(x=>x.value===v);
+    if(r) r.replacement=rep.trim(); else rules.push({value:v, kind:"OTHER", replacement:rep.trim()});
+    this.setState({rules}, ()=>this.rerun());
+  };
+
+  /* ── קבוצות ממצאים ── */
+  groupsOf(){
+    const E=this.state.E, RES=this.state.res, src=[];
+    if(this.state.filter!=="flag") RES.applied.forEach((r,i)=>src.push({...r, ap:true, i}));
+    if(this.state.filter!=="rep") RES.flagged.forEach(r=>src.push({...r, ap:false, i:-1}));
+    const m=new Map();
+    for(const r of src){
+      const k=(r.ap?"a":"f")+"|"+E.norm(r.value).trim();
+      let g=m.get(k);
+      if(!g){ g={key:k, value:r.value, label:r.label, why:r.why, rep:r.rep, ap:r.ap,
+        review:r.review, count:0, ctxs:[], parts:new Set(), ids:[]}; m.set(k,g); }
+      g.count++;
+      if(g.ctxs.length<50) g.ctxs.push(r.ctx);
+      g.parts.add(r.part);
+      if(r.i>=0) g.ids.push(r.i);
+      if(r.review) g.review=true;
+    }
+    return [...m.values()].sort((x,y)=>y.count-x.count || x.value.localeCompare(y.value,"he"));
+  }
+  sugList(){
+    const E=this.state.E, RES=this.state.res;
+    return (RES.verification.suggest||[]).filter(x=>!this.state.allow.includes(x.value) &&
+      !this.state.rules.some(r=>E.norm(r.value)===E.norm(x.value)));
+  }
+  nearList(){
+    const RES=this.state.res;
+    return (RES.verification.near||[]).filter(x=>!this.state.allow.includes(x.value) &&
+      !this.state.rules.some(r=>r.value===x.value));
+  }
+  redactedText(){
+    return this.state.res.preview.filter(b=>!b.part.includes("טקסט חלופי"))
+      .map(b=>b.text).join("\n").replace(/\n{3,}/g,"\n\n").trim();
+  }
+  livePairs(){
+    const p=[]; const RES=this.state.res;
+    if(RES) for(const r of RES.applied) if(r.rep && r.value) p.push([r.value, r.rep]);
+    for(const r of this.state.rules) if(r.replacement) p.push([r.value, r.replacement]);
+    return p;
+  }
+  currentMap(){
+    const m={}, RES=this.state.res;
+    if(RES) for(const r of RES.applied){
+      const v=r.base||r.value, rp=r.baseRep||r.rep;
+      if(v&&rp&&rp!=="███"&&!(v in m)) m[v]=rp;
+    }
+    for(const r of this.state.rules) if(r.replacement) m[r.value]=r.replacement;
+    return m;
+  }
+  mergeInto(from, to){
+    const g=this.groupsOf().find(x=>x.value===to); const rep=(g&&g.rep)||"";
+    let rules=this.state.rules.filter(r=>r.value!==from);
+    if(!rules.some(r=>r.value===to)) rules=[...rules,{value:to, kind:"NAME", replacement:rep}];
+    this.setState({rules:[...rules,{value:from, kind:"NAME", replacement:rep}]}, ()=>this.rerun());
+  }
+
+  // בתוך iframe או בלי הרשאה, navigator.clipboard נחסם — יש נפילה חזרה ל-execCommand
+  legacyCopy(text){
+    try{
+      const ta=document.createElement("textarea");
+      ta.value=text; ta.setAttribute("readonly","");
+      ta.style.cssText="position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none";
+      document.body.appendChild(ta);
+      const sel=document.getSelection(), prev=sel && sel.rangeCount ? sel.getRangeAt(0) : null;
+      ta.focus(); ta.select(); ta.setSelectionRange(0, text.length);
+      const ok=document.execCommand("copy");
+      ta.remove();
+      if(prev && sel){ sel.removeAllRanges(); sel.addRange(prev); }
+      return ok;
+    }catch(_){ return false; }
+  }
+  async copyTo(text, key, label){
+    let ok=false;
+    try{ await navigator.clipboard.writeText(text); ok=true; }catch(_){ ok=false; }
+    if(!ok) ok=this.legacyCopy(text);
+    if(!ok){ this.setState({err:"ההעתקה נחסמה בדפדפן. אפשר לסמן את הטקסט ולהעתיק ידנית."}); return; }
+    this.setState({[key]:"הועתק ✓"});
+    setTimeout(()=>this.setState({[key]:label}), 1700);
+  }
+  copyAi = () => {
+    if(!this.state.res) return;
+    this.copyTo(this.redactedText(), "copyLabel", "העתקה ל-AI");
+    const v=this.state.res.verification;
+    const bits=[]; const sg=this.sugList().length, nr=this.nearList().length;
+    if(sg) bits.push(`${sg} שמות שאינם ברשימה`);
+    if(nr) bits.push(`${nr} מילים בכתיב דומה לשם שהוחלף`);
+    if(v.remaining.length) bits.push(`${v.remaining.length} ממצאים שלא הוחלפו`);
+    if(bits.length) this.setState({err:`הועתק, אבל בטקסט יש ${bits.join(" ו-")} — הם יגיעו ל-AI כמו שהם.`});
+  };
+  download = () => {
+    const RES=this.state.res; if(!RES) return;
+    const u=URL.createObjectURL(RES.blob), a=document.createElement("a");
+    a.href=u; a.download=(this.state.name.replace(/\.(docx|pdf|txt)$/i,"")||"מסמך")+"_מושחר.docx";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(u), 4000);
+  };
+  saveProfile = () => {
+    const prof={v:1, created:new Date().toISOString(), mode:this.state.mode,
+      rules:this.state.rules, allow:this.state.allow, map:this.currentMap()};
+    const blob=new Blob([JSON.stringify(prof,null,1)],{type:"application/json"});
+    const u=URL.createObjectURL(blob), a=document.createElement("a");
+    a.href=u; a.download="פרופיל-תיק.json"; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(u), 4000);
+  };
+  loadProfileClick = () => this.profEl && this.profEl.click();
+  onProfFile = async e => {
+    const f=e.target.files[0]; e.target.value=""; if(!f) return;
+    try{
+      const prof=JSON.parse(await f.text());
+      if(!prof || prof.v!==1) throw new Error("קובץ פרופיל לא מזוהה");
+      const rules=(prof.rules||[]).slice();
+      for(const [value, replacement] of Object.entries(prof.map||{})){
+        if(!value||!replacement) continue;
+        const ex=rules.find(r=>r.value===value);
+        if(ex){ if(!ex.replacement) ex.replacement=replacement; }
+        else rules.push({value, kind:/^\[|^[\d\s+()-]+$/.test(replacement)?"OTHER":"NAME", replacement, auto:true});
+      }
+      const mode = prof.mode || this.state.mode;
+      this.setState({profile:prof, rules, allow:(prof.allow||[]).slice(), mode, err:""}, ()=>{
+        if(this.state.screen==="people"){
+          const list=[...this.state.peo]; const E=this.state.E;
+          for(const r of rules) if(r.kind==="NAME"||r.kind==="ORG"){
+            if(!list.some(p=>E.norm(p.value)===E.norm(r.value)))
+              list.push({value:r.value, kind:r.kind, note:"מהפרופיל", auto:true, g:null});
+          }
+          this.setState({peo:list, peoNote:`נטענו ${list.length} שמות מהפרופיל. אותם שמות חלופיים כמו במסמכים הקודמים בתיק.`});
+        } else if(this.state.res) this.rerun();
+      });
+    }catch(err){ this.setState({err:"טעינת הפרופיל נכשלה: "+(err.message||err)}); }
+  };
+
+  /* ── סימון בטקסט ── */
+  onSheetSelect = () => {
+    setTimeout(()=>{
+      const E=this.state.E, sel=getSelection();
+      if(!sel || sel.isCollapsed){ this.setState({popup:null}); return; }
+      const t=E.trimEdges(sel.toString());
+      if(!t || t.length<2 || t.length>70){ this.setState({popup:null}); return; }
+      const r=sel.getRangeAt(0).getBoundingClientRect();
+      this.setState({popup:{text:t, x:Math.max(12, Math.min(r.left+r.width/2-130, innerWidth-280)), y:r.bottom+10}});
+    }, 10);
+  };
+  scrollToMark = id => {
+    const root=this.sheetEl; if(!root) return;
+    const el=root.querySelector('[data-mark="'+id+'"]'); if(!el) return;
+    const r=el.getBoundingClientRect(), sr=root.getBoundingClientRect();
+    root.scrollTop += (r.top-sr.top) - root.clientHeight/2 + r.height/2;
+    el.style.animation="none"; void el.offsetWidth; el.style.animation="flash 1.1s ease";
+  };
+
+  renderVals(){
+    const S=this.state, E=S.E;
+    const KINDS = E ? E.KINDS : [];
+    const primaryBtn="padding:12px 20px;border-radius:10px;background:var(--accent);color:var(--panel);font-weight:500;font-size:14px;white-space:nowrap";
+    const seg = on => "flex:1;padding:8px 6px;border-radius:7px;font-size:12.5px;font-weight:500;"+
+      (on?"background:var(--panel);color:var(--accent-ink);box-shadow:var(--shadow)":"color:var(--ink2)");
+    const chip = on => "padding:5px 12px;border-radius:14px;font-size:12px;font-weight:500;white-space:nowrap;"+
+      (on?"background:var(--accent);color:var(--panel)":"background:var(--panel2);color:var(--ink2)");
+    const MNOTE={
+      real:"«רונית לוי» תהפוך ל«מיכל ברנע». המשפט נשאר תקין דקדוקית, וכלי ה-AI מגיב על טקסט שנקרא כמו מסמך אמיתי. אותו אדם מקבל את אותו שם גם במסמך הבא באותו תיק.",
+      label:"«רונית לוי» תהפוך ל«פלוני א׳». חד-משמעי לעין, אבל הטקסט נקרא פחות טבעי.",
+      block:"«רונית לוי» תהפוך ל«███». הכי בטוח, אבל כלי AI מתקשה לנתח טקסט כזה."};
+    const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
+    const stepStyle=(active, enabled)=>"font-size:12.5px;padding:4px 2px;white-space:nowrap;cursor:"+(enabled?"pointer":"default")+
+      ";color:"+(active?"var(--ink)":enabled?"var(--ink2)":"var(--ink3)");
+    const SCR_LBL={entry:"קובץ", people:"רשימת השמות", places:"מקומות", work:"המסמך"};
+    const backOf=(screen, ret)=>{
+      if(screen==="people") return {to:"entry", label:"קובץ"};
+      if(screen==="places") return {to:"people", label:"מי בתיק"};
+      if(screen==="work") return {to:"people", label:"רשימת השמות"};
+      if(screen==="reverse"){
+        let to = ret && ret!=="reverse" ? ret : "entry";
+        if((to==="work" && !S.res) || (to!=="entry" && !S.buf)) to="entry";
+        return {to, label:SCR_LBL[to]||"קובץ"};
+      }
+      return {to:"entry", label:"קובץ"};
+    };
+
+    const MV = S.screen==="places" ? this.mapView() : null;
+
+    const v = {
+      isEntry:S.screen==="entry", isPeople:S.screen==="people", isPlaces:S.screen==="places",
+      isBusy:S.screen==="busy", isWork:S.screen==="work" && !!S.res, isReverse:S.screen==="reverse",
+      showSteps:S.screen!=="reverse",
+      step1:stepStyle(S.screen==="entry", true),
+      step2:stepStyle(S.screen==="people", !!S.buf),
+      step3:stepStyle(S.screen==="places", !!S.buf),
+      step4:stepStyle(S.screen==="work", false),
+      goStep1:()=>this.setState({screen:"entry", pending:!!S.buf, err:""}),
+      goStep2:()=>{ if(S.buf) this.setState({screen:"people", err:""}); },
+      goStep3:()=>{ if(S.buf) this.toPlaces(S.rules); },
+      showBack:S.screen!=="entry",
+      backLabel:backOf(S.screen, S.returnTo).label,
+      onBack:()=>{ const b=backOf(S.screen, S.returnTo); this.setState({screen:b.to, pending:b.to==="entry"?!!S.buf:false, err:""}); },
+      pasteText:S.pasteText||"", hasPaste:(S.pasteText||"").trim().length>0,
+      pasteLabel:"שימוש בטקסט הזה", onPasteGo:this.usePastedText,
+      onPasteText:e=>this.setState({pasteText:e.target.value}),
+      hasPending:!!S.pending, pendName:S.name, pendMeta:S.pendMeta||"", onStart:this.start,
+      startLabel:S.o.auto?"המשך — איתור שמות במסמך":"המשך לעיבוד",
+      rvBackLabel:S.returnTo==="work"?"חזרה למסמך":"חזרה",
+      rvCtxStyle:"padding:12px 15px;border-radius:11px;font-size:13px;margin-bottom:16px;border:1px solid var(--line);background:"+(S.res||S.profile?"var(--accent-soft)":"var(--panel2)"),
+      rvCtxTitle:S.res?"מחובר למסמך שבעבודה":(S.profile?"נטען פרופיל תיק":"אין מיפוי טעון"),
+      rvCtxText:S.res
+        ? `המיפוי נלקח מהמסמך «${S.name}» שנמצא כרגע במסך הבדיקה — ${Object.keys(this.currentMap()).length} שמות. היציאה מכאן מחזירה לאותו מסמך.`
+        : (S.profile
+          ? `המיפוי נלקח מפרופיל התיק שנטען — ${Object.keys((S.profile.map)||{}).length} שמות. אפשר להשתמש במסך הזה גם בלי להעלות מסמך.`
+          : "המסך הזה עצמאי: הוא מחזיר שמות לפי מיפוי. אפשר לטעון פרופיל תיק שנשמר קודם, או להשחיר מסמך בחלון הזה ולחזור לכאן."),
+      showTagline:!S.narrow,
+      showIntro:!!S.intro,
+      onCloseIntro:()=>{ try{ localStorage.setItem("redact-intro-seen","1"); }catch(_){} this.setState({intro:false}); },
+      introSteps:[
+        {n:"1", title:"קובץ או טקסט", text:"מעלים מסמך Word או מדביקים טקסט. אפשר לכבות ולהדליק סוגי זיהוי לפני ההרצה."},
+        {n:"2", title:"מי בתיק", text:"מאשרים את רשימת האנשים. כל שם ברשימה מכוסה בכל צורה שהוא מופיע בה — כולל אותיות שימוש ושיבושי תמלול."},
+        {n:"3", title:"מקומות", text:"יישובים מוחלפים בקבוצה ששומרת על המרחקים ביניהם, כדי שהגיאוגרפיה של התיק תישאר הגיונית."},
+        {n:"4", title:"בדיקה ושליחה", text:"עוברים על הממצאים, מעתיקים את הטקסט המושחר ל-AI, ומחזירים את השמות האמיתיים לתשובה. פרופיל תיק שומר שאותו אדם יקבל את אותו שם בכל המסמכים."}
+      ],
+      themeIcon:S.theme==="dark"?"☀":"☾", onTheme:this.toggleTheme,
+      onReverse:()=>this.setState({screen:"reverse", returnTo:S.screen==="reverse"?(S.returnTo||"entry"):S.screen, err:""}),
+      onHome:()=>this.setState({screen:"entry", pending:!!S.buf, err:""}),
+      err:S.err, busyT:S.busyT, primaryBtn,
+      fileRef:el=>{ if(el) this.fileEl=el; }, profRef:el=>{ if(el) this.profEl=el; },
+      onPick:this.pickFile, onFile:this.onFile, onProfFile:this.onProfFile,
+      onDragOver:this.onDragOver, onDragLeave:this.onDragLeave, onDropFile:this.onDropFile,
+      fileName:S.pending?"":S.name,
+      dropStyle:"display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;text-align:start;"+
+        "background:var(--panel);border:1px solid "+(S.drag?"var(--accent)":"var(--line)")+";box-shadow:var(--shadow)",
+      oAuto:S.o.auto, oPlaces:S.o.places, oNer:S.o.ner, oNear:S.o.near, nerOff:S.nerOff, nerHint:S.nerHint,
+      tAuto:()=>this.setState({o:{...S.o, auto:!S.o.auto}}),
+      tPlaces:()=>this.setState({o:{...S.o, places:!S.o.places}}),
+      tNer:()=>this.setState({o:{...S.o, ner:!S.o.ner}}),
+      tNear:()=>this.setState({o:{...S.o, near:!S.o.near}}),
+      mReal:()=>this.setState({mode:"real"}, ()=>{ if(S.res) this.rerun(); }),
+      mLabel:()=>this.setState({mode:"label"}, ()=>{ if(S.res) this.rerun(); }),
+      mBlock:()=>this.setState({mode:"block"}, ()=>{ if(S.res) this.rerun(); }),
+      segReal:seg(S.mode==="real"), segLabel:seg(S.mode==="label"), segBlock:seg(S.mode==="block"),
+      modeNote:MNOTE[S.mode],
+      nerBox:S.nerBox, nerMsg:S.nerMsg,
+      nerBarStyle:"height:100%;border-radius:2px;background:var(--accent);transition:width .25s ease;width:"+Math.round(S.nerPct||0)+"%",
+      peoIn:S.peoIn, peoNote:S.peoNote, peoEmpty:!S.peo.length,
+      peoGoLabel:S.scanning?"סורק את המסמך…":"המשך",
+      onPeoIn:e=>this.setState({peoIn:e.target.value}),
+      onPeoKey:e=>{ if(e.key==="Enter"){ e.preventDefault(); this.peoAdd(S.peoIn); this.setState({peoIn:""}); } },
+      onPeoPaste:e=>{ const t=(e.clipboardData||window.clipboardData).getData("text");
+        if(t && /[\n,;]/.test(t)){ e.preventDefault(); this.peoAdd(t); } },
+      onPeoAdd:()=>{ this.peoAdd(S.peoIn); this.setState({peoIn:""}); },
+      onPeoGo:()=>{ if(S.scanning) return; this.peoAdd(S.peoIn);
+        setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g}))), 0); },
+      onSkipNames:()=>{ if(S.scanning) return; this.setState({peo:[]}); this.toPlaces([]); },
+      onLoadProf:this.loadProfileClick, onSaveProf:this.saveProfile,
+      peoItems:S.peo.map((p,i)=>({
+        value:p.value, note:p.note, kindName:KIND_NAME[p.kind]||"אדם",
+        style:"display:flex;align-items:center;gap:8px;padding:7px 10px 7px 12px;border-radius:20px;font-size:14px;white-space:nowrap;"+
+          "border:1px solid "+(p.auto?"var(--accent-soft)":"var(--line)")+";background:"+(p.auto?"var(--accent-soft)":"var(--panel)"),
+        onKind:()=>this.cycleKind(i), onDel:()=>this.delPeo(i)})),
+      rvIn:S.rvIn, rvOut:S.rvOut, rvCopyLabel:S.rvCopyLabel,
+      onRvIn:e=>this.setState({rvIn:e.target.value}),
+      onRvGo:()=>{
+        const map=(S.profile&&S.profile.map)||this.currentMap();
+        if(!S.rvIn.trim()){ this.setState({err:"אין טקסט להחזרה."}); return; }
+        if(!Object.keys(map).length){ this.setState({err:"אין מיפוי זמין. יש לטעון פרופיל תיק, או להשחיר מסמך קודם בחלון הזה."}); return; }
+        const r=E.restoreNames(S.rvIn, Object.entries(map));
+        this.setState({rvOut:r.text, err: r.count?"":"לא נמצא אף שם חלופי בטקסט. כדאי לבדוק שהפרופיל תואם למסמך."});
+      },
+      onRvCopy:()=>this.copyTo(S.rvOut, "rvCopyLabel", "העתקת הטקסט המשוחזר"),
+      hasGeo:!!S.geo, noGeo:S.screen==="places" && !S.geo,
+      noGeoText:(S.geoExcluded||[]).length
+        ? "נשארו פחות משני יישובים למיפוי, ולכן אין מה לשמור עליו. אפשר להחזיר יישוב לרשימה או להמשיך."
+        : "לא נמצאו שני יישובים מוכרים או יותר במסמך, ולכן אין מה למפות.",
+      geoCount:S.geo?S.geo.map.length:0,
+      geoErr:S.geo?S.geo.err.toFixed(1):"",
+      geoQuality:S.geo?(S.geo.err<2?"דיוק מצוין":S.geo.err<5?"דיוק טוב":"דיוק סביר"):"",
+      geoRows:(S.geo?S.geo.map:[]).map((m,i)=>({
+        from:m.from, to:S.geoEdits[i] ?? m.to,
+        onChange:e=>this.setState({geoEdits:{...S.geoEdits, [i]:e.target.value}}),
+        onRemove:()=>this.geoRemove(m.from)})),
+      hasExcluded:(S.geoExcluded||[]).length>0,
+      excluded:(S.geoExcluded||[]).map(n=>({name:n, onUndo:()=>this.geoRestore(n)})),
+      mapLand:MV?MV.land:"", hasLand:!!(MV&&MV.hasLand),
+      mapFrom:MV?MV.from:[], mapTo:MV?MV.to:[],
+      onGeoAlt:this.geoAlt, onGeoApply:this.geoApply, onGeoSkip:()=>this.run(S.rules),
+      onBackHome:()=>this.setState({screen:"entry", res:null, err:""}),
+      popup:!!S.popup, popupText:S.popup?S.popup.text:"",
+      popupStyle:S.popup?("position:fixed;z-index:60;left:"+S.popup.x+"px;top:"+S.popup.y+"px;max-width:270px;"+
+        "background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;box-shadow:0 12px 34px rgba(0,0,0,.22)"):"",
+      popupKinds:KINDS.map(([k,l])=>({label:l, onClick:()=>{ this.addRule(S.popup.text, k, ""); getSelection().removeAllRanges(); }})),
+      addV:S.addV, addR:S.addR,
+      onAddV:e=>this.setState({addV:e.target.value}), onAddR:e=>this.setState({addR:e.target.value}),
+      onAddKey:e=>{ if(e.key==="Enter") this.addRule(this.state.addV, this.state.addK, this.state.addR); },
+      onAdd:()=>this.addRule(S.addV, S.addK, S.addR),
+      kindChips:KINDS.map(([k,l])=>({label:l, style:chip(S.addK===k), onClick:()=>this.setState({addK:k})})),
+      sheetRef:el=>{this.sheetEl=el}, listRef:el=>{this.listEl=el},
+      onSheetSelect:this.onSheetSelect
+    };
+
+    if(!v.isWork) return v;
+
+    const RES=S.res, near=this.nearList(), sug=this.sugList(), groups=this.groupsOf();
+    const ver=RES.verification;
+
+    const narrow=!!S.narrow, pane=S.pane||"find";
+    v.narrow=narrow;
+    v.workGrid = narrow
+      ? "display:block;max-width:1520px;margin:0 auto;padding:14px 16px 116px"
+      : "display:grid;grid-template-columns:minmax(0,1fr) var(--rail-w);gap:18px;max-width:1520px;margin:0 auto;padding:18px 22px 104px;align-items:start";
+    v.docPaneStyle = "background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;"+
+      (narrow ? (pane==="doc"?"display:block":"display:none") : "position:sticky;top:74px");
+    v.railStyle = (narrow && pane==="doc")
+      ? "display:none"
+      : "display:flex;flex-direction:column;gap:12px;"+(narrow?"margin-top:12px":"");
+    v.paneDocStyle = "flex:1;padding:8px 6px;border-radius:7px;font-size:13px;font-weight:500;"+
+      (pane==="doc"?"background:var(--panel);color:var(--accent-ink);box-shadow:var(--shadow)":"color:var(--ink2)");
+    v.paneFindStyle = "flex:1;padding:8px 6px;border-radius:7px;font-size:13px;font-weight:500;"+
+      (pane==="find"?"background:var(--panel);color:var(--accent-ink);box-shadow:var(--shadow)":"color:var(--ink2)");
+    v.onPaneDoc=()=>this.setState({pane:"doc"});
+    v.onPaneFind=()=>this.setState({pane:"find"});
+    v.docTitle = S.name || "המסמך המושחר";
+    v.docSub = RES.applied.length+" החלפות · "+RES.preview.length+" פסקאות";
+    const viewOrig = S.docView==="orig";
+    const viewSeg = on => "padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;"+
+      (on?"background:var(--panel);color:var(--accent-ink);box-shadow:var(--shadow)":"color:var(--ink2)");
+    v.viewRedStyle=viewSeg(!viewOrig); v.viewOrigStyle=viewSeg(viewOrig);
+    v.onViewRed=()=>this.setState({docView:"red"});
+    v.onViewOrig=()=>this.setState({docView:"orig"});
+
+    if(viewOrig){
+      const src = (S.origBlocks || []).map(b=>({part:E.partName(b.part), text:b.text}));
+      v.sheet = src.map((b,bi)=>({part:b.part, head:b.part!==(bi>0?src[bi-1].part:null), n:bi+1,
+        segs:[{plain:true, mark:false, t:b.text||" "}]}));
+    } else
+    v.sheet = RES.preview.map((b,bi)=>{
+      const segs=[]; let last=0;
+      for(const m of b.marks){
+        if(m.s>last) segs.push({plain:true, mark:false, t:b.text.slice(last,m.s)});
+        const src=RES.applied[m.id];
+        const orig=(!m.amb && src)?src.value:"";
+        const selected = S.sel && src && ("a|"+E.norm(src.value).trim())===S.sel;
+        segs.push({plain:false, mark:true, id:m.id, t:b.text.slice(m.s,m.e),
+          title: orig ? orig+" ← במקור" : "הוחלף — המקור אינו חד-משמעי",
+          style:"cursor:pointer;border-radius:3px;box-decoration-break:clone;padding:1px 2px;"+
+            ((selected||S.hot===m.id)
+              ? "background:var(--accent);color:var(--panel);"
+              : "background:var(--accent-soft);color:var(--accent-ink);"),
+          onClick:()=>{
+            const r=RES.applied[m.id]; if(!r) return;
+            this.setState({filter:"all", cat:"", open:"findings", sel:"a|"+E.norm(r.value).trim(),
+              pane:this.state.narrow?"find":this.state.pane, repDraft:r.rep||""}, ()=>{
+              const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape("a|"+E.norm(r.value).trim())+'"]');
+              if(node && this.listEl){ const nr=node.getBoundingClientRect(), lr=this.listEl.getBoundingClientRect();
+                this.listEl.scrollTop += (nr.top-lr.top) - 40; }
+            });
+          }});
+        last=m.e;
+      }
+      if(last<b.text.length) segs.push({plain:true, mark:false, t:b.text.slice(last)});
+      if(!segs.length) segs.push({plain:true, mark:false, t:" "});
+      const prev=bi>0?RES.preview[bi-1].part:null;
+      return {part:b.part, head:b.part!==prev, n:bi+1, segs};
+    });
+
+    const order=[]; RES.preview.forEach(b=>b.marks.forEach(m=>order.push(m.id)));
+    v.hasMarks=order.length>0;
+    const cur=Math.min(S.markIdx??0, Math.max(order.length-1,0));
+    v.markNav=order.length?(cur+1)+" / "+order.length:"";
+    const jump=d=>{ if(!order.length) return;
+      const i=(cur+d+order.length)%order.length;
+      const r=RES.applied[order[i]];
+      this.setState({markIdx:i, docView:"red", sel:r?"a|"+E.norm(r.value).trim():null,
+        repDraft:r?(r.rep||""):"", open:"findings"}, ()=>this.scrollToMark(order[i]));
+    };
+    v.onPrevMark=()=>jump(-1); v.onNextMark=()=>jump(1);
+
+    v.nearItems = near.map(x=>({
+      value:x.value, ctx:x.ctx||{},
+      tag:"כמו «"+x.near.target+"»"+(x.near.rep?" ← "+x.near.rep:""),
+      fixLabel: x.near.rep ? "החלפה ל«"+x.near.rep+"»" : "החלפה גם כאן",
+      onFix:()=>{ if(x.near.rep) this.addRule(x.value, x.near.kind==="PLACE"?"PLACE":"NAME", x.near.rep);
+        else this.mergeInto(x.value, x.near.target); },
+      onSkip:()=>this.addAllow(x.value)}));
+    v.sugItems = sug.map(x=>({
+      value:x.value, ctx:x.ctx||{}, tag:x.count+"× · "+x.why,
+      onAdd:()=>this.addRule(x.value,"NAME",""), onNo:()=>this.addAllow(x.value)}));
+    v.reviewClean = !near.length && !sug.length;
+
+    v.tabs=[["all","הכל",RES.applied.length+RES.flagged.length],["rep","הוחלף",RES.applied.length],
+      ["flag","לבדיקה",RES.flagged.length]].map(([k,l,c])=>({
+      label:l+" "+c, style:chip(S.filter===k), onClick:()=>this.setState({filter:k, sel:null})}));
+    const counts={}; groups.forEach(g=>counts[g.label]=(counts[g.label]||0)+g.count);
+    v.cats=[["","הכל"]].concat(Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([l,n])=>[l,l+" "+n]))
+      .map(([val,label])=>({label, style:chip(S.cat===val), onClick:()=>this.setState({cat:val, sel:null})}));
+
+    const q=(S.query||"").trim();
+    let shown = S.cat ? groups.filter(g=>g.label===S.cat) : groups;
+    if(q) shown = shown.filter(g=>(g.value+" "+(g.rep||"")+" "+g.label).includes(q));
+    v.query=S.query||"";
+    v.onQuery=e=>this.setState({query:e.target.value});
+    const nameOpts=[...new Set(RES.applied.filter(r=>r.label==="שם"||r.label.startsWith("שם")).map(r=>r.value))];
+    v.groupsEmpty = !shown.length;
+    v.groups = shown.map(g=>({
+      key:g.key, value:g.value, count:g.count, why:g.why||"", review:!!g.review,
+      arrow:g.ap?"←":"", rep:g.ap?g.rep:"לא הוחלף",
+      repStyle:"font-weight:500;font-size:14px;color:"+(g.ap?"var(--accent-ink)":"var(--warn)"),
+      meta:g.label+" · "+[...g.parts].join(", "),
+      ctx:g.ctxs[0]||{}, selected:S.sel===g.key, applied:g.ap && S.sel===g.key, flagged:!g.ap && S.sel===g.key,
+      repDraft:S.sel===g.key?S.repDraft:"",
+      style:"padding:12px 15px;border-bottom:1px solid var(--line2);cursor:pointer;"+
+        (S.sel===g.key?"background:var(--panel2);":""),
+      onClick:()=>{ const nowSel = S.sel===g.key ? null : g.key;
+        this.setState({sel:nowSel, repDraft:g.rep||""}, ()=>{ if(nowSel && g.ids.length && !this.state.narrow) this.scrollToMark(g.ids[0]); }); },
+      onEnter:()=>{ if(g.ids.length) this.setState({hot:g.ids[0]}); },
+      onLeave:()=>this.setState({hot:null}),
+      stop:e=>e.stopPropagation(),
+      onRepChange:e=>this.setState({repDraft:e.target.value}),
+      onRepKey:e=>{ e.stopPropagation(); if(e.key==="Enter") this.setRep(g.value, this.state.repDraft); },
+      onSave:e=>{ e.stopPropagation(); this.setRep(g.value, this.state.repDraft); },
+      onAllow:e=>{ e.stopPropagation(); this.addAllow(g.value); },
+      showSame: g.ap && g.label.startsWith("שם") && nameOpts.filter(o=>o!==g.value).length>0,
+      sameOpts: nameOpts.filter(o=>o!==g.value).map(o=>({value:o, label:o})),
+      onSame:e=>{ e.stopPropagation(); const to=e.target.value; if(to) this.mergeInto(g.value, to); },
+      kinds:KINDS.map(([k,l])=>({label:l, onClick:e=>{ e.stopPropagation(); this.addRule(g.value,k,""); }}))
+    }));
+
+    v.aiIn=S.aiIn; v.aiWarn=S.aiWarn; v.aiCopyLabel=S.aiCopyLabel;
+    v.onAiIn=e=>this.setState({aiIn:e.target.value});
+    v.onAiCopy=()=>{ this.copyTo(this.redactedText(), "aiCopyLabel", "העתקת טקסט מושחר");
+      const bits=[];
+      if(sug.length) bits.push(sug.length+" שמות בגוף המסמך אינם ברשימה");
+      else if(near.length) bits.push(near.length+" מילים נכתבו כמעט כמו שם שהוחלף");
+      else if(!ver.complete) bits.push("נשארו ממצאים שלא הוחלפו");
+      this.setState({aiWarn:bits.length?"לפני ההדבקה: "+bits.join(". ")+".":""}); };
+    v.onAiGo=()=>{
+      if(!S.aiIn.trim()) return;
+      const r=E.restoreNames(S.aiIn, this.livePairs());
+      const bits=["הוחזרו "+r.count+" מופעים"];
+      if(r.missing.length) bits.push(r.missing.length+" שמות חלופיים לא הופיעו בתשובה");
+      if(r.conflict.length) bits.push(r.conflict.length+" שמות חלופיים משמשים יותר מאדם אחד ולכן לא הוחזרו");
+      this.setState({aiIn:r.text, aiWarn:bits.join(". ")+"."});
+    };
+
+    const st=RES.structural, stats=[];
+    const add=(l,n)=>{ if(n) stats.push({label:l, value:n}); };
+    add("טקסט שנמחק במעקב שינויים", st.del); add("שינויים שהתקבלו", st.ins);
+    add("סימוני הערות", st.cm); add("חלקים שהוסרו", st.dropped.length);
+    add("שדות מטא-דאטה", st.meta.length); add("קישורים שנוטרלו", st.rels.length);
+    add("מזהי עריכה", st.rsid); add("החלפות אחידות", st.sweep);
+    v.stats = stats.length?stats:[{label:"לא נמצא מה לנקות", value:"—"}];
+
+    v.onReport = this.downloadReport;
+    v.hasMine = S.rules.length>0 || S.allow.length>0;
+    v.mineItems = S.rules.map(r=>({kind:(E.KINDLBL[r.kind]||r.kind), value:r.value, rep:r.replacement||"",
+      onDel:()=>this.dropRule(r.value)}))
+      .concat(S.allow.map(a=>({kind:"אל תחליף", value:a, rep:"", onDel:()=>{
+        this.setState({allow:S.allow.filter(x=>x!==a)}, ()=>this.rerun()); }})));
+
+    let kind="ok", title="", text="";
+    if(!ver.passed){ kind="bad";
+      title="האימות נכשל — ערכים מזהים עדיין בקובץ";
+      text=ver.leaks.slice(0,3).map(l=>l.value+" בתוך "+l.part).join(" · ")+(ver.leaks.length>3?" ועוד":"")+". אין לשלוח ואין להעתיק.";
+    } else if(sug.length){ kind="warn";
+      title=sug.length===1?"שם אחד בגוף המסמך שאינו ברשימה":sug.length+" שמות בגוף המסמך שאינם ברשימה";
+      text=sug.slice(0,3).map(x=>x.value).join(" · ")+(sug.length>3?" ועוד":"")+". הם לא הוחלפו ויגיעו ל-AI כמו שהם — יש לענות על השאלות בפאנל «לבדיקה».";
+    } else if(near.length){ kind="warn";
+      title=(near.length===1?"מילה אחת נכתבה":near.length+" מילים נכתבו")+" כמעט כמו שם שהוחלף";
+      text=near.slice(0,3).map(x=>x.value).join(" · ")+(near.length>3?" ועוד":"")+". זה הדפוס של שיבוש תמלול — כדאי לטפל בו לפני ההעתקה.";
+    } else if(!ver.complete){ kind="warn";
+      const bits=[];
+      if(ver.remaining.length) bits.push(ver.remaining.length+" ממצאים שלא הוחלפו");
+      if(ver.embedded.length) bits.push(ver.embedded.length+" תמונות או קבצים מוטמעים שלא נסרקו");
+      title="עבר חלקית — נשאר תוכן שלא טופל";
+      text=bits.join(" · ")+". הערכים שהוחלפו אכן נעלמו, אבל טקסט בתוך תמונה או קובץ מוטמע אינו נסרק.";
+    } else {
+      title="לא נמצאו שרידים, ולא נמצא כתיב דומה";
+      text="נסרקו "+ver.parts+" חלקים בערוצי הטקסט הנתמכים"+(ver.hadList?"":", אך בלי רשימת שמות הבדיקה חלשה")+". זיהוי אינו מבטיח כיסוי מלא — כדאי לקרוא את המסמך לפני שליחה.";
+    }
+    const cmap={ok:["var(--accent)","var(--accent-soft)","✓"], warn:["var(--warn)","var(--warn-soft)","!"], bad:["var(--bad)","var(--bad-soft)","!"]};
+    v.statusDot="width:24px;height:24px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:13px;font-weight:600;color:"+cmap[kind][0]+";background:"+cmap[kind][1];
+    v.statusIcon=cmap[kind][2]; v.statusTitle=title; v.statusText=text;
+    v.copyLabel=S.copyLabel;
+    v.copyBtnStyle="padding:11px 20px;border-radius:10px;font-weight:500;font-size:14px;white-space:nowrap;color:var(--panel);background:"+(kind==="ok"?"var(--accent)":kind==="warn"?"var(--warn)":"var(--bad)");
+    v.onCopyAi=this.copyAi; v.onDownload=this.download;
+    v.hasReview = (near.length+sug.length)>0 && S.open!=="review";
+    v.onOpenReview=()=>this.setState({open:"review", pane:"find"});
+
+    const secDef=[
+      ["review","לבדיקה", near.length+sug.length, near.length+sug.length?"warn":"ok"],
+      ["findings","מה נמצא והוחלף", RES.applied.length+RES.flagged.length, "ok"],
+      ["ai","הלוך ושוב מול AI", 0, "plain"],
+      ["profile","פרופיל התיק והרשימה", S.rules.length, "plain"],
+      ["clean","מה נוקה מהקובץ", stats.length, "plain"]
+    ];
+    v.sections = secDef.map(([key,title,count,tone])=>({
+      title, count:count?count:"", chev:S.open===key?"▲":"▼",
+      wrapStyle:"background:var(--panel);border:1px solid "+(S.open===key?"var(--line)":"var(--line2)")+";border-radius:12px;box-shadow:"+(S.open===key?"var(--shadow)":"none")+";overflow:hidden",
+      dotStyle:"width:7px;height:7px;border-radius:50%;flex:none;background:"+(tone==="warn"?"var(--warn)":tone==="ok"?"var(--accent)":"var(--ink3)"),
+      onToggle:()=>this.setState({open:S.open===key?null:key}),
+      openReview:S.open==="review"&&key==="review", openFindings:S.open==="findings"&&key==="findings",
+      openAi:S.open==="ai"&&key==="ai", openProfile:S.open==="profile"&&key==="profile",
+      openClean:S.open==="clean"&&key==="clean"
+    }));
+    return v;
+  }
+}
+</script>
+</body>
+</html>
