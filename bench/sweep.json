@@ -2,21 +2,731 @@
  {
   "param": "body",
   "value": "off",
-  "leaked": 16,
+  "leaked": 9,
   "missed": 9,
-  "fp": 3,
+  "fp": 2,
   "junk": 36,
-  "ms": 3057,
-  "current": true
+  "ms": 3009,
+  "current": false
  },
  {
   "param": "body",
   "value": "on",
-  "leaked": 12,
+  "leaked": 5,
   "missed": 5,
-  "fp": 3,
-  "junk": 40,
-  "ms": 3025,
+  "fp": 2,
+  "junk": 41,
+  "ms": 6184,
+  "current": true
+ },
+ {
+  "param": "min",
+  "value": "0.3",
+  "leaked": 5,
+  "missed": 4,
+  "fp": 2,
+  "junk": 42,
+  "ms": 2990,
   "current": false
+ },
+ {
+  "param": "min",
+  "value": "0.4",
+  "leaked": 5,
+  "missed": 4,
+  "fp": 2,
+  "junk": 42,
+  "ms": 3348,
+  "current": false
+ },
+ {
+  "param": "min",
+  "value": "0.5",
+  "leaked": 5,
+  "missed": 4,
+  "fp": 2,
+  "junk": 42,
+  "ms": 2949,
+  "current": false
+ },
+ {
+  "param": "min",
+  "value": "0.6",
+  "leaked": 4,
+  "missed": 4,
+  "fp": 2,
+  "junk": 42,
+  "ms": 2998,
+  "current": false
+ },
+ {
+  "param": "min",
+  "value": "0.7",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2854,
+  "current": true
+ },
+ {
+  "param": "min",
+  "value": "0.8",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2997,
+  "current": false
+ },
+ {
+  "param": "min",
+  "value": "0.9",
+  "leaked": 11,
+  "missed": 11,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3410,
+  "current": false
+ },
+ {
+  "param": "nearLen",
+  "value": "3",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 43,
+  "ms": 2874,
+  "current": false
+ },
+ {
+  "param": "nearLen",
+  "value": "4",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2875,
+  "current": true
+ },
+ {
+  "param": "nearLen",
+  "value": "5",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2915,
+  "current": false
+ },
+ {
+  "param": "nearLen",
+  "value": "6",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3015,
+  "current": false
+ },
+ {
+  "param": "nearShort",
+  "value": "off",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3571,
+  "current": false
+ },
+ {
+  "param": "nearShort",
+  "value": "3",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3069,
+  "current": false
+ },
+ {
+  "param": "nearShort",
+  "value": "4",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2988,
+  "current": true
+ },
+ {
+  "param": "nearShort",
+  "value": "5",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3571,
+  "current": false
+ },
+ {
+  "param": "nearShort",
+  "value": "6",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 4968,
+  "current": false
+ },
+ {
+  "param": "nearShort",
+  "value": "all",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3363,
+  "current": false
+ },
+ {
+  "param": "weak",
+  "value": "none",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3162,
+  "current": false
+ },
+ {
+  "param": "weak",
+  "value": "ו י",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2904,
+  "current": false
+ },
+ {
+  "param": "weak",
+  "value": "א ה ו י",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2938,
+  "current": true
+ },
+ {
+  "param": "weak",
+  "value": "א ה ו י + geresh",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2985,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "all",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2932,
+  "current": true
+ },
+ {
+  "param": "homo",
+  "value": "none",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2966,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without א↔ה",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2971,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without א↔ע",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2800,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ה↔ע",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2873,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without א↔י",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2993,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without כ↔ח",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3335,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ק↔כ",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3244,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ת↔ט",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3152,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ס↔ש",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3201,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ב↔ו",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3454,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ז↔צ",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3399,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ו↔י",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2914,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ם↔מ",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2981,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ן↔נ",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2821,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ך↔כ",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2911,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ף↔פ",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3060,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ץ↔צ",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2967,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ש↔ס",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2876,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ד↔ת",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2850,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ג↔ק",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2971,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ל↔ר",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3122,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ל↔נ",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3018,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without נ↔ר",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2920,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without מ↔נ",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2891,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ב↔פ",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3038,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ד↔ט",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2918,
+  "current": false
+ },
+ {
+  "param": "homo",
+  "value": "without ג↔כ",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3048,
+  "current": false
+ },
+ {
+  "param": "partMin",
+  "value": "2",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2992,
+  "current": false
+ },
+ {
+  "param": "partMin",
+  "value": "3",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2964,
+  "current": true
+ },
+ {
+  "param": "partMin",
+  "value": "4",
+  "leaked": 11,
+  "missed": 5,
+  "fp": 1,
+  "junk": 41,
+  "ms": 3020,
+  "current": false
+ },
+ {
+  "param": "wordyLen",
+  "value": "1",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3103,
+  "current": false
+ },
+ {
+  "param": "wordyLen",
+  "value": "2",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2952,
+  "current": true
+ },
+ {
+  "param": "wordyLen",
+  "value": "3",
+  "leaked": 6,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3131,
+  "current": false
+ },
+ {
+  "param": "sweepMin",
+  "value": "3",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2955,
+  "current": false
+ },
+ {
+  "param": "sweepMin",
+  "value": "4",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3036,
+  "current": true
+ },
+ {
+  "param": "sweepMin",
+  "value": "5",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3020,
+  "current": false
+ },
+ {
+  "param": "shortSingle",
+  "value": "off",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3051,
+  "current": false
+ },
+ {
+  "param": "shortSingle",
+  "value": "2",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3062,
+  "current": false
+ },
+ {
+  "param": "shortSingle",
+  "value": "3",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3757,
+  "current": true
+ },
+ {
+  "param": "shortSingle",
+  "value": "4",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3633,
+  "current": false
+ },
+ {
+  "param": "peelMin",
+  "value": "3",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 3198,
+  "current": false
+ },
+ {
+  "param": "peelMin",
+  "value": "4",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2960,
+  "current": true
+ },
+ {
+  "param": "peelMin",
+  "value": "5",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2989,
+  "current": false
+ },
+ {
+  "param": "discoverStem",
+  "value": "3",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2967,
+  "current": false
+ },
+ {
+  "param": "discoverStem",
+  "value": "4",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2964,
+  "current": true
+ },
+ {
+  "param": "discoverStem",
+  "value": "5",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2947,
+  "current": false
+ },
+ {
+  "param": "prefixes",
+  "value": "off",
+  "leaked": 17,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2651,
+  "current": false
+ },
+ {
+  "param": "prefixes",
+  "value": "safe",
+  "leaked": 9,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2699,
+  "current": false
+ },
+ {
+  "param": "prefixes",
+  "value": "normal",
+  "leaked": 5,
+  "missed": 5,
+  "fp": 2,
+  "junk": 41,
+  "ms": 2853,
+  "current": true
  }
 ]

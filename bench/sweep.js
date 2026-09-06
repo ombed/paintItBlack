@@ -20,12 +20,12 @@ const ONLY = (process.argv.find((a) => a.startsWith("--only=")) || "").slice(7);
 
 // the shipped source lines the sweep patches; each must match exactly once
 const SRC = {
-  min: 'const min=(opt&&opt.min)||0.7;',
+  min: 'const min=(opt&&opt.min)||0.6;',
   nearLen: 'const tg=targets.filter(t=>t.norm.length>=4).slice(0,120);',
   nearShort: 'if(t.words===1&&t.norm.length<=4&&',
   weak: 'const WEAK=new Set(["א","ה","ו","י"]);',
   homo: '[["א","ה"],["א","ע"],["ה","ע"],["א","י"],["כ","ח"],["ק","כ"],["ת","ט"],["ס","ש"],\n ["ב","ו"],["ז","צ"],["ו","י"],["ם","מ"],["ן","נ"],["ך","כ"],["ף","פ"],["ץ","צ"],\n ["ש","ס"],["ד","ת"],["ג","ק"],["ל","ר"],["ל","נ"],["נ","ר"],["מ","נ"],\n ["ב","פ"],["ד","ט"],["ג","כ"]].forEach(([a,b])=>{HOMO.add(a+b);HOMO.add(b+a)});',
-  partMin: 'if(!p||p.length<3||STOP.has(p)||PLACE_BY[p]||AMBIG.has(p))return;',
+  partMin: 'if(!p||p.length<2||STOP.has(p)||PLACE_BY[p]||AMBIG.has(p))return;',
   wordyLen: 'docTokAll.has("ה"+p)||p.length<=2;',
   sweepMin: 'if(v.length>=4&&!(v in sweep)&&rp&&!norm(rp).includes(v))sweep[v]={rep:rp,of:null};',
   shortSingle: 's.value.trim().split(/\\s+/).length===1 && s.value.trim().length<=3;',
@@ -39,7 +39,7 @@ const homoSrc = (pairs) => JSON.stringify(pairs) + ".forEach(([a,b])=>{HOMO.add(
 const PARAMS = [
   { key: "body", title: "verb layer (bodyNames) while the model runs", current: "on",
     points: [["off", [], { body: false }], ["on", [], { body: true }]] },
-  { key: "min", title: "model confidence floor", current: "0.7",
+  { key: "min", title: "model confidence floor", current: "0.6",
     points: [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].map((v) => [String(v), [[SRC.min, `const min=(opt&&opt.min)||${v};`]]]) },
   { key: "nearLen", title: "near-miss scan: shortest target it looks for (letters)", current: "4",
     points: [3, 4, 5, 6].map((v) => [String(v), [[SRC.nearLen, `const tg=targets.filter(t=>t.norm.length>=${v}).slice(0,120);`]]]) },
@@ -50,7 +50,7 @@ const PARAMS = [
   { key: "homo", title: "confusable letter pairs (leave one out; 'none' = no pairs)", current: "all",
     points: [["all", [[SRC.homo, homoSrc(HOMO_PAIRS)]]], ["none", [[SRC.homo, homoSrc([])]]],
       ...HOMO_PAIRS.map((p) => ["without " + p.join("↔"), [[SRC.homo, homoSrc(HOMO_PAIRS.filter((q) => q !== p))]]])] },
-  { key: "partMin", title: "sweep: shortest name part replaced on its own (letters)", current: "3",
+  { key: "partMin", title: "sweep: shortest name part replaced on its own (letters)", current: "2",
     points: [2, 3, 4].map((v) => [String(v), [[SRC.partMin, `if(!p||p.length<${v}||STOP.has(p)||PLACE_BY[p]||AMBIG.has(p))return;`]]]) },
   { key: "wordyLen", title: "sweep: parts up to this length count as words (standalone only, review)", current: "2",
     points: [1, 2, 3].map((v) => [String(v), [[SRC.wordyLen, `docTokAll.has("ה"+p)||p.length<=${v};`]]]) },

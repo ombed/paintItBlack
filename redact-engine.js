@@ -611,7 +611,9 @@ function nerChunks(text,limit=800){
   if(ws!==null)out.push({t:text.slice(ws,we),off:ws});
   return out}
 function nerClean(ents,text,opt){
-  const min=(opt&&opt.min)||0.7;
+  // 0.7 נקבע בהרגשה. הסריקה (bench/sweep.md) על 30 מסמכים: 0.6 נותן דליפה אחת פחות
+  // מ-0.7 בלי הצעה עודפת נוספת; 0.3–0.5 כמו 0.6; 0.9 מכפיל את הדליפות.
+  const min=(opt&&opt.min)||0.6;
   const tok=new Set((norm(text).match(WRX)||[]));
   const seen=new Map();
   for(const e of ents){
@@ -1276,7 +1278,9 @@ async function redactDocx(buf,subs,allow,opt){
     if(vw.length<2)return;
     const real=opt.mode==="real";
     const add=(p,to)=>{
-      if(!p||p.length<3||STOP.has(p)||PLACE_BY[p]||AMBIG.has(p))return;
+      // שתי אותיות ("כץ", "נץ") הן שם משפחה של ממש; הן נכנסות למעבר, ובגלל wordy
+      // מוחלפות רק כשעומדות לבד ולבדיקה. הסריקה: 2 כמו 3, 4 מוסיף שש דליפות.
+      if(!p||p.length<2||STOP.has(p)||PLACE_BY[p]||AMBIG.has(p))return;
       if(p in sweep||!to||norm(to).includes(p))return;
       const g=partOf.get(p)||{to:new Set(),of:new Set(),wordy:wordy(p)};
       g.to.add(to); g.of.add(value); partOf.set(p,g)};

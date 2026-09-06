@@ -12,7 +12,7 @@
 | person: same person, one clean and one corrupted spelling | 5 | 0 | 0 | 0 |
 | person: name split across two runs mid-word | 3 | 0 | 0 | 0 |
 | org: private body, must be redacted | 10 | 0 | 0 | 0 |
-| place: town | 9 | 2 | 2 | 0 |
+| place: town | 10 | 1 | 1 | 0 |
 | trap: case numbers, dates, section references | – | – | – | 1 |
 | trap: idiom or public title beside a same-word name | – | – | – | 1 |
 | person: full name, surname alone, first name alone | 7 | 0 | 0 | 0 |
@@ -52,15 +52,15 @@
 | welfare | 24 | 0 | 0 | 0 |
 | medical | 16 | 1 | 1 | 0 |
 | police | 21 | 0 | 0 | 0 |
-| bank | 14 | 1 | 1 | 0 |
+| bank | 15 | 0 | 0 | 0 |
 | chat | 20 | 0 | 0 | 0 |
 
-## Unlisted suggestions (match nothing in the key; one tap each) — 41 in total
+## Unlisted suggestions (match nothing in the key; one tap each) — 42 in total
 
 Counted, not optimised for: the list is read, accept-all is not how the tool is used.
 
 - **meeting** (5, 5 applied): סיכמנו [discover; פותח תור דיבור בתמלול] **applied** · מהבניין [suggest] **applied** · נוער [suggest] **applied** · לבד [flagged] **applied** · אבל [flagged] **applied**
-- **filing** (8, 6 applied): בי [discover+flagged; מופיע מיד לפני ת"ז] · נישאו [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · המבקשת [discover+model; פותח תור דיבור בתמלול] **applied** · לדירה בשכונת [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · ומצא סימני [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · המלצה [discover; פותח תור דיבור בתמלול] **applied** · לקבוע מזונו [discover+flagged; מופיע מיד לפני ת"ז] · עלי [flagged] **applied**
+- **filing** (9, 7 applied): בי [discover+flagged; מופיע מיד לפני ת"ז] · נישאו [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · ירושלים [model] **applied** · המבקשת [discover+model; פותח תור דיבור בתמלול] **applied** · לדירה בשכונת [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · ומצא סימני [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · המלצה [discover; פותח תור דיבור בתמלול] **applied** · לקבוע מזונו [discover+flagged; מופיע מיד לפני ת"ז] · עלי [flagged] **applied**
 - **transcript** (6, 6 applied): שר [discover; מופיע אחרי תואר] **applied** · לי [discover; מופיע אחרי תואר] **applied** · במרפאת עין [suggest] **applied** · הראשון [discover; מופיע אחרי תואר] **applied** · יו"ר [discover; פותח תור דיבור בתמלול] **applied** · ועדה [flagged] **applied**
 - **welfare** (3, 3 applied): המלצה [discover; פותח תור דיבור בתמלול] **applied** · המלצה [discover; פותח תור דיבור בתמלול] **applied** · המלצה [discover; פותח תור דיבור בתמלול] **applied**
 - **medical** (7, 7 applied): המטופלת [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · המלצה [discover; פותח תור דיבור בתמלול] **applied** · הנבדק [discover; פותח תור דיבור בתמלול] **applied** · פסיכולוגית קלינית [discover; מופיע באזור החתימה] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · הנוכחי [flagged] **applied**
@@ -74,7 +74,6 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 - f1 · place: town · בית זית: missed, **leaked**: בית זית
 - t2 · person: minor, first name only · אופק: missed, **leaked**: אופק
 - h3 · person: two-letter surname · איה נץ: missed, **leaked**: איה נץ
-- b3 · place: town · בית אריה: missed, **leaked**: בית אריה
 
 ## Traps and public bodies touched
 
@@ -85,33 +84,33 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 163 | 9 | 0 |
-| m2 | meeting | 109 | 13 | 0 |
-| m3 | meeting | 82 | 6 | 0 |
-| m4 | meeting | 120 | 11 | 5 |
-| f1 | filing | 139 | 14 | 2 |
-| f2 | filing | 179 | 18 | 3 |
-| f3 | filing | 110 | 11 | 1 |
-| f4 | filing | 126 | 10 | 2 |
-| t1 | transcript | 112 | 9 | 1 |
-| t2 | transcript | 106 | 13 | 2 |
-| t3 | transcript | 103 | 11 | 1 |
-| t4 | transcript | 107 | 14 | 2 |
-| w1 | welfare | 78 | 5 | 1 |
-| w2 | welfare | 76 | 6 | 1 |
-| w3 | welfare | 83 | 6 | 0 |
-| w4 | welfare | 82 | 7 | 1 |
-| h1 | medical | 85 | 7 | 2 |
-| h2 | medical | 103 | 5 | 1 |
-| h3 | medical | 113 | 7 | 4 |
-| p1 | police | 100 | 5 | 1 |
+| m1 | meeting | 181 | 9 | 0 |
+| m2 | meeting | 118 | 13 | 0 |
+| m3 | meeting | 84 | 6 | 0 |
+| m4 | meeting | 115 | 11 | 5 |
+| f1 | filing | 143 | 15 | 3 |
+| f2 | filing | 175 | 18 | 3 |
+| f3 | filing | 101 | 11 | 1 |
+| f4 | filing | 125 | 10 | 2 |
+| t1 | transcript | 113 | 9 | 1 |
+| t2 | transcript | 105 | 13 | 2 |
+| t3 | transcript | 107 | 11 | 1 |
+| t4 | transcript | 102 | 14 | 2 |
+| w1 | welfare | 71 | 5 | 1 |
+| w2 | welfare | 79 | 6 | 1 |
+| w3 | welfare | 80 | 6 | 0 |
+| w4 | welfare | 74 | 7 | 1 |
+| h1 | medical | 81 | 7 | 2 |
+| h2 | medical | 95 | 5 | 1 |
+| h3 | medical | 109 | 7 | 4 |
+| p1 | police | 95 | 5 | 1 |
 | p2 | police | 80 | 4 | 1 |
-| p3 | police | 94 | 3 | 1 |
-| p4 | police | 88 | 5 | 2 |
-| b1 | bank | 87 | 7 | 2 |
-| b2 | bank | 75 | 5 | 2 |
-| b3 | bank | 67 | 3 | 1 |
-| c1 | chat | 102 | 4 | 0 |
-| c2 | chat | 120 | 6 | 2 |
-| c3 | chat | 107 | 4 | 0 |
-| c4 | chat | 104 | 5 | 0 |
+| p3 | police | 82 | 3 | 1 |
+| p4 | police | 74 | 5 | 2 |
+| b1 | bank | 100 | 7 | 2 |
+| b2 | bank | 84 | 5 | 2 |
+| b3 | bank | 75 | 4 | 1 |
+| c1 | chat | 106 | 5 | 0 |
+| c2 | chat | 112 | 6 | 2 |
+| c3 | chat | 102 | 4 | 0 |
+| c4 | chat | 105 | 5 | 0 |

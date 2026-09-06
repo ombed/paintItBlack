@@ -1041,7 +1041,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "suggest",
+    "model",
     "applied"
    ],
    "matched": [
@@ -1977,7 +1977,8 @@
     "applied"
    ],
    "matched": [
-    "ליעד כץ"
+    "ליעד כץ",
+    "כץ"
    ],
    "leakedSurfaces": []
   },
@@ -2238,7 +2239,8 @@
     "applied"
    ],
    "matched": [
-    "מתן צח"
+    "מתן צח",
+    "צח"
    ],
    "leakedSurfaces": []
   },
@@ -3058,7 +3060,8 @@
     "applied"
    ],
    "matched": [
-    "לעלמה כץ"
+    "לעלמה כץ",
+    "כץ"
    ],
    "leakedSurfaces": []
   },
@@ -3487,14 +3490,17 @@
    "genre": "bank",
    "cat": "L_TOWN",
    "canonical": "בית אריה",
-   "found": false,
-   "leaked": true,
+   "found": true,
+   "leaked": false,
    "fp": 0,
-   "via": [],
-   "matched": [],
-   "leakedSurfaces": [
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
     "בית אריה"
-   ]
+   ],
+   "leakedSurfaces": []
   },
   {
    "doc": "b3",
@@ -3521,7 +3527,8 @@
     "applied"
    ],
    "matched": [
-    "מיקי צח"
+    "מיקי צח",
+    "צח"
    ],
    "leakedSurfaces": []
   },
@@ -3584,12 +3591,13 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "model",
     "suggest",
     "applied"
    ],
    "matched": [
-    "צליל תביא",
-    "צליל"
+    "צליל",
+    "צליל תביא"
    ],
    "leakedSurfaces": []
   },
@@ -3880,7 +3888,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "flagged",
+    "model",
     "applied"
    ],
    "matched": [
@@ -3971,6 +3979,16 @@
     "discover"
    ],
    "why": "מופיע אחרי מילת תפקיד בגוף הטקסט",
+   "applied": true
+  },
+  {
+   "doc": "f1",
+   "genre": "filing",
+   "value": "ירושלים",
+   "sources": [
+    "model"
+   ],
+   "why": "",
    "applied": true
   },
   {
@@ -4322,140 +4340,140 @@
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 163,
+   "ms": 181,
    "rules": 9,
    "unlisted": 0
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 109,
+   "ms": 118,
    "rules": 13,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 82,
+   "ms": 84,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 120,
+   "ms": 115,
    "rules": 11,
    "unlisted": 5
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 139,
-   "rules": 14,
-   "unlisted": 2
+   "ms": 143,
+   "rules": 15,
+   "unlisted": 3
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 179,
+   "ms": 175,
    "rules": 18,
    "unlisted": 3
   },
   {
    "id": "f3",
    "genre": "filing",
-   "ms": 110,
+   "ms": 101,
    "rules": 11,
    "unlisted": 1
   },
   {
    "id": "f4",
    "genre": "filing",
-   "ms": 126,
+   "ms": 125,
    "rules": 10,
    "unlisted": 2
   },
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 112,
+   "ms": 113,
    "rules": 9,
    "unlisted": 1
   },
   {
    "id": "t2",
    "genre": "transcript",
-   "ms": 106,
+   "ms": 105,
    "rules": 13,
    "unlisted": 2
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 103,
+   "ms": 107,
    "rules": 11,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 107,
+   "ms": 102,
    "rules": 14,
    "unlisted": 2
   },
   {
    "id": "w1",
    "genre": "welfare",
-   "ms": 78,
+   "ms": 71,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "w2",
    "genre": "welfare",
-   "ms": 76,
+   "ms": 79,
    "rules": 6,
    "unlisted": 1
   },
   {
    "id": "w3",
    "genre": "welfare",
-   "ms": 83,
+   "ms": 80,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "w4",
    "genre": "welfare",
-   "ms": 82,
+   "ms": 74,
    "rules": 7,
    "unlisted": 1
   },
   {
    "id": "h1",
    "genre": "medical",
-   "ms": 85,
+   "ms": 81,
    "rules": 7,
    "unlisted": 2
   },
   {
    "id": "h2",
    "genre": "medical",
-   "ms": 103,
+   "ms": 95,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "h3",
    "genre": "medical",
-   "ms": 113,
+   "ms": 109,
    "rules": 7,
    "unlisted": 4
   },
   {
    "id": "p1",
    "genre": "police",
-   "ms": 100,
+   "ms": 95,
    "rules": 5,
    "unlisted": 1
   },
@@ -4469,63 +4487,63 @@
   {
    "id": "p3",
    "genre": "police",
-   "ms": 94,
+   "ms": 82,
    "rules": 3,
    "unlisted": 1
   },
   {
    "id": "p4",
    "genre": "police",
-   "ms": 88,
+   "ms": 74,
    "rules": 5,
    "unlisted": 2
   },
   {
    "id": "b1",
    "genre": "bank",
-   "ms": 87,
+   "ms": 100,
    "rules": 7,
    "unlisted": 2
   },
   {
    "id": "b2",
    "genre": "bank",
-   "ms": 75,
+   "ms": 84,
    "rules": 5,
    "unlisted": 2
   },
   {
    "id": "b3",
    "genre": "bank",
-   "ms": 67,
-   "rules": 3,
+   "ms": 75,
+   "rules": 4,
    "unlisted": 1
   },
   {
    "id": "c1",
    "genre": "chat",
-   "ms": 102,
-   "rules": 4,
+   "ms": 106,
+   "rules": 5,
    "unlisted": 0
   },
   {
    "id": "c2",
    "genre": "chat",
-   "ms": 120,
+   "ms": 112,
    "rules": 6,
    "unlisted": 2
   },
   {
    "id": "c3",
    "genre": "chat",
-   "ms": 107,
+   "ms": 102,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "c4",
    "genre": "chat",
-   "ms": 104,
+   "ms": 105,
    "rules": 5,
    "unlisted": 0
   }

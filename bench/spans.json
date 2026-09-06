@@ -885,12 +885,12 @@
   "kind": "NAME",
   "surface": "אלה בן-רביב",
   "at": 53,
-  "cls": "cut-right",
+  "cls": "exact",
   "flags": [],
-  "span": "אלה בן",
+  "span": "אלה בן-רביב",
   "type": "PER",
   "score": 1,
-  "survives": false
+  "survives": true
  },
  {
   "doc": "m4",
@@ -955,13 +955,13 @@
   "kind": "PLACE",
   "surface": "רחוב הארזים 12",
   "at": 266,
-  "cls": "glued-left+cut-right",
+  "cls": "glued-left",
   "flags": [
    "prefix-letter"
   ],
-  "span": "ברחוב הארזים",
+  "span": "ברחוב הארזים 12",
   "type": "FAC",
-  "score": 0.97,
+  "score": 0.56,
   "survives": false
  },
  {
@@ -1197,14 +1197,14 @@
   "kind": "PLACE",
   "surface": "רחוב התאנה 4",
   "at": 71,
-  "cls": "glued-left+cut-right",
+  "cls": "glued-left",
   "flags": [
    "prefix-letter"
   ],
-  "span": "מרחוב התאנה",
+  "span": "מרחוב התאנה 4",
   "type": "FAC",
-  "score": 1,
-  "survives": false
+  "score": 0.94,
+  "survives": true
  },
  {
   "doc": "f2",
@@ -1447,12 +1447,12 @@
   "kind": "NAME",
   "surface": "אלה בן-רביב",
   "at": 467,
-  "cls": "cut-right",
+  "cls": "exact",
   "flags": [],
-  "span": "אלה בן",
+  "span": "אלה בן-רביב",
   "type": "PER",
   "score": 1,
-  "survives": false
+  "survives": true
  },
  {
   "doc": "f2",
@@ -1583,7 +1583,7 @@
   "span": "לשכת הרווחה\nהמבקשת",
   "type": "ORG",
   "score": 0.92,
-  "survives": false
+  "survives": true
  },
  {
   "doc": "f3",
@@ -1592,9 +1592,9 @@
   "kind": "NAME",
   "surface": "בן-רביב",
   "at": 476,
-  "cls": "cut-right",
+  "cls": "exact",
   "flags": [],
-  "span": "בן",
+  "span": "בן-רביב",
   "type": "PER",
   "score": 0.98,
   "survives": false
@@ -1808,12 +1808,12 @@
   "kind": "NAME",
   "surface": "עבד אל-האדי",
   "at": 167,
-  "cls": "cut-right",
+  "cls": "exact",
   "flags": [],
-  "span": "עבד אל",
+  "span": "עבד אל-האדי",
   "type": "PER",
   "score": 0.83,
-  "survives": false
+  "survives": true
  },
  {
   "doc": "f4",
@@ -1829,7 +1829,7 @@
   "span": "",
   "type": "",
   "score": 0,
-  "survives": false
+  "survives": true
  },
  {
   "doc": "f4",
@@ -2416,12 +2416,12 @@
   "kind": "NAME",
   "surface": "אלה בן-רביב",
   "at": 96,
-  "cls": "cut-right",
+  "cls": "exact",
   "flags": [],
-  "span": "אלה בן",
+  "span": "אלה בן-רביב",
   "type": "PER",
   "score": 0.96,
-  "survives": false
+  "survives": true
  },
  {
   "doc": "t2",
@@ -2430,12 +2430,12 @@
   "kind": "NAME",
   "surface": "אלה בן-רביב",
   "at": 283,
-  "cls": "cut-left+cut-right",
+  "cls": "cut-left",
   "flags": [],
-  "span": "בן",
+  "span": "בן-רביב",
   "type": "PER",
   "score": 0.95,
-  "survives": false
+  "survives": true
  },
  {
   "doc": "t2",
@@ -4237,11 +4237,11 @@
   "kind": "NAME",
   "surface": "כרים אבו-סרחאן",
   "at": 93,
-  "cls": "glued-left+cut-right",
+  "cls": "glued-left",
   "flags": [
    "prefix-letter"
   ],
-  "span": "וכרים אבו",
+  "span": "וכרים אבו-סרחאן",
   "type": "PER",
   "score": 1,
   "survives": false
@@ -4541,14 +4541,14 @@
   "kind": "PLACE",
   "surface": "רחוב הדקל 7",
   "at": 149,
-  "cls": "glued-left+cut-right",
+  "cls": "glued-left",
   "flags": [
    "prefix-letter"
   ],
-  "span": "ברחוב הדקל",
+  "span": "ברחוב הדקל 7",
   "type": "FAC",
-  "score": 1,
-  "survives": false
+  "score": 0.99,
+  "survives": true
  },
  {
   "doc": "p1",
@@ -5315,12 +5315,12 @@
   "kind": "NAME",
   "surface": "ליעד בן-עמיאל",
   "at": 106,
-  "cls": "cut-right",
+  "cls": "exact",
   "flags": [],
-  "span": "ליעד בן",
+  "span": "ליעד בן-עמיאל",
   "type": "PER",
   "score": 1,
-  "survives": false
+  "survives": true
  },
  {
   "doc": "c2",
@@ -5329,12 +5329,12 @@
   "kind": "NAME",
   "surface": "ליעד בן-עמיאל",
   "at": 282,
-  "cls": "cut-right",
+  "cls": "exact",
   "flags": [],
-  "span": "ליעד בן",
+  "span": "ליעד בן-עמיאל",
   "type": "PER",
   "score": 1,
-  "survives": false
+  "survives": true
  },
  {
   "doc": "c2",

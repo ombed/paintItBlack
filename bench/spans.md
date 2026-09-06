@@ -6,14 +6,14 @@
 
 | class | occurrences | value survives cleaning |
 |---|---|---|
-| exact | 221 | 128 |
-| none | 65 | 7 |
-| glued-left | 36 | 12 |
-| cut-left | 33 | 18 |
+| exact | 228 | 134 |
+| none | 65 | 8 |
+| glued-left | 40 | 14 |
+| cut-left | 34 | 19 |
 | cut-left+glued-right | 11 | 4 |
-| cut-right | 10 | 0 |
-| glued-left+cut-right | 8 | 0 |
-| cut-left+cut-right | 2 | 0 |
+| glued-left+cut-right | 4 | 1 |
+| cut-right | 3 | 0 |
+| cut-left+cut-right | 1 | 0 |
 | glued-right | 1 | 0 |
 
 ## Context flags on the mis-bounded spans
@@ -41,20 +41,20 @@
 
 | genre | exact | glued | cut | none |
 |---|---|---|---|---|
-| meeting | 32 | 10 | 11 | 16 |
-| filing | 36 | 11 | 16 | 14 |
-| transcript | 50 | 17 | 16 | 14 |
+| meeting | 33 | 10 | 9 | 16 |
+| filing | 39 | 11 | 12 | 14 |
+| transcript | 51 | 17 | 15 | 14 |
 | welfare | 30 | 7 | 7 | 6 |
-| medical | 18 | 4 | 2 | 6 |
-| police | 24 | 4 | 4 | 3 |
+| medical | 18 | 4 | 1 | 6 |
+| police | 24 | 4 | 3 | 3 |
 | bank | 11 | 1 | 2 | 0 |
-| chat | 20 | 2 | 6 | 6 |
+| chat | 22 | 2 | 4 | 6 |
 
 ## By category (mis-bounded or missed only)
 
 | category | glued | cut | none | of |
 |---|---|---|---|---|
-| person: Arabic name | 0 | 1 | 4 | 28 |
+| person: Arabic name | 0 | 0 | 4 | 28 |
 | person: name that is also a common word | 4 | 3 | 8 | 24 |
 | person: title attached | 2 | 7 | 1 | 18 |
 | person: same person, one clean and one corrupted spelling | 0 | 0 | 3 | 11 |
@@ -63,7 +63,7 @@
 | person: full name, surname alone, first name alone | 2 | 0 | 1 | 31 |
 | person: only in prose, never before a speech verb | 1 | 0 | 1 | 14 |
 | person: Ethiopian name | 0 | 5 | 4 | 22 |
-| person: role word directly before, no colon | 2 | 7 | 0 | 13 |
+| person: role word directly before, no colon | 2 | 6 | 0 | 13 |
 | org: body whose name reads like a person's | 0 | 3 | 1 | 4 |
 | place: neighbourhood | 0 | 4 | 5 | 10 |
 | person: two people sharing a surname | 8 | 0 | 3 | 26 |
@@ -73,9 +73,9 @@
 | person: name that reads like a body's | 0 | 0 | 1 | 3 |
 | person: two people edit-distance 1 apart (must not merge) | 5 | 2 | 2 | 18 |
 | person: only in corrupted form, never cleanly | 0 | 0 | 2 | 5 |
-| person: hyphenated surname, elsewhere with a space | 3 | 7 | 0 | 15 |
+| person: hyphenated surname, elsewhere with a space | 3 | 1 | 0 | 15 |
 | person: minor, first name only | 1 | 0 | 4 | 18 |
-| place: street | 7 | 7 | 4 | 12 |
+| place: street | 7 | 4 | 4 | 12 |
 | person: two-letter surname | 1 | 0 | 4 | 17 |
 | person: minor introduced by הקטין / הקטינה | 0 | 5 | 2 | 18 |
 
@@ -99,26 +99,22 @@
 | m3 | מיקה | cut-left+glued-right | next-word | מיקה | PER | 1 | yes |
 | m3 | מִיקָה | cut-left+glued-right | next-word | מיקה | PER | 1 | no |
 | m4 | אביתן | glued-left | prefix-letter | ואביתן | PER | 0.98 | no |
-| m4 | אלה בן-רביב | cut-right |  | אלה בן | PER | 1 | no |
-| m4 | רחוב הארזים 12 | glued-left+cut-right | prefix-letter | ברחוב הארזים | FAC | 0.97 | no |
+| m4 | רחוב הארזים 12 | glued-left | prefix-letter | ברחוב הארזים 12 | FAC | 0.56 | no |
 | f1 | התובעת סיון נבון | cut-left |  | סיון נבון | PER | 1 | yes |
 | f1 | הנתבע צור אסולין | cut-left |  | צור אסולין | PER | 1 | yes |
 | f1 | עו"ד יערה ליפשיץ | cut-left |  | יערה ליפשיץ | PER | 1 | yes |
 | f1 | בית ספר ניצני הגליל | cut-left |  | ניצני הגליל | ORG | 0.55 | no |
-| f1 | רחוב התאנה 4 | glued-left+cut-right | prefix-letter | מרחוב התאנה | FAC | 1 | no |
+| f1 | רחוב התאנה 4 | glued-left | prefix-letter | מרחוב התאנה 4 | FAC | 0.94 | yes |
 | f2 | רוזנטל | glued-left | previous-word | מורן רוזנטל | PER | 1 | no |
 | f2 | רוזנטל | glued-left | prefix-letter | ורוזנטל | PER | 1 | no |
 | f2 | ד"ר נתנאל גולן | cut-left |  | נתנאל גולן | PER | 1 | yes |
 | f2 | גולן | glued-left | previous-word | שחר גולן | PER | 1 | no |
 | f2 | גב' רויטל סבג | cut-left |  | רויטל סבג | PER | 1 | yes |
 | f2 | סבג | glued-left | prefix-letter | וסבג | PER | 0.91 | no |
-| f2 | אלה בן-רביב | cut-right |  | אלה בן | PER | 1 | no |
 | f2 | שכונת גני אביב | cut-left |  | גני אביב | GPE | 1 | no |
 | f3 | אביתן | glued-left | prefix-letter | ואביתן | PER | 0.97 | no |
-| f3 | המבקשת אלה בן-רביב | glued-left+cut-right | across-punctuation, kind:ORG | לשכת הרווחה⏎המבקשת | ORG | 0.92 | no |
-| f3 | בן-רביב | cut-right |  | בן | PER | 0.98 | no |
+| f3 | המבקשת אלה בן-רביב | glued-left+cut-right | across-punctuation, kind:ORG | לשכת הרווחה⏎המבקשת | ORG | 0.92 | yes |
 | f3 | מבוא חורון | glued-left | prefix-letter | במבוא חורון | GPE | 1 | yes |
-| f4 | עבד אל-האדי | cut-right |  | עבד אל | PER | 0.83 | no |
 | f4 | גב' רויטל סבג | cut-left |  | רויטל סבג | PER | 1 | yes |
 | f4 | מיקה | cut-left+glued-right | next-word | מיקה | PER | 1 | yes |
 | f4 | מִיקָה | cut-left+glued-right | next-word | מיקה | PER | 1 | no |
@@ -126,8 +122,7 @@
 | t1 | הנתבע צור אסולין | cut-left |  | צור אסולין | PER | 1 | yes |
 | t1 | אסולין | glued-left | prefix-letter | ואסולין | PER | 1 | no |
 | t1 | אלון שבות | glued-left | prefix-letter | לאלון שבות | GPE | 1 | yes |
-| t2 | אלה בן-רביב | cut-right |  | אלה בן | PER | 0.96 | no |
-| t2 | אלה בן-רביב | cut-left+cut-right |  | בן | PER | 0.95 | no |
+| t2 | אלה בן-רביב | cut-left |  | בן-רביב | PER | 0.95 | yes |
 | t2 | בן רביב | glued-left | prefix-letter | שבן רביב | PER | 1 | no |
 | t2 | בן רביב | glued-left | prefix-letter | ובן רביב | PER | 1 | no |
 | t2 | מרפאת עין הכרמים | cut-left | kind:FAC | עין הכרמים | FAC | 0.86 | no |
@@ -164,11 +159,11 @@
 | w4 | אסיף | glued-left | prefix-letter | לאסיף | PER | 0.88 | yes |
 | h1 | ד"ר אביתר יפרח | cut-left |  | אביתר יפרח | PER | 1 | yes |
 | h1 | נוף הים | glued-left | prefix-letter, kind:GPE | בנוף הים | GPE | 1 | yes |
-| h2 | כרים אבו-סרחאן | glued-left+cut-right | prefix-letter | וכרים אבו | PER | 1 | no |
+| h2 | כרים אבו-סרחאן | glued-left | prefix-letter | וכרים אבו-סרחאן | PER | 1 | no |
 | h2 | צור יצחק | glued-left | prefix-letter | לצור יצחק | GPE | 1 | no |
 | h3 | קוזנצוב | glued-left | prefix-letter | וקוזנצוב | PER | 0.82 | no |
 | p1 | העד פיראס חטיב | cut-left |  | פיראס חטיב | PER | 1 | yes |
-| p1 | רחוב הדקל 7 | glued-left+cut-right | prefix-letter | ברחוב הדקל | FAC | 1 | no |
+| p1 | רחוב הדקל 7 | glued-left | prefix-letter | ברחוב הדקל 7 | FAC | 0.99 | yes |
 | p1 | הדקל | glued-left | prefix-letter | בהדקל | GPE | 1 | no |
 | p2 | הקטין לביא | cut-left |  | לביא | PER | 1 | yes |
 | p3 | עלמה כץ | glued-left | prefix-letter | לעלמה כץ | PER | 1 | no |
@@ -178,8 +173,6 @@
 | b1 | שדרות הברוש 21 | cut-right |  | שדרות הברוש | FAC | 1 | no |
 | b2 | חברת קו הזהב הובלות | cut-left |  | קו הזהב הובלות | ORG | 0.56 | no |
 | c1 | נופית | glued-left | prefix-letter | בנופית | GPE | 0.93 | no |
-| c2 | ליעד בן-עמיאל | cut-right |  | ליעד בן | PER | 1 | no |
-| c2 | ליעד בן-עמיאל | cut-right |  | ליעד בן | PER | 1 | no |
 | c2 | גן ילדים שלהבת | cut-left | kind:PER | שלהבת | PER | 0.87 | no |
 | c3 | הקטינה גפן | cut-left |  | גפן | PER | 1 | yes |
 | c3 | רחוב הנרקיס 9 | glued-left+cut-right | prefix-letter | ברחוב הנרקיס | FAC | 1 | no |
