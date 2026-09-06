@@ -1037,7 +1037,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const flag=new Set(E.PAT.filter(p=>!p.on).map(p=>p.n));
     flag.add("NAME_ANCHORED");
     if(this.state.o.places) on.add("PLACES"); else flag.add("PLACES");
-    return {on, flag, mode:this.state.mode, near:this.state.o.near, body:!this.state.nerUsed, prefixes:"normal"};
+    // שכבת הפעלים רצה גם כשהמודל רץ: על הקורפוס היא סוגרת ארבע דליפות שהמודל
+    // מפספס (שם רוסי, «משפחת X», שם שמופיע רק בפרוזה) תמורת ארבע הצעות עודפות.
+    return {on, flag, mode:this.state.mode, near:this.state.o.near, body:true, prefixes:"normal"};
   }
   async run(rows){
     const E=this.state.E;

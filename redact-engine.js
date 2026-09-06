@@ -444,11 +444,18 @@ function bodyNames(blocks,known){
           const gap=n.slice(raw[0].e,raw[1].s);
           if(/[.!?;:,()\n]/.test(gap))continue;
           if(PFX.has(raw[1].w[0])&&docTok.has(raw[1].w.slice(1)))continue;
+          // "איוונוב ואינו מהווה" — מילת שלילה, מילת יחס או פועל אחרי ו' החיבור
+          // אינם חלק מהשם. הצעה כזאת אושרה, ואז שם המשפחה לבדו נחשב משותף
+          // לשני ערכים ולא הוחלף.
+          const w2=raw[1].w.replace(/^ו/,"");
+          if(/^אינ[והםן]$/.test(w2)||STOP.has(w2)||COMMON.has(w2)||VRB.has(w2)||TRAIL.has(w2))continue;
         }
         // "מזרחי וכהן" — "וכהן" הוא אותו אדם כמו "כהן", לא מועמד נפרד
         const wds=raw.map(x=>
           PFX.has(x.w[0])&&docTok.has(x.w.slice(1))?x.w.slice(1):x.w);
         if(!wds.every(w=>nameish(w,docTok)))continue;
+        // "פלוני מהוועד": הכינוי המשפטי אינו אדם, גם לפני פועל
+        if(wds.some(w=>NER_DROP.has(w)))continue;
         const cand=wds.join(" ");
         if(kn.has(cand))continue;
         const s=raw[0].s,e=raw[len-1].e;
@@ -520,7 +527,10 @@ function bodyNames(blocks,known){
       // "המכתב אבד. אגבאריה אישרה" — שתי מילים משני משפטים אינן שם אחד
       if(/[.!?;:\n]/.test(n.slice(t[i-1].e,t[i].s)))continue;
       if(p[0]==="ה"||p.length<3||!nameish(p,docTok))continue;
-      if(ROLE1.includes(p)||VRB.has(p)||kn.has(p))continue;
+      if(ROLE1.includes(p)||VRB.has(p)||kn.has(p)||NER_DROP.has(p))continue;
+      // "מהוועד" לבדו לא היה מועמד טוב, ו"פלוני מהוועד" אינו שם מלא: ההרחבה
+      // לשם מלא לא מצילה מילה עם אות שימוש שהמסמך מכיר גם בלעדיה
+      if(PFX.has(o.value[0])&&docTok.has(o.value.slice(1)))continue;
       o.value=p+" "+o.value; o.full=true; break}}
   const dedup=new Map();
   for(const o of out){const ex=dedup.get(o.value);
@@ -540,7 +550,13 @@ function bodyNames(blocks,known){
    ומסמן גם מוסדות ציבוריים שאין טעם להשחיר. */
 const trimEdges=s=>(s||"").replace(/^[\s,.;:()\[\]"'\u05f3\u05f4-]+|[\s,.;:()\[\]"'\u05f3\u05f4-]+$/g,"").trim();
 const PUBLIC_ORG=/^(?:בי?ת ה?משפט|שרת? ה|לשכת ה|בתי המשפט|משרד ה|הכנסת|ועד[תה]\s|הוועד[הת]|המוסד לביטוח|ביטוח לאומי|הביטוח הלאומי|משטרת ישראל|צה"ל|היועץ המשפטי|פרקליטות|רשות ה|המשרד ל|בנק ישראל|מס הכנסה)/u;
-const NER_DROP=new Set(["מרח","מרח'","רח'","רחוב","שד'","ת.ז","ת\"ז","נ'","עמ'","סע'","בע\"מ","הנ\"ל"]);
+const NER_DROP=new Set(["מרח","מרח'","רח'","רחוב","שד'","ת.ז","ת\"ז","נ'","עמ'","סע'","בע\"מ","הנ\"ל",
+  // הכינויים המשפטיים אינם אנשים; המודל מציע אותם כשם
+  "פלוני","פלונית","אלמוני","אלמונית","פלונים"]);
+// מילות יחס וזמן שהמודל גורר לסוף של מקום או גוף ("הפרדס בעקבות")
+const TRAIL=new Set(["בעקבות","לאחר","לפני","אחרי","בגלל","למרות","כדי","עם","אל","על","של","ליד","מול","בין",
+  "תחת","בתוך","מתוך","לכיוון","בשעה","ביום","היום","אתמול","מחר","כאשר","אם","כי","אבל","או","גם","רק","עוד",
+  "כבר","שם","כאן","פה","בדרך","בזמן","במשך","בסוף","בתחילת","באמצע","סמוך","קרוב","רחוק"]);
 const NER_HEADS=new Set(["עמותת","עמותה","מעון","מרפאת","מכון","קרן","מרכז","אגודת","חברת","לשכת","משרד","פנימיית","ישיבת","רחוב","שדרות","שכונת","סמטת","דרך","כיכר","ככר","מעלה","משעול","כפר","קרית","גני","נווה","מבוא"]);
 const NER_KIND={PER:"NAME",ORG:"ORG",GPE:"PLACE",LOC:"PLACE",FAC:"PLACE"};
 // זיהוי בלבד, לא ייצור: כאן מותר שיהיו שמות שכיחים שלא נרצה להמציא
@@ -649,6 +665,10 @@ function nerClean(ents,text,opt){
     // בית משפט ומשרד ממשלתי אינם פרט מזהה, ואין טעם להציע אותם
     if(kind!=="NAME"&&PUBLIC_ORG.test(norm(v).replace(/^[\u05d1\u05d4\u05d5\u05dc\u05de\u05db\u05e9]/,"")))continue;
     if(kind!=="NAME"&&PUBLIC_ORG.test(norm(v)))continue;
+    // "הפרדס בעקבות": המודל גרר את מילת היחס הבאה לתוך מקום. מילת יחס או פועל
+    // בסוף גוף או מקום אינם חלק מהשם. רק מהסוף, ורק אחרי בדיקת הגופים
+    // הציבוריים — חיתוך מההתחלה הפך את "משרד הרווחה" ל"הרווחה" והציע אותו.
+    if(kind!=="NAME"){const ws=v.split(/\s+/); while(ws.length>1&&(TRAIL.has(norm(ws[ws.length-1]))||VRB.has(norm(ws[ws.length-1]))))ws.pop(); v=ws.join(" ");}
     const key=kind+"|"+norm(v);
     const g=seen.get(key)||{value:v,kind,score:0,n:0,s,e:en};
     g.n++; g.score=Math.max(g.score,e.score); seen.set(key,g);
@@ -818,7 +838,9 @@ function trimPlace(v){
   while(w.length>1){
     const last=w[w.length-1], bare=last.replace(/^[בהולמכש]/,"");
     if(PLACE_BY[last]||PLACE_BY[bare]||PLACE_HEAD.has(bare)||PLACE_HEAD.has(last)||
-       (w.length>2&&PLACE_BY[w.slice(-2).join(" ")])) w.pop();
+       (w.length>2&&PLACE_BY[w.slice(-2).join(" ")])||
+       // "שכונת הפרדס בעקבות קריאה": מילת יחס או פועל אחרי השם אינם חלק ממנו
+       TRAIL.has(last)||VRB.has(last)) w.pop();
     else break;
   }
   return w.join(" ");
@@ -1233,6 +1255,20 @@ async function redactDocx(buf,subs,allow,opt){
   // ובלי אות שימוש הם דולפים ("וסבג" נשאר בטקסט). מילה של ממש נתפסת ברשימות
   // ובצורת ה' הידיעה שבמסמך; שתי אותיות נשארות זהירות.
   const wordy=p=>WORDLIKE.has(p)||COMMON.has(p)||docTokAll.has("ה"+p)||p.length<=2;
+  // "רחוב הארזים 12" הוחלף, ו"ההסעות מהארזים" נשאר בטקסט: שם הרחוב לבדו הוא
+  // אותו מקום. כל כתובת, רחוב או שכונה שהוחלפו תורמים את המילים שאחרי סוג
+  // הרחוב, ובלי המספר; כשהשם הוא גם מילה, רק כשעומד לבד ולבדיקה. חמש
+  // מ-16 הדליפות בקורפוס היו בדיוק זה.
+  const STREET_HEAD=/^(?:רחוב|רח'|שדרות|שד'|סמטת|סמטה|דרך|שכונת|כיכר|ככר|מעלה|נחל|משעול)\s+(.+?)(?:\s+\d.*)?$/u;
+  for(const r of applied){
+    const rp=r.baseRep||r.rep; if(!rp||rp==="███")continue;
+    // הערך שנתפס עשוי לשאת אות שימוש ("ברחוב הגפן"); הבסיס של הכלל נקי ממנה
+    const src=norm(r.base||r.value).trim();
+    const m=STREET_HEAD.exec(src)||STREET_HEAD.exec(src.replace(/^[בהולמכש]/,"")); if(!m)continue;
+    const nm=m[1].trim();
+    if(nm.length<3||(nm in sweep)||STOP.has(nm)||PLACE_BY[nm]||norm(rp).includes(nm))continue;
+    sweep[nm]={rep:rp,of:r.value,wordy:wordy(nm),place:true};
+  }
   const regPart=(value,rp,label)=>{
     if(!rp||rp==="███")return;
     if(label&&!label.startsWith("שם"))return;
@@ -1282,8 +1318,11 @@ async function redactDocx(buf,subs,allow,opt){
         const out=inf.of?addPre(m[1]||"",nw):nw;
         reps.push([s,e,out]);
         applied.push({value:blk.text.slice(s,e),
-          label:inf.of?"שם (חלק)":"אחידות",part:partName(blk.part),
-          why:inf.of?(inf.wordy
+          label:inf.of?(inf.place?"מקום (חלק)":"שם (חלק)"):"אחידות",part:partName(blk.part),
+          why:inf.of?(inf.place
+                ?(inf.wordy?`שם הרחוב מתוך «${inf.of}» — אבל גם מילה. הוחלף רק כשעומד לבד; ודאי שזה המקום`
+                           :`שם הרחוב מתוך «${inf.of}» שכבר הוחלף, ומופיע כאן לבד`)
+                :inf.wordy
                 ?`חלק מהשם «${inf.of}» — אבל גם מילה. הוחלף רק כשעומד לבד; ודאי שזה האדם`
                 :`חלק מהשם «${inf.of}» שכבר הוחלף, ומופיע כאן לבד`)
                     :"אותו ערך זוהה במקום אחר במסמך, אז הוחלף גם כאן",
@@ -1685,9 +1724,20 @@ function nerGroup(toks){
     if(t._s==null){cur=null;continue}
     // סימן פיסוק אינו חלק משם, גם כשהמודל מדביק לו תווית I-. "הילדה. מיקה"
     // ו"השופטת: הורוביץ" נולדו מכאן: הנקודה קיבלה I-PER והשרשרת נמשכה.
-    if(!/[֐-׿w]/u.test(String(t.word||t.token||t.text||"").replace(/^##/,""))){cur=null;continue}
+    const wtxt=String(t.word||t.token||t.text||"").replace(/^##/,"");
+    // מקף צמוד בתוך שם ("בן-רביב", "אבו-סרחאן") שייך לשם; הקבוצה נמשכת
+    // מעבר לו, ומקף שנשאר בסוף נחתך ב-trimEdges.
+    if(/^[-־–]$/.test(wtxt)&&cur&&t._s<=cur.e){cur.e=t._e;continue}
+    if(!/[֐-׿\w]/u.test(wtxt)){cur=null;continue}
     const raw=String(t.entity_group||t.entity||"");
     const type=raw.replace(/^[BI]-/,"");
+    // המודל מתייג רק את תת-המילה הראשונה של כל מילה, וההמשכים ("##אן", "##טה")
+    // חוזרים כ-O. תת-מילה שממשיכה את המילה של הישות הנוכחית שייכת לה בכל
+    // מקרה: בלי זה "דסטה טספאיי" נשבר ל"דס" ול"טס", ההרחבה לגבול המילה מחזירה
+    // שתי מילים נפרדות, והשם המלא לא מגיע לרשימה. זה היה הכשל השכיח ביותר
+    // בגבולות המקטעים (94 מ-329 מופעים בקורפוס), לא פיסוק ולא קצה קטע.
+    const sub=/^##/.test(String(t.word||t.token||t.text||""));
+    if(sub&&cur&&t._s<=cur.e){cur.e=Math.max(cur.e,t._e);continue}
     if(!type||type==="O"){cur=null;continue}
     // תת-מילה ממשיכה את הישות; תווית B פותחת חדשה
     const cont=cur&&cur.type===type&&!/^B-/.test(raw)&&t._s<=cur.e+1;
