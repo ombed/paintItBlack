@@ -28,6 +28,12 @@
   "T_PLONI": "trap: פלוני / פלונית",
   "T_NUMBERS": "trap: case numbers, dates, section references",
   "T_IDIOM": "trap: idiom or public title beside a same-word name",
+  "P_ROLE_COLON": "person: party by role word and colon, first name only",
+  "P_AFTER_LEAD": "person: name right after a discourse word (כאמור, משכך, לדבריה)",
+  "T_FORMLABEL": "trap: form label with a colon (not a speaker)",
+  "T_TZSPLIT": "trap: word ending in ת before a word starting with ז (not ת\"ז)",
+  "T_UNDERSIGNED": "trap: הח\"מ before a verb (not a name)",
+  "O_ROLEWORD": "trap: role word in any spelling (אפוטרופא, אפוטרופוס)",
   "P_SUR2": "person: two-letter surname",
   "P_MINOR_ANCH": "person: minor introduced by הקטין / הקטינה",
   "I_ID": "pii: ID number",
@@ -2795,6 +2801,306 @@
       "20.2.2026"
      ],
      "note": ""
+    }
+   ]
+  },
+  {
+   "id": "x1",
+   "genre": "position",
+   "title": "כתב עמדה",
+   "file": "corpus/x1.docx",
+   "words": 116,
+   "entities": [
+    {
+     "cat": "P_ROLE_COLON",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "נופר",
+     "surfaces": [
+      "נופר",
+      "התובע:  נופר"
+     ],
+     "note": "party by role and colon, first name only"
+    },
+    {
+     "cat": "P_ROLE_COLON",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "טוהר",
+     "surfaces": [
+      "טוהר",
+      "הנתבעת:  טוהר"
+     ],
+     "note": "party by role and colon, first name only"
+    },
+    {
+     "cat": "P_AFTER_LEAD",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ליעד",
+     "surfaces": [
+      "ליעד"
+     ],
+     "note": "minor, appears after כאמור / משכך and after הקטין"
+    },
+    {
+     "cat": "P_MINOR_ANCH",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אביתר",
+     "surfaces": [
+      "האח אביתר",
+      "אביתר"
+     ],
+     "note": "sibling introduced by a kin word"
+    },
+    {
+     "cat": "L_TOWN",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "בית אריה",
+     "surfaces": [
+      "בית אריה"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_FORMLABEL",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "מועד אחרון לתגובה",
+     "surfaces": [
+      "מועד אחרון לתגובה",
+      "מועד המצאת ההחלטה"
+     ],
+     "note": "form label with a colon is not a speaker"
+    },
+    {
+     "cat": "T_TZSPLIT",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "בהחלפת זמני",
+     "surfaces": [
+      "בהחלפת זמני",
+      "שנקבעו ותחת זאת"
+     ],
+     "note": "a ת ending a word before a ז starting the next is not ת\"ז"
+    },
+    {
+     "cat": "T_UNDERSIGNED",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "הח\"מ סבורה",
+     "surfaces": [
+      "הח\"מ סבורה",
+      "הח\"מ להשיג",
+      "הח\"מ עולה"
+     ],
+     "note": "the undersigned before a verb is not a name"
+    },
+    {
+     "cat": "O_ROLEWORD",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "אפוטרופא לדין",
+     "surfaces": [
+      "אפוטרופא לדין",
+      "אפטרופא"
+     ],
+     "note": "a role word in any spelling is not a name"
+    }
+   ]
+  },
+  {
+   "id": "x2",
+   "genre": "position",
+   "title": "תגובת האפוטרופא לדין",
+   "file": "corpus/x2.docx",
+   "words": 74,
+   "entities": [
+    {
+     "cat": "P_ROLE_COLON",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "שיראל",
+     "surfaces": [
+      "שיראל",
+      "המבקשת:  שיראל"
+     ],
+     "note": "party by role and colon, first name only"
+    },
+    {
+     "cat": "P_ROLE_COLON",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "לביא",
+     "surfaces": [
+      "לביא",
+      "המשיב:  לביא"
+     ],
+     "note": "party by role and colon, first name only"
+    },
+    {
+     "cat": "P_AFTER_LEAD",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אגם",
+     "surfaces": [
+      "אגם"
+     ],
+     "note": "minor, appears after לדבריה / בנוסף and after הקטינה"
+    },
+    {
+     "cat": "L_STREET",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "רחוב הדקל 7",
+     "surfaces": [
+      "רחוב הדקל 7",
+      "הדקל"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_FORMLABEL",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "הנדון",
+     "surfaces": [
+      "הנדון",
+      "סימוכין",
+      "מועד הדיון"
+     ],
+     "note": "form label with a colon is not a speaker"
+    },
+    {
+     "cat": "T_TZSPLIT",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "לעניין אכיפת זכויות",
+     "surfaces": [
+      "לעניין אכיפת זכויות",
+      "בקשת זמנים"
+     ],
+     "note": "a ת ending a word before a ז starting the next is not ת\"ז"
+    },
+    {
+     "cat": "T_UNDERSIGNED",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "הח\"מ ממליצה",
+     "surfaces": [
+      "הח\"מ ממליצה",
+      "הח\"מ השאירה"
+     ],
+     "note": "the undersigned before a verb is not a name"
+    },
+    {
+     "cat": "O_ROLEWORD",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "האפוטרופוס לדין",
+     "surfaces": [
+      "האפוטרופוס לדין",
+      "אפוטרופסית"
+     ],
+     "note": "a role word in any spelling is not a name"
+    }
+   ]
+  },
+  {
+   "id": "x3",
+   "genre": "position",
+   "title": "עמדת האפוטרופא לדין",
+   "file": "corpus/x3.docx",
+   "words": 59,
+   "entities": [
+    {
+     "cat": "P_ROLE_COLON",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אלינה",
+     "surfaces": [
+      "אלינה",
+      "התובעת:  אלינה"
+     ],
+     "note": "party by role and colon, first name only"
+    },
+    {
+     "cat": "P_ROLE_COLON",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ארטיום",
+     "surfaces": [
+      "ארטיום",
+      "הנתבע:  ארטיום"
+     ],
+     "note": "party by role and colon, first name only"
+    },
+    {
+     "cat": "P_AFTER_LEAD",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "יונס",
+     "surfaces": [
+      "יונס"
+     ],
+     "note": "minor, appears after ואולם / יצוין and after הקטין"
+    },
+    {
+     "cat": "P_MINOR_ANCH",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מייסא",
+     "surfaces": [
+      "האחות מייסא",
+      "מייסא"
+     ],
+     "note": "sibling introduced by a kin word"
+    },
+    {
+     "cat": "T_FORMLABEL",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "נושא",
+     "surfaces": [
+      "נושא",
+      "מועד הגשה"
+     ],
+     "note": "form label with a colon is not a speaker"
+    },
+    {
+     "cat": "T_TZSPLIT",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "ברכישת זכויות",
+     "surfaces": [
+      "ברכישת זכויות",
+      "הצעת זמנים"
+     ],
+     "note": "a ת ending a word before a ז starting the next is not ת\"ז"
+    },
+    {
+     "cat": "T_UNDERSIGNED",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "הח\"מ נפגשה",
+     "surfaces": [
+      "הח\"מ נפגשה",
+      "הח\"מ מציעה"
+     ],
+     "note": "the undersigned before a verb is not a name"
+    },
+    {
+     "cat": "O_ROLEWORD",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "אפוטרופוס לדין",
+     "surfaces": [
+      "אפוטרופוס לדין",
+      "האפוטרופא"
+     ],
+     "note": "a role word in any spelling is not a name"
     }
    ]
   }

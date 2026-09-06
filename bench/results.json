@@ -1027,7 +1027,6 @@
    ],
    "matched": [
     "אלה בן-רביב",
-    "המבקשת",
     "בן-רביב"
    ],
    "leakedSurfaces": []
@@ -1544,7 +1543,6 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "discover",
     "model",
     "applied"
    ],
@@ -1972,7 +1970,6 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "discover",
     "model",
     "applied"
    ],
@@ -3907,6 +3904,376 @@
    "via": [],
    "matched": [],
    "leakedSurfaces": []
+  },
+  {
+   "doc": "x1",
+   "genre": "position",
+   "cat": "P_ROLE_COLON",
+   "canonical": "נופר",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "נופר"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x1",
+   "genre": "position",
+   "cat": "P_ROLE_COLON",
+   "canonical": "טוהר",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "applied"
+   ],
+   "matched": [
+    "טוהר"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x1",
+   "genre": "position",
+   "cat": "P_AFTER_LEAD",
+   "canonical": "ליעד",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "ליעד"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x1",
+   "genre": "position",
+   "cat": "P_MINOR_ANCH",
+   "canonical": "אביתר",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "אביתר"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x1",
+   "genre": "position",
+   "cat": "L_TOWN",
+   "canonical": "בית אריה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "בבית אריה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x1",
+   "genre": "position",
+   "cat": "T_FORMLABEL",
+   "canonical": "מועד אחרון לתגובה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x1",
+   "genre": "position",
+   "cat": "T_TZSPLIT",
+   "canonical": "בהחלפת זמני",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x1",
+   "genre": "position",
+   "cat": "T_UNDERSIGNED",
+   "canonical": "הח\"מ סבורה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x1",
+   "genre": "position",
+   "cat": "O_ROLEWORD",
+   "canonical": "אפוטרופא לדין",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x2",
+   "genre": "position",
+   "cat": "P_ROLE_COLON",
+   "canonical": "שיראל",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "שיראל"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x2",
+   "genre": "position",
+   "cat": "P_ROLE_COLON",
+   "canonical": "לביא",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "לביא"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x2",
+   "genre": "position",
+   "cat": "P_AFTER_LEAD",
+   "canonical": "אגם",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "אגם"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x2",
+   "genre": "position",
+   "cat": "L_STREET",
+   "canonical": "רחוב הדקל 7",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "רחוב הדקל 7",
+    "הדקל"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x2",
+   "genre": "position",
+   "cat": "T_FORMLABEL",
+   "canonical": "הנדון",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x2",
+   "genre": "position",
+   "cat": "T_TZSPLIT",
+   "canonical": "לעניין אכיפת זכויות",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x2",
+   "genre": "position",
+   "cat": "T_UNDERSIGNED",
+   "canonical": "הח\"מ ממליצה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x2",
+   "genre": "position",
+   "cat": "O_ROLEWORD",
+   "canonical": "האפוטרופוס לדין",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x3",
+   "genre": "position",
+   "cat": "P_ROLE_COLON",
+   "canonical": "אלינה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "אלינה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x3",
+   "genre": "position",
+   "cat": "P_ROLE_COLON",
+   "canonical": "ארטיום",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "applied"
+   ],
+   "matched": [
+    "ארטיום"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x3",
+   "genre": "position",
+   "cat": "P_AFTER_LEAD",
+   "canonical": "יונס",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "יונס"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x3",
+   "genre": "position",
+   "cat": "P_MINOR_ANCH",
+   "canonical": "מייסא",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "מייסא"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x3",
+   "genre": "position",
+   "cat": "T_FORMLABEL",
+   "canonical": "נושא",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x3",
+   "genre": "position",
+   "cat": "T_TZSPLIT",
+   "canonical": "ברכישת זכויות",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x3",
+   "genre": "position",
+   "cat": "T_UNDERSIGNED",
+   "canonical": "הח\"מ נפגשה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "x3",
+   "genre": "position",
+   "cat": "O_ROLEWORD",
+   "canonical": "אפוטרופוס לדין",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
   }
  ],
  "unlisted": [
@@ -3941,37 +4308,6 @@
    "applied": true
   },
   {
-   "doc": "m4",
-   "genre": "meeting",
-   "value": "לבד",
-   "sources": [
-    "flagged"
-   ],
-   "why": "",
-   "applied": true
-  },
-  {
-   "doc": "m4",
-   "genre": "meeting",
-   "value": "אבל",
-   "sources": [
-    "flagged"
-   ],
-   "why": "",
-   "applied": true
-  },
-  {
-   "doc": "f1",
-   "genre": "filing",
-   "value": "בי",
-   "sources": [
-    "discover",
-    "flagged"
-   ],
-   "why": "מופיע מיד לפני ת\"ז",
-   "applied": false
-  },
-  {
    "doc": "f1",
    "genre": "filing",
    "value": "נישאו",
@@ -3994,54 +4330,12 @@
   {
    "doc": "f2",
    "genre": "filing",
-   "value": "המבקשת",
-   "sources": [
-    "discover",
-    "model"
-   ],
-   "why": "פותח תור דיבור בתמלול",
-   "applied": true
-  },
-  {
-   "doc": "f2",
-   "genre": "filing",
-   "value": "לדירה בשכונת",
-   "sources": [
-    "discover"
-   ],
-   "why": "מופיע אחרי מילת תפקיד בגוף הטקסט",
-   "applied": true
-  },
-  {
-   "doc": "f2",
-   "genre": "filing",
    "value": "ומצא סימני",
    "sources": [
     "discover"
    ],
    "why": "מופיע אחרי מילת תפקיד בגוף הטקסט",
    "applied": true
-  },
-  {
-   "doc": "f3",
-   "genre": "filing",
-   "value": "המלצה",
-   "sources": [
-    "discover"
-   ],
-   "why": "פותח תור דיבור בתמלול",
-   "applied": true
-  },
-  {
-   "doc": "f4",
-   "genre": "filing",
-   "value": "לקבוע מזונו",
-   "sources": [
-    "discover",
-    "flagged"
-   ],
-   "why": "מופיע מיד לפני ת\"ז",
-   "applied": false
   },
   {
    "doc": "f4",
@@ -4051,26 +4345,6 @@
     "flagged"
    ],
    "why": "",
-   "applied": true
-  },
-  {
-   "doc": "t1",
-   "genre": "transcript",
-   "value": "שר",
-   "sources": [
-    "discover"
-   ],
-   "why": "מופיע אחרי תואר",
-   "applied": true
-  },
-  {
-   "doc": "t2",
-   "genre": "transcript",
-   "value": "לי",
-   "sources": [
-    "discover"
-   ],
-   "why": "מופיע אחרי תואר",
    "applied": true
   },
   {
@@ -4104,46 +4378,6 @@
    "applied": true
   },
   {
-   "doc": "t4",
-   "genre": "transcript",
-   "value": "ועדה",
-   "sources": [
-    "flagged"
-   ],
-   "why": "",
-   "applied": true
-  },
-  {
-   "doc": "w1",
-   "genre": "welfare",
-   "value": "המלצה",
-   "sources": [
-    "discover"
-   ],
-   "why": "פותח תור דיבור בתמלול",
-   "applied": true
-  },
-  {
-   "doc": "w2",
-   "genre": "welfare",
-   "value": "המלצה",
-   "sources": [
-    "discover"
-   ],
-   "why": "פותח תור דיבור בתמלול",
-   "applied": true
-  },
-  {
-   "doc": "w4",
-   "genre": "welfare",
-   "value": "המלצה",
-   "sources": [
-    "discover"
-   ],
-   "why": "פותח תור דיבור בתמלול",
-   "applied": true
-  },
-  {
    "doc": "h1",
    "genre": "medical",
    "value": "המטופלת",
@@ -4164,16 +4398,6 @@
    "applied": true
   },
   {
-   "doc": "h2",
-   "genre": "medical",
-   "value": "המלצה",
-   "sources": [
-    "discover"
-   ],
-   "why": "פותח תור דיבור בתמלול",
-   "applied": true
-  },
-  {
    "doc": "h3",
    "genre": "medical",
    "value": "הנבדק",
@@ -4186,21 +4410,21 @@
   {
    "doc": "h3",
    "genre": "medical",
-   "value": "פסיכולוגית קלינית",
-   "sources": [
-    "discover"
-   ],
-   "why": "מופיע באזור החתימה",
-   "applied": true
-  },
-  {
-   "doc": "h3",
-   "genre": "medical",
    "value": "חתימה",
    "sources": [
     "discover"
    ],
    "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "h3",
+   "genre": "medical",
+   "value": "קלינית",
+   "sources": [
+    "suggest"
+   ],
+   "why": "",
    "applied": true
   },
   {
@@ -4234,30 +4458,9 @@
    "applied": true
   },
   {
-   "doc": "p3",
-   "genre": "police",
-   "value": "שאלה",
-   "sources": [
-    "discover"
-   ],
-   "why": "פותח תור דיבור בתמלול",
-   "applied": true
-  },
-  {
-   "doc": "p4",
-   "genre": "police",
-   "value": "דו",
-   "sources": [
-    "discover",
-    "flagged"
-   ],
-   "why": "מופיע מיד לפני ת\"ז",
-   "applied": false
-  },
-  {
-   "doc": "p4",
-   "genre": "police",
-   "value": "המשך טיפול",
+   "doc": "b1",
+   "genre": "bank",
+   "value": "החשבון",
    "sources": [
     "discover"
    ],
@@ -4275,62 +4478,32 @@
    "applied": true
   },
   {
-   "doc": "b1",
-   "genre": "bank",
-   "value": "החשבון",
+   "doc": "c2",
+   "genre": "chat",
+   "value": "מהוועד",
    "sources": [
-    "discover"
+    "suggest"
    ],
-   "why": "פותח תור דיבור בתמלול",
+   "why": "",
    "applied": true
   },
   {
-   "doc": "b2",
-   "genre": "bank",
-   "value": "הנדון",
+   "doc": "x1",
+   "genre": "position",
+   "value": "משה",
    "sources": [
-    "discover"
-   ],
-   "why": "פותח תור דיבור בתמלול",
-   "applied": true
-  },
-  {
-   "doc": "b2",
-   "genre": "bank",
-   "value": "צו עיקול",
-   "sources": [
+    "model",
     "flagged"
    ],
    "why": "",
    "applied": true
   },
   {
-   "doc": "b3",
-   "genre": "bank",
-   "value": "יתר",
+   "doc": "x1",
+   "genre": "position",
+   "value": "שמשה",
    "sources": [
-    "discover",
     "flagged"
-   ],
-   "why": "מופיע מיד לפני ת\"ז",
-   "applied": false
-  },
-  {
-   "doc": "c2",
-   "genre": "chat",
-   "value": "שצריך שוב",
-   "sources": [
-    "discover"
-   ],
-   "why": "מופיע אחרי תואר",
-   "applied": true
-  },
-  {
-   "doc": "c2",
-   "genre": "chat",
-   "value": "מהוועד",
-   "sources": [
-    "suggest"
    ],
    "why": "",
    "applied": true
@@ -4340,211 +4513,232 @@
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 166,
+   "ms": 399,
    "rules": 9,
    "unlisted": 0
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 113,
+   "ms": 244,
    "rules": 13,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 83,
+   "ms": 170,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 113,
-   "rules": 11,
-   "unlisted": 5
+   "ms": 246,
+   "rules": 9,
+   "unlisted": 3
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 152,
-   "rules": 15,
-   "unlisted": 3
+   "ms": 305,
+   "rules": 14,
+   "unlisted": 2
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 168,
-   "rules": 18,
-   "unlisted": 3
+   "ms": 320,
+   "rules": 16,
+   "unlisted": 1
   },
   {
    "id": "f3",
    "genre": "filing",
-   "ms": 104,
-   "rules": 11,
-   "unlisted": 1
+   "ms": 219,
+   "rules": 9,
+   "unlisted": 0
   },
   {
    "id": "f4",
    "genre": "filing",
-   "ms": 126,
-   "rules": 10,
-   "unlisted": 2
-  },
-  {
-   "id": "t1",
-   "genre": "transcript",
-   "ms": 105,
+   "ms": 249,
    "rules": 9,
    "unlisted": 1
   },
   {
+   "id": "t1",
+   "genre": "transcript",
+   "ms": 203,
+   "rules": 8,
+   "unlisted": 0
+  },
+  {
    "id": "t2",
    "genre": "transcript",
-   "ms": 98,
-   "rules": 13,
-   "unlisted": 2
+   "ms": 206,
+   "rules": 12,
+   "unlisted": 1
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 110,
+   "ms": 215,
    "rules": 11,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 99,
-   "rules": 14,
-   "unlisted": 2
+   "ms": 209,
+   "rules": 13,
+   "unlisted": 1
   },
   {
    "id": "w1",
    "genre": "welfare",
-   "ms": 79,
-   "rules": 5,
-   "unlisted": 1
+   "ms": 157,
+   "rules": 4,
+   "unlisted": 0
   },
   {
    "id": "w2",
    "genre": "welfare",
-   "ms": 72,
-   "rules": 6,
-   "unlisted": 1
+   "ms": 147,
+   "rules": 5,
+   "unlisted": 0
   },
   {
    "id": "w3",
    "genre": "welfare",
-   "ms": 75,
+   "ms": 169,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "w4",
    "genre": "welfare",
-   "ms": 72,
-   "rules": 7,
-   "unlisted": 1
+   "ms": 189,
+   "rules": 6,
+   "unlisted": 0
   },
   {
    "id": "h1",
    "genre": "medical",
-   "ms": 69,
+   "ms": 138,
    "rules": 7,
    "unlisted": 2
   },
   {
    "id": "h2",
    "genre": "medical",
-   "ms": 74,
-   "rules": 5,
-   "unlisted": 1
+   "ms": 133,
+   "rules": 4,
+   "unlisted": 0
   },
   {
    "id": "h3",
    "genre": "medical",
-   "ms": 96,
+   "ms": 137,
    "rules": 7,
    "unlisted": 4
   },
   {
    "id": "p1",
    "genre": "police",
-   "ms": 95,
+   "ms": 152,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "p2",
    "genre": "police",
-   "ms": 85,
+   "ms": 138,
    "rules": 4,
    "unlisted": 1
   },
   {
    "id": "p3",
    "genre": "police",
-   "ms": 82,
-   "rules": 3,
-   "unlisted": 1
+   "ms": 142,
+   "rules": 2,
+   "unlisted": 0
   },
   {
    "id": "p4",
    "genre": "police",
-   "ms": 77,
-   "rules": 5,
-   "unlisted": 2
+   "ms": 105,
+   "rules": 3,
+   "unlisted": 0
   },
   {
    "id": "b1",
    "genre": "bank",
-   "ms": 78,
+   "ms": 131,
    "rules": 7,
    "unlisted": 2
   },
   {
    "id": "b2",
    "genre": "bank",
-   "ms": 70,
-   "rules": 5,
-   "unlisted": 2
+   "ms": 117,
+   "rules": 3,
+   "unlisted": 0
   },
   {
    "id": "b3",
    "genre": "bank",
-   "ms": 74,
-   "rules": 4,
-   "unlisted": 1
+   "ms": 96,
+   "rules": 3,
+   "unlisted": 0
   },
   {
    "id": "c1",
    "genre": "chat",
-   "ms": 98,
+   "ms": 142,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "c2",
    "genre": "chat",
-   "ms": 119,
-   "rules": 6,
-   "unlisted": 2
+   "ms": 177,
+   "rules": 5,
+   "unlisted": 1
   },
   {
    "id": "c3",
    "genre": "chat",
-   "ms": 98,
+   "ms": 160,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "c4",
    "genre": "chat",
-   "ms": 92,
+   "ms": 149,
    "rules": 5,
+   "unlisted": 0
+  },
+  {
+   "id": "x1",
+   "genre": "position",
+   "ms": 220,
+   "rules": 7,
+   "unlisted": 2
+  },
+  {
+   "id": "x2",
+   "genre": "position",
+   "ms": 143,
+   "rules": 4,
+   "unlisted": 0
+  },
+  {
+   "id": "x3",
+   "genre": "position",
+   "ms": 127,
+   "rules": 4,
    "unlisted": 0
   }
  ]
