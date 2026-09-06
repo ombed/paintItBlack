@@ -461,17 +461,16 @@
    "cat": "L_STREET",
    "canonical": "רחוב הארזים 12",
    "found": true,
-   "leaked": true,
+   "leaked": false,
    "fp": 0,
    "via": [
     "applied"
    ],
    "matched": [
-    "רחוב הארזים 12"
-   ],
-   "leakedSurfaces": [
+    "רחוב הארזים 12",
     "הארזים"
-   ]
+   ],
+   "leakedSurfaces": []
   },
   {
    "doc": "f1",
@@ -898,10 +897,14 @@
    "canonical": "סעיף 2",
    "found": null,
    "leaked": null,
-   "fp": 0,
+   "fp": 1,
    "via": [],
-   "matched": [],
-   "leakedSurfaces": []
+   "matched": [
+    "ת\"פ 4471-02-26 [flagged]"
+   ],
+   "leakedSurfaces": [
+    "altered: ת\"פ 4471-02-26"
+   ]
   },
   {
    "doc": "f2",
@@ -1211,17 +1214,16 @@
    "cat": "L_STREET",
    "canonical": "שדרות הנשיאים 8",
    "found": true,
-   "leaked": true,
+   "leaked": false,
    "fp": 0,
    "via": [
     "applied"
    ],
    "matched": [
-    "שדרות הנשיאים 8"
-   ],
-   "leakedSurfaces": [
+    "שדרות הנשיאים 8",
     "הנשיאים"
-   ]
+   ],
+   "leakedSurfaces": []
   },
   {
    "doc": "f4",
@@ -1832,6 +1834,1868 @@
    "leakedSurfaces": [
     "הר אדר"
    ]
+  },
+  {
+   "doc": "w1",
+   "genre": "welfare",
+   "cat": "P_SUR2",
+   "canonical": "ליעד כץ",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "applied"
+   ],
+   "matched": [
+    "ליעד כץ"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w1",
+   "genre": "welfare",
+   "cat": "P_MINOR_ANCH",
+   "canonical": "אגם",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "אגם",
+    "הקטינה אגם"
+   ]
+  },
+  {
+   "doc": "w1",
+   "genre": "welfare",
+   "cat": "P_TITLE",
+   "canonical": "שיראל שטרית",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "שיראל שטרית",
+    "עו\"ס שיראל שטרית",
+    "שטרית"
+   ]
+  },
+  {
+   "doc": "w1",
+   "genre": "welfare",
+   "cat": "I_ID",
+   "canonical": "314277062",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "314277062"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w1",
+   "genre": "welfare",
+   "cat": "I_PHONE",
+   "canonical": "052-6613874",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "052-6613874"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w1",
+   "genre": "welfare",
+   "cat": "L_TOWN",
+   "canonical": "כפר האורנים",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "האורנים"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w1",
+   "genre": "welfare",
+   "cat": "O_PUBLIC",
+   "canonical": "משרד הרווחה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w1",
+   "genre": "welfare",
+   "cat": "T_NUMBERS",
+   "canonical": "סעיף 3",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w2",
+   "genre": "welfare",
+   "cat": "P_FORMS",
+   "canonical": "טוהר בוסקילה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "טוהר בוסקילה",
+    "בוסקילה",
+    "טוהר"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w2",
+   "genre": "welfare",
+   "cat": "P_MINOR_ANCH",
+   "canonical": "ניב",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "ניב",
+    "הקטין ניב"
+   ]
+  },
+  {
+   "doc": "w2",
+   "genre": "welfare",
+   "cat": "I_DOB",
+   "canonical": "3.4.2017",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "3.4.2017"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w2",
+   "genre": "welfare",
+   "cat": "P_ETHIOPIAN",
+   "canonical": "טסנש מקונן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "טסנש מקונן",
+    "מקונן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w2",
+   "genre": "welfare",
+   "cat": "O_PRIVATE",
+   "canonical": "פנימיית גבעת הרימון",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "פנימיית גבעת הרימון",
+    "גבעת הרימון"
+   ]
+  },
+  {
+   "doc": "w2",
+   "genre": "welfare",
+   "cat": "L_NEIGHBOURHOOD",
+   "canonical": "שכונת נווה חן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "נווה חן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w2",
+   "genre": "welfare",
+   "cat": "T_PLONI",
+   "canonical": "פלוני",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w3",
+   "genre": "welfare",
+   "cat": "P_ARABIC",
+   "canonical": "מרווה עבאס",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "מרווה עבאס",
+    "עבאס"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w3",
+   "genre": "welfare",
+   "cat": "P_SUR2",
+   "canonical": "מתן צח",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "מתן צח"
+   ]
+  },
+  {
+   "doc": "w3",
+   "genre": "welfare",
+   "cat": "P_SHARED_SURNAME",
+   "canonical": "סלים מנסור",
+   "found": true,
+   "leaked": true,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "סלים מנסור"
+   ],
+   "leakedSurfaces": [
+    "סלים"
+   ]
+  },
+  {
+   "doc": "w3",
+   "genre": "welfare",
+   "cat": "P_SHARED_SURNAME",
+   "canonical": "חנין מנסור",
+   "found": true,
+   "leaked": true,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "סלים מנסור"
+   ],
+   "leakedSurfaces": [
+    "חנין מנסור",
+    "מנסור"
+   ]
+  },
+  {
+   "doc": "w3",
+   "genre": "welfare",
+   "cat": "I_ID",
+   "canonical": "205549611",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "205549611"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w3",
+   "genre": "welfare",
+   "cat": "I_PHONE",
+   "canonical": "054-9920317",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "054-9920317"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w3",
+   "genre": "welfare",
+   "cat": "O_PUBLIC",
+   "canonical": "המוסד לביטוח לאומי",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w3",
+   "genre": "welfare",
+   "cat": "T_NUMBERS",
+   "canonical": "סעיף 12",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w4",
+   "genre": "welfare",
+   "cat": "P_RUSSIAN",
+   "canonical": "אלינה פופוב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "אלינה פופוב",
+    "פופוב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w4",
+   "genre": "welfare",
+   "cat": "P_MINOR_ANCH",
+   "canonical": "ליה",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "ליה",
+    "הקטינה ליה"
+   ]
+  },
+  {
+   "doc": "w4",
+   "genre": "welfare",
+   "cat": "I_EMAIL",
+   "canonical": "alina.p1984@gmail.com",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "alina.p1984@gmail.com"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w4",
+   "genre": "welfare",
+   "cat": "I_BANK",
+   "canonical": "חשבון 0418822",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "0418822"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w4",
+   "genre": "welfare",
+   "cat": "L_STREET",
+   "canonical": "רחוב הגפן 3",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "רחוב הגפן 3",
+    "הגפן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w4",
+   "genre": "welfare",
+   "cat": "P_PROSE",
+   "canonical": "אסיף",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "אסיף"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "w4",
+   "genre": "welfare",
+   "cat": "T_NUMBERS",
+   "canonical": "סעיף 8(א)",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h1",
+   "genre": "medical",
+   "cat": "P_TITLE",
+   "canonical": "אביתר יפרח",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "applied"
+   ],
+   "matched": [
+    "אביתר יפרח",
+    "יפרח"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h1",
+   "genre": "medical",
+   "cat": "P_MINOR",
+   "canonical": "אבישג",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "אבישג"
+   ]
+  },
+  {
+   "doc": "h1",
+   "genre": "medical",
+   "cat": "I_ID",
+   "canonical": "338120470",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "338120470"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h1",
+   "genre": "medical",
+   "cat": "I_DOB",
+   "canonical": "14.6.2019",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "14.6.2019"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h1",
+   "genre": "medical",
+   "cat": "I_PHONE",
+   "canonical": "050-2278461",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "050-2278461"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h1",
+   "genre": "medical",
+   "cat": "O_PRIVATE",
+   "canonical": "מרפאת נוף הים",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "מרפאת נוף",
+    "נוף הים",
+    "הים"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h1",
+   "genre": "medical",
+   "cat": "O_PUBLIC",
+   "canonical": "משרד הבריאות",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h1",
+   "genre": "medical",
+   "cat": "T_NUMBERS",
+   "canonical": "2.3.2026",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h2",
+   "genre": "medical",
+   "cat": "P_FORMS",
+   "canonical": "יסמין אלמליח",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "applied"
+   ],
+   "matched": [
+    "יסמין אלמליח",
+    "אלמליח",
+    "יסמין"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h2",
+   "genre": "medical",
+   "cat": "P_HYPHEN",
+   "canonical": "כרים אבו-סרחאן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "אבו סרחאן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h2",
+   "genre": "medical",
+   "cat": "I_ID",
+   "canonical": "287113096",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "287113096"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h2",
+   "genre": "medical",
+   "cat": "I_EMAIL",
+   "canonical": "yasmin.alm@walla.co.il",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "yasmin.alm@walla.co.il"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h2",
+   "genre": "medical",
+   "cat": "L_TOWN",
+   "canonical": "צור יצחק",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "צור יצחק"
+   ]
+  },
+  {
+   "doc": "h2",
+   "genre": "medical",
+   "cat": "T_NUMBERS",
+   "canonical": "18.8.2025",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h3",
+   "genre": "medical",
+   "cat": "P_RUSSIAN",
+   "canonical": "ולריה קוזנצוב",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "ולריה קוזנצוב",
+    "קוזנצוב"
+   ]
+  },
+  {
+   "doc": "h3",
+   "genre": "medical",
+   "cat": "P_ETHIOPIAN",
+   "canonical": "יונס גטהון",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "יונס גטהון",
+    "גטהון"
+   ]
+  },
+  {
+   "doc": "h3",
+   "genre": "medical",
+   "cat": "P_SUR2",
+   "canonical": "איה נץ",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "איה נץ"
+   ]
+  },
+  {
+   "doc": "h3",
+   "genre": "medical",
+   "cat": "I_DOB",
+   "canonical": "9.11.2014",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "9.11.2014"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h3",
+   "genre": "medical",
+   "cat": "I_PHONE",
+   "canonical": "053-7761120",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "053-7761120"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h3",
+   "genre": "medical",
+   "cat": "O_PRIVATE",
+   "canonical": "מכון שורשים",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "שורשים"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "h3",
+   "genre": "medical",
+   "cat": "T_PLONI",
+   "canonical": "פלונית",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p1",
+   "genre": "police",
+   "cat": "P_ROLE_NOCOLON",
+   "canonical": "פיראס חטיב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "applied"
+   ],
+   "matched": [
+    "פיראס חטיב",
+    "חטיב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p1",
+   "genre": "police",
+   "cat": "P_TWO_SPELL",
+   "canonical": "ארטיום מורוזוב",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "ארטיום מורוזוב",
+    "מורוזב"
+   ]
+  },
+  {
+   "doc": "p1",
+   "genre": "police",
+   "cat": "I_ID",
+   "canonical": "301988226",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "301988226"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p1",
+   "genre": "police",
+   "cat": "I_PHONE",
+   "canonical": "052-3390047",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "052-3390047"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p1",
+   "genre": "police",
+   "cat": "I_PLATE",
+   "canonical": "34-712-58",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "34-712-58"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p1",
+   "genre": "police",
+   "cat": "L_STREET",
+   "canonical": "רחוב הדקל 7",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "רחוב הדקל 7",
+    "הדקל"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p1",
+   "genre": "police",
+   "cat": "O_PUBLIC",
+   "canonical": "משטרת ישראל",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p1",
+   "genre": "police",
+   "cat": "T_NUMBERS",
+   "canonical": "תיק 4471/26",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p2",
+   "genre": "police",
+   "cat": "P_ARABIC",
+   "canonical": "סוהא אגבריה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "applied"
+   ],
+   "matched": [
+    "סוהא אגבריה",
+    "אגבריה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p2",
+   "genre": "police",
+   "cat": "P_MINOR_ANCH",
+   "canonical": "לביא",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "לביא",
+    "הקטין לביא"
+   ]
+  },
+  {
+   "doc": "p2",
+   "genre": "police",
+   "cat": "I_PLATE",
+   "canonical": "718-44-201",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "718-44-201"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p2",
+   "genre": "police",
+   "cat": "I_ID",
+   "canonical": "270631583",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "270631583"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p2",
+   "genre": "police",
+   "cat": "L_TOWN",
+   "canonical": "גבעת עדה",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "גבעת עדה"
+   ]
+  },
+  {
+   "doc": "p2",
+   "genre": "police",
+   "cat": "O_PUBLIC",
+   "canonical": "משטרת ישראל",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p2",
+   "genre": "police",
+   "cat": "T_NUMBERS",
+   "canonical": "סעיף 192",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p3",
+   "genre": "police",
+   "cat": "P_RUSSIAN",
+   "canonical": "דניס וסילייב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "דניס וסילייב",
+    "וסילייב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p3",
+   "genre": "police",
+   "cat": "P_SUR2",
+   "canonical": "עלמה כץ",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "עלמה כץ"
+   ]
+  },
+  {
+   "doc": "p3",
+   "genre": "police",
+   "cat": "I_PHONE",
+   "canonical": "058-6104477",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "058-6104477"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p3",
+   "genre": "police",
+   "cat": "I_PLATE",
+   "canonical": "92-118-34",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "92-118-34"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p3",
+   "genre": "police",
+   "cat": "I_EMAIL",
+   "canonical": "denis.v@outlook.com",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "denis.v@outlook.com"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p3",
+   "genre": "police",
+   "cat": "T_NUMBERS",
+   "canonical": "תיק 118/26",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p4",
+   "genre": "police",
+   "cat": "P_ETHIOPIAN",
+   "canonical": "מאזה טספה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "מאזה טספה",
+    "טספה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p4",
+   "genre": "police",
+   "cat": "P_FORMS",
+   "canonical": "עמנואל שוורץ",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "ועמנואל שוורץ",
+    "עמנואל",
+    "שוורץ"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p4",
+   "genre": "police",
+   "cat": "I_ID",
+   "canonical": "355401183",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "355401183"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p4",
+   "genre": "police",
+   "cat": "I_DOB",
+   "canonical": "21.12.1988",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "21.12.1988"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p4",
+   "genre": "police",
+   "cat": "L_NEIGHBOURHOOD",
+   "canonical": "שכונת הפרדס",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "הפרדס"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "p4",
+   "genre": "police",
+   "cat": "T_PLONI",
+   "canonical": "פלוני",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b1",
+   "genre": "bank",
+   "cat": "P_FORMS",
+   "canonical": "ירדן ברזילי",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "applied"
+   ],
+   "matched": [
+    "ירדן ברזילי",
+    "ברזילי",
+    "ירדן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b1",
+   "genre": "bank",
+   "cat": "I_BANK",
+   "canonical": "חשבון 5521907",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "near",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "חשבון",
+    "5521907"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b1",
+   "genre": "bank",
+   "cat": "I_ID",
+   "canonical": "299174060",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "299174060"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b1",
+   "genre": "bank",
+   "cat": "I_EMAIL",
+   "canonical": "yarden.brz@gmail.com",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "yarden.brz@gmail.com"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b1",
+   "genre": "bank",
+   "cat": "L_STREET",
+   "canonical": "שדרות הברוש 21",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "שדרות הברוש 21"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b1",
+   "genre": "bank",
+   "cat": "T_NUMBERS",
+   "canonical": "1,250.00",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b2",
+   "genre": "bank",
+   "cat": "P_ARABIC",
+   "canonical": "טהא עודה",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "טהא עודה",
+    "עודה"
+   ]
+  },
+  {
+   "doc": "b2",
+   "genre": "bank",
+   "cat": "I_BANK",
+   "canonical": "חשבון 0093344",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "0093344"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b2",
+   "genre": "bank",
+   "cat": "I_DOB",
+   "canonical": "5.5.1979",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "5.5.1979"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b2",
+   "genre": "bank",
+   "cat": "I_ID",
+   "canonical": "244783155",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "244783155"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b2",
+   "genre": "bank",
+   "cat": "O_PRIVATE",
+   "canonical": "חברת קו הזהב הובלות",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "קו הזהב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b2",
+   "genre": "bank",
+   "cat": "T_NUMBERS",
+   "canonical": "12.6.2026",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b3",
+   "genre": "bank",
+   "cat": "P_RUSSIAN",
+   "canonical": "אולג איוונוב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "אולג איוונוב",
+    "איוונוב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b3",
+   "genre": "bank",
+   "cat": "I_BANK",
+   "canonical": "חשבון 7710265",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "7710265"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b3",
+   "genre": "bank",
+   "cat": "I_EMAIL",
+   "canonical": "oleg.ivanov77@mail.ru",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "oleg.ivanov77@mail.ru"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b3",
+   "genre": "bank",
+   "cat": "I_PHONE",
+   "canonical": "055-8823910",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "055-8823910"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "b3",
+   "genre": "bank",
+   "cat": "L_TOWN",
+   "canonical": "בית אריה",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "בית אריה"
+   ]
+  },
+  {
+   "doc": "b3",
+   "genre": "bank",
+   "cat": "T_NUMBERS",
+   "canonical": "30.6.2026",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "c1",
+   "genre": "chat",
+   "cat": "P_SUR2",
+   "canonical": "מיקי צח",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "מיקי צח"
+   ]
+  },
+  {
+   "doc": "c1",
+   "genre": "chat",
+   "cat": "P_MINOR",
+   "canonical": "טרקה",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "טרקה"
+   ]
+  },
+  {
+   "doc": "c1",
+   "genre": "chat",
+   "cat": "I_PHONE",
+   "canonical": "052-7715803",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "052-7715803"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "c1",
+   "genre": "chat",
+   "cat": "L_TOWN",
+   "canonical": "נופית",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "נופית"
+   ]
+  },
+  {
+   "doc": "c1",
+   "genre": "chat",
+   "cat": "P_PROSE",
+   "canonical": "צליל",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "צליל תביא",
+    "צליל"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "c1",
+   "genre": "chat",
+   "cat": "T_NUMBERS",
+   "canonical": "12.3.2026",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "c2",
+   "genre": "chat",
+   "cat": "P_ARABIC",
+   "canonical": "מייסא סרחאן",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "מייסא סרחאן",
+    "סרחאן"
+   ]
+  },
+  {
+   "doc": "c2",
+   "genre": "chat",
+   "cat": "P_HYPHEN",
+   "canonical": "ליעד בן-עמיאל",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "ליעד בן-עמיאל",
+    "בן עמיאל"
+   ]
+  },
+  {
+   "doc": "c2",
+   "genre": "chat",
+   "cat": "I_EMAIL",
+   "canonical": "maisa.s@gmail.com",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "maisa.s@gmail.com"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "c2",
+   "genre": "chat",
+   "cat": "I_ID",
+   "canonical": "312888746",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "312888746"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "c2",
+   "genre": "chat",
+   "cat": "O_PRIVATE",
+   "canonical": "גן ילדים שלהבת",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "שלהבת"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "c2",
+   "genre": "chat",
+   "cat": "T_PLONI",
+   "canonical": "פלוני",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "c3",
+   "genre": "chat",
+   "cat": "P_ETHIOPIAN",
+   "canonical": "ברהאנה וורקנה",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "ברהאנה וורקנה",
+    "וורקנה"
+   ]
+  },
+  {
+   "doc": "c3",
+   "genre": "chat",
+   "cat": "P_MINOR_ANCH",
+   "canonical": "גפן",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "גפן",
+    "הקטינה גפן"
+   ]
+  },
+  {
+   "doc": "c3",
+   "genre": "chat",
+   "cat": "I_PHONE",
+   "canonical": "050-6650912",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "6650912"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "c3",
+   "genre": "chat",
+   "cat": "I_PLATE",
+   "canonical": "45-903-16",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "45-903-16"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "c3",
+   "genre": "chat",
+   "cat": "L_STREET",
+   "canonical": "רחוב הנרקיס 9",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "רחוב הנרקיס 9",
+    "הנרקיס"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "c3",
+   "genre": "chat",
+   "cat": "T_NUMBERS",
+   "canonical": "15.4.2026",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "c4",
+   "genre": "chat",
+   "cat": "P_RUSSIAN",
+   "canonical": "פולינה סמירנובה",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "פולינה סמירנובה",
+    "סמירנובה"
+   ]
+  },
+  {
+   "doc": "c4",
+   "genre": "chat",
+   "cat": "P_TWO_SPELL",
+   "canonical": "קסאי אלמו",
+   "found": true,
+   "leaked": true,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "עלמו"
+   ],
+   "leakedSurfaces": [
+    "קסאי אלמו"
+   ]
+  },
+  {
+   "doc": "c4",
+   "genre": "chat",
+   "cat": "I_DOB",
+   "canonical": "30.10.2016",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "30.10.2016"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "c4",
+   "genre": "chat",
+   "cat": "I_BANK",
+   "canonical": "חשבון 3306178",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "3306178"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "c4",
+   "genre": "chat",
+   "cat": "L_NEIGHBOURHOOD",
+   "canonical": "שכונת כרם הזיתים",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "flagged",
+    "applied"
+   ],
+   "matched": [
+    "כרם הזיתים"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "c4",
+   "genre": "chat",
+   "cat": "T_NUMBERS",
+   "canonical": "800",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
   }
  ],
  "unlisted": [
@@ -2026,49 +3890,271 @@
    ],
    "why": "",
    "applied": true
+  },
+  {
+   "doc": "w1",
+   "genre": "welfare",
+   "value": "המלצה",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "w2",
+   "genre": "welfare",
+   "value": "המלצה",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "w4",
+   "genre": "welfare",
+   "value": "המלצה",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "h1",
+   "genre": "medical",
+   "value": "המטופלת",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "h1",
+   "genre": "medical",
+   "value": "חתימה",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "h2",
+   "genre": "medical",
+   "value": "המלצה",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "h3",
+   "genre": "medical",
+   "value": "הנבדק",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "h3",
+   "genre": "medical",
+   "value": "פסיכולוגית קלינית",
+   "sources": [
+    "discover"
+   ],
+   "why": "מופיע באזור החתימה",
+   "applied": true
+  },
+  {
+   "doc": "h3",
+   "genre": "medical",
+   "value": "חתימה",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "h3",
+   "genre": "medical",
+   "value": "הנוכחי",
+   "sources": [
+    "flagged"
+   ],
+   "why": "",
+   "applied": true
+  },
+  {
+   "doc": "p1",
+   "genre": "police",
+   "value": "ראיתי רכב",
+   "sources": [
+    "suggest"
+   ],
+   "why": "",
+   "applied": true
+  },
+  {
+   "doc": "p2",
+   "genre": "police",
+   "value": "המתלוננת",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "p3",
+   "genre": "police",
+   "value": "שאלה",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "p4",
+   "genre": "police",
+   "value": "דו",
+   "sources": [
+    "discover",
+    "flagged"
+   ],
+   "why": "מופיע מיד לפני ת\"ז",
+   "applied": false
+  },
+  {
+   "doc": "p4",
+   "genre": "police",
+   "value": "המשך טיפול",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "b1",
+   "genre": "bank",
+   "value": "יתרה לסוף התקופה",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "b1",
+   "genre": "bank",
+   "value": "החשבון",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "b2",
+   "genre": "bank",
+   "value": "הנדון",
+   "sources": [
+    "discover"
+   ],
+   "why": "פותח תור דיבור בתמלול",
+   "applied": true
+  },
+  {
+   "doc": "b2",
+   "genre": "bank",
+   "value": "צו עיקול",
+   "sources": [
+    "flagged"
+   ],
+   "why": "",
+   "applied": true
+  },
+  {
+   "doc": "b3",
+   "genre": "bank",
+   "value": "יתר",
+   "sources": [
+    "discover",
+    "flagged"
+   ],
+   "why": "מופיע מיד לפני ת\"ז",
+   "applied": false
+  },
+  {
+   "doc": "c2",
+   "genre": "chat",
+   "value": "שצריך שוב",
+   "sources": [
+    "discover"
+   ],
+   "why": "מופיע אחרי תואר",
+   "applied": true
+  },
+  {
+   "doc": "c2",
+   "genre": "chat",
+   "value": "מהוועד",
+   "sources": [
+    "suggest"
+   ],
+   "why": "",
+   "applied": true
   }
  ],
  "perDoc": [
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 53,
+   "ms": 78,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 29,
+   "ms": 41,
    "rules": 7,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 19,
+   "ms": 24,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 30,
+   "ms": 32,
    "rules": 7,
    "unlisted": 5
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 47,
+   "ms": 50,
    "rules": 11,
    "unlisted": 2
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 66,
-   "rules": 14,
+   "ms": 63,
+   "rules": 15,
    "unlisted": 3
   },
   {
@@ -2081,14 +4167,14 @@
   {
    "id": "f4",
    "genre": "filing",
-   "ms": 30,
+   "ms": 32,
    "rules": 7,
    "unlisted": 2
   },
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 31,
+   "ms": 28,
    "rules": 7,
    "unlisted": 1
   },
@@ -2102,16 +4188,142 @@
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 24,
+   "ms": 31,
    "rules": 6,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 29,
+   "ms": 25,
    "rules": 8,
    "unlisted": 2
+  },
+  {
+   "id": "w1",
+   "genre": "welfare",
+   "ms": 20,
+   "rules": 3,
+   "unlisted": 1
+  },
+  {
+   "id": "w2",
+   "genre": "welfare",
+   "ms": 23,
+   "rules": 4,
+   "unlisted": 1
+  },
+  {
+   "id": "w3",
+   "genre": "welfare",
+   "ms": 18,
+   "rules": 2,
+   "unlisted": 0
+  },
+  {
+   "id": "w4",
+   "genre": "welfare",
+   "ms": 15,
+   "rules": 4,
+   "unlisted": 1
+  },
+  {
+   "id": "h1",
+   "genre": "medical",
+   "ms": 23,
+   "rules": 6,
+   "unlisted": 2
+  },
+  {
+   "id": "h2",
+   "genre": "medical",
+   "ms": 18,
+   "rules": 3,
+   "unlisted": 1
+  },
+  {
+   "id": "h3",
+   "genre": "medical",
+   "ms": 18,
+   "rules": 5,
+   "unlisted": 4
+  },
+  {
+   "id": "p1",
+   "genre": "police",
+   "ms": 17,
+   "rules": 2,
+   "unlisted": 1
+  },
+  {
+   "id": "p2",
+   "genre": "police",
+   "ms": 17,
+   "rules": 2,
+   "unlisted": 1
+  },
+  {
+   "id": "p3",
+   "genre": "police",
+   "ms": 12,
+   "rules": 2,
+   "unlisted": 1
+  },
+  {
+   "id": "p4",
+   "genre": "police",
+   "ms": 28,
+   "rules": 5,
+   "unlisted": 2
+  },
+  {
+   "id": "b1",
+   "genre": "bank",
+   "ms": 18,
+   "rules": 5,
+   "unlisted": 2
+  },
+  {
+   "id": "b2",
+   "genre": "bank",
+   "ms": 15,
+   "rules": 4,
+   "unlisted": 2
+  },
+  {
+   "id": "b3",
+   "genre": "bank",
+   "ms": 15,
+   "rules": 3,
+   "unlisted": 1
+  },
+  {
+   "id": "c1",
+   "genre": "chat",
+   "ms": 9,
+   "rules": 1,
+   "unlisted": 0
+  },
+  {
+   "id": "c2",
+   "genre": "chat",
+   "ms": 20,
+   "rules": 3,
+   "unlisted": 2
+  },
+  {
+   "id": "c3",
+   "genre": "chat",
+   "ms": 7,
+   "rules": 1,
+   "unlisted": 0
+  },
+  {
+   "id": "c4",
+   "genre": "chat",
+   "ms": 14,
+   "rules": 3,
+   "unlisted": 0
   }
  ]
 }
