@@ -292,7 +292,11 @@ async function redactDocx(buf,subs,allow,opt){
 
   // שם מהרשימה שלא נמצא אפילו פעם אחת: או שהוא לא במסמך הזה, או שהוא
   // כתוב אחרת. שתיקה כאן משאירה אותה בטוחה שטופל.
+  // גם ממצא שסומן לבדיקה הוא הופעה: שם קצר שמופיע רק עם אות שימוש ("והדס") מסומן
+  // ולא מוחלף, וקודם דווח במקביל גם כ"לא מופיע במסמך הזה בכלל" — שתי אמירות סותרות
+  // על אותו שם.
   const hitBases=new Set(applied.map(r=>norm(r.base||r.value).trim()));
+  for(const r of flagged) if(r.src==="list"&&r.base) hitBases.add(norm(r.base).trim());
   const nearTargets=new Set(near.map(x=>norm(x.near.target).trim()));
   for(const s of subs){
     if(s.kind!=="NAME"&&s.kind!=="ORG"&&s.kind!=="PLACE")continue;

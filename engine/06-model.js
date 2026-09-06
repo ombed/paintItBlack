@@ -342,6 +342,7 @@ function trimPlace(v){
 
 function findPlaces(text){
   const n=norm(text),out=[],seen=new Set();
+  const docTokP=new Set(n.match(WRX)||[]);
   PLACE_RX.lastIndex=0; let m;
   while((m=PLACE_RX.exec(n))){
     const nm=m[1], s=m.index+m[0].indexOf(nm), e=s+nm.length;
@@ -387,6 +388,11 @@ function findPlaces(text){
       c=trimPlace(c); if(!c)continue;
       // "בית הספר לרבות בימי": מה שאחרי מילת המקום, אחרי קיצוץ הזנב, חייב להיראות כשם
       if(!anchorOK(c))continue;
+      // "בית הספר שהינו חרדי", "בצד השמרני", "רמה לימודית": תואר אחרי מילת מוסד אינו
+      // שמו. סיומת תואר במילה בודדת, או מילה שהטקסט עצמו משתמש בה עם ה' הידיעה, נפסלת.
+      {const cw=c.split(/\s+/);
+       if(cw.length===1&&/(?:ית|י)$/.test(norm(c)))continue;
+       if(cw.some(x=>docTokP.has("ה"+norm(x))))continue;}
       const raw=g[1];
       let s=g.index+g[0].indexOf(raw); const o=raw.indexOf(c); if(o>0)s+=o;
       const e=s+c.length, k=s+":"+e; if(seen.has(k))continue; seen.add(k);

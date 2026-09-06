@@ -2366,12 +2366,10 @@
    "fp": 0,
    "via": [
     "model",
-    "flagged",
     "applied"
    ],
    "matched": [
-    "ליה",
-    "לליה"
+    "ליה"
    ],
    "leakedSurfaces": []
   },
@@ -4471,16 +4469,6 @@
    "applied": true
   },
   {
-   "doc": "h3",
-   "genre": "medical",
-   "value": "הנוכחי",
-   "sources": [
-    "flagged"
-   ],
-   "why": "",
-   "applied": true
-  },
-  {
    "doc": "p1",
    "genre": "police",
    "value": "ראיתי רכב",
@@ -4545,18 +4533,7 @@
    "genre": "position",
    "value": "משה",
    "sources": [
-    "model",
-    "flagged"
-   ],
-   "why": "",
-   "applied": true
-  },
-  {
-   "doc": "x1",
-   "genre": "position",
-   "value": "שמשה",
-   "sources": [
-    "flagged"
+    "model"
    ],
    "why": "",
    "applied": true
@@ -4566,231 +4543,231 @@
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 152,
+   "ms": 233,
    "rules": 9,
    "unlisted": 0
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 125,
+   "ms": 131,
    "rules": 13,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 80,
+   "ms": 103,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 122,
+   "ms": 137,
    "rules": 9,
    "unlisted": 3
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 143,
+   "ms": 158,
    "rules": 14,
    "unlisted": 2
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 169,
+   "ms": 178,
    "rules": 16,
    "unlisted": 1
   },
   {
    "id": "f3",
    "genre": "filing",
-   "ms": 115,
+   "ms": 126,
    "rules": 9,
    "unlisted": 0
   },
   {
    "id": "f4",
    "genre": "filing",
-   "ms": 140,
+   "ms": 148,
    "rules": 9,
    "unlisted": 1
   },
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 129,
+   "ms": 148,
    "rules": 8,
    "unlisted": 0
   },
   {
    "id": "t2",
    "genre": "transcript",
-   "ms": 112,
+   "ms": 133,
    "rules": 12,
    "unlisted": 1
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 122,
+   "ms": 132,
    "rules": 11,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 108,
+   "ms": 127,
    "rules": 13,
    "unlisted": 1
   },
   {
    "id": "w1",
    "genre": "welfare",
-   "ms": 83,
+   "ms": 132,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "w2",
    "genre": "welfare",
-   "ms": 81,
+   "ms": 99,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "w3",
    "genre": "welfare",
-   "ms": 91,
+   "ms": 126,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "w4",
    "genre": "welfare",
-   "ms": 84,
-   "rules": 6,
+   "ms": 120,
+   "rules": 5,
    "unlisted": 0
   },
   {
    "id": "h1",
    "genre": "medical",
-   "ms": 105,
+   "ms": 104,
    "rules": 7,
    "unlisted": 2
   },
   {
    "id": "h2",
    "genre": "medical",
-   "ms": 128,
+   "ms": 107,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "h3",
    "genre": "medical",
-   "ms": 103,
-   "rules": 6,
-   "unlisted": 4
+   "ms": 101,
+   "rules": 5,
+   "unlisted": 3
   },
   {
    "id": "p1",
    "genre": "police",
-   "ms": 122,
+   "ms": 108,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "p2",
    "genre": "police",
-   "ms": 97,
+   "ms": 89,
    "rules": 4,
    "unlisted": 1
   },
   {
    "id": "p3",
    "genre": "police",
-   "ms": 102,
+   "ms": 98,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "p4",
    "genre": "police",
-   "ms": 90,
+   "ms": 77,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "b1",
    "genre": "bank",
-   "ms": 85,
+   "ms": 89,
    "rules": 7,
    "unlisted": 2
   },
   {
    "id": "b2",
    "genre": "bank",
-   "ms": 76,
+   "ms": 59,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "b3",
    "genre": "bank",
-   "ms": 62,
+   "ms": 65,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "c1",
    "genre": "chat",
-   "ms": 98,
+   "ms": 104,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "c2",
    "genre": "chat",
-   "ms": 121,
+   "ms": 113,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "c3",
    "genre": "chat",
-   "ms": 104,
+   "ms": 101,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "c4",
    "genre": "chat",
-   "ms": 108,
+   "ms": 118,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "x1",
    "genre": "position",
-   "ms": 159,
-   "rules": 9,
-   "unlisted": 3
+   "ms": 162,
+   "rules": 8,
+   "unlisted": 2
   },
   {
    "id": "x2",
    "genre": "position",
-   "ms": 131,
+   "ms": 111,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "x3",
    "genre": "position",
-   "ms": 104,
+   "ms": 95,
    "rules": 4,
    "unlisted": 0
   }

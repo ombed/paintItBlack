@@ -467,6 +467,15 @@ function bodyNames(blocks,known){
         const wds=raw.map(x=>
           PFX.has(x.w[0])&&docTok.has(x.w.slice(1))?x.w.slice(1):x.w);
         if(!wds.every(w=>nameish(w,docTok)))continue;
+        // "עמדה שאינה", "וערכית אינו": מילת שלילה אינה חלק משם
+        if(wds.some(w=>/^[בהולמכש]?(?:אינ[הוםן]|איני|אין|לא|בלי|ללא)$/.test(w)))continue;
+        // "שדיברתי אומר": נטיית עבר בגוף ראשון היא פועל. רק ־תי/־נו, ורק מאורך שש:
+        // "אביתן" הוא שם משפחה שנגמר ב־תן, ו"אביטן" נשאר צמוד אליו במלכודת הזוגות.
+        if(wds.some(w=>/(?:תי|נו)$/.test(w)&&w.length>=6))continue;
+        // צירוף של שתי מילים שאחת מהן בצורת רבים או תואר ("שינוי משמעותי",
+        // "מאפיינים חרדיים", "רמה לימודית גבוהה") אינו שם של אדם. שם בודד לא נפסל כאן,
+        // כדי לא לפסול שמות נשים שנגמרים ב-ה או ב-ית.
+        if(wds.length>1&&wds.some(w=>/(?:ים|יים|ית|יות)$/.test(w)&&!KNOWN_FIRST.has(w)))continue;
         // "פלוני מהוועד": הכינוי המשפטי אינו אדם, גם לפני פועל
         if(wds.some(w=>NER_DROP.has(w)))continue;
         const cand=wds.join(" ");
@@ -898,6 +907,7 @@ function trimPlace(v){
 
 function findPlaces(text){
   const n=norm(text),out=[],seen=new Set();
+  const docTokP=new Set(n.match(WRX)||[]);
   PLACE_RX.lastIndex=0; let m;
   while((m=PLACE_RX.exec(n))){
     const nm=m[1], s=m.index+m[0].indexOf(nm), e=s+nm.length;
@@ -943,6 +953,11 @@ function findPlaces(text){
       c=trimPlace(c); if(!c)continue;
       // "בית הספר לרבות בימי": מה שאחרי מילת המקום, אחרי קיצוץ הזנב, חייב להיראות כשם
       if(!anchorOK(c))continue;
+      // "בית הספר שהינו חרדי", "בצד השמרני", "רמה לימודית": תואר אחרי מילת מוסד אינו
+      // שמו. סיומת תואר במילה בודדת, או מילה שהטקסט עצמו משתמש בה עם ה' הידיעה, נפסלת.
+      {const cw=c.split(/\s+/);
+       if(cw.length===1&&/(?:ית|י)$/.test(norm(c)))continue;
+       if(cw.some(x=>docTokP.has("ה"+norm(x))))continue;}
       const raw=g[1];
       let s=g.index+g[0].indexOf(raw); const o=raw.indexOf(c); if(o>0)s+=o;
       const e=s+c.length, k=s+":"+e; if(seen.has(k))continue; seen.add(k);
@@ -1100,10 +1115,13 @@ class Engine{
       // גם מקום שאישרה מקבל צורות עם אות שימוש: "במבוא חורון" הוא "מבוא חורון".
       // בלי זה יישוב שאינו במאגר מאושר, לא נמצא, ומדווח "לא מופיע במסמך".
       const lvl=(s.kind==="NAME"||s.kind==="ORG"||s.kind==="PLACE")?(opt.prefixes||"normal"):"off";
-      // שם קצר בן מילה אחת ("רון", "גל") — הצורות עם אות שימוש
-      // דומות מדי למילים אחרות, אז הן דורשות אישור ולא מוחלפות לבד.
-      const shortSingle = s.kind==="NAME" &&
-        s.value.trim().split(/\s+/).length===1 && s.value.trim().length<=3;
+      // שם קצר בן מילה אחת ("רון", "גל") — הצורות עם אות שימוש דומות מדי למילים
+      // אחרות, אז הן דורשות אישור. אבל רק כשהשם באמת גם מילה: על כתב עמדה אמיתי
+      // שכולו על קטינה בשם בן שלוש אותיות, "ליעל" ו"שיעל" סומנו לבדיקה עשר פעמים
+      // במקום להיות מוחלפים, והשם נשאר בטקסט עד שהיא מטפלת בכל אחד מהם.
+      const nv=norm(s.value).trim();
+      const shortSingle = s.kind==="NAME" && nv.split(/\s+/).length===1 && nv.length<=3 &&
+        (WORDLIKE.has(nv)||COMMON.has(nv)||this.forbidden.has("ה"+nv));
       for(const [v,pre] of variants(s.value,lvl,protect)){
         if(seen.has(v))continue; seen.add(v);
         this.rules.push({rx:new RegExp(NW+flex(v)+NWE,"gu"),base:s.value,
@@ -1501,7 +1519,11 @@ async function redactDocx(buf,subs,allow,opt){
 
   // שם מהרשימה שלא נמצא אפילו פעם אחת: או שהוא לא במסמך הזה, או שהוא
   // כתוב אחרת. שתיקה כאן משאירה אותה בטוחה שטופל.
+  // גם ממצא שסומן לבדיקה הוא הופעה: שם קצר שמופיע רק עם אות שימוש ("והדס") מסומן
+  // ולא מוחלף, וקודם דווח במקביל גם כ"לא מופיע במסמך הזה בכלל" — שתי אמירות סותרות
+  // על אותו שם.
   const hitBases=new Set(applied.map(r=>norm(r.base||r.value).trim()));
+  for(const r of flagged) if(r.src==="list"&&r.base) hitBases.add(norm(r.base).trim());
   const nearTargets=new Set(near.map(x=>norm(x.near.target).trim()));
   for(const s of subs){
     if(s.kind!=="NAME"&&s.kind!=="ORG"&&s.kind!=="PLACE")continue;

@@ -85,10 +85,13 @@ class Engine{
       // גם מקום שאישרה מקבל צורות עם אות שימוש: "במבוא חורון" הוא "מבוא חורון".
       // בלי זה יישוב שאינו במאגר מאושר, לא נמצא, ומדווח "לא מופיע במסמך".
       const lvl=(s.kind==="NAME"||s.kind==="ORG"||s.kind==="PLACE")?(opt.prefixes||"normal"):"off";
-      // שם קצר בן מילה אחת ("רון", "גל") — הצורות עם אות שימוש
-      // דומות מדי למילים אחרות, אז הן דורשות אישור ולא מוחלפות לבד.
-      const shortSingle = s.kind==="NAME" &&
-        s.value.trim().split(/\s+/).length===1 && s.value.trim().length<=3;
+      // שם קצר בן מילה אחת ("רון", "גל") — הצורות עם אות שימוש דומות מדי למילים
+      // אחרות, אז הן דורשות אישור. אבל רק כשהשם באמת גם מילה: על כתב עמדה אמיתי
+      // שכולו על קטינה בשם בן שלוש אותיות, "ליעל" ו"שיעל" סומנו לבדיקה עשר פעמים
+      // במקום להיות מוחלפים, והשם נשאר בטקסט עד שהיא מטפלת בכל אחד מהם.
+      const nv=norm(s.value).trim();
+      const shortSingle = s.kind==="NAME" && nv.split(/\s+/).length===1 && nv.length<=3 &&
+        (WORDLIKE.has(nv)||COMMON.has(nv)||this.forbidden.has("ה"+nv));
       for(const [v,pre] of variants(s.value,lvl,protect)){
         if(seen.has(v))continue; seen.add(v);
         this.rules.push({rx:new RegExp(NW+flex(v)+NWE,"gu"),base:s.value,

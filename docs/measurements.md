@@ -106,3 +106,43 @@ A name that appears in the document only in its corrupted form, never cleanly. T
 **New trap category.** `T_GAZWORD`: ordinary words that are also locality names, used as ordinary words in prose, in three documents. It costs 2 false positives today, both from the coordinate list ("קדימה", "עלי"), both flagged for review rather than replaced. That is the intended behaviour for an ambiguous town and the trap now records its price.
 
 **On her files after the fixes.** Junk flags fell from 37 to 27 across the four documents; the public body, the four wrongly replaced localities, the invented person and the number are all gone, and with them the four near-miss items their parts had seeded.
+
+### Second pass on the same four files: the review noise
+
+The five bugs above were corruption. What was left was noise: things she has
+to dismiss. Counting distinct items (the interface groups repeats of one
+value into one card), the four documents produced 44 at the start of the
+day, 34 after the corruption fixes, and 28 after this pass. Three changes,
+each measured against the corpus with the gate blocking:
+
+1. **A short name is only "too word-like to replace behind a prefix" when it
+   really is a word in this document.** The guard existed for names like רון,
+   where "ברון" is a word. It fired on every three-letter first name, so on a
+   position paper about a girl whose name appears 42 times, nine prefixed
+   occurrences were sent to review instead of replaced. The guard now also
+   requires the document to use the definite form, or the name to be on the
+   common-word list.
+2. **An adjective after an institution word is not the institution's name.**
+   "בית הספר שהינו חרדי", "בצד השמרני", "רמה לימודית" produced five review
+   items. A one-word candidate ending in the adjective suffixes ־י or ־ית, or
+   a word the same passage uses with the definite article, is rejected. The
+   first attempt also rejected plural endings and cost a neighbourhood whose
+   name is a plural ("הדקלים"); the gate caught it.
+3. **The verb layer rejects negations, first-person verb inflections and
+   plural or adjective pairs.** "עמדה שאינה", "שדיברתי אומר", "שינוי משמעותי",
+   "מאפיינים חרדיים" are gone. The inflection rule first used ־תי/־נו/־תם/־תן
+   at five letters and rejected the surname "אביתן", which broke the
+   edit-distance-1 pair category; it is now ־תי/־נו at six.
+
+Also fixed: a name that appears only behind a prefix letter was flagged for
+review **and** reported as "not in this document at all" — two contradictory
+statements about the same name on the same screen.
+
+**What is left, and why.** Of the 28, six are the same two prefixed forms of
+one name, which the tool asks about by design and the interface shows as two
+cards. Two are ambiguous towns from the coordinate list. The rest are the
+verb layer offering word pairs that are not names, in one dense legal
+document. That layer earns its place elsewhere: it is what finds a name that
+appears only in prose. Tuning it further needs the same treatment as the
+near-miss layer, a keyed real document, and her transcripts are now the
+place to get one.

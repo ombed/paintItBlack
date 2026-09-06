@@ -63,14 +63,14 @@
 | chat | 12 | 8 | 9 | 0 |
 | position | 10 | 3 | 3 | 2 |
 
-## Unlisted suggestions (match nothing in the key; one tap each) — 21 in total
+## Unlisted suggestions (match nothing in the key; one tap each) — 20 in total
 
 Counted, not optimised for: the list is read, accept-all is not how the tool is used.
 
 - **meeting** (3, 3 applied): סיכמנו [discover; פותח תור דיבור בתמלול] **applied** · מהבניין [suggest] **applied** · נוער [suggest] **applied**
 - **filing** (3, 3 applied): נישאו [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · ומצא סימני [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · עלי [flagged] **applied**
 - **transcript** (3, 3 applied): במרפאת עין [suggest] **applied** · הראשון [discover; מופיע אחרי תואר] **applied** · יו"ר [discover; פותח תור דיבור בתמלול] **applied**
-- **medical** (6, 6 applied): המטופלת [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · הנבדק [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · קלינית [suggest] **applied** · הנוכחי [flagged] **applied**
+- **medical** (5, 5 applied): המטופלת [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · הנבדק [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · קלינית [suggest] **applied**
 - **police** (2, 2 applied): ראיתי רכב [suggest] **applied** · המתלוננת [discover; פותח תור דיבור בתמלול] **applied**
 - **bank** (2, 2 applied): החשבון [discover; פותח תור דיבור בתמלול] **applied** · יתרה לסוף התקופה [discover; פותח תור דיבור בתמלול] **applied**
 - **chat** (1, 1 applied): מהוועד [suggest] **applied**
@@ -157,36 +157,36 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 103 | 3 | 0 |
-| m2 | meeting | 34 | 6 | 0 |
-| m3 | meeting | 19 | 3 | 0 |
-| m4 | meeting | 29 | 5 | 3 |
-| f1 | filing | 44 | 10 | 1 |
-| f2 | filing | 61 | 13 | 1 |
-| f3 | filing | 26 | 5 | 0 |
-| f4 | filing | 28 | 6 | 1 |
-| t1 | transcript | 28 | 6 | 0 |
-| t2 | transcript | 28 | 5 | 1 |
-| t3 | transcript | 26 | 6 | 1 |
-| t4 | transcript | 27 | 7 | 1 |
-| w1 | welfare | 11 | 0 | 0 |
-| w2 | welfare | 15 | 2 | 0 |
-| w3 | welfare | 19 | 2 | 0 |
-| w4 | welfare | 17 | 3 | 0 |
-| h1 | medical | 25 | 6 | 2 |
-| h2 | medical | 16 | 2 | 0 |
-| h3 | medical | 20 | 4 | 4 |
-| p1 | police | 19 | 2 | 1 |
-| p2 | police | 16 | 2 | 1 |
+| m1 | meeting | 96 | 3 | 0 |
+| m2 | meeting | 41 | 6 | 0 |
+| m3 | meeting | 27 | 3 | 0 |
+| m4 | meeting | 33 | 5 | 3 |
+| f1 | filing | 52 | 10 | 1 |
+| f2 | filing | 73 | 13 | 1 |
+| f3 | filing | 32 | 5 | 0 |
+| f4 | filing | 30 | 6 | 1 |
+| t1 | transcript | 33 | 6 | 0 |
+| t2 | transcript | 31 | 5 | 1 |
+| t3 | transcript | 33 | 6 | 1 |
+| t4 | transcript | 40 | 7 | 1 |
+| w1 | welfare | 13 | 0 | 0 |
+| w2 | welfare | 23 | 2 | 0 |
+| w3 | welfare | 21 | 2 | 0 |
+| w4 | welfare | 23 | 3 | 0 |
+| h1 | medical | 30 | 6 | 2 |
+| h2 | medical | 21 | 2 | 0 |
+| h3 | medical | 16 | 3 | 3 |
+| p1 | police | 23 | 2 | 1 |
+| p2 | police | 15 | 2 | 1 |
 | p3 | police | 11 | 1 | 0 |
-| p4 | police | 21 | 3 | 0 |
-| b1 | bank | 21 | 5 | 2 |
+| p4 | police | 20 | 3 | 0 |
+| b1 | bank | 22 | 5 | 2 |
 | b2 | bank | 11 | 1 | 0 |
-| b3 | bank | 14 | 2 | 0 |
-| c1 | chat | 9 | 1 | 0 |
-| c2 | chat | 12 | 2 | 1 |
+| b3 | bank | 12 | 2 | 0 |
+| c1 | chat | 10 | 1 | 0 |
+| c2 | chat | 14 | 2 | 1 |
 | c3 | chat | 8 | 1 | 0 |
-| c4 | chat | 14 | 3 | 0 |
-| x1 | position | 29 | 5 | 1 |
-| x2 | position | 22 | 4 | 0 |
-| x3 | position | 14 | 2 | 0 |
+| c4 | chat | 17 | 3 | 0 |
+| x1 | position | 25 | 5 | 1 |
+| x2 | position | 25 | 4 | 0 |
+| x3 | position | 20 | 2 | 0 |

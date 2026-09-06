@@ -4239,16 +4239,6 @@
    "applied": true
   },
   {
-   "doc": "h3",
-   "genre": "medical",
-   "value": "הנוכחי",
-   "sources": [
-    "flagged"
-   ],
-   "why": "",
-   "applied": true
-  },
-  {
    "doc": "p1",
    "genre": "police",
    "value": "ראיתי רכב",
@@ -4313,147 +4303,147 @@
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 103,
+   "ms": 96,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 34,
+   "ms": 41,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 19,
+   "ms": 27,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 29,
+   "ms": 33,
    "rules": 5,
    "unlisted": 3
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 44,
+   "ms": 52,
    "rules": 10,
    "unlisted": 1
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 61,
+   "ms": 73,
    "rules": 13,
    "unlisted": 1
   },
   {
    "id": "f3",
    "genre": "filing",
-   "ms": 26,
+   "ms": 32,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "f4",
    "genre": "filing",
-   "ms": 28,
+   "ms": 30,
    "rules": 6,
    "unlisted": 1
   },
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 28,
+   "ms": 33,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "t2",
    "genre": "transcript",
-   "ms": 28,
+   "ms": 31,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 26,
+   "ms": 33,
    "rules": 6,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 27,
+   "ms": 40,
    "rules": 7,
    "unlisted": 1
   },
   {
    "id": "w1",
    "genre": "welfare",
-   "ms": 11,
+   "ms": 13,
    "rules": 0,
    "unlisted": 0
   },
   {
    "id": "w2",
    "genre": "welfare",
-   "ms": 15,
+   "ms": 23,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "w3",
    "genre": "welfare",
-   "ms": 19,
+   "ms": 21,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "w4",
    "genre": "welfare",
-   "ms": 17,
+   "ms": 23,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "h1",
    "genre": "medical",
-   "ms": 25,
+   "ms": 30,
    "rules": 6,
    "unlisted": 2
   },
   {
    "id": "h2",
    "genre": "medical",
-   "ms": 16,
+   "ms": 21,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "h3",
    "genre": "medical",
-   "ms": 20,
-   "rules": 4,
-   "unlisted": 4
+   "ms": 16,
+   "rules": 3,
+   "unlisted": 3
   },
   {
    "id": "p1",
    "genre": "police",
-   "ms": 19,
+   "ms": 23,
    "rules": 2,
    "unlisted": 1
   },
   {
    "id": "p2",
    "genre": "police",
-   "ms": 16,
+   "ms": 15,
    "rules": 2,
    "unlisted": 1
   },
@@ -4467,14 +4457,14 @@
   {
    "id": "p4",
    "genre": "police",
-   "ms": 21,
+   "ms": 20,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "b1",
    "genre": "bank",
-   "ms": 21,
+   "ms": 22,
    "rules": 5,
    "unlisted": 2
   },
@@ -4488,21 +4478,21 @@
   {
    "id": "b3",
    "genre": "bank",
-   "ms": 14,
+   "ms": 12,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "c1",
    "genre": "chat",
-   "ms": 9,
+   "ms": 10,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "c2",
    "genre": "chat",
-   "ms": 12,
+   "ms": 14,
    "rules": 2,
    "unlisted": 1
   },
@@ -4516,28 +4506,28 @@
   {
    "id": "c4",
    "genre": "chat",
-   "ms": 14,
+   "ms": 17,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "x1",
    "genre": "position",
-   "ms": 29,
+   "ms": 25,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "x2",
    "genre": "position",
-   "ms": 22,
+   "ms": 25,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "x3",
    "genre": "position",
-   "ms": 14,
+   "ms": 20,
    "rules": 2,
    "unlisted": 0
   }

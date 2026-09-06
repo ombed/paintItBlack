@@ -63,18 +63,18 @@
 | chat | 20 | 0 | 0 | 0 |
 | position | 13 | 0 | 0 | 2 |
 
-## Unlisted suggestions (match nothing in the key; one tap each) — 24 in total
+## Unlisted suggestions (match nothing in the key; one tap each) — 22 in total
 
 Counted, not optimised for: the list is read, accept-all is not how the tool is used.
 
 - **meeting** (3, 3 applied): סיכמנו [discover; פותח תור דיבור בתמלול] **applied** · מהבניין [suggest] **applied** · נוער [suggest] **applied**
 - **filing** (4, 4 applied): נישאו [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · ירושלים [model] **applied** · ומצא סימני [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · עלי [flagged] **applied**
 - **transcript** (3, 3 applied): במרפאת עין [suggest] **applied** · הראשון [discover; מופיע אחרי תואר] **applied** · יו"ר [discover; פותח תור דיבור בתמלול] **applied**
-- **medical** (6, 6 applied): המטופלת [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · הנבדק [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · קלינית [suggest] **applied** · הנוכחי [flagged] **applied**
+- **medical** (5, 5 applied): המטופלת [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · הנבדק [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · קלינית [suggest] **applied**
 - **police** (2, 2 applied): ראיתי רכב [suggest] **applied** · המתלוננת [discover; פותח תור דיבור בתמלול] **applied**
 - **bank** (2, 2 applied): החשבון [discover; פותח תור דיבור בתמלול] **applied** · יתרה לסוף התקופה [discover; פותח תור דיבור בתמלול] **applied**
 - **chat** (1, 1 applied): מהוועד [suggest] **applied**
-- **position** (3, 3 applied): הבהרה [discover; פותח תור דיבור בתמלול] **applied** · משה [model+flagged] **applied** · שמשה [flagged] **applied**
+- **position** (2, 2 applied): הבהרה [discover; פותח תור דיבור בתמלול] **applied** · משה [model] **applied**
 
 ## Missed and leaked, by document
 
@@ -94,36 +94,36 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 152 | 9 | 0 |
-| m2 | meeting | 125 | 13 | 0 |
-| m3 | meeting | 80 | 6 | 0 |
-| m4 | meeting | 122 | 9 | 3 |
-| f1 | filing | 143 | 14 | 2 |
-| f2 | filing | 169 | 16 | 1 |
-| f3 | filing | 115 | 9 | 0 |
-| f4 | filing | 140 | 9 | 1 |
-| t1 | transcript | 129 | 8 | 0 |
-| t2 | transcript | 112 | 12 | 1 |
-| t3 | transcript | 122 | 11 | 1 |
-| t4 | transcript | 108 | 13 | 1 |
-| w1 | welfare | 83 | 4 | 0 |
-| w2 | welfare | 81 | 5 | 0 |
-| w3 | welfare | 91 | 6 | 0 |
-| w4 | welfare | 84 | 6 | 0 |
-| h1 | medical | 105 | 7 | 2 |
-| h2 | medical | 128 | 4 | 0 |
-| h3 | medical | 103 | 6 | 4 |
-| p1 | police | 122 | 5 | 1 |
-| p2 | police | 97 | 4 | 1 |
-| p3 | police | 102 | 2 | 0 |
-| p4 | police | 90 | 3 | 0 |
-| b1 | bank | 85 | 7 | 2 |
-| b2 | bank | 76 | 3 | 0 |
-| b3 | bank | 62 | 3 | 0 |
-| c1 | chat | 98 | 5 | 0 |
-| c2 | chat | 121 | 5 | 1 |
-| c3 | chat | 104 | 4 | 0 |
-| c4 | chat | 108 | 5 | 0 |
-| x1 | position | 159 | 9 | 3 |
-| x2 | position | 131 | 5 | 0 |
-| x3 | position | 104 | 4 | 0 |
+| m1 | meeting | 233 | 9 | 0 |
+| m2 | meeting | 131 | 13 | 0 |
+| m3 | meeting | 103 | 6 | 0 |
+| m4 | meeting | 137 | 9 | 3 |
+| f1 | filing | 158 | 14 | 2 |
+| f2 | filing | 178 | 16 | 1 |
+| f3 | filing | 126 | 9 | 0 |
+| f4 | filing | 148 | 9 | 1 |
+| t1 | transcript | 148 | 8 | 0 |
+| t2 | transcript | 133 | 12 | 1 |
+| t3 | transcript | 132 | 11 | 1 |
+| t4 | transcript | 127 | 13 | 1 |
+| w1 | welfare | 132 | 4 | 0 |
+| w2 | welfare | 99 | 5 | 0 |
+| w3 | welfare | 126 | 6 | 0 |
+| w4 | welfare | 120 | 5 | 0 |
+| h1 | medical | 104 | 7 | 2 |
+| h2 | medical | 107 | 4 | 0 |
+| h3 | medical | 101 | 5 | 3 |
+| p1 | police | 108 | 5 | 1 |
+| p2 | police | 89 | 4 | 1 |
+| p3 | police | 98 | 2 | 0 |
+| p4 | police | 77 | 3 | 0 |
+| b1 | bank | 89 | 7 | 2 |
+| b2 | bank | 59 | 3 | 0 |
+| b3 | bank | 65 | 3 | 0 |
+| c1 | chat | 104 | 5 | 0 |
+| c2 | chat | 113 | 5 | 1 |
+| c3 | chat | 101 | 4 | 0 |
+| c4 | chat | 118 | 5 | 0 |
+| x1 | position | 162 | 8 | 2 |
+| x2 | position | 111 | 5 | 0 |
+| x3 | position | 95 | 4 | 0 |
