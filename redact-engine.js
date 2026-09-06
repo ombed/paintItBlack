@@ -1750,6 +1750,9 @@ function nerGroup(toks){
   }
   return out;
 }
+// הפלט הגולמי של הריצה האחרונה, לדוח הדליפה: מה המודל חשב על מקטע שפוספס
+let NER_LAST=[];
+function nerLast(){return NER_LAST}
 async function nerRun(blocks,onProgress){
   const pipe=await nerLoad();
   const text=blocks.map(b=>b.text).join("\n");
@@ -1771,6 +1774,7 @@ async function nerRun(blocks,onProgress){
       await new Promise(r=>setTimeout(r,0));
     }
   }
+  NER_LAST=ents.map(e=>({type:e.type,score:e.score,s:e.s,e:e.e}));
   const out=nerClean(ents,text);
   const chars=parts.reduce((a,p)=>a+p.t.length,0);
   console.log(`זיהוי: ${parts.length} קטעים (${chars}/${text.length} תווים) · `+
@@ -1843,7 +1847,7 @@ function restoreNames(txt,pairs){
 }
 
 
-export {crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
+export {nerLast, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
   variants, validID, ibanOK, luhn, hord, POOL, WORDLIKE, FEM, MASC, fakeName, near1, HOMO, WEAK,
   findNear, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,

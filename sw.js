@@ -7,7 +7,7 @@
    בטעינה השנייה, וזו דרך בטוחה להריץ קוד ישן בלי לדעת. */
 const V="hedact-v13";
 const FILES=["./","./index.html","./manifest.webmanifest","./icon.svg",
-  "./support.js","./redact-engine.js","./pdf-text.js","./text-to-docx.js"];
+  "./support.js","./page-logic.js","./redact-engine.js","./pdf-text.js","./text-to-docx.js"];
 
 self.addEventListener("install",e=>{
   e.waitUntil(caches.open(V)

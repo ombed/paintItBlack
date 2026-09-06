@@ -80,6 +80,7 @@ a:hover{text-decoration:underline}
   color:var(--ink3);font-family:Rubik,system-ui,sans-serif;letter-spacing:.02em;
   pointer-events:none;user-select:none}
 </style>
+<script src="./page-logic.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -686,6 +687,13 @@ a:hover{text-decoration:underline}
                   <span style="color:var(--ink2)">{{ st.label }}</span><b style="font-weight:500">{{ st.value }}</b>
                 </div>
               </sc-for>
+              <sc-if value="{{ hasLeaks }}">
+                <div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--warn-soft);font-size:12.5px;line-height:1.55">
+                  <b style="font-weight:500;color:var(--warn)">שמות שסימנת בעצמך: {{ leakCount }}</b>
+                  <p style="margin:4px 0 8px;color:var(--ink2)">כל סימון כזה הוא שם שהכלי פספס. דוח הדליפה מתאר את הצורה של המקרה — אורכי מילים, מה עמד לפני ואחרי, מה כל שכבה חשבה — בלי הטקסט ובלי השם. אפשר להדביק אותו ב-issue.</p>
+                  <button onClick="{{ onCopyLeaks }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--warn);font-size:12.5px;font-weight:500;color:var(--warn)">{{ leakCopyLabel }}</button>
+                </div>
+              </sc-if>
               <button onClick="{{ onReport }}" style="margin-top:12px;width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500" style-hover="background:var(--panel2)">הורדת דוח השחרה</button>
               <p style="margin:8px 0 0;font-size:12px;color:var(--ink3);line-height:1.6">הדוח מפרט מה הוחלף במה, מה סומן לבדיקה ומה נוקה מהקובץ — לתיק הפנימי, לא לשליחה.</p>
               <p style="margin:12px 0 0;font-size:12px;color:var(--ink3);line-height:1.6">האימות מוודא שהערכים שזוהו נעלמו מכל חלקי הקובץ, ומחפש כתיב שנבדל מהם בתו אחד. שיבוש של שני תווים ומעלה, טקסט בתוך תמונה או קובץ מוטמע, ושם שאף פעם לא זוהה — אינם נסרקים.</p>
@@ -1163,13 +1171,26 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       this.setState({res, sel:null}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה: "+(e.message||e)}); }
   }
-  addRule = (value, kind, rep) => {
+  addRule = (value, kind, rep, origin) => {
     const E=this.state.E; value=E.trimEdges(value);
     if(value.length<2){ this.setState({err:"נדרשים לפחות שני תווים."}); return; }
     if(this.state.rules.some(r=>r.value===value)){ this.setState({err:"«"+value+"» כבר ברשימה."}); return; }
+    // סימון ידני בטקסט אחרי העיבוד הוא ההגדרה של דליפה: הכלי פספס, והיא תיקנה.
+    // הצורה של המקרה נרשמת (page-logic.js, leakShape) — בלי הטקסט — כדי שיהיה
+    // אפשר לשחזר אותו בלי המסמך.
+    if(origin==="mark"&&this.state.res&&this.state.buf&&window.PL) this.recordLeak(value, kind||"NAME");
     this.setState({rules:[...this.state.rules, {value, kind:kind||"NAME", replacement:(rep||"").trim(), auto:false}],
       addV:"", addR:"", popup:null, err:""}, ()=>this.rerun());
   };
+  async recordLeak(value, kind){
+    try{
+      const S=this.state, E=S.E, blocks=await this.blocksOf(S.buf);
+      const ver=((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"");
+      const shape=window.PL.leakShape(E, blocks, value, {kind, version:ver, modelUsed:S.nerUsed, cands:S.cands,
+        nerRaw:S.nerUsed&&E.nerLast?E.nerLast():[], rules:S.rules, near:(S.res.verification.near)||[], suggest:(S.res.verification.suggest)||[]});
+      this.setState({leaks:[...this.state.leaks, shape]});
+    }catch(_){}
+  }
   // מוסיף מקטע לפתוחים בלי לסגור אחרים
   openWith = k => { const o=Array.isArray(this.state.open)?this.state.open:[]; return o.includes(k)?o:[...o,k]; };
   dropRule = v => this.setState({rules:this.state.rules.filter(r=>r.value!==v)}, ()=>this.rerun());
@@ -1511,7 +1532,9 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       popup:!!S.popup, popupText:S.popup?S.popup.text:"",
       popupStyle:S.popup?("position:fixed;z-index:60;left:"+S.popup.x+"px;top:"+S.popup.y+"px;max-width:270px;"+
         "background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;box-shadow:0 12px 34px rgba(0,0,0,.22)"):"",
-      popupKinds:KINDS.map(([k,l])=>({label:l, onClick:()=>{ this.addRule(S.popup.text, k, ""); getSelection().removeAllRanges(); }})),
+      popupKinds:KINDS.map(([k,l])=>({label:l, onClick:()=>{ this.addRule(S.popup.text, k, "", "mark"); getSelection().removeAllRanges(); }})),
+      hasLeaks:S.leaks.length>0, leakCount:S.leaks.length, leakCopyLabel:S.leakCopyLabel||"העתקת דוח הדליפה",
+      onCopyLeaks:()=>{ try{ this.copyTo(window.PL.leakReport(S.leaks,{version:((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"")}), "leakCopyLabel", "העתקת דוח הדליפה"); }catch(e){ this.setState({err:String(e.message||e)}); } },
       addV:S.addV, addR:S.addR,
       onAddV:e=>this.setState({addV:e.target.value}), onAddR:e=>this.setState({addR:e.target.value}),
       onAddKey:e=>{ if(e.key==="Enter") this.addRule(this.state.addV, this.state.addK, this.state.addR); },
