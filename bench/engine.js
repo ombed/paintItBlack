@@ -35,7 +35,7 @@ const SRC = path.join(__dirname, "..", "redact-engine.js");
 // Internal helpers the benchmark needs that the module does not export:
 // nerAlign and nerGroup mirror nerRun's per-chunk steps; KNOWN_FIRST is the
 // union the generator must stay disjoint from; the rest feed the reports.
-const EXTRA = ["nerAlign", "nerGroup", "KNOWN_FIRST", "COMMON", "VRB", "GF", "GM", "WORDLIKE", "STOP", "HOMO", "WEAK"];
+const EXTRA = ["nerAlign", "nerGroup", "KNOWN_FIRST", "COMMON", "VRB", "GF", "GM", "WORDLIKE", "STOP", "HOMO", "WEAK", "cleanName", "anchorOK", "trimEdges", "anchored"];
 
 function build(patches, outName) {
   // LF throughout, so a multi-line patch matches whatever the checkout's line endings are

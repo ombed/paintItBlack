@@ -175,3 +175,45 @@ structure, a public body behind a prefix, a preposition read as an anchor, a
 gazetteer that replaced people with place names, an office title taken for a
 person. The corpus is a regression net, not a discovery instrument. Real
 documents, cleaned by her, are the only source of new failure modes so far.
+
+## Transcribed audio in the corpus, and a backslash, 2026-09-07
+
+**Question.** Her transcripts are the document she works on daily and the
+corpus had nothing like them. Adding four of that shape, with invented names
+and deliberate typing errors, should finally let the near-miss layer be
+measured — the parameter sweep had reported every confusable-letter setting
+as identical, and blamed the corpus.
+
+**What the new documents found first.** The speaker-line anchor added the day
+before, written specifically for her transcripts, **had never run**. Three
+regular expressions in it said `/s+/` where they meant `/\s+/`. Splitting
+Hebrew on the letter s returns one piece, so the "is the next paragraph long
+enough" test failed on every block and the loop skipped everything. It is
+valid JavaScript, so the linter and the type checker both pass it. This is the
+fifth time a lost backslash has cost something in this repo: the grouper's
+punctuation class, a public-body context check, the model's single-word test,
+a gazetteer context check, and now an entire anchor. `tests/regex_t.js` now
+looks for the pattern across every shipped file and fails the suite.
+
+**With it running.** Five speaker lines in the corpus, all found, none missed,
+none leaked, with and without the model. On her two real transcripts it first
+produced seven candidates of which two were names, and two of the junk ones
+("הבנתי", "טוב") recurred and were therefore promoted to high confidence,
+which means auto-filled and replaced. Three changes: a line-based speaker is
+never promoted to high, because unlike a turn with a colon it is a weak
+signal; a list of the words that stand alone on a transcript line
+("טוב", "בסדר", "יודעת", "בדיוק"); and a speaker label is a bare name, so no
+internal punctuation, no plural ending, no possessive. Her two transcripts now
+yield one candidate each, and both are the speakers.
+
+**The near-miss parameters are still flat, and now we know why.** With the new
+documents the sweep still reports every confusable pair, every matres
+lectionis set and every length identical, model on or off. Turning the whole
+pair table off changes nothing. The layer itself works: given the clean
+spelling as a confirmed rule, it catches "בושקילה" from "בוסקילה" and "אביטר"
+from "אביתר". It is never the mechanism in the benchmark because the model
+already returns both spellings, and with the model off the clean spelling is
+not caught either, so there is nothing to compare against. Validating the
+table needs a document where the clean spelling is caught and the corrupted
+one is not, which is exactly `tests/protocol.txt`. That remains the one
+instrument still missing.
