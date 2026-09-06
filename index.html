@@ -91,7 +91,7 @@ a:hover{text-decoration:underline}
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v13");
+  console.log("השחרת מסמכים — גרסה v14");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -129,9 +129,9 @@ a:hover{text-decoration:underline}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v13") return;
+        if(served==="v14") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v13 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v14 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -748,7 +748,7 @@ a:hover{text-decoration:underline}
 
 </div>
 </x-dc>
-<div id="ver">גרסה v13</div>
+<div id="ver">גרסה v14</div>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">

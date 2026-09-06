@@ -31,3 +31,39 @@ So 3/13 is not a finding about model capacity. It is a finding that the harness 
 ## The one hole that remains
 
 A name that appears in the document only in its corrupted form, never cleanly. There is nothing to compare against, so neither the model nor the scanner catches it. This is unmeasured as of this writing; the benchmark includes a category for it.
+
+## Parameter sweep, 2026-09-06
+
+**Question.** Several numbers in the detection layer were set by feel: the model confidence floor (0.7), which letter pairs count as confusable and which insertions as matres lectionis in the near-miss scan, the shortest name fragment replaced alone, the prefix-peeling lengths. Which of them move leaks?
+
+**Method.** `bench/sweep.js`: every parameter at several values, the whole 30-document corpus at each point, model on, product options. The engine is patched textually per point (`bench/engine.js` `load`), never edited. Full surface in `bench/sweep.md`.
+
+| parameter | shipped | finding | decision |
+|---|---|---|---|
+| verb layer with the model | off | on: 4 fewer leaks, 4 fewer misses, +5 junk, no measurable time cost | **on** |
+| confidence floor | 0.7 | 0.6 one leak fewer, 0.3–0.5 same as 0.6, 0.8 same as 0.7, 0.9 doubles leaks | **0.6** |
+| shortest fragment swept alone | 3 | 2 same as 3; 4 adds six leaks | **2** (two-letter parts are review-only through the word-like rule) |
+| fragment word-like length | 2 | 3 adds one leak | keep |
+| prefix-letter forms | normal | safe: +4 leaks; off: +12 | keep |
+| near-miss: target length, short-target rule, matres lectionis set, every confusable pair (leave-one-out) | various | flat: no value moves leaks, misses, fp or junk | keep; **the corpus does not exercise them** |
+| single-word rule review length, peel length, discover stem length, whole-value rescan length | various | flat | keep |
+
+**Reading.** Two of the guessed values were wrong by a little (0.7 → 0.6, 3 → 2) and the rest were either right or unmeasurable here. The near-miss parameters are unmeasurable because the corpus has three typo categories and they are all found by other layers first. To validate the confusable-pair table the corpus needs transcripts with dense transcription errors, or the real protocol (`tests/protocol.txt`) keyed; that is the next measurement to build.
+
+## Span boundaries, 2026-09-06
+
+**Question.** Five of twelve leaks on the first corpus came from the model's span quality. Where do the spans go wrong: punctuation, chunk edges, titles, verbs?
+
+**Method.** `bench/spans.js`: every occurrence of every keyed person, org and place surface (329 after de-duplication) compared with the raw model spans after alignment and grouping, before cleaning. Full tables in `bench/spans.md`.
+
+**Finding.** None of the four hypotheses. Across punctuation: 1 occurrence. At a chunk edge: 1. Before a speech verb: 0. After a title: benign, the title is correctly excluded. The dominant failure, 94 of 329, was the span ending inside a word: the model labels only the first sub-word of each word and returns the continuation sub-words (`##אן`, `##טה`) as O, and the grouper treated O as a break. "דסטה טספאיי" arrived as "דס" and "טס"; the word-boundary extension in the cleaner repaired each fragment to one word, so multi-word names reached the list as two separate single words.
+
+**Fix and measure.** The grouper now keeps a continuation sub-word with the current entity regardless of its label. Cut-inside-a-word occurrences: 94 → 20; exact spans: 159 → 228; values surviving cleaning: 92 → 134. Leaks did not move on that change alone, because they came from other classes, so a second approach was added alongside rather than instead: hyphens inside a name stay in the span, a trailing preposition is cut from a place, and the street name alone is swept after an address is replaced. Together: leaks 16 → 5 on the 30-document corpus, then 4 with the floor from the sweep.
+
+**What remains.** 37 mis-bounded spans carry a prefix letter the cleaner could not peel (the stem appears nowhere else and is unknown), and 26 misses are a prefixed single mention. That is the next span lever, and it is a lexicon question, not a boundary one.
+
+## The surname length question, 2026-09-06
+
+**Question.** "ליפשיץ" was replaced alone and "סבג" was not. Is there a length threshold, and is it right?
+
+**Finding.** There was: the uniformity sweep marked any part of three letters or fewer as word-like (`p.length<=3`), which limits it to standalone occurrences with review, so "וסבג" and "לסבג" stayed in the text. Commit 507a0c5 (PR #5) lowered that to two. The threshold that remained is the sweep's entry rule, which drops parts shorter than a minimum outright: it was 3, so a two-letter surname ("כץ", "נץ") was never swept at all. A probe confirmed it: "סבג" and "דהן" alone and behind every prefix letter are replaced today; "כץ" leaked five times. The sweep put the minimum at 2 at no cost, and two-letter parts stay review-only through the word-like rule. So the number was 3, it was wrong for two-letter surnames, and it is now 2.

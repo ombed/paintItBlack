@@ -1,4 +1,7 @@
 // GENERATED from dc-runtime/src/*.ts — do not edit. Rebuild with `cd dc-runtime && bun run build`.
+// Vendored copy of dc-runtime for paintItBlack. No upstream version string exists; scripts/diff-runtime.js
+// prints this file's size and hash and diffs a newer copy against it. First vendored 2026-09-04 (commit cf934f4).
+// Rules that this page relies on: #dc-root height (overridden in index.html), the x-dc/helmet layout, data-props.
 "use strict";
 (() => {
   var __defProp = Object.defineProperty;
