@@ -113,5 +113,32 @@ console.log("\n— fakePlace: a town gets a town, not a bracketed label —");
   ok(new Set(seen).size === seen.length, "five towns get five distinct substitutes");
 }
 
+console.log("\n— the ambiguous list holds only names that really are something else —");
+{
+  /* She read a row saying לוד — "also an ordinary word" and said, correctly,
+     that Lod is a city name and nothing else, not remotely like אזור. Fourteen
+     entries were like that: real town names sitting in a list whose stated
+     criterion is settlement names that are also ordinary Hebrew words. They
+     cost those towns their place in the distance-preserving map and put a
+     false note beside them on screen. A short name is still held for review by
+     the length rule in findPlaces, so nothing here needed them. */
+  const pureTowns = ["לוד", "ערד", "מטולה", "עתלית", "מגידו", "ענתות", "כורזים",
+    "דבוריה", "עילבון", "פרדסיה", "דגניה", "ראמה", "טמרה", "נחף"];
+  for (const t of pureTowns) {
+    const found = C.placesFound("המשפחה עברה ל" + t + " בשנה שעברה.").find((x) => x.name === t);
+    ok(found, t + " is still recognised as a settlement");
+    ok(found && found.ambiguous === false, t + " is not marked as anything but a town");
+  }
+  // ראש, עמק and כפר stay on the list for a different reason: they are the head
+  // words of two-word towns, not settlements in their own right, so they are
+  // not checked here.
+  for (const w of ["אזור", "גשר", "קדימה", "רחובות", "נשר", "טירה"]) {
+    const found = C.placesFound("הם היו ב" + w + " אתמול.").find((x) => x.name === w);
+    ok(found && found.ambiguous === true, w + " is genuinely also an ordinary word");
+  }
+  const names = C.geoNames("המשפחה עברה מלוד לערד, ומשם למטולה ולחיפה.");
+  for (const t of ["לוד", "ערד", "מטולה"]) ok(names.includes(t), t + " can be mapped with distances again");
+}
+
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

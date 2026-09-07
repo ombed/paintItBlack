@@ -98,7 +98,7 @@ a:hover{text-decoration:underline}
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v26");
+  console.log("השחרת מסמכים — גרסה v27");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -136,9 +136,9 @@ a:hover{text-decoration:underline}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v26") return;
+        if(served==="v27") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v26 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v27 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -485,7 +485,7 @@ a:hover{text-decoration:underline}
       <div style="margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden">
         <div style="padding:15px 18px;border-bottom:1px solid var(--line2)">
           <b style="font-weight:500">יישובים נוספים שנמצאו</b>
-          <p style="margin:4px 0 0;font-size:12.5px;color:var(--ink2);line-height:1.55">אלה לא נכנסים למפת המרחקים — או שאין להם קואורדינטות במאגר, או ששמם גם מילה עברית רגילה. כל אחד מוחלף בפני עצמו. מה שמסומן «גם מילה רגילה» מגיע כבוי, כי המילה שכיחה יותר מהיישוב; ריחוף או הקשה על השם מראים איפה הוא מופיע במסמך.</p>
+          <p style="margin:4px 0 0;font-size:12.5px;color:var(--ink2);line-height:1.55">אלה לא נכנסים למפת המרחקים — או שאין להם קואורדינטות במאגר, או ששמם גם מילה עברית רגילה. כל אחד מוחלף בפני עצמו. מה שמסומן «לא רק שם יישוב» מגיע כבוי, כי אלה שמות שהם גם מילה עברית רגילה או שם פרטי, והשימוש האחר שכיח יותר מהיישוב; ריחוף או הקשה על השם מראים איפה הוא מופיע במסמך.</p>
         </div>
         <sc-for list="{{ extraRows }}" as="x" hint-placeholder-count="3">
           <div data-wrap style="{{ x.rowStyle }}">
@@ -834,7 +834,7 @@ a:hover{text-decoration:underline}
 
 </div>
 </x-dc>
-<div id="ver">גרסה v26</div>
+<div id="ver">גרסה v27</div>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
@@ -1887,7 +1887,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       hasExtra:(S.geoExtra||[]).length>0,
       extraRows:(S.geoExtra||[]).map(x=>({
         name:x.name, to:x.to, isOn:x.on,
-        note:x.ambiguous?"גם מילה רגילה":"",
+        note:x.ambiguous?"לא רק שם יישוב":"",
         toggleLabel:x.on?"אל תחליף":"להחליף",
         toggleStyle:"font-size:12.5px;padding:7px 11px;border-radius:8px;white-space:nowrap;border:1px solid "+
           (x.on?"var(--line)":"var(--accent)")+";color:"+(x.on?"var(--ink2)":"var(--accent-ink)"),
