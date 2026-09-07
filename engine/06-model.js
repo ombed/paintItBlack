@@ -493,6 +493,33 @@ function geoNames(text){
   return out;
 }
 
+/* כל היישובים שנמצאו במסמך, ולא רק אלה שאפשר למפות תוך שמירת מרחקים.
+
+   geoNames מחזיר בכוונה רק את מה שנכנס למפת המרחקים: יישוב מתוך 200 הערים עם
+   קואורדינטות, שאינו דו-משמעי. זה נכון למפה, והיה שגוי למסך: על מסמך שהיישובים
+   בו הם מהמאגר הגדול, או ששמם גם מילה רגילה, המסך הראה "לא נמצאו יישובים"
+   בזמן שהזיהוי דווקא מצא אותם. היא ראתה מקומות בכלי, ומסך מקומות ריק.
+
+   כאן מוחזר הכול, עם שתי תכונות שהמסך צריך כדי להחליט מה להציע: האם היישוב
+   ניתן למיפוי (יש לו קואורדינטות), והאם שמו גם מילה עברית רגילה. */
+function placesFound(text){
+  const n=norm(String(text||"")), out=[], seen=new Set();
+  const add=(nm,mappable)=>{
+    if(!nm||seen.has(nm))return;
+    seen.add(nm); out.push({name:nm, mappable, ambiguous:AMBIG.has(nm)});
+  };
+  let m;
+  PLACE_RX.lastIndex=0;
+  while((m=PLACE_RX.exec(n))) add(m[1], true);
+  if(typeof GAZ_RX!=="undefined"){
+    GAZ_RX.lastIndex=0;
+    // מהמאגר רק שמות בני שתי מילים ומעלה, אותה החלטה שב-findPlaces: הזנב הארוך
+    // של שמות בני מילה אחת הוא ברובו מילים רגילות
+    while((m=GAZ_RX.exec(n))) if(m[1] && m[1].includes(" ")) add(m[1], false);
+  }
+  return out;
+}
+
 /* ── מיפוי יישובים תוך שמירה על מרחקים ── */
 const R2=Math.PI/180;
 function hav(a1,o1,a2,o2){
