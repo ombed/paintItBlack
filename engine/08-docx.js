@@ -823,5 +823,5 @@ export {nerLast, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, 
   variants, validID, ibanOK, luhn, hord, POOL, WORDLIKE, FEM, MASC, fakeName, near1, HOMO, WEAK,
   findNear, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,
-  discover, PLACES, PLACE_BY, geoMap, geoNames, examplesOf, findPlaces, nerEnv, nerCached, nerPersist, nerLoad, nerRun,
+  discover, PLACES, PLACE_BY, geoMap, geoNames, examplesOf, findPlaces, fakePlace, nerEnv, nerCached, nerPersist, nerLoad, nerRun,
   TITLE_RX, ORG_RX, likelyOrg, cleanEntry, trimEdges, pseudoRX, restoreNames, STOP};

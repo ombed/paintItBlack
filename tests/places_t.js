@@ -78,5 +78,40 @@ console.log("\n— examplesOf: the sentences behind a decision —");
   ok(C.examplesOf(blocks, "דנה", 2).length === 2, "the cap is honoured");
 }
 
+console.log("\n— fakePlace: a town gets a town, not a bracketed label —");
+{
+  // Places were the one kind with no substitute generator. A name became
+  // "מיכל ברנע"; a town became "[יישוב א׳]" — a label sitting inside the
+  // sentence, breaking the reading and announcing that something was hidden.
+  // The only source of a real town name was the places screen, so everything
+  // it did not offer fell through to the label.
+  const a = C.fakePlace("לוד", new Set(), new Set());
+  ok(typeof a === "string" && a.length > 1, "a substitute is produced");
+  ok(!/^\[/.test(a), "it is not a bracketed label: " + a);
+  ok(a !== "לוד", "and not the town itself");
+
+  ok(C.fakePlace("לוד", new Set(), new Set()) === a, "the same town gives the same substitute every run");
+  ok(C.fakePlace("חיפה", new Set(), new Set()) !== a, "a different town gives a different one");
+}
+{
+  // a substitute must not be a word the document already uses, or the reader
+  // cannot tell the replacement from the original text
+  const forbidden = new Set(["שמש", "בית"]);
+  const v = C.fakePlace("לוד", new Set(), forbidden);
+  ok(v !== "בית שמש", "a two-word town is rejected when either word is in the document");
+  ok(!"בית שמש".split(" ").some((w) => v.includes(w)) || v.split(" ").every((w) => !forbidden.has(w)),
+    "no word of the substitute appears in the document: " + v);
+}
+{
+  const used = new Set();
+  const seen = [];
+  for (const town of ["לוד", "חיפה", "ערד", "יבנה", "נשר"]) {
+    const v = C.fakePlace(town, used, new Set());
+    ok(!used.has(v), "a substitute already taken is not handed out twice: " + v);
+    used.add(v); seen.push(v);
+  }
+  ok(new Set(seen).size === seen.length, "five towns get five distinct substitutes");
+}
+
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

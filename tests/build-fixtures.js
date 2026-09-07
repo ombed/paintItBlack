@@ -64,7 +64,7 @@ fs.writeFileSync(path.join(HERE, "app.html"),
 
 // core.js is required directly, never sliced, so it keeps the original order.
 // The export list is what extract.py used to append; the suites destructure these.
-const exp = "module.exports={norm,near1,findNear,restoreNames,fakeName,gender,origin,POOL,STOP,PLACE_BY,Engine,ckey,variants,hord,words,pseudoRX,hash32,discover,anchored,partName,ctxHTML,findPlaces,esc,GF,GM,bodyNames,nameish,VRB,COMMON,nerClean,nerChunks,PUBLIC_ORG,nerAlign,nerGroup,fixTokJSON,rxClean,geoNames,examplesOf}";
+const exp = "module.exports={norm,near1,findNear,restoreNames,fakeName,gender,origin,POOL,STOP,PLACE_BY,Engine,ckey,variants,hord,words,pseudoRX,hash32,discover,anchored,partName,ctxHTML,findPlaces,esc,GF,GM,bodyNames,nameish,VRB,COMMON,nerClean,nerChunks,PUBLIC_ORG,nerAlign,nerGroup,fixTokJSON,rxClean,geoNames,examplesOf,fakePlace}";
 fs.writeFileSync(path.join(HERE, "core.js"), PRELUDE + src + "\n" + exp + ";\n", "utf8");
 
 console.log("built tests/app.html and tests/core.js from redact-engine.js");

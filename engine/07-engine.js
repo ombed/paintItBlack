@@ -185,6 +185,13 @@ class Engine{
       const n=(this.cnt[fam]||0)+1;this.cnt[fam]=n;
       if(fam==="NAME"&&this.opt.mode==="real")
         base=fakeName(canonical,this.gmap[canonical]||h.g,this.used,this.forbidden,this.firstish);
+      // יישוב מקבל שם יישוב אמיתי, כמו ששם מקבל שם. מסך היישובים קודם כשהוא
+      // מציע משהו, כי הוא שומר על המרחקים; זה מה שקורה לכל השאר, כולל מה שנגזר
+      // ממילת יישוב ("מושב X", "שכונת Y"). מוסד רפואי, עסק או מוסד חינוך נשאר
+      // תווית: שם יישוב במקומו היה משקר על סוג המקום.
+      else if(this.opt.mode==="real"&&typeof fakePlace==="function"&&
+              (h.type==="PLACE_CITY"||(h.type==="PLACE_VENUE"&&h.label==="יישוב")))
+        base=fakePlace(canonical,this.used,this.forbidden)||`[${lab} ${hord(n)}]`;
       else base = fam==="NAME" ? "פלוני "+hord(n) : `[${lab} ${hord(n)}]`;
     }
     this.map[k]??=base;

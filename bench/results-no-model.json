@@ -4695,259 +4695,259 @@
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 67,
+   "ms": 180,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 29,
+   "ms": 64,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 21,
+   "ms": 42,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 24,
+   "ms": 53,
    "rules": 5,
    "unlisted": 3
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 34,
+   "ms": 86,
    "rules": 10,
    "unlisted": 1
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 53,
+   "ms": 107,
    "rules": 13,
    "unlisted": 1
   },
   {
    "id": "f3",
    "genre": "filing",
-   "ms": 23,
+   "ms": 47,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "f4",
    "genre": "filing",
-   "ms": 27,
+   "ms": 57,
    "rules": 8,
    "unlisted": 3
   },
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 23,
+   "ms": 49,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "t2",
    "genre": "transcript",
-   "ms": 27,
+   "ms": 37,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 28,
+   "ms": 54,
    "rules": 6,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 22,
+   "ms": 51,
    "rules": 7,
    "unlisted": 1
   },
   {
    "id": "w1",
    "genre": "welfare",
-   "ms": 12,
+   "ms": 35,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "w2",
    "genre": "welfare",
-   "ms": 16,
+   "ms": 32,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "w3",
    "genre": "welfare",
-   "ms": 12,
+   "ms": 18,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "w4",
    "genre": "welfare",
-   "ms": 15,
+   "ms": 41,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "h1",
    "genre": "medical",
-   "ms": 24,
+   "ms": 53,
    "rules": 6,
    "unlisted": 2
   },
   {
    "id": "h2",
    "genre": "medical",
-   "ms": 14,
+   "ms": 32,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "h3",
    "genre": "medical",
-   "ms": 15,
+   "ms": 30,
    "rules": 3,
    "unlisted": 3
   },
   {
    "id": "p1",
    "genre": "police",
-   "ms": 15,
+   "ms": 44,
    "rules": 2,
    "unlisted": 1
   },
   {
    "id": "p2",
    "genre": "police",
-   "ms": 13,
+   "ms": 43,
    "rules": 3,
    "unlisted": 1
   },
   {
    "id": "p3",
    "genre": "police",
-   "ms": 10,
+   "ms": 30,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "p4",
    "genre": "police",
-   "ms": 12,
+   "ms": 45,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "b1",
    "genre": "bank",
-   "ms": 17,
+   "ms": 43,
    "rules": 5,
    "unlisted": 2
   },
   {
    "id": "b2",
    "genre": "bank",
-   "ms": 8,
+   "ms": 16,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "b3",
    "genre": "bank",
-   "ms": 9,
+   "ms": 18,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "c1",
    "genre": "chat",
-   "ms": 8,
+   "ms": 13,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "c2",
    "genre": "chat",
-   "ms": 12,
+   "ms": 23,
    "rules": 2,
    "unlisted": 1
   },
   {
    "id": "c3",
    "genre": "chat",
-   "ms": 9,
+   "ms": 24,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "c4",
    "genre": "chat",
-   "ms": 13,
+   "ms": 34,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "x1",
    "genre": "position",
-   "ms": 27,
+   "ms": 67,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "x2",
    "genre": "position",
-   "ms": 12,
+   "ms": 48,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "x3",
    "genre": "position",
-   "ms": 17,
+   "ms": 34,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "a1",
    "genre": "audio",
-   "ms": 12,
+   "ms": 26,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "a2",
    "genre": "audio",
-   "ms": 15,
+   "ms": 30,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "a3",
    "genre": "audio",
-   "ms": 21,
+   "ms": 63,
    "rules": 7,
    "unlisted": 1
   },
   {
    "id": "a4",
    "genre": "audio",
-   "ms": 12,
+   "ms": 43,
    "rules": 4,
    "unlisted": 0
   }

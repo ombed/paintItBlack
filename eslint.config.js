@@ -41,7 +41,7 @@ module.exports = [
   { files: ["page-logic.js"], languageOptions: { ecmaVersion: 2022, sourceType: "script", globals: { ...globals.browser, module: "readonly" } }, rules: { ...js.configs.recommended.rules, ...rules } },
   { files: ["sw.js"], languageOptions: { ecmaVersion: 2022, sourceType: "script", globals: globals.browser }, rules: { ...js.configs.recommended.rules, ...rules } },
   { files: ["bench/*.js", "scripts/*.js", "tests/run.js", "tests/build-fixtures.js", "tests/version_t.js", "tests/design_t.js", "e2e/*.js", "eslint.config.js", "playwright.config.js"],
-    languageOptions: { ecmaVersion: 2022, sourceType: "commonjs", globals: { ...globals.node, localStorage: "readonly", getComputedStyle: "readonly", innerWidth: "readonly", navigator: "readonly", NodeFilter: "readonly", getSelection: "readonly", MouseEvent: "readonly" } },
+    languageOptions: { ecmaVersion: 2022, sourceType: "commonjs", globals: { ...globals.node, localStorage: "readonly", getComputedStyle: "readonly", innerWidth: "readonly", navigator: "readonly", NodeFilter: "readonly", getSelection: "readonly", MouseEvent: "readonly", performance: "readonly", requestAnimationFrame: "readonly", CSSRule: "readonly" } },
     // the browser checks build a deliberately broken RegExp to prove the tokenizer repair
     rules: { ...js.configs.recommended.rules, ...rules, "no-invalid-regexp": "off" } },
 ];
