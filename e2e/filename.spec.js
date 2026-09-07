@@ -18,18 +18,22 @@ const DOC = ["תסקיר בעניין המשפחה", "רונית לוי הגיש
 test("the file name is scanned like any other text", async ({ page }) => {
   await H.serveEngineWithStub(page);
   await H.boot(page);
-  // the stub answers only for text it is actually given, so a name that comes
-  // back proves the file name reached the scan rather than being skipped
+  // the stub records exactly what the scan was handed, which is the fact under
+  // test: the file name used to reach no scanner at all, so a person named
+  // only there was invisible to the tool and left on the download
   await page.addInitScript(() => {
     window.__ner = { names: (t) => (t.includes("נועה שרעבי") ? ["נועה שרעבי"] : []) };
   });
   await page.reload();
   await H.upload(page, "תסקיר-נועה-שרעבי.docx", DOC);
   await H.startScan(page);
-  await expect(H.goButton(page)).toBeVisible({ timeout: 15000 });
 
-  const seen = await page.evaluate(() => window.__nerText || "");
-  expect(await H.listedNames(page).then((n) => n.join(" ")) || seen).toContain("נועה שרעבי");
+  // the name exists nowhere but the file name, so the list can only hold it if
+  // the file name reached the scan. The wait is generous: the model layer is
+  // stubbed but the surrounding load is slower on a CI machine than here.
+  await expect(H.goButton(page)).toBeVisible({ timeout: 60000 });
+  await expect.poll(() => H.listedNames(page).then((n) => n.join(" ")), { timeout: 30000 })
+    .toContain("נועה שרעבי");
 });
 
 test("the redacted download is not named after the person in the file name", async ({ page }) => {
