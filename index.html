@@ -93,7 +93,7 @@ a:hover{text-decoration:underline}
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v22");
+  console.log("השחרת מסמכים — גרסה v23");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -131,9 +131,9 @@ a:hover{text-decoration:underline}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v22") return;
+        if(served==="v23") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v22 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v23 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -523,6 +523,7 @@ a:hover{text-decoration:underline}
       <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line2);background:var(--panel)">
         <b style="font-weight:500;font-size:13.5px">{{ docTitle }}</b>
         <span style="font-size:12.5px;color:var(--ink3)">{{ docSub }}</span>
+        <span style="font-size:12px;color:var(--ink3);display:inline-flex;align-items:center;gap:5px;white-space:nowrap"><b style="background:var(--accent-soft);color:var(--accent-ink);font-weight:500;border-radius:3px;padding:0 4px">הוחלף</b><sc-if value="{{ hasFlagMarks }}"><b style="background:var(--warn-soft);color:var(--warn);font-weight:500;border-radius:3px;padding:0 4px;border-bottom:1px dashed var(--warn)">לבדיקה</b></sc-if></span>
         <div style="margin-inline-start:auto;display:flex;align-items:center;gap:10px">
           <sc-if value="{{ hasMarks }}">
             <div style="display:flex;align-items:center;gap:2px">
@@ -803,7 +804,7 @@ a:hover{text-decoration:underline}
 
 </div>
 </x-dc>
-<div id="ver">גרסה v22</div>
+<div id="ver">גרסה v23</div>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
@@ -991,7 +992,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(!this.state.res) return;
     const blob=new Blob([this.buildReport()],{type:"text/html;charset=utf-8"});
     const u=URL.createObjectURL(blob), a=document.createElement("a");
-    a.href=u; a.download=(this.state.name.replace(/\.(docx|pdf)$/i,"")||"מסמך")+"_דוח-השחרה.html";
+    a.href=u; a.download=this.safeBase()+"_דוח-השחרה.html";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(u), 4000);
   };
@@ -1021,11 +1022,20 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const E=this.state.E, buf=this.state.buf;
     this.setState({screen:"busy", busyT:"מאתר שמות…"});
     try{
-      const blocks = await this.blocksOf(buf);
+      const blocks = (await this.blocksOf(buf)).concat(this.nameBlock());
       const cands = E.discover(blocks);
       this.setState({cands, nerUsed:false});
       this.showPeople(blocks, cands);
     }catch(e){ this.setState({err:e.message||"שגיאה בקריאת הקובץ", screen:"entry"}); }
+  }
+
+  /* שם הקובץ כטקסט לסריקה. "תסקיר-רונית-לוי.docx" נושא שם של אדם, והוא לא נסרק
+     מעולם — לא על ידי discover ולא על ידי המודל — ולכן השם הזה לא הופיע ברשימה,
+     לא קיבל תחליף, ויצא כמו שהוא על ההורדה. המפרידים הופכים לרווחים כדי שהעוגנים
+     והמודל יראו מילים, ולא מחרוזת אחת ארוכה. */
+  nameBlock(){
+    const raw=String(this.state.name||"").replace(/\.(docx|pdf|txt)$/i,"").replace(/[-_.]+/g," ").trim();
+    return raw.length>=2 ? [{part:"__name", text:raw}] : [];
   }
 
   async blocksOf(buf){
@@ -1418,7 +1428,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.log.add("package",{});
     try{
       const enc=new TextEncoder(); const files=[];
-      files.push({name:(this.state.name.replace(/\.(docx|pdf|txt)$/i,"")||"מסמך")+"_מושחר.docx", data:new Uint8Array(await RES.blob.arrayBuffer())});
+      files.push({name:this.safeBase()+"_מושחר.docx", data:new Uint8Array(await RES.blob.arrayBuffer())});
       files.push({name:"session-log.json", data:enc.encode(this.log.export())});
       if(this.state.leaks.length&&window.PL) files.push({name:"leak-report.json", data:enc.encode(window.PL.leakReport(this.state.leaks,{version:this.log.v}))});
       files.push({name:"README.txt", data:enc.encode("paintItBlack "+this.log.v+"\nחבילת בדיקה: המסמך אחרי ההשחרה, יומן סשן בלי טקסט, ודוח דליפה אם סומנו שמות ביד.\n")});
@@ -1435,10 +1445,29 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   download = () => {
     const RES=this.state.res; if(!RES) return; this.log.add("download",{});
     const u=URL.createObjectURL(RES.blob), a=document.createElement("a");
-    a.href=u; a.download=(this.state.name.replace(/\.(docx|pdf|txt)$/i,"")||"מסמך")+"_מושחר.docx";
+    a.href=u; a.download=this.safeBase()+"_מושחר.docx";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(u), 4000);
   };
+  /* שם הקובץ הוא ערוץ דליפה בפני עצמו, והוא היה פתוח לרווחה.
+
+     הכלי מנקה את שם היוצר ואת הכותרת מתוך המסמך (docProps), ואז כתב את שם
+     הקובץ המקורי בחזרה על ההורדה: "תביעה-רונית-לוי.docx" חזר בתור
+     "תביעה-רונית-לוי_מושחר.docx". המסמך נקי, השם על הקובץ לא, וזה השם שנוסע
+     במייל ויושב בתיקיית ההורדות. אותו שם היה גם על המסמך שבתוך חבילת הבדיקה,
+     כלומר על הקובץ היחיד שנשלח החוצה במכוון.
+
+     נשקלה דרך מתוחכמת יותר — להחיל על שם הקובץ את אותם תחליפים של המסמך —
+     והיא נדחתה. היא בטוחה בדיוק במידה שבה הזיהוי מצא כל שם, וכשהוא מפספס שם
+     דווקא בשם הקובץ, השם עובר כמו שהוא ואיש לא יידע. שם קובץ אינו שווה דליפה.
+
+     לכן כל הורדה מקבלת שם ניטרלי עם תאריך, ומונה בתוך הסשן כדי שאפשר יהיה
+     להבחין בין כמה מסמכים באותו יום. השם המקורי נשאר על המסך, אצלה, ולא נוסע
+     על אף קובץ. */
+  safeBase(){
+    this._dlSeq=(this._dlSeq||0)+1;
+    return "מסמך-מושחר-"+new Date().toISOString().slice(0,10)+(this._dlSeq>1?"-"+this._dlSeq:"");
+  }
   profileObj(){
     return {v:1, created:(this.state.profile&&this.state.profile.created)||new Date().toISOString(), updated:new Date().toISOString(),
       name:this.state.caseName||"", mode:this.state.mode, rules:this.state.rules, allow:this.state.allow, map:this.currentMap()};
@@ -1538,10 +1567,14 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       (on?"background:var(--panel);color:var(--accent-ink);box-shadow:var(--shadow)":"color:var(--ink2)");
     const chip = on => "padding:5px 12px;border-radius:14px;font-size:12px;font-weight:500;white-space:nowrap;"+
       (on?"background:var(--accent);color:var(--panel)":"background:var(--panel2);color:var(--ink2)");
+    // הבחירה הזאת נוגעת לשמות בלבד. מספר מזהה לעולם אינו מוחלף במספר בדוי אחר —
+    // הוא מוחלף בתווית, בכל אחד משלושת המצבים. בלי לומר את זה, תווית כמו [ת"ז א׳]
+    // בתוך הטקסט נקראת כאילו הכלי פספס משהו.
+    const NUMNOTE="מספרים מזהים — ת״ז, טלפון, חשבון, רכב, תאריך לידה — מוחלפים תמיד בתווית כמו «[ת״ז א׳]», ולא במספר בדוי אחר. הבחירה כאן נוגעת לשמות בלבד.";
     const MNOTE={
-      real:"«רונית לוי» תהפוך ל«מיכל ברנע». המשפט נשאר תקין דקדוקית, וכלי ה-AI מגיב על טקסט שנקרא כמו מסמך אמיתי. אותו אדם מקבל את אותו שם גם במסמך הבא באותו תיק.",
-      label:"«רונית לוי» תהפוך ל«פלוני א׳». חד-משמעי לעין, אבל הטקסט נקרא פחות טבעי.",
-      block:"«רונית לוי» תהפוך ל«███». הכי בטוח, אבל כלי AI מתקשה לנתח טקסט כזה."};
+      real:"«רונית לוי» תהפוך ל«מיכל ברנע». המשפט נשאר תקין דקדוקית, וכלי ה-AI מגיב על טקסט שנקרא כמו מסמך אמיתי. אותו אדם מקבל את אותו שם גם במסמך הבא באותו תיק. "+NUMNOTE,
+      label:"«רונית לוי» תהפוך ל«פלוני א׳». חד-משמעי לעין, אבל הטקסט נקרא פחות טבעי. "+NUMNOTE,
+      block:"«רונית לוי» תהפוך ל«███». הכי בטוח, אבל כלי AI מתקשה לנתח טקסט כזה. "+NUMNOTE};
     const KIND_ORDER=["NAME","ORG","PLACE"], KIND_GROUP={NAME:"אנשים",ORG:"גופים",PLACE:"מקומות"};
 const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     // שם קובץ עברי עם סיומת לטינית: בידוד משמאל לימין, אחרת הסיומת קופצת לצד הלא נכון
@@ -1743,6 +1776,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.onPaneFind=()=>this.setState({pane:"find"});
     v.docTitle = bdi(S.name) || "המסמך המושחר";
     v.docSub = RES.applied.length+" החלפות · "+RES.preview.length+" פסקאות";
+    // המקרא מופיע רק כשיש מה להסביר: בלי פריטים לבדיקה, שבב שני מבלבל יותר משעוזר
+    v.hasFlagMarks = (RES.preview||[]).some(b=>(b.marks||[]).some(m=>m.flag));
     const viewOrig = S.docView==="orig";
     const viewSeg = on => "padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;"+
       (on?"background:var(--panel);color:var(--accent-ink);box-shadow:var(--shadow)":"color:var(--ink2)");
@@ -1758,6 +1793,18 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.sheet = RES.preview.map((b,bi)=>{
       const segs=[]; let last=0;
       for(const m of b.marks){
+        // ערך שנמצא ולא הוחלף: מסומן בצבע אזהרה, כדי שלא ייראה כמו טקסט שלא נגעו בו.
+        // בלי זה מספר שנשאר בטקסט נקרא "פוספס". אינו נכנס לסדר החיצים, שרץ על ההחלפות.
+        if(m.flag){
+          if(m.s>last) segs.push({plain:true, mark:false, t:b.text.slice(last,m.s)});
+          segs.push({plain:false, mark:true, id:-1, t:b.text.slice(m.s,m.e),
+            title:"נמצא ולא הוחלף — מחכה להחלטה שלך ב«לבדיקה»",
+            style:"cursor:pointer;border-radius:3px;box-decoration-break:clone;padding:1px 2px;"+
+              "background:var(--warn-soft);color:var(--warn);border-bottom:1px dashed var(--warn);",
+            onClick:()=>this.setState({open:this.openWith("review"),
+              pane:this.state.narrow?"find":this.state.pane})});
+          last=m.e; continue;
+        }
         // מיקום רץ במסמך: כל מופע מקבל מספר משלו, גם כשכמה מופעים שייכים לאותו ערך
         const pos=mpos++; if(!(m.id in firstPos))firstPos[m.id]=pos;
         if(m.s>last) segs.push({plain:true, mark:false, t:b.text.slice(last,m.s)});

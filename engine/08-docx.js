@@ -247,12 +247,22 @@ async function redactDocx(buf,subs,allow,opt){
   const ids={};applied.forEach((r,i)=>{if(r.rep&&!(r.rep in ids))ids[r.rep]=i});
   const preview=[];
   let blocks3=[];for(const dd of docs)blocks3=blocks3.concat(flatten(dd.doc,dd.f.name));
+  // פריט שנשאר לבדיקה אינו מסומן במסמך, ולכן הוא נראה בדיוק כמו טקסט שאיש לא נגע בו.
+  // על מספר זה קטלני: מספר שנשאר בטקסט נקרא "הכלי פספס אותו", בעוד שבפועל הוא נמצא,
+  // הוחלט שלא להחליף אותו אוטומטית, והוא מחכה להחלטה. סימון בצבע אזהרה אומר את זה.
+  // "לא נמצא" ו"התנגשות פרופיל" אינם מוטבעים בטקסט ולכן אינם מסומנים.
+  const flagVals=[...new Set(flagged.filter(r=>r.src!=="nohit"&&r.src!=="collide"&&r.value)
+    .map(r=>String(r.value)).filter(v=>v.length>=2))];
   for(const blk of blocks3){
     const marks=[];
     for(const [rp,id] of Object.entries(ids)){
       if(!rp||!blk.text.includes(rp))continue;
       let i=0;while((i=blk.text.indexOf(rp,i))>=0){marks.push({s:i,e:i+rp.length,id,amb:ambiguous.has(rp)});i+=rp.length}}
-    marks.sort((a,b)=>a.s-b.s);
+    for(const fv of flagVals){
+      if(!blk.text.includes(fv))continue;
+      let i=0;while((i=blk.text.indexOf(fv,i))>=0){marks.push({s:i,e:i+fv.length,flag:true,val:fv});i+=fv.length}}
+    // החלפה גוברת על סימון לבדיקה כשהשניים חופפים
+    marks.sort((a,b)=>a.s-b.s||(a.flag?1:0)-(b.flag?1:0));
     const kp=[];let last=-1;for(const m of marks)if(m.s>=last){kp.push(m);last=m.e}
     preview.push({part:partName(blk.part),text:blk.text,marks:kp});}
 
