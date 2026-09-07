@@ -1008,6 +1008,30 @@ function findPlaces(text){
   return out;
 }
 
+/* היישובים שמסך היישובים רשאי להציע להחלפה ששומרת על מרחקים.
+
+   המסך הזה אינו מסמן לבדיקה: מה שמאושר בו נכתב ככלל החלפה גורף על כל מופע
+   במסמך, כולל צורות עם אות שימוש. לכן יישוב ששמו גם מילה עברית רגילה אינו
+   מוצע כאן. על תיק אמיתי הוצע להחליף את «אזור», ו«באזור התעשייה» היה הופך
+   ל«בעילבון התעשייה».
+
+   אותה רשימת AMBIG שכבר משמשת את findPlaces, כדי שלא יהיו שתי דעות בשני
+   מקומות. מה שנופל כאן אינו אובד: findPlaces מעלה אותו במסך הבדיקה, מסומן
+   לבדיקה ועם ההקשר לצדו, ושם אפשר להחליט עליו לפי מה שכתוב במסמך.
+
+   אורך השם אינו קריטריון כאן, בניגוד ל-findPlaces: «צפת» ו«עכו» חד-משמעיים,
+   ומי שמאשרת אותם במסך הזה יודעת על מה היא מסתכלת. */
+function geoNames(text){
+  const n=norm(String(text||"")), out=[], seen=new Set();
+  PLACE_RX.lastIndex=0; let m;
+  while((m=PLACE_RX.exec(n))){
+    const nm=m[1];
+    if(seen.has(nm)||AMBIG.has(nm))continue;
+    seen.add(nm); out.push(nm);
+  }
+  return out;
+}
+
 /* ── מיפוי יישובים תוך שמירה על מרחקים ── */
 const R2=Math.PI/180;
 function hav(a1,o1,a2,o2){
@@ -1610,6 +1634,34 @@ function ctxHTML(t,s,e,w=55){
   const a=Math.max(0,s-w),b=Math.min(t.length,e+w);
   return {pre:(a>0?"…":"")+t.slice(a,s), hit:t.slice(s,e), post:t.slice(e,b)+(b<t.length?"…":"")}}
 
+/* המשפטים שערך מופיע בהם, לכל היותר max מהם.
+
+   מסך "מי בתיק" ומסך היישובים מבקשים החלטה על מילה בלי להראות אותה במסמך.
+   על תיק אמיתי «אזור» הופיע ברשימת המקומות, ואי אפשר היה לדעת אם זו העיירה
+   שליד חולון או המילה הרגילה, כי שום דבר במסך לא בא מהמסמך. מסך הבדיקה כבר
+   שומר בדיוק את ההקשר הזה ומציג אותו; כאן הוא נבנה גם לשני המסכים שלפניו.
+
+   אותו גבול מילה ואותה אות שימוש ככללי ההחלפה, כדי שמה שנראה בדוגמה יהיה מה
+   שיוחלף בפועל. ההדגשה כוללת את אות השימוש ("באזור"), שזו הצורה שבמסמך. */
+function examplesOf(blocks,value,max=3){
+  const v=norm(String(value||"")).trim();
+  if(v.length<2)return [];
+  const rx=new RegExp(NW+"(?:[בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?"+flex(v)+NWE,"gu");
+  const out=[];
+  for(const b of blocks||[]){
+    const t=b&&typeof b.text==="string"?b.text:typeof b==="string"?b:"";
+    if(!t)continue;
+    const n=norm(t);
+    rx.lastIndex=0; let m;
+    while((m=rx.exec(n))){
+      if(m[0].length)out.push(ctxHTML(t,m.index,m.index+m[0].length));
+      else rx.lastIndex++;
+      if(out.length>=max)return out;
+    }
+  }
+  return out;
+}
+
 async function verify(buf,secrets){
   const files=await unzip(buf);
   const sec=[...new Set(secrets.filter(s=>s&&s.trim().length>=2))].map(s=>[s,norm(s)]);
@@ -2049,5 +2101,5 @@ export {nerLast, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, 
   variants, validID, ibanOK, luhn, hord, POOL, WORDLIKE, FEM, MASC, fakeName, near1, HOMO, WEAK,
   findNear, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,
-  discover, PLACES, PLACE_BY, geoMap, nerEnv, nerCached, nerPersist, nerLoad, nerRun,
+  discover, PLACES, PLACE_BY, geoMap, geoNames, examplesOf, findPlaces, nerEnv, nerCached, nerPersist, nerLoad, nerRun,
   TITLE_RX, ORG_RX, likelyOrg, cleanEntry, trimEdges, pseudoRX, restoreNames, STOP};

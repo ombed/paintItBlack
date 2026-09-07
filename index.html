@@ -93,7 +93,7 @@ a:hover{text-decoration:underline}
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v21");
+  console.log("השחרת מסמכים — גרסה v22");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -131,9 +131,9 @@ a:hover{text-decoration:underline}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v21") return;
+        if(served==="v22") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v21 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v22 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -343,7 +343,7 @@ a:hover{text-decoration:underline}
           <select onChange="{{ p.onKindSel }}" aria-label="סוג" title="סוג: אדם · גוף · מקום" style="font-size:11px;font-weight:500;color:var(--ink2);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:2px 4px">
             <sc-for list="{{ p.kindOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.value }}" selected="{{ o.sel }}">{{ o.label }}</option></sc-for>
           </select>
-          <span style="font-weight:500">{{ p.value }}</span>
+          <span data-tip="1" onMouseEnter="{{ p.onTipIn }}" onMouseLeave="{{ p.onTipOut }}" onClick="{{ p.onTipTap }}" title="{{ p.tipHint }}" style="font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ p.value }}</span>
           <sc-if value="{{ p.note }}"><small style="color:var(--ink3);font-size:11.5px">{{ p.note }}</small></sc-if>
           <button onClick="{{ p.onDel }}" aria-label="הסרה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:13px" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
         </div>
@@ -441,7 +441,7 @@ a:hover{text-decoration:underline}
         </sc-if>
         <sc-for list="{{ geoRows }}" as="g" hint-placeholder-count="3">
           <div data-wrap style="display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--line2)">
-            <span style="min-width:130px;font-weight:500">{{ g.from }}</span>
+            <span data-tip="1" onMouseEnter="{{ g.onTipIn }}" onMouseLeave="{{ g.onTipOut }}" onClick="{{ g.onTipTap }}" title="{{ g.tipHint }}" style="min-width:130px;font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ g.from }}</span>
             <span style="color:var(--ink3)">←</span>
             <input value="{{ g.to }}" onChange="{{ g.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
             <button onClick="{{ g.onRemove }}" title="להשאיר את שם היישוב כמו שהוא" style="font-size:12.5px;color:var(--ink2);padding:7px 11px;border-radius:8px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)">אל תחליף</button>
@@ -792,9 +792,18 @@ a:hover{text-decoration:underline}
   </sc-if>
   </sc-if>
 
+  <sc-if value="{{ tip }}">
+    <div data-tip="panel" style="{{ tipStyle }}">
+      <div style="font-size:11.5px;color:var(--ink3);margin-bottom:7px">«{{ tipLabel }}» במסמך<sc-if value="{{ tipMore }}"><span style="color:var(--ink3)"> · {{ tipMore }}</span></sc-if></div>
+      <sc-for list="{{ tipItems }}" as="t" hint-placeholder-count="3">
+        <div style="font:13px/1.65 var(--doc-font);color:var(--ink2);margin-bottom:6px;padding-inline-start:9px;border-inline-start:2px solid var(--line)">{{ t.pre }}<b style="background:var(--accent-soft);color:var(--accent-ink);font-weight:500">{{ t.hit }}</b>{{ t.post }}</div>
+      </sc-for>
+    </div>
+  </sc-if>
+
 </div>
 </x-dc>
-<div id="ver">גרסה v21</div>
+<div id="ver">גרסה v22</div>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
@@ -810,7 +819,7 @@ class Component extends DCLogic {
     aiIn:"", aiWarn:"", aiCopyLabel:"העתקת טקסט מושחר",
     rvIn:"", rvOut:"", rvCopyLabel:"העתקת הטקסט המשוחזר",
     copyLabel:"העתקה ל-AI", busyT:"מעבד…", err:"",
-    geo:null, geoV:0, geoNames:[], geoEdits:{}, popup:null, repDraft:"",
+    geo:null, geoV:0, geoNames:[], geoEdits:{}, popup:null, tip:null, repDraft:"",
     // הפרופיל של התיק נשמר בדפדפן אחרי כל שינוי; lastProfile הוא מה שנמצא בכניסה
     caseName:"", lastProfile:null, profileDirty:false, leaks:[], cases:[], copied:false, feedbackMail:"", logCopyLabel:""
   };
@@ -838,7 +847,11 @@ class Component extends DCLogic {
     this._resize = () => { const n = innerWidth < 1120; if(n!==this.state.narrow) this.setState({narrow:n}); };
     this._resize();
     addEventListener("resize", this._resize);
-    this._docClick = e => { if(this.state.popup && !e.target.closest("[data-popup]")) this.setState({popup:null}); };
+    this._docClick = e => {
+      if(this.state.popup && !e.target.closest("[data-popup]")) this.setState({popup:null});
+      // דוגמה שננעצה בהקשה נסגרת בהקשה בחוץ. בלי זה אין דרך לסגור אותה במגע.
+      if(this.state.tip && this.state.tip.pin && !e.target.closest("[data-tip]")) this.setState({tip:null});
+    };
     document.addEventListener("mousedown", this._docClick);
   }
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); removeEventListener("resize", this._resize); }
@@ -1105,6 +1118,36 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const allow=(p&&p.auto&&p.value&&!this.state.allow.includes(p.value))?[...this.state.allow, p.value]:this.state.allow;
     this.setState({peo:list, allow}); };
 
+  /* ── דוגמאות מהמסמך ──
+     שני המסכים שלפני מסך הבדיקה מבקשים החלטה על מילה. בלי לראות את המילה
+     בתוך המשפט אי אפשר להחליט: «אזור» הוא גם עיירה וגם מילה רגילה. הדוגמאות
+     נשלפות בזמן ההצגה מהבלוקים של הסריקה האחרונה, ולכן הן נכונות גם לשם
+     שהוקלד ידנית ולא רק למה שהכלי מצא. */
+  examplesFor(v){
+    const E=this.state.E, b=this._lastScan&&this._lastScan.blocks;
+    if(!E||!E.examplesOf||!b||!b.length||!v) return [];
+    try{ return E.examplesOf(b, v, 3); }catch(_){ return []; }
+  }
+  showTip(e, label, pin){
+    const items=this.examplesFor(label);
+    if(!items.length) return;
+    const t=this.state.tip;
+    // הקשה שנייה על אותו ערך סוגרת
+    if(pin && t && t.pin && t.label===label){ this.setState({tip:null}); return; }
+    // דוגמה שננעצה בהקשה אינה מתחלפת בריחוף מקרי מעליה
+    if(t && t.pin && !pin) return;
+    const r=e&&e.currentTarget&&e.currentTarget.getBoundingClientRect
+      ? e.currentTarget.getBoundingClientRect() : {left:20, width:0, bottom:80};
+    this.setState({tip:{label, items, pin:!!pin,
+      x:Math.max(12, Math.min(r.left+r.width/2-150, innerWidth-312)), y:r.bottom+8}});
+  }
+  hideTip(){ const t=this.state.tip; if(t&&!t.pin) this.setState({tip:null}); }
+  tipProps(v){
+    return {onTipIn:e=>this.showTip(e,v,false), onTipOut:()=>this.hideTip(),
+      onTipTap:e=>this.showTip(e,v,true),
+      tipHint:this.examplesFor(v).length?"":"לא נמצאו מופעים במסמך"};
+  }
+
   /* ── מקומות ── */
   async toPlaces(rows){
     const E=this.state.E;
@@ -1113,9 +1156,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(!this.state.o.places){ this.run(rules); return; }
     try{
       const blocks = await this.blocksOf(this.state.buf);
-      const text = E.norm(blocks.map(b=>b.text).join("\n"));
-      const found = E.PLACES.map(p=>p.n).filter(n =>
-        new RegExp("(?<![\\u0590-\\u05ff])(?:[בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?"+E.esc(n)+"(?![\\u0590-\\u05ff])","u").test(text));
+      const text = blocks.map(b=>b.text).join("\n");
+      // סריקה אחת, במנוע, עם אותו שער דו-משמעיות של findPlaces. המסך הזה כותב
+      // כלל החלפה גורף, ולכן יישוב ששמו גם מילה רגילה אינו מוצע בו כלל.
+      const found = E.geoNames(text);
       if(found.length<2){ this.setState({screen:"places", geo:null, geoNames:[]}); return; }
       const geo = E.geoMap(found, 0);
       this.setState({screen:"places", geo, geoNames:found, geoEdits:{}, geoV:0});
@@ -1618,7 +1662,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         style:"display:flex;align-items:center;gap:8px;padding:7px 10px 7px 12px;border-radius:20px;font-size:14px;white-space:nowrap;"+
           "border:1px solid "+(p.auto?"var(--accent-soft)":"var(--line)")+";background:"+(p.auto?"var(--accent-soft)":"var(--panel)"),
         kindOpts:KIND_ORDER.map(k=>({value:k, label:KIND_NAME[k]||k, sel:(p.kind||"NAME")===k})),
-        onKindSel:e=>this.setKind(i, e.target.value), onDel:()=>this.delPeo(i)})),
+        onKindSel:e=>this.setKind(i, e.target.value), onDel:()=>this.delPeo(i),
+        ...this.tipProps(p.value)})),
       // השגיאה של המסך הזה מוצגת ליד השדה, לא בראש העמוד מעל לכותרת
       rvErr:S.screen==="reverse"?S.err:"", errTop:(S.screen==="reverse"||(S.screen==="work"&&S.res))?"":S.err,
       rvIn:S.rvIn, rvOut:S.rvOut, rvCopyLabel:S.rvCopyLabel,
@@ -1641,7 +1686,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       geoRows:(S.geo?S.geo.map:[]).map((m,i)=>({
         from:m.from, to:S.geoEdits[i] ?? m.to,
         onChange:e=>this.setState({geoEdits:{...S.geoEdits, [i]:e.target.value}}),
-        onRemove:()=>this.geoRemove(m.from)})),
+        onRemove:()=>this.geoRemove(m.from), ...this.tipProps(m.from)})),
       hasExcluded:(S.geoExcluded||[]).length>0,
       excluded:(S.geoExcluded||[]).map(n=>({name:n, onUndo:()=>this.geoRestore(n)})),
       mapLand:MV?MV.land:"", hasLand:!!(MV&&MV.hasLand), showMap:!!S.showMap, mapLabel:S.showMap?"הסתרת המפה":"הצגת המפה", onToggleMap:()=>{ if(!S.showMap) this.loadAtlas(); this.setState({showMap:!S.showMap}); },
@@ -1650,6 +1695,10 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       // יציאה בלי ייצוא: הפרופיל נשאר בדפדפן הזה בלבד, וזו הבטחה חלשה מדי לתיק
       onBackHome:()=>{ if(S.profileDirty&&S.rules.length&&!confirm("הפרופיל של התיק נשמר בדפדפן הזה בלבד ולא יוצא לקובץ. אם הדפדפן ינוקה הוא יאבד. לצאת בכל זאת?")) return;
         this.setState({screen:"entry", res:null, err:""}); },
+      tip:!!S.tip, tipLabel:S.tip?S.tip.label:"", tipItems:S.tip?S.tip.items:[],
+      tipMore:S.tip&&S.tip.items.length>=3?"שלוש הראשונות":"",
+      tipStyle:S.tip?("position:fixed;z-index:60;left:"+S.tip.x+"px;top:"+S.tip.y+"px;width:300px;max-width:calc(100vw - 24px);"+
+        "background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;box-shadow:0 12px 34px rgba(0,0,0,.22)"):"",
       popup:!!S.popup, popupText:S.popup?S.popup.text:"",
       popupStyle:S.popup?("position:fixed;z-index:60;left:"+S.popup.x+"px;top:"+S.popup.y+"px;max-width:270px;"+
         "background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;box-shadow:0 12px 34px rgba(0,0,0,.22)"):"",
