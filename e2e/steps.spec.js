@@ -31,8 +31,17 @@ test("copying unlocks step three, and the restore screen puts the real name back
   expect(fake).toBeTruthy();
   const fakeName = fake[0].replace(" הגישה", "");
   await expect(bar.locator("[data-steps]")).toContainText("2 העתקה ל-AI ✓");
-  const step3 = bar.getByRole("button", { name: "הדבקת תשובת ה-AI" });
+  /* Putting the answer back used to be reachable from three places: a button
+     here in the bar, an identical one in the header, and a rail section that
+     ran a different code path. That third one built its pairs from a list
+     that does not drop blacked-out values, while the screen used one that
+     does, so the same pasted text could come back differently depending on
+     where it was pasted. One way survives, the header button, and it is
+     emphasised once the text has been copied. */
+  await expect(bar.getByRole("button", { name: "הדבקת תשובת ה-AI" })).toHaveCount(0);
+  const step3 = page.getByRole("button", { name: "החזרת שמות מתשובת AI" });
   await expect(step3).toBeVisible();
+  await expect(step3).toHaveCSS("font-weight", "500");
 
   // step three: the AI's answer comes back with the fake name; the real one returns
   await step3.click();
