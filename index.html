@@ -98,7 +98,7 @@ a:hover{text-decoration:underline}
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v25");
+  console.log("השחרת מסמכים — גרסה v26");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -136,9 +136,9 @@ a:hover{text-decoration:underline}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v25") return;
+        if(served==="v26") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v25 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v26 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -481,6 +481,23 @@ a:hover{text-decoration:underline}
         </div>
       </div>
     </sc-if>
+    <sc-if value="{{ hasExtra }}">
+      <div style="margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden">
+        <div style="padding:15px 18px;border-bottom:1px solid var(--line2)">
+          <b style="font-weight:500">יישובים נוספים שנמצאו</b>
+          <p style="margin:4px 0 0;font-size:12.5px;color:var(--ink2);line-height:1.55">אלה לא נכנסים למפת המרחקים — או שאין להם קואורדינטות במאגר, או ששמם גם מילה עברית רגילה. כל אחד מוחלף בפני עצמו. מה שמסומן «גם מילה רגילה» מגיע כבוי, כי המילה שכיחה יותר מהיישוב; ריחוף או הקשה על השם מראים איפה הוא מופיע במסמך.</p>
+        </div>
+        <sc-for list="{{ extraRows }}" as="x" hint-placeholder-count="3">
+          <div data-wrap style="{{ x.rowStyle }}">
+            <span data-tip="1" onMouseEnter="{{ x.onTipIn }}" onMouseLeave="{{ x.onTipOut }}" onClick="{{ x.onTipTap }}" title="{{ x.tipHint }}" style="min-width:130px;font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ x.name }}</span>
+            <sc-if value="{{ x.note }}"><small style="color:var(--warn);font-size:11.5px;white-space:nowrap">{{ x.note }}</small></sc-if>
+            <span style="color:var(--ink3)">←</span>
+            <input value="{{ x.to }}" onChange="{{ x.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
+            <button onClick="{{ x.onToggle }}" style="{{ x.toggleStyle }}" style-hover="background:var(--panel2)">{{ x.toggleLabel }}</button>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
     <sc-if value="{{ noGeo }}">
       <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;text-align:center;color:var(--ink2);font-size:14px">
         {{ noGeoText }}
@@ -492,7 +509,7 @@ a:hover{text-decoration:underline}
             </sc-for>
           </div>
         </sc-if>
-        <div style="margin-top:16px"><button onClick="{{ onGeoSkip }}" style="{{ primaryBtn }}">המשך לעיבוד</button></div>
+        <div style="margin-top:16px"><button onClick="{{ onGeoApply }}" style="{{ primaryBtn }}">המשך לעיבוד</button></div>
       </div>
     </sc-if>
   </main>
@@ -543,8 +560,12 @@ a:hover{text-decoration:underline}
       <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line2);background:var(--panel)">
         <b style="font-weight:500;font-size:13.5px">{{ docTitle }}</b>
         <span style="font-size:12.5px;color:var(--ink3)">{{ docSub }}</span>
-        <span style="font-size:12px;color:var(--ink3);display:inline-flex;align-items:center;gap:5px;white-space:nowrap"><b style="background:var(--accent-soft);color:var(--accent-ink);font-weight:500;border-radius:3px;padding:0 4px">הוחלף</b><sc-if value="{{ hasFlagMarks }}"><b style="background:var(--warn-soft);color:var(--warn);font-weight:500;border-radius:3px;padding:0 4px;border-bottom:1px dashed var(--warn)">לבדיקה</b></sc-if></span>
+        <span style="font-size:12px;color:var(--ink3);display:inline-flex;align-items:center;gap:5px;white-space:nowrap"><b style="background:var(--accent-soft);color:var(--accent-ink);font-weight:500;border-radius:3px;padding:0 4px">הוחלף</b><sc-if value="{{ hasFlagMarks }}"><b style="background:var(--warn-soft);color:var(--warn);font-weight:500;border-radius:3px;padding:0 4px;border-bottom:1px dashed var(--warn)">לא הוחלף</b></sc-if></span>
         <div style="margin-inline-start:auto;display:flex;align-items:center;gap:10px">
+          <div style="display:flex;align-items:center;gap:2px">
+            <button onClick="{{ onHistUndo }}" aria-label="ביטול הפעולה האחרונה" title="ביטול — Ctrl+Z" style="{{ undoStyle }}" style-hover="background:var(--panel2)">↶</button>
+            <button onClick="{{ onHistRedo }}" aria-label="ביצוע חוזר" title="ביצוע חוזר — Ctrl+Shift+Z" style="{{ redoStyle }}" style-hover="background:var(--panel2)">↷</button>
+          </div>
           <sc-if value="{{ hasMarks }}">
             <div style="display:flex;align-items:center;gap:2px">
               <button onClick="{{ onPrevMark }}" aria-label="החלפה קודמת" title="ההחלפה הקודמת במסמך" style="width:26px;height:26px;border-radius:7px;color:var(--ink2);font-size:11px" style-hover="background:var(--panel2)">▲</button>
@@ -795,7 +816,7 @@ a:hover{text-decoration:underline}
       <div style="font-size:12.5px;color:var(--ink2);margin-bottom:8px">הוספת <b style="color:var(--ink)">{{ popupText }}</b> בתור:</div>
       <div style="display:flex;gap:5px;flex-wrap:wrap">
         <sc-for list="{{ popupKinds }}" as="k" hint-placeholder-count="4">
-          <button onClick="{{ k.onClick }}" style="padding:6px 11px;border-radius:14px;border:1px solid var(--line);font-size:12.5px" style-hover="background:var(--accent-soft);color:var(--accent)">{{ k.label }}</button>
+          <button onClick="{{ k.onClick }}" style="padding:6px 11px;border-radius:14px;border:1px solid var(--line);font-size:12.5px;{{ k.wide }}" style-hover="background:var(--accent-soft);color:var(--accent)">{{ k.label }}</button>
         </sc-for>
       </div>
     </div>
@@ -813,7 +834,7 @@ a:hover{text-decoration:underline}
 
 </div>
 </x-dc>
-<div id="ver">גרסה v25</div>
+<div id="ver">גרסה v26</div>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
@@ -829,7 +850,7 @@ class Component extends DCLogic {
     aiIn:"", aiWarn:"", aiCopyLabel:"העתקת טקסט מושחר",
     rvIn:"", rvOut:"", rvCopyLabel:"העתקת הטקסט המשוחזר",
     copyLabel:"העתקה ל-AI", busyT:"מעבד…", err:"",
-    geo:null, geoV:0, geoNames:[], geoEdits:{}, popup:null, tip:null, repDraft:"",
+    geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, popup:null, tip:null, repDraft:"",
     // הפרופיל של התיק נשמר בדפדפן אחרי כל שינוי; lastProfile הוא מה שנמצא בכניסה
     caseName:"", lastProfile:null, profileDirty:false, leaks:[], cases:[], copied:false, feedbackMail:"", logCopyLabel:""
   };
@@ -872,8 +893,18 @@ class Component extends DCLogic {
       if(this.state.tip && this.state.tip.pin && !e.target.closest("[data-tip]")) this.setState({tip:null});
     };
     document.addEventListener("mousedown", this._docClick);
+    // Ctrl+Z, Ctrl+Shift+Z ו-Ctrl+Y, ורק כשלא מקלידים בשדה
+    this._keys = e => {
+      if(!(e.ctrlKey||e.metaKey)) return;
+      const t=e.target, tag=t&&t.tagName;
+      if(tag==="INPUT"||tag==="TEXTAREA"||(t&&t.isContentEditable)) return;
+      const k=String(e.key||"").toLowerCase();
+      if(k==="z"&&!e.shiftKey){ e.preventDefault(); this.undo(); }
+      else if((k==="z"&&e.shiftKey)||k==="y"){ e.preventDefault(); this.redo(); }
+    };
+    document.addEventListener("keydown", this._keys);
   }
-  componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); removeEventListener("resize", this._resize);
+  componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); removeEventListener("resize", this._resize);
     if(this._barObs) this._barObs.disconnect(); }
   componentDidUpdate(prev){ this.applyProps(); if(this._barSize) this._barSize();
     if(prev&&prev.screen!==this.state.screen&&this.log) this.log.add("screen",{to:this.state.screen, from:prev.screen}); }
@@ -1189,6 +1220,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       // סריקה אחת, במנוע, עם אותו שער דו-משמעיות של findPlaces. המסך הזה כותב
       // כלל החלפה גורף, ולכן יישוב ששמו גם מילה רגילה אינו מוצע בו כלל.
       const all = E.geoNames(text);
+      // כל מה שנמצא, ולא רק מה שנכנס למפת המרחקים
+      const every = E.placesFound ? E.placesFound(text) : all.map(n=>({name:n, mappable:true, ambiguous:false}));
       /* "אל תחליף" נשמר ברשימת ההיתר, שנשמרת בפרופיל התיק. הרצועה של היישובים
          שנשארים כמו שהם נגזרת עכשיו ממנה, במקום להיות רשימה שנייה שנצברת לצדה.
          הרשימה השנייה לא נשמרה בפרופיל, לא התאפסה בפתיחת קובץ חדש, ולא הופחתה
@@ -1198,9 +1231,27 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const on = new Set((this.state.allow||[]).map(a=>E.norm(String(a||"")).trim()));
       const found = all.filter(n=>!on.has(E.norm(n).trim()));
       const excluded = all.filter(n=>on.has(E.norm(n).trim()));
-      if(found.length<2){ this.setState({screen:"places", geo:null, geoNames:[], geoExcluded:excluded}); return; }
-      const geo = E.geoMap(found, 0);
-      this.setState({screen:"places", geo, geoNames:found, geoExcluded:excluded, geoEdits:{}, geoV:0});
+      const geo = found.length>=2 ? E.geoMap(found, 0) : null;
+
+      /* כל מה שלא נכנס למפת המרחקים, ועדיין נמצא במסמך: יישוב מהמאגר הגדול
+         שאין לו קואורדינטות, ויישוב ששמו גם מילה רגילה. עד כאן הם לא הופיעו
+         כאן בכלל, ולכן על מסמך שכל היישובים בו כאלה המסך אמר "לא נמצאו
+         יישובים" בזמן שהזיהוי דווקא מצא אותם. הם מוצעים עכשיו אחד-אחד, בלי
+         שמירת מרחקים שממילא אי אפשר לחשב להם, ועם ההקשר מהמסמך לצדם.
+         דו-משמעי מגיע כבוי: המילה הרגילה שכיחה יותר מהיישוב. */
+      const inMap = new Set((geo?geo.map:[]).map(m=>E.norm(m.from).trim()));
+      const used = new Set((geo?geo.map:[]).map(m=>m.to));
+      const forbidden = new Set(E.norm(text).match(/[א-ת][א-ת'"׳״]*/g)||[]);
+      const extra=[];
+      for(const p of (every||[])){
+        const k=E.norm(p.name).trim();
+        if(on.has(k)||inMap.has(k))continue;
+        const to=(E.fakePlace&&E.fakePlace(p.name, used, forbidden))||"";
+        if(to)used.add(to);
+        extra.push({name:p.name, ambiguous:!!p.ambiguous, to, on:!p.ambiguous&&!!to});
+      }
+      this.setState({screen:"places", geo, geoNames:found, geoExcluded:excluded,
+        geoExtra:extra, geoEdits:{}, geoV:0});
     }catch(e){ this.run(rules); }
   }
   /* קובץ גיאומטריה אחד (Natural Earth דרך world-atlas) נטען פעם אחת ונשמר במטמון הדפדפן.
@@ -1281,7 +1332,15 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const to = (this.state.geoEdits[i] ?? m.to).trim();
       if(to && !rules.some(r=>r.value===m.from)) rules.push({value:m.from, kind:"PLACE", replacement:to, auto:false});
     });
+    // היישובים שמחוץ למפה: רק מה שסומן להחלפה
+    for(const x of (this.state.geoExtra||[])){
+      const to=String(x.to||"").trim();
+      if(x.on && to && !rules.some(r=>r.value===x.name)) rules.push({value:x.name, kind:"PLACE", replacement:to, auto:false});
+    }
     this.setState({rules}); this.run(rules);
+  };
+  geoExtraSet = (name, patch) => {
+    this.setState({geoExtra:(this.state.geoExtra||[]).map(x=>x.name===name?{...x,...patch}:x)});
   };
 
   /* ── עיבוד ── */
@@ -1315,7 +1374,39 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       this.setState({res, sel:null, err:""}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה: "+(e.message||e)}); }
   }
+  /* ביטול.
+
+     כל החלטה במסך הבדיקה הייתה חד-כיוונית: "אל תחליף" על הכרטיס הלא נכון, מיזוג
+     של שני אנשים בטעות, תחליף שהוקלד שגוי — לא הייתה דרך חזרה חוץ מלשחזר את
+     ההחלטה ההפוכה ביד, וכשלא זוכרים מה בדיוק השתנה גם זה לא עוזר.
+
+     כל ההחלטות במסך הזה הן פונקציה של שני דברים בלבד: rules ו-allow. לכן די
+     בצילום שלהם לפני כל שינוי, ואין צורך לתעד סוגי פעולות בנפרד. הצילומים
+     יושבים על המופע ולא ב-state, כי הם אינם משתתפים ברינדור; רק שני המונים כן,
+     בשביל הכפתורים. ארבעים צעדים מספיקים למסמך אחד. */
+  snapshot(){
+    return {rules:(this.state.rules||[]).map(r=>({...r})), allow:[...(this.state.allow||[])]};
+  }
+  pushHistory(){
+    this._undo=(this._undo||[]).concat([this.snapshot()]).slice(-40);
+    this._redo=[];
+    this.setState({undoN:this._undo.length, redoN:0});
+  }
+  stepHistory(back){
+    const from=back?(this._undo=this._undo||[]):(this._redo=this._redo||[]);
+    if(!from.length) return;
+    const to=back?(this._redo=this._redo||[]):(this._undo=this._undo||[]);
+    to.push(this.snapshot());
+    const snap=from.pop();
+    if(this.log) this.log.add(back?"undo":"redo",{});
+    this.setState({rules:snap.rules, allow:snap.allow, sel:null,
+      undoN:this._undo.length, redoN:this._redo.length}, ()=>this.rerun());
+  }
+  undo = () => this.stepHistory(true);
+  redo = () => this.stepHistory(false);
+
   addRule = (value, kind, rep, origin) => {
+    this.pushHistory();
     const E=this.state.E; value=E.trimEdges(value);
     if(value.length<2){ this.setState({err:"נדרשים לפחות שני תווים."}); return; }
     const E2=this.state.E, ex=this.state.rules.find(r=>E2.norm(r.value).trim()===E2.norm(value).trim());
@@ -1345,11 +1436,12 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   openWith = k => { const o=Array.isArray(this.state.open)?this.state.open:[]; return o.includes(k)?o:[...o,k]; };
   dropRule = v => { this.log.add("drop-rule",{}); this.setState({rules:this.state.rules.filter(r=>r.value!==v)}, ()=>this.rerun()); };
   // "לא שם": הכלל יורד מהרשימה על כל צורותיו, והטקסט הזה לא יוצע שוב
-  notAName = (base, v) => { this.log.add("not-a-name",{}); return this.setState({allow:this.state.allow.includes(v)?this.state.allow:[...this.state.allow, v],
+  notAName = (base, v) => { this.pushHistory(); this.log.add("not-a-name",{}); return this.setState({allow:this.state.allow.includes(v)?this.state.allow:[...this.state.allow, v],
     rules:this.state.rules.filter(r=>r.value!==base && r.value!==v)}, ()=>this.rerun()); };
-  addAllow = v => { if(this.state.allow.includes(v)) return; this.log.add("allow",{});
+  addAllow = v => { if(this.state.allow.includes(v)) return; this.pushHistory(); this.log.add("allow",{});
     this.setState({allow:[...this.state.allow, v], rules:this.state.rules.filter(r=>r.value!==v)}, ()=>this.rerun()); };
   setRep = (v, rep) => {
+    this.pushHistory();
     this.log.add("set-rep",{});
     const rules=[...this.state.rules]; const r=rules.find(x=>x.value===v);
     if(r) r.replacement=rep.trim(); else rules.push({value:v, kind:"OTHER", replacement:rep.trim()});
@@ -1408,6 +1500,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     return m;
   }
   mergeInto(from, to){
+    this.pushHistory();
     const g=this.groupsOf().find(x=>x.value===to); const rep=(g&&g.rep)||"";
     let rules=this.state.rules.filter(r=>r.value!==from);
     if(!rules.some(r=>r.value===to)) rules=[...rules,{value:to, kind:"NAME", replacement:rep}];
@@ -1773,9 +1866,13 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       },
       onRvCopy:()=>this.copyTo(S.rvOut, "rvCopyLabel", "העתקת הטקסט המשוחזר"),
       hasGeo:!!S.geo, noGeo:S.screen==="places" && !S.geo,
-      noGeoText:(S.geoExcluded||[]).length
-        ? "נשארו פחות משני יישובים למיפוי, ולכן אין מה לשמור עליו. אפשר להחזיר יישוב לרשימה או להמשיך."
-        : "לא נמצאו שני יישובים מוכרים או יותר במסמך, ולכן אין מה למפות.",
+      // ההודעה הזאת אמרה "לא נמצאו יישובים" גם כשהזיהוי מצא אותם, רק לא כאלה
+      // שאפשר למפות. עכשיו היא מבחינה בין השניים.
+      noGeoText:(S.geoExtra||[]).length
+        ? "אין שני יישובים עם קואורדינטות במסמך, ולכן אין מפת מרחקים לשמור עליה. היישובים שנמצאו מוצעים למטה, כל אחד בפני עצמו."
+        : (S.geoExcluded||[]).length
+          ? "נשארו פחות משני יישובים למיפוי, ולכן אין מה לשמור עליו. אפשר להחזיר יישוב לרשימה או להמשיך."
+          : "לא נמצאו יישובים במסמך.",
       geoCount:S.geo?S.geo.map.length:0,
       geoErr:S.geo?S.geo.err.toFixed(1):"",
       geoQuality:S.geo?(S.geo.err<2?"דיוק מצוין":S.geo.err<5?"דיוק טוב":"דיוק סביר"):"",
@@ -1787,6 +1884,18 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       excluded:(S.geoExcluded||[]).map(n=>({name:n, onUndo:()=>this.geoRestore(n)})),
       mapLand:MV?MV.land:"", hasLand:!!(MV&&MV.hasLand), showMap:!!S.showMap, mapLabel:S.showMap?"הסתרת המפה":"הצגת המפה", onToggleMap:()=>{ if(!S.showMap) this.loadAtlas(); this.setState({showMap:!S.showMap}); },
       mapFrom:MV?MV.from:[], mapTo:MV?MV.to:[],
+      hasExtra:(S.geoExtra||[]).length>0,
+      extraRows:(S.geoExtra||[]).map(x=>({
+        name:x.name, to:x.to, isOn:x.on,
+        note:x.ambiguous?"גם מילה רגילה":"",
+        toggleLabel:x.on?"אל תחליף":"להחליף",
+        toggleStyle:"font-size:12.5px;padding:7px 11px;border-radius:8px;white-space:nowrap;border:1px solid "+
+          (x.on?"var(--line)":"var(--accent)")+";color:"+(x.on?"var(--ink2)":"var(--accent-ink)"),
+        rowStyle:"display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--line2);"+
+          (x.on?"":"opacity:.72"),
+        onChange:e=>this.geoExtraSet(x.name,{to:e.target.value}),
+        onToggle:()=>this.geoExtraSet(x.name,{on:!x.on}),
+        ...this.tipProps(x.name)})),
       onGeoAlt:this.geoAlt, onGeoApply:this.geoApply, onGeoSkip:()=>this.run(S.rules),
       // יציאה בלי ייצוא: הפרופיל נשאר בדפדפן הזה בלבד, וזו הבטחה חלשה מדי לתיק
       onBackHome:()=>{ if(S.profileDirty&&S.rules.length&&!confirm("הפרופיל של התיק נשמר בדפדפן הזה בלבד ולא יוצא לקובץ. אם הדפדפן ינוקה הוא יאבד. לצאת בכל זאת?")) return;
@@ -1798,7 +1907,15 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       popup:!!S.popup, popupText:S.popup?S.popup.text:"",
       popupStyle:S.popup?("position:fixed;z-index:60;left:"+S.popup.x+"px;top:"+S.popup.y+"px;max-width:270px;"+
         "background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;box-shadow:0 12px 34px rgba(0,0,0,.22)"):"",
-      popupKinds:KINDS.map(([k,l])=>({label:l, onClick:()=>{ this.addRule(S.popup.text, k, "", "mark"); getSelection().removeAllRanges(); }})),
+      /* התיבה הזאת הציעה סוגים בלבד — אדם, גוף, מקום — כלומר רק "כן, זה פרט
+         מזהה". כשמסמנים מילה כדי לומר בדיוק את ההפך, שהיא מילה רגילה ולא שם,
+         לא הייתה שום אפשרות שמתאימה, והדרך היחידה הייתה למצוא את הכרטיס שלה
+         במסילה. addAllow כבר קיים ומשמש את "אל תחליף" שעל הכרטיסים; כאן הוא
+         נגיש מהמסמך עצמו. */
+      popupKinds:KINDS.map(([k,l])=>({label:l, wide:"",
+          onClick:()=>{ this.addRule(S.popup.text, k, "", "mark"); getSelection().removeAllRanges(); }}))
+        .concat([{label:"מילה רגילה — לא להחליף", wide:"flex-basis:100%;justify-content:center;color:var(--ink2)",
+          onClick:()=>{ this.addAllow(S.popup.text); this.setState({popup:null}); getSelection().removeAllRanges(); }}]),
       hasLeaks:S.leaks.length>0, leakCount:S.leaks.length, leakCopyLabel:S.leakCopyLabel||"העתקת דוח הדליפה",
       logCopyLabel:S.logCopyLabel||"העתקת יומן הסשן",
       onCopyLog:()=>{ try{ this.copyTo(this.log.export(), "logCopyLabel", "העתקת יומן הסשן"); }catch(e){ this.setState({err:String(e.message||e)}); } },
@@ -1864,12 +1981,22 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         // בלי זה מספר שנשאר בטקסט נקרא "פוספס". אינו נכנס לסדר החיצים, שרץ על ההחלפות.
         if(m.flag){
           if(m.s>last) segs.push({plain:true, mark:false, t:b.text.slice(last,m.s)});
+          /* הסימון הזה נוסף כדי שערך שנמצא ולא הוחלף לא ייראה כמו טקסט שאיש לא
+             נגע בו. אבל הוא הפנה ל"לבדיקה", שמכיל רק כמעט-התאמות והצעות, בעוד
+             שהכרטיס עצמו יושב ב"מה נמצא והוחלף" — כלומר הסימון הבטיח מקום שבו
+             אי אפשר למצוא אותו. עכשיו הקשה עליו בוחרת את הכרטיס שלו וגוללת
+             אליו, בדיוק כמו הקשה על החלפה. */
+          const fkey="f|"+E.norm(m.val||"").trim();
           segs.push({plain:false, mark:true, id:-1, t:b.text.slice(m.s,m.e),
-            title:"נמצא ולא הוחלף — מחכה להחלטה שלך ב«לבדיקה»",
+            title:"נמצא ולא הוחלף — הכרטיס שלו ב«מה נמצא והוחלף»",
             style:"cursor:pointer;border-radius:3px;box-decoration-break:clone;padding:1px 2px;"+
               "background:var(--warn-soft);color:var(--warn);border-bottom:1px dashed var(--warn);",
-            onClick:()=>this.setState({open:this.openWith("review"),
-              pane:this.state.narrow?"find":this.state.pane})});
+            onClick:()=>this.setState({sel:fkey, filter:"all", cat:"",
+              open:this.openWith("findings"), pane:this.state.narrow?"find":this.state.pane}, ()=>{
+                const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape(fkey)+'"]');
+                if(node && this.listEl){ const nr=node.getBoundingClientRect(), lr=this.listEl.getBoundingClientRect();
+                  this.listEl.scrollTop += (nr.top-lr.top) - 40; }
+              })});
           last=m.e; continue;
         }
         // מיקום רץ במסמך: כל מופע מקבל מספר משלו, גם כשכמה מופעים שייכים לאותו ערך
@@ -1913,6 +2040,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         repDraft:r?(r.rep||""):"", open:this.openWith("findings")}, ()=>this.scrollToMark(i));
     };
     v.onPrevMark=()=>jump(-1); v.onNextMark=()=>jump(1);
+    // חצי הביטול יושבים ליד חצי הניווט, ומעומעמים כשאין לאן לחזור
+    const histBtn=on=>"width:26px;height:26px;border-radius:7px;font-size:13px;flex:none;color:"+
+      (on?"var(--ink2)":"var(--ink3)")+(on?"":";opacity:.4;cursor:default");
+    v.onHistUndo=()=>this.undo(); v.onHistRedo=()=>this.redo();
+    v.undoStyle=histBtn((S.undoN||0)>0); v.redoStyle=histBtn((S.redoN||0)>0);
 
     v.nearItems = near.map(x=>({
       value:x.value, ctx:x.ctx||{},
