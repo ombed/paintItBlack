@@ -10,7 +10,7 @@ const globals = {
     matchMedia: "readonly", requestAnimationFrame: "readonly", DataTransfer: "readonly", ClipboardEvent: "readonly",
     Intl: "readonly", crypto: "readonly", performance: "readonly", FileReader: "readonly", history: "readonly",
     globalThis: "readonly", Promise: "readonly", Map: "readonly", Set: "readonly", Symbol: "readonly", RegExp: "writable",
-    Uint8Array: "readonly", Uint32Array: "readonly", DataView: "readonly", ArrayBuffer: "readonly", Int32Array: "readonly", Float64Array: "readonly", Node: "readonly" },
+    Uint8Array: "readonly", Uint32Array: "readonly", DataView: "readonly", ArrayBuffer: "readonly", Int32Array: "readonly", Float64Array: "readonly", Node: "readonly", ResizeObserver: "readonly" },
   node: { require: "readonly", module: "writable", process: "readonly", __dirname: "readonly", console: "readonly",
     Buffer: "readonly", setTimeout: "readonly", clearTimeout: "readonly", globalThis: "readonly", global: "writable",
     TextEncoder: "readonly", TextDecoder: "readonly", URL: "readonly", Promise: "readonly", Map: "readonly", Set: "readonly",

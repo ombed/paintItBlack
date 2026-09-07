@@ -98,7 +98,7 @@ a:hover{text-decoration:underline}
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v24");
+  console.log("השחרת מסמכים — גרסה v25");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -136,9 +136,9 @@ a:hover{text-decoration:underline}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v24") return;
+        if(served==="v25") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v24 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v25 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -180,7 +180,8 @@ a:hover{text-decoration:underline}
         <span style="{{ step4 }}">בדיקה</span>
       </nav>
     </sc-if>
-    <button onClick="{{ onReverse }}" style="font-size:13px;color:var(--ink2);padding:7px 11px;border-radius:8px;white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)">החזרת שמות מתשובת AI</button>
+    <button onClick="{{ onReverse }}" style="{{ reverseBtnStyle }}" style-hover="background:var(--panel2);color:var(--ink)">החזרת שמות מתשובת AI</button>
+    <sc-if value="{{ isWork }}"><button onClick="{{ onBackHome }}" style="font-size:13px;color:var(--ink2);padding:7px 11px;border-radius:8px;white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)">מסמך חדש</button></sc-if>
     <button onClick="{{ onTheme }}" aria-label="מצב יום או לילה" style="width:34px;height:34px;border-radius:9px;display:grid;place-items:center;border:1px solid var(--line);color:var(--ink2)" style-hover="background:var(--panel2);color:var(--ink)">{{ themeIcon }}</button>
   </header>
 
@@ -261,7 +262,15 @@ a:hover{text-decoration:underline}
         <sc-for list="{{ caseItems }}" as="c" hint-placeholder-count="3">
           <div data-case="{{ c.name }}" style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line2);flex-wrap:wrap">
             <b style="font-weight:500;font-size:14px">{{ c.name }}</b>
-            <small style="color:var(--ink2);font-size:12.5px;flex:1 1 160px">{{ c.meta }}</small>
+            <div style="flex:1 1 160px;min-width:0">
+              <small style="display:block;color:var(--ink2);font-size:12.5px">{{ c.meta }}</small>
+              <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:5px;align-items:center">
+                <sc-for list="{{ c.pairs }}" as="p" hint-placeholder-count="3">
+                  <span style="font-size:12px;color:var(--ink2);background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:2px 9px;white-space:nowrap">{{ p.v }}<span style="color:var(--ink3)"> ← </span><span style="color:var(--accent-ink)">{{ p.rep }}</span></span>
+                </sc-for>
+                <sc-if value="{{ c.morePairs }}"><small style="color:var(--ink3);font-size:12px">{{ c.morePairs }}</small></sc-if>
+              </div>
+            </div>
             <button onClick="{{ c.onResume }}" style="padding:7px 14px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500;white-space:nowrap">המשך</button>
             <button onClick="{{ c.onDelete }}" aria-label="מחיקת התיק מהרשימה" title="מחיקה מהרשימה בדפדפן; קובץ שיוצא נשאר" style="width:26px;height:26px;border-radius:50%;color:var(--ink3);display:grid;place-items:center" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
           </div>
@@ -274,6 +283,12 @@ a:hover{text-decoration:underline}
         <div style="min-width:0;flex:1 1 220px">
           <b style="display:block;font-weight:500;font-size:14px">{{ lastTitle }}</b>
           <small style="color:var(--ink2);font-size:12.5px">{{ lastMeta }}</small>
+          <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:5px;align-items:center">
+            <sc-for list="{{ lastPairs }}" as="p" hint-placeholder-count="3">
+              <span style="font-size:12px;color:var(--ink2);background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:2px 9px;white-space:nowrap">{{ p.v }}<span style="color:var(--ink3)"> ← </span><span style="color:var(--accent-ink)">{{ p.rep }}</span></span>
+            </sc-for>
+            <sc-if value="{{ lastMorePairs }}"><small style="color:var(--ink3);font-size:12px">{{ lastMorePairs }}</small></sc-if>
+          </div>
         </div>
         <button onClick="{{ onDismissLast }}" style="font-size:13px;color:var(--ink2);padding:9px 12px;border-radius:9px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel2)">תיק אחר</button>
         <button onClick="{{ onResumeLast }}" style="padding:9px 16px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500;white-space:nowrap">המשך עם הפרופיל</button>
@@ -543,7 +558,7 @@ a:hover{text-decoration:underline}
           </div>
         </div>
       </div>
-      <div ref="{{ sheetRef }}" onMouseUp="{{ onSheetSelect }}" style="background:var(--panel2);max-height:calc(100vh - 220px);overflow:auto;padding:22px 0 40px">
+      <div ref="{{ sheetRef }}" onMouseUp="{{ onSheetSelect }}" style="background:var(--panel2);max-height:calc(100vh - var(--bar-h, 64px) - 152px);overflow:auto;padding:22px 0 40px">
         <div style="width:min(720px,calc(100% - 44px));margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 18px 40px -30px rgba(0,0,0,.5);padding:56px 60px;font-size:16px;line-height:1.95;font-family:var(--doc-font)">
           <sc-for list="{{ sheet }}" as="blk" hint-placeholder-count="8">
             <sc-if value="{{ blk.head }}">
@@ -559,6 +574,21 @@ a:hover{text-decoration:underline}
     </section>
 
     <aside style="{{ railStyle }}">
+
+      <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:13px 15px">
+      <div style="font-size:12px;font-weight:500;color:var(--ink3);letter-spacing:.05em;margin-bottom:9px">הוספה ידנית</div>
+      <div style="display:flex;gap:7px">
+      <input value="{{ addV }}" onChange="{{ onAddV }}" onKeyDown="{{ onAddKey }}" placeholder="ערך שפוספס" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px">
+      <input value="{{ addR }}" onChange="{{ onAddR }}" onKeyDown="{{ onAddKey }}" placeholder="תחליף" style="flex:0 0 106px;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px">
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:9px">
+      <sc-for list="{{ kindChips }}" as="k" hint-placeholder-count="7">
+      <button onClick="{{ k.onClick }}" style="{{ k.style }}">{{ k.label }}</button>
+      </sc-for>
+      <button onClick="{{ onAdd }}" style="margin-inline-start:auto;padding:6px 14px;border-radius:16px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:500">הוספה והחלפה</button>
+      </div>
+      </div>
+
 
       <sc-for list="{{ sections }}" as="s" hint-placeholder-count="5">
         <div style="{{ s.wrapStyle }}">
@@ -675,17 +705,27 @@ a:hover{text-decoration:underline}
             </div>
           </sc-if>
 
-          <sc-if value="{{ s.openAi }}">
-            <div style="padding:0 15px 15px">
-              <p style="margin:0 0 10px;font-size:12.5px;color:var(--ink2);line-height:1.55">מעתיקים את הטקסט המושחר לכלי ה-AI במקום את המסמך המקורי, ואת התשובה מדביקים כאן — השמות החלופיים יוחלפו בשמות האמיתיים.</p>
-              <textarea value="{{ aiIn }}" onChange="{{ onAiIn }}" placeholder="הדבקת תשובת ה-AI…" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px;font:13.5px/1.6 Rubik,sans-serif;min-height:88px;resize:vertical"></textarea>
-              <div style="display:flex;gap:7px;margin-top:8px">
-                <button onClick="{{ onAiGo }}" style="flex:1;padding:10px;border-radius:10px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500">החזרת שמות</button>
-                <button onClick="{{ onAiCopy }}" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500">{{ aiCopyLabel }}</button>
+          <sc-if value="{{ s.openSend }}">
+            <div style="padding:0 15px 14px;border-top:1px solid var(--line2)">
+              <div style="margin-top:12px;padding:10px 12px;border-radius:10px;border:1px solid var(--line2);font-size:12.5px;line-height:1.55">
+                <b style="font-weight:500">שליחה לבדיקה</b>
+                <p style="margin:4px 0 8px;color:var(--ink2)">יומן הסשן רושם זמנים ולחיצות בלי טקסט — איפה הלכה הדקה. חבילת הבדיקה מורידה את המסמך הנקי עם היומן ודוח הדליפה לקובץ אחד ופותחת מייל; שום דבר לא נשלח מעצמו.</p>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+                  <button onClick="{{ onCopyLog }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">{{ logCopyLabel }}</button>
+                  <button onClick="{{ onPackage }}" title="{{ packageTitle }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">חבילת בדיקה + מייל</button>
+                </div>
+                <input value="{{ feedbackMail }}" onChange="{{ onFeedbackMail }}" placeholder="כתובת המייל לשליחת קבצי בדיקה (ריק = בלי מייל)" style="width:100%;margin-top:8px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:12.5px;direction:ltr;text-align:left">
               </div>
-              <sc-if value="{{ aiWarn }}"><div style="margin-top:9px;font-size:12.5px;color:var(--warn);line-height:1.5">{{ aiWarn }}</div></sc-if>
+              <sc-if value="{{ hasLeaks }}">
+                <div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--warn-soft);font-size:12.5px;line-height:1.55">
+                  <b style="font-weight:500;color:var(--warn)">שמות שסימנת בעצמך: {{ leakCount }}</b>
+                  <p style="margin:4px 0 8px;color:var(--ink2)">כל סימון כזה הוא שם שהכלי פספס. דוח הדליפה מתאר את הצורה של המקרה — אורכי מילים, מה עמד לפני ואחרי, מה כל שכבה חשבה — בלי הטקסט ובלי השם. אפשר להדביק אותו ב-issue.</p>
+                  <button onClick="{{ onCopyLeaks }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--warn);font-size:12.5px;font-weight:500;color:var(--warn)">{{ leakCopyLabel }}</button>
+                </div>
+              </sc-if>
             </div>
           </sc-if>
+
 
           <sc-if value="{{ s.openProfile }}">
             <div style="padding:0 15px 15px">
@@ -718,22 +758,6 @@ a:hover{text-decoration:underline}
                   <span style="color:var(--ink2)">{{ st.label }}</span><b style="font-weight:500">{{ st.value }}</b>
                 </div>
               </sc-for>
-              <div style="margin-top:12px;padding:10px 12px;border-radius:10px;border:1px solid var(--line2);font-size:12.5px;line-height:1.55">
-                <b style="font-weight:500">שליחה לבדיקה</b>
-                <p style="margin:4px 0 8px;color:var(--ink2)">יומן הסשן רושם זמנים ולחיצות בלי טקסט — איפה הלכה הדקה. חבילת הבדיקה מורידה את המסמך הנקי עם היומן ודוח הדליפה לקובץ אחד ופותחת מייל; שום דבר לא נשלח מעצמו.</p>
-                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-                  <button onClick="{{ onCopyLog }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">{{ logCopyLabel }}</button>
-                  <button onClick="{{ onPackage }}" title="{{ packageTitle }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">חבילת בדיקה + מייל</button>
-                </div>
-                <input value="{{ feedbackMail }}" onChange="{{ onFeedbackMail }}" placeholder="כתובת המייל לשליחת קבצי בדיקה (ריק = בלי מייל)" style="width:100%;margin-top:8px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:12.5px;direction:ltr;text-align:left">
-              </div>
-              <sc-if value="{{ hasLeaks }}">
-                <div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--warn-soft);font-size:12.5px;line-height:1.55">
-                  <b style="font-weight:500;color:var(--warn)">שמות שסימנת בעצמך: {{ leakCount }}</b>
-                  <p style="margin:4px 0 8px;color:var(--ink2)">כל סימון כזה הוא שם שהכלי פספס. דוח הדליפה מתאר את הצורה של המקרה — אורכי מילים, מה עמד לפני ואחרי, מה כל שכבה חשבה — בלי הטקסט ובלי השם. אפשר להדביק אותו ב-issue.</p>
-                  <button onClick="{{ onCopyLeaks }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--warn);font-size:12.5px;font-weight:500;color:var(--warn)">{{ leakCopyLabel }}</button>
-                </div>
-              </sc-if>
               <button onClick="{{ onReport }}" style="margin-top:12px;width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500" style-hover="background:var(--panel2)">הורדת דוח השחרה</button>
               <p style="margin:8px 0 0;font-size:12px;color:var(--ink3);line-height:1.6">הדוח מפרט מה הוחלף במה, מה סומן לבדיקה ומה נוקה מהקובץ — לתיק הפנימי, לא לשליחה.</p>
               <p style="margin:12px 0 0;font-size:12px;color:var(--ink3);line-height:1.6">האימות מוודא שהערכים שזוהו נעלמו מכל חלקי הקובץ, ומחפש כתיב שנבדל מהם בתו אחד. שיבוש של שני תווים ומעלה, טקסט בתוך תמונה או קובץ מוטמע, ושם שאף פעם לא זוהה — אינם נסרקים.</p>
@@ -741,19 +765,6 @@ a:hover{text-decoration:underline}
           </sc-if>
         </div>
       </sc-for>
-          <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:13px 15px">
-        <div style="font-size:12px;font-weight:500;color:var(--ink3);letter-spacing:.05em;margin-bottom:9px">הוספה ידנית</div>
-        <div style="display:flex;gap:7px">
-          <input value="{{ addV }}" onChange="{{ onAddV }}" onKeyDown="{{ onAddKey }}" placeholder="ערך שפוספס" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px">
-          <input value="{{ addR }}" onChange="{{ onAddR }}" onKeyDown="{{ onAddKey }}" placeholder="תחליף" style="flex:0 0 106px;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px">
-        </div>
-        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:9px">
-          <sc-for list="{{ kindChips }}" as="k" hint-placeholder-count="7">
-            <button onClick="{{ k.onClick }}" style="{{ k.style }}">{{ k.label }}</button>
-          </sc-for>
-          <button onClick="{{ onAdd }}" style="margin-inline-start:auto;padding:6px 14px;border-radius:16px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:500">הוספה והחלפה</button>
-        </div>
-      </div>
 
     </aside>
   </main>
@@ -774,13 +785,6 @@ a:hover{text-decoration:underline}
         <span style="{{ step2Style }}">2 העתקה ל-AI{{ step2Mark }}</span><span style="color:var(--ink3)">›</span>
         <span style="{{ step3Style }}">3 החזרת השמות</span>
       </div>
-      <sc-if value="{{ copied }}">
-        <button onClick="{{ onReverse }}" style="padding:11px 16px;border-radius:10px;border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent-ink);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--accent);color:var(--panel)">הדבקת תשובת ה-AI</button>
-      </sc-if>
-      <sc-if value="{{ hasReview }}">
-        <button onClick="{{ onOpenReview }}" style="font-size:13px;padding:10px 14px;border-radius:9px;border:1px solid var(--line);white-space:nowrap;color:var(--warn)" style-hover="background:var(--warn-soft)">פתיחת הבדיקה</button>
-      </sc-if>
-      <button onClick="{{ onBackHome }}" style="font-size:13px;color:var(--ink2);padding:10px;white-space:nowrap" style-hover="color:var(--ink)">מסמך חדש</button>
       <button onClick="{{ onCopyAi }}" style="{{ copyBtnStyle }}">{{ copyLabel }}</button>
       <button onClick="{{ onDownload }}" style="padding:11px 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">הורדת Word</button>
     </div>
@@ -809,7 +813,7 @@ a:hover{text-decoration:underline}
 
 </div>
 </x-dc>
-<div id="ver">גרסה v24</div>
+<div id="ver">גרסה v25</div>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
@@ -853,6 +857,15 @@ class Component extends DCLogic {
     this._resize = () => { const n = innerWidth < 1120; if(n!==this.state.narrow) this.setState({narrow:n}); };
     this._resize();
     addEventListener("resize", this._resize);
+    this._barSize = () => {
+      const el=document.querySelector("[data-bar]");
+      const r=document.documentElement.style;
+      if(!el){ r.removeProperty("--bar-h"); this._barEl=null; return; }
+      r.setProperty("--bar-h", Math.round(el.offsetHeight)+"px");
+      if(this._barObs && this._barEl!==el){ this._barObs.disconnect(); this._barObs.observe(el); this._barEl=el; }
+    };
+    if(typeof ResizeObserver!=="undefined") this._barObs=new ResizeObserver(()=>this._barSize());
+    this._barSize();
     this._docClick = e => {
       if(this.state.popup && !e.target.closest("[data-popup]")) this.setState({popup:null});
       // דוגמה שננעצה בהקשה נסגרת בהקשה בחוץ. בלי זה אין דרך לסגור אותה במגע.
@@ -860,8 +873,9 @@ class Component extends DCLogic {
     };
     document.addEventListener("mousedown", this._docClick);
   }
-  componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); removeEventListener("resize", this._resize); }
-  componentDidUpdate(prev){ this.applyProps();
+  componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); removeEventListener("resize", this._resize);
+    if(this._barObs) this._barObs.disconnect(); }
+  componentDidUpdate(prev){ this.applyProps(); if(this._barSize) this._barSize();
     if(prev&&prev.screen!==this.state.screen&&this.log) this.log.add("screen",{to:this.state.screen, from:prev.screen}); }
   applyProps(){
     const r=document.documentElement.style;
@@ -1290,7 +1304,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       // מגיעים למסמך עצמו קודם: הפאנלים מקופלים, פס הסטטוס אומר מה מחכה
       const toReview=(res.verification.near||[]).length+(res.verification.suggest||[]).length;
       this.log.add("run",{applied:res.applied.length, flagged:res.flagged.length, near:(res.verification.near||[]).length, suggest:(res.verification.suggest||[]).length, passed:!!res.verification.passed});
-      this.setState({res, screen:"work", open:toReview?["review","findings"]:["findings"], pane:"doc", docView:"red", markIdx:0, copied:false}, ()=>this.persistProfile());
+      this.setState({res, screen:"work", open:toReview?["review","findings","send"]:["findings","send"], pane:"doc", docView:"red", markIdx:0, copied:false}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה בעיבוד: "+(e.message||e), screen:"entry", res:null}); }
   }
   async rerun(){
@@ -1465,6 +1479,26 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(u), 4000);
   };
+  /* הכרטיס בכניסה שאל "להמשיך עם הפרופיל מהפעם הקודמת?" והציג מספר ערכים
+     ותאריך. אי אפשר לזהות תיק לפי "שבעה ערכים", והשמות היו בזיכרון בדיוק באותו
+     רגע — הם פשוט לא הוצגו. כאן נשלפות כמה שורות של ערך והתחליף שלו, אותה צורה
+     שכבר מוצגת ברשימת התיק במסך הבדיקה. */
+  profilePairs(prof, max=3){
+    const out=[], seen=new Set();
+    const push=(v,rep)=>{ const s=String(v||"").trim();
+      if(!s||seen.has(s)||out.length>=max)return;
+      seen.add(s); out.push({v:s, rep:String(rep||"").trim()}); };
+    for(const r of (prof&&prof.rules)||[]) push(r&&r.value, r&&(r.replacement||((prof.map||{})[r.value])));
+    for(const k of Object.keys((prof&&prof.map)||{})) push(k, (prof.map||{})[k]);
+    return out;
+  }
+  profileCount(prof){
+    const n=new Set();
+    for(const r of (prof&&prof.rules)||[]) if(r&&r.value) n.add(String(r.value).trim());
+    for(const k of Object.keys((prof&&prof.map)||{})) n.add(String(k).trim());
+    return n.size;
+  }
+
   /* שם הקובץ הוא ערוץ דליפה בפני עצמו, והוא היה פתוח לרווחה.
 
      הכלי מנקה את שם היוצר ואת הכותרת מתוך המסמך (docProps), ואז כתב את שם
@@ -1650,6 +1684,16 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       ],
       themeIcon:S.theme==="dark"?"☀":"☾", onTheme:this.toggleTheme,
       onReverse:()=>this.setState({screen:"reverse", returnTo:S.screen==="reverse"?(S.returnTo||"entry"):S.screen, err:""}),
+      /* היה כפתור אחד בכותרת, כפתור שני זהה בסרגל התחתון, ומקטע שלישי במסילה
+         שרץ בכלל על מסלול אחר: הוא בנה את הזוגות מ-livePairs, שאינה מסננת ערך
+         שהושחר ל-███, בעוד שהמסך בנה אותם מ-currentMap שכן. אותה הדבקה יכלה
+         להחזיר תוצאה אחרת לפי איפה הודבקה. נשאר הכפתור בכותרת, שנראה בכל
+         המסכים ועובד גם בלי מסמך טעון; אחרי ההעתקה ל-AI הוא מודגש, כי זה הרגע
+         שבו מחפשים אותו. */
+      reverseBtnStyle:"font-size:13px;padding:7px 11px;border-radius:8px;white-space:nowrap;"+
+        (S.copied&&S.screen!=="reverse"
+          ? "border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent-ink);font-weight:500"
+          : "color:var(--ink2)"),
       onHome:()=>this.setState({screen:"entry", pending:!!S.buf, err:""}),
       err:S.err, busyT:S.busyT, primaryBtn,
       fileRef:el=>{ if(el) this.fileEl=el; }, profRef:el=>{ if(el) this.profEl=el; },
@@ -1688,11 +1732,14 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onLoadProf:this.loadProfileClick, onSaveProf:this.saveProfile,
       hasCases:S.cases.length>0&&S.screen==="entry"&&!S.profile,
       caseItems:S.cases.map(c=>({name:c.name, meta:(c.rules||[]).length+" ערכים · עודכן "+new Date(c.updated||c.created).toLocaleString("he-IL",{dateStyle:"short",timeStyle:"short"}),
+        pairs:this.profilePairs(c,3), morePairs:(n=>n>3?"ועוד "+(n-3):"")(this.profileCount(c)),
         onResume:()=>this.resumeCase(c.name), onDelete:()=>{ if(confirm("למחוק את «"+c.name+"» מרשימת התיקים בדפדפן? קובץ פרופיל שיוצא לא נמחק.")) this.deleteCase(c.name); }})),
       // הפרופיל האחרון בלי שם מוצע רק כשאין תיק בשם שמכסה אותו
       hasLast:!!S.lastProfile&&!S.lastProfile.name&&S.screen==="entry"&&!S.profile,
       lastTitle:S.lastProfile?(S.lastProfile.name?"להמשיך את התיק «"+S.lastProfile.name+"»?":"להמשיך עם הפרופיל מהפעם הקודמת?"):"",
       lastMeta:S.lastProfile?((S.lastProfile.rules||[]).length+" ערכים ברשימה · עודכן "+new Date(S.lastProfile.updated||S.lastProfile.created).toLocaleString("he-IL",{dateStyle:"short",timeStyle:"short"})+" · אותם שמות חלופיים כמו במסמך הקודם"):"",
+      lastPairs:S.lastProfile?this.profilePairs(S.lastProfile,3):[],
+      lastMorePairs:S.lastProfile?(n=>n>3?"ועוד "+(n-3):"")(this.profileCount(S.lastProfile)):"",
       onResumeLast:this.resumeLast, onDismissLast:this.dismissLast,
       caseName:S.caseName, onCaseName:e=>this.setState({caseName:e.target.value}, ()=>this.persistProfile()),
       profileNote:(S.caseName?"נשמר ברשימת התיקים בדפדפן הזה אחרי כל שינוי, ומוצע בכניסה הבאה. ":"בלי שם התיק נשמר רק כ«פרופיל אחרון». ")+(S.profileDirty?"הדפדפן אינו גיבוי — ייצוא לקובץ שומר את הפרופיל גם אם המטמון ינוקה.":"יוצא לקובץ."),
@@ -1776,9 +1823,13 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
 
     const narrow=!!S.narrow, pane=S.pane||"find";
     v.narrow=narrow;
+    /* הסרגל התחתון צף מעל התוכן, והרווח שהושאר לו היה שלושה מספרים קבועים
+       (72, 84, 132) שאיש לא קשר לגובה האמיתי שלו. על טלפון הוא נשבר לשתי שורות
+       וכיסה את תחתית המסמך. עכשיו הגובה נמדד מהאלמנט עצמו ל---bar-h, וגם
+       הריפוד וגם גובה גיליון המסמך נגזרים ממנו. */
     v.workGrid = narrow
-      ? "display:block;max-width:1520px;margin:0 auto;padding:14px 16px 84px"
-      : "display:grid;grid-template-columns:minmax(0,1fr) var(--rail-w);gap:18px;max-width:1520px;margin:0 auto;padding:18px 22px 72px;align-items:start";
+      ? "display:block;max-width:1520px;margin:0 auto;padding:14px 16px calc(var(--bar-h, 76px) + 18px)"
+      : "display:grid;grid-template-columns:minmax(0,1fr) var(--rail-w);gap:18px;max-width:1520px;margin:0 auto;padding:18px 22px calc(var(--bar-h, 64px) + 16px);align-items:start";
     v.docPaneStyle = "background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;"+
       (narrow ? (pane==="doc"?"display:block":"display:none") : "position:sticky;top:74px");
     v.railStyle = (narrow && pane==="doc")
@@ -2007,7 +2058,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     const secDef=[
       ["review","לבדיקה", near.length+sug.length, near.length+sug.length?"warn":"ok"],
       ["findings","מה נמצא והוחלף", RES.applied.length+RES.flagged.length, "ok"],
-      ["ai","החזרת שמות מתשובת ה-AI", 0, "plain"],
+      ["send","שליחת הסשן אלינו", 0, "plain"],
       ["profile","הרשימה ופרופיל התיק", S.rules.length, "plain"],
       ["clean","מה נוקה מהקובץ", stats.length, "plain"]
     ];
@@ -2017,7 +2068,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       dotStyle:"width:7px;height:7px;border-radius:50%;flex:none;background:"+(tone==="warn"?"var(--warn)":tone==="ok"?"var(--accent)":"var(--ink3)"),
       onToggle:()=>this.setState({open:isOpen(key)?open.filter(k=>k!==key):[...open,key]}),
       openReview:isOpen("review")&&key==="review", openFindings:isOpen("findings")&&key==="findings",
-      openAi:isOpen("ai")&&key==="ai", openProfile:isOpen("profile")&&key==="profile",
+      openProfile:isOpen("profile")&&key==="profile",
+      openSend:isOpen("send")&&key==="send",
       openClean:isOpen("clean")&&key==="clean"
     }));
     return v;
