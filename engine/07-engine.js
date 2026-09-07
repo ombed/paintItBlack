@@ -15,12 +15,17 @@ function findPatterns(text,on,flag){
     p.rx.lastIndex=0;let m;
     while((m=p.rx.exec(n))){
       if(m[0]==="")({},p.rx.lastIndex++);
-      if(p.v&&!p.v(m[0]))continue;
+      // ספרת ביקורת שאינה מתאימה אינה ראיה שזה איננו מזהה — היא ראיה שהוא הוקלד
+      // לא נכון, או שהוא לא ישראלי. עד כאן מספר כזה נעלם לגמרי: לא הוחלף, לא סומן,
+      // לא הופיע ברשימה, ולכן הגיע ל-AI כמו שהוא בלי שום סימן. תשע ספרות שנראות
+      // כמו ת"ז הן החשד הכי מובהק שיש, ולכן הן עולות לבדיקה במקום להימחק.
+      const bad=!!(p.v&&!p.v(m[0]));
       const g=p.g, s=g? m.index+m[0].indexOf(m[g]) : m.index, e=s+(g?m[g].length:m[0].length);
       if(g&&!m[g])continue; if(e<=s)continue;
-      hits.push({s,e,type:p.n,label:p.l,text:text.slice(s,e),apply:on.has(p.n),
-        why:WHYP[p.n]||"התאמה לדפוס מוכר",src:"pattern",prio:p.p,
-        conf:p.on?"high":"medium"});
+      hits.push({s,e,type:p.n,label:p.l,text:text.slice(s,e),apply:bad?false:on.has(p.n),
+        why:(WHYP[p.n]||"התאמה לדפוס מוכר")+(bad?" — אבל ספרת הביקורת אינה מתאימה. ייתכן שיבוש הקלדה, ולכן זה עולה לבדיקה":""),
+        src:"pattern",prio:p.p,review:bad||undefined,
+        conf:bad?"medium":(p.on?"high":"medium")});
     }}
   return hits}
 
