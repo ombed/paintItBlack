@@ -39,7 +39,12 @@ input,textarea,select{font:inherit;color:inherit}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
 ::selection{background:var(--accent-soft)}
-@keyframes flash{0%,100%{background:transparent}30%{background:var(--accent-soft)}}
+/* ההבזק על ההחלפה שהחיצים קפצו אליה. הוא הנפיש פעם את background, וזה בדיוק
+   המאפיין שההחלפה הנוכחית צובעת בעצמה: מאפיין שמונפש גובר על ההצהרה שעל
+   האלמנט, ולכן הרקע נמחק לשקוף בעוד שהטקסט נשאר בצבע הפאנל — לבן על נייר לבן,
+   ובכהה כהה על כהה. המילה נעלמה לגמרי למשך 1.1 שניות ואז חזרה. עכשיו מונפשת
+   טבעת מסביב, שאינה נוגעת ברקע ולא בצבע הטקסט. */
+@keyframes flash{0%,100%{box-shadow:0 0 0 0 transparent}35%{box-shadow:0 0 0 3px var(--ink2)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 /* טלפון: הרשתות נערמות, הבר עוטף, השורות מתקפלות, החותמת יורדת לתחתית */
@@ -1081,10 +1086,19 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const text = blocks.map(b=>b.text).join("\n");
       // סריקה אחת, במנוע, עם אותו שער דו-משמעיות של findPlaces. המסך הזה כותב
       // כלל החלפה גורף, ולכן יישוב ששמו גם מילה רגילה אינו מוצע בו כלל.
-      const found = E.geoNames(text);
-      if(found.length<2){ this.setState({screen:"places", geo:null, geoNames:[]}); return; }
+      const all = E.geoNames(text);
+      /* "אל תחליף" נשמר ברשימת ההיתר, שנשמרת בפרופיל התיק. הרצועה של היישובים
+         שנשארים כמו שהם נגזרת עכשיו ממנה, במקום להיות רשימה שנייה שנצברת לצדה.
+         הרשימה השנייה לא נשמרה בפרופיל, לא התאפסה בפתיחת קובץ חדש, ולא הופחתה
+         מהשורות המוצעות, ולכן אותו יישוב הופיע גם ברצועה וגם כשורה להחלפה.
+         גרוע מכך: אחרי טעינת פרופיל בלשונית חדשה הוא הוצע כשורה רגילה, ורשימת
+         ההיתר חסמה בשקט כל החלפה שהוגדרה עליו. */
+      const on = new Set((this.state.allow||[]).map(a=>E.norm(String(a||"")).trim()));
+      const found = all.filter(n=>!on.has(E.norm(n).trim()));
+      const excluded = all.filter(n=>on.has(E.norm(n).trim()));
+      if(found.length<2){ this.setState({screen:"places", geo:null, geoNames:[], geoExcluded:excluded}); return; }
       const geo = E.geoMap(found, 0);
-      this.setState({screen:"places", geo, geoNames:found, geoEdits:{}, geoV:0});
+      this.setState({screen:"places", geo, geoNames:found, geoExcluded:excluded, geoEdits:{}, geoV:0});
     }catch(e){ this.run(rules); }
   }
   /* קובץ גיאומטריה אחד (Natural Earth דרך world-atlas) נטען פעם אחת ונשמר במטמון הדפדפן.
@@ -1146,8 +1160,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const E=this.state.E;
     const names=this.state.geoNames.filter(n=>n!==name);
     const allow=this.state.allow.includes(name)?this.state.allow:[...this.state.allow, name];
+    const ex=this.state.geoExcluded||[];
     this.setState({geoNames:names, allow, geoEdits:{}, geoV:0,
-      geoExcluded:[...(this.state.geoExcluded||[]), name],
+      // בלי הבדיקה הזאת לחיצה שנייה על אותו יישוב הכניסה אותו לרצועה פעמיים
+      geoExcluded: ex.includes(name) ? ex : [...ex, name],
       geo: names.length>=2 ? E.geoMap(names,0) : null});
   };
   geoRestore = name => {

@@ -911,6 +911,38 @@ const AMBIG=new Set(["דן","מגן","כרמל","עלי","שילה","דליה","
   "אזור","רחובות","מעלות","שדרות","אריאל","עומר","מיתר","ירוחם","נירית","אורן",
   "יבנה","גדרה","חורה","נשר","עתלית","ברקן","יקיר","כפר","ראש","עמק","מגידו",
   "כורזים","דבוריה","עילבון","צורן","קדימה","פרדסיה","חריש","אפרת","דן","מטולה"]);
+/* תחליף ליישוב.
+
+   ליישוב לא היה מחולל תחליפים בכלל. שם היה מקבל «מיכל ברנע», אבל יישוב קיבל
+   «[יישוב א׳]» — תווית בתוך המשפט, שגם שוברת את הקריאה וגם מכריזה שכאן הוסתר
+   משהו. המקור היחיד לשם יישוב אמיתי היה מסך היישובים, ומה שהוא לא הציע נפל
+   לתווית: יישוב מהמאגר בלי קואורדינטות, מקום שנגזר ממילת מוסד, וכל שם ברשימת
+   הדו-משמעיים. השער החדש במסך היישובים הרחיב בדיוק את הקבוצה הזאת, ולכן
+   המחולל הוא חלק מאותו תיקון ולא תוספת.
+
+   מסך היישובים עדיין קודם כשהוא רלוונטי, כי הוא שומר על המרחקים בין היישובים.
+   זה הרשת מתחתיו. הבחירה נגזרת מ-hash של השם המקורי, ולכן היא יציבה בין
+   הרצות; יישוב שמופיע במסמך עצמו לא ייבחר כתחליף, ולא ייבחר שם דו-משמעי. */
+function fakePlace(value,used,forbidden){
+  const gaz=(typeof GAZ!=="undefined"&&Array.isArray(GAZ))?GAZ:[];
+  const pool=PLACES.map(p=>p.n).concat(gaz)
+    .filter(n=>n&&n.length>=3&&!AMBIG.has(n));
+  if(!pool.length)return null;
+  const free=n=>{
+    if(used&&used.has(n))return false;
+    if(!forbidden)return true;
+    // גם מילה בודדת מתוך שם דו-מילתי נחשבת: "בית שמש" נפסל אם "שמש" במסמך
+    for(const w of norm(n).split(/\s+/)) if(w&&forbidden.has(w))return false;
+    return true;
+  };
+  const start=hash32(norm(String(value||"")).trim())%pool.length;
+  for(let k=0;k<pool.length;k++){
+    const cand=pool[(start+k)%pool.length];
+    if(free(cand))return cand;
+  }
+  return null;
+}
+
 const PLACE_RX=new RegExp(
   "(?<![\\u0590-\\u05ff])(?:[בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?("+
   PLACES.map(p=>p.n).sort((a,b)=>b.length-a.length)
@@ -1276,6 +1308,13 @@ class Engine{
       const n=(this.cnt[fam]||0)+1;this.cnt[fam]=n;
       if(fam==="NAME"&&this.opt.mode==="real")
         base=fakeName(canonical,this.gmap[canonical]||h.g,this.used,this.forbidden,this.firstish);
+      // יישוב מקבל שם יישוב אמיתי, כמו ששם מקבל שם. מסך היישובים קודם כשהוא
+      // מציע משהו, כי הוא שומר על המרחקים; זה מה שקורה לכל השאר, כולל מה שנגזר
+      // ממילת יישוב ("מושב X", "שכונת Y"). מוסד רפואי, עסק או מוסד חינוך נשאר
+      // תווית: שם יישוב במקומו היה משקר על סוג המקום.
+      else if(this.opt.mode==="real"&&typeof fakePlace==="function"&&
+              (h.type==="PLACE_CITY"||(h.type==="PLACE_VENUE"&&h.label==="יישוב")))
+        base=fakePlace(canonical,this.used,this.forbidden)||`[${lab} ${hord(n)}]`;
       else base = fam==="NAME" ? "פלוני "+hord(n) : `[${lab} ${hord(n)}]`;
     }
     this.map[k]??=base;
@@ -2116,5 +2155,5 @@ export {nerLast, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, 
   variants, validID, ibanOK, luhn, hord, POOL, WORDLIKE, FEM, MASC, fakeName, near1, HOMO, WEAK,
   findNear, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,
-  discover, PLACES, PLACE_BY, geoMap, geoNames, examplesOf, findPlaces, nerEnv, nerCached, nerPersist, nerLoad, nerRun,
+  discover, PLACES, PLACE_BY, geoMap, geoNames, examplesOf, findPlaces, fakePlace, nerEnv, nerCached, nerPersist, nerLoad, nerRun,
   TITLE_RX, ORG_RX, likelyOrg, cleanEntry, trimEdges, pseudoRX, restoreNames, STOP};
