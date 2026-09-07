@@ -1,6 +1,6 @@
 # Benchmark results (no model)
 
-37 documents, 282 keyed entities, model off. Generated 2026-09-06.
+37 documents, 282 keyed entities, model off. Generated 2026-09-07.
 
 ## Per category
 
@@ -34,7 +34,7 @@
 | place: street | 8 | 0 | 0 | 0 |
 | trap: פלוני / פלונית | – | – | – | 0 |
 | person: two-letter surname | 0 | 5 | 5 | 0 |
-| person: minor introduced by הקטין / הקטינה | 0 | 7 | 7 | 0 |
+| person: minor introduced by הקטין / הקטינה | 5 | 2 | 2 | 0 |
 | pii: ID number | 10 | 0 | 0 | 0 |
 | pii: mobile phone | 10 | 0 | 0 | 0 |
 | pii: date of birth | 6 | 0 | 0 | 0 |
@@ -42,7 +42,7 @@
 | pii: bank account | 5 | 0 | 0 | 0 |
 | pii: licence plate | 4 | 0 | 0 | 0 |
 | person: party by role word and colon, first name only | 6 | 0 | 0 | 0 |
-| person: name right after a discourse word (כאמור, משכך, לדבריה) | 2 | 1 | 1 | 0 |
+| person: name right after a discourse word (כאמור, משכך, לדבריה) | 3 | 0 | 1 | 0 |
 | trap: form label with a colon (not a speaker) | – | – | – | 0 |
 | trap: word ending in ת before a word starting with ז (not ת"ז) | – | – | – | 0 |
 | trap: הח"מ before a verb (not a name) | – | – | – | 0 |
@@ -57,12 +57,12 @@
 | meeting | 16 | 10 | 13 | 0 |
 | filing | 29 | 6 | 8 | 2 |
 | transcript | 23 | 10 | 13 | 0 |
-| welfare | 16 | 8 | 10 | 0 |
+| welfare | 19 | 5 | 7 | 0 |
 | medical | 12 | 5 | 5 | 0 |
-| police | 17 | 4 | 4 | 0 |
+| police | 18 | 3 | 3 | 0 |
 | bank | 13 | 2 | 2 | 0 |
-| chat | 12 | 8 | 9 | 0 |
-| position | 10 | 3 | 3 | 2 |
+| chat | 13 | 7 | 8 | 0 |
+| position | 11 | 2 | 3 | 2 |
 | audio | 17 | 3 | 8 | 0 |
 
 ## Unlisted suggestions (match nothing in the key; one tap each) — 23 in total
@@ -116,22 +116,18 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 - t4 · person: minor, first name only · עומרי: missed, **leaked**: עומרי
 - t4 · person: name that reads like a body's · עומרי גן: missed, **leaked**: עומרי גן
 - w1 · person: two-letter surname · ליעד כץ: missed, **leaked**: ליעד כץ
-- w1 · person: minor introduced by הקטין / הקטינה · אגם: missed, **leaked**: אגם, הקטינה אגם
 - w1 · person: title attached · שיראל שטרית: missed, **leaked**: שיראל שטרית, עו"ס שיראל שטרית, שטרית
-- w2 · person: minor introduced by הקטין / הקטינה · ניב: missed, **leaked**: ניב, הקטין ניב
 - w2 · org: private body, must be redacted · פנימיית גבעת הרימון: missed, **leaked**: פנימיית גבעת הרימון, גבעת הרימון
 - w2 · place: neighbourhood · שכונת נווה חן: missed, **leaked**: שכונת נווה חן
 - w3 · person: two-letter surname · מתן צח: missed, **leaked**: מתן צח
 - w3 · person: two people sharing a surname · סלים מנסור: found via suggest+applied as «סלים מנסור», **leaked**: סלים
 - w3 · person: two people sharing a surname · חנין מנסור: found via suggest+applied as «סלים מנסור», **leaked**: חנין מנסור, מנסור
-- w4 · person: minor introduced by הקטין / הקטינה · ליה: missed, **leaked**: ליה, הקטינה ליה
 - h1 · person: minor, first name only · אבישג: missed, **leaked**: אבישג
 - h3 · person: Russian name · ולריה קוזנצוב: missed, **leaked**: ולריה קוזנצוב, קוזנצוב
 - h3 · person: Ethiopian name · יונס גטהון: missed, **leaked**: יונס גטהון, גטהון
 - h3 · person: two-letter surname · איה נץ: missed, **leaked**: איה נץ
 - h3 · org: private body, must be redacted · מכון שורשים: missed, **leaked**: מכון שורשים, שורשים
 - p1 · person: same person, one clean and one corrupted spelling · ארטיום מורוזוב: missed, **leaked**: ארטיום מורוזוב, מורוזב
-- p2 · person: minor introduced by הקטין / הקטינה · לביא: missed, **leaked**: לביא, הקטין לביא
 - p2 · place: town · גבעת עדה: missed, **leaked**: גבעת עדה
 - p3 · person: two-letter surname · עלמה כץ: missed, **leaked**: עלמה כץ
 - b2 · person: Arabic name · טהא עודה: missed, **leaked**: טהא עודה, עודה
@@ -142,11 +138,10 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 - c2 · person: Arabic name · מייסא סרחאן: missed, **leaked**: מייסא סרחאן, סרחאן
 - c2 · person: hyphenated surname, elsewhere with a space · ליעד בן-עמיאל: missed, **leaked**: ליעד בן-עמיאל, בן עמיאל
 - c3 · person: Ethiopian name · ברהאנה וורקנה: missed, **leaked**: ברהאנה וורקנה, וורקנה
-- c3 · person: minor introduced by הקטין / הקטינה · גפן: missed, **leaked**: גפן, הקטינה גפן
 - c4 · person: Russian name · פולינה סמירנובה: missed, **leaked**: פולינה סמירנובה, סמירנובה
 - c4 · person: same person, one clean and one corrupted spelling · קסאי אלמו: found via suggest+applied as «עלמו», **leaked**: קסאי אלמו
 - x1 · person: minor introduced by הקטין / הקטינה · אביתר: missed, **leaked**: אביתר, האח אביתר
-- x3 · person: name right after a discourse word (כאמור, משכך, לדבריה) · יונס: missed, **leaked**: יונס
+- x3 · person: name right after a discourse word (כאמור, משכך, לדבריה) · יונס: found via discover+applied as «יונס פעמיים», **leaked**: יונס
 - x3 · person: minor introduced by הקטין / הקטינה · מייסא: missed, **leaked**: מייסא, האחות מייסא
 - a1 · person: same person, one clean and one corrupted spelling · בוסקילה: missed, **leaked**: בוסקילה, בושקילה
 - a1 · person: same person, one clean and one corrupted spelling · אביתר: found via suggest+applied as «אביטר», **leaked**: אביתר
@@ -168,40 +163,40 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 105 | 3 | 0 |
-| m2 | meeting | 42 | 6 | 0 |
-| m3 | meeting | 23 | 3 | 0 |
-| m4 | meeting | 40 | 5 | 3 |
-| f1 | filing | 53 | 10 | 1 |
-| f2 | filing | 75 | 13 | 1 |
-| f3 | filing | 29 | 5 | 0 |
-| f4 | filing | 38 | 8 | 3 |
-| t1 | transcript | 33 | 6 | 0 |
-| t2 | transcript | 25 | 5 | 1 |
-| t3 | transcript | 23 | 6 | 1 |
-| t4 | transcript | 32 | 7 | 1 |
-| w1 | welfare | 10 | 0 | 0 |
-| w2 | welfare | 18 | 2 | 0 |
-| w3 | welfare | 17 | 2 | 0 |
-| w4 | welfare | 17 | 3 | 0 |
+| m1 | meeting | 84 | 3 | 0 |
+| m2 | meeting | 36 | 6 | 0 |
+| m3 | meeting | 21 | 3 | 0 |
+| m4 | meeting | 32 | 5 | 3 |
+| f1 | filing | 47 | 10 | 1 |
+| f2 | filing | 62 | 13 | 1 |
+| f3 | filing | 26 | 5 | 0 |
+| f4 | filing | 34 | 8 | 3 |
+| t1 | transcript | 31 | 6 | 0 |
+| t2 | transcript | 28 | 5 | 1 |
+| t3 | transcript | 28 | 6 | 1 |
+| t4 | transcript | 23 | 7 | 1 |
+| w1 | welfare | 14 | 1 | 0 |
+| w2 | welfare | 20 | 3 | 0 |
+| w3 | welfare | 13 | 2 | 0 |
+| w4 | welfare | 17 | 4 | 0 |
 | h1 | medical | 26 | 6 | 2 |
-| h2 | medical | 16 | 2 | 0 |
-| h3 | medical | 19 | 3 | 3 |
-| p1 | police | 16 | 2 | 1 |
-| p2 | police | 17 | 2 | 1 |
-| p3 | police | 11 | 1 | 0 |
-| p4 | police | 15 | 3 | 0 |
-| b1 | bank | 27 | 5 | 2 |
+| h2 | medical | 15 | 2 | 0 |
+| h3 | medical | 15 | 3 | 3 |
+| p1 | police | 19 | 2 | 1 |
+| p2 | police | 15 | 3 | 1 |
+| p3 | police | 12 | 1 | 0 |
+| p4 | police | 17 | 3 | 0 |
+| b1 | bank | 19 | 5 | 2 |
 | b2 | bank | 9 | 1 | 0 |
-| b3 | bank | 11 | 2 | 0 |
-| c1 | chat | 8 | 1 | 0 |
+| b3 | bank | 12 | 2 | 0 |
+| c1 | chat | 10 | 1 | 0 |
 | c2 | chat | 13 | 2 | 1 |
-| c3 | chat | 9 | 1 | 0 |
-| c4 | chat | 15 | 3 | 0 |
-| x1 | position | 24 | 5 | 1 |
-| x2 | position | 22 | 4 | 0 |
-| x3 | position | 16 | 2 | 0 |
+| c3 | chat | 10 | 2 | 0 |
+| c4 | chat | 13 | 3 | 0 |
+| x1 | position | 25 | 5 | 1 |
+| x2 | position | 15 | 4 | 0 |
+| x3 | position | 16 | 3 | 0 |
 | a1 | audio | 13 | 3 | 0 |
-| a2 | audio | 18 | 5 | 0 |
-| a3 | audio | 28 | 7 | 1 |
-| a4 | audio | 16 | 4 | 0 |
+| a2 | audio | 19 | 5 | 0 |
+| a3 | audio | 26 | 7 | 1 |
+| a4 | audio | 17 | 4 | 0 |
