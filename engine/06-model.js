@@ -96,7 +96,10 @@ function nerClean(ents,text,opt){
       const known=!!PLACE_BY[norm(bare)]||KNOWN_FIRST.has(stem);
       // "בעמותת שביל הלב", "ברחוב הארזים": כשהגזע הוא ראש של גוף או של מקום,
       // האות הראשונה היא אות שימוש גם בלי שהגזע מופיע במקום אחר.
-      const headPeel=NER_HEADS.has(stem);
+      // "בבית ספר אורט", "לחסידות ברסלב": גם ראש של מוסד או של קבוצה הוא עדות.
+      const headPeel=NER_HEADS.has(stem)||
+        (typeof ORG_HEADS!=="undefined"&&ORG_HEADS.test(norm(bare)))||
+        (typeof GROUP_HEADS!=="undefined"&&GROUP_HEADS.test(norm(bare)));
       if(wasCut||elsewhere||known||headPeel){
         w[0]=w[0].slice(w[0].length-f.length+1); v=trimEdges(w.join(" "));
       }
@@ -127,6 +130,15 @@ function nerClean(ents,text,opt){
     // ראש של גוף (עמותת, מעון, מרפאת…) באמצע המקטע: מה שלפניו הודבק מהמשפט,
     // "משרד עמותת שביל הלב". חותכים לפני הראש, אחרת הכלל תופס רק את הצורה המודבקת.
     if(kind==="ORG"){const m=/(?:^|\s)(עמותת|עמותה|מעון|מרפאת|מכון|קרן|מרכז|אגודת|חברת|בית ספר|בי"ס|ביה"ס|גן ילדים|פנימיית|ישיבת)\s/u.exec(v); if(m&&m.index>0)v=v.slice(m.index+1);}
+    // גוף לפי כללי ראש, בלי רשימה סגורה: קבוצה רחבה (חסידות, תנועה, מפלגה, זרם,
+    // עדה, קהילה) אינה מזהה ואינה מוצעת; מוסד עם מילת סוג מוצע כרגיל; גוף בלי
+    // אף אחד מהראשים — "ברסלב" לבדו — עולה לבדיקה ולא נכנס לרשימה מעצמו.
+    let orgReview=false;
+    if(kind==="ORG"){
+      const nv=norm(v).trim();
+      if(typeof GROUP_HEADS!=="undefined"&&GROUP_HEADS.test(nv))continue;
+      if(typeof ORG_HEADS!=="undefined"&&!ORG_HEADS.test(nv))orgReview=true;
+    }
     // גם כשהמודל תפס רק קטע: "הרווחה" מתוך "משרד הרווחה". בודקים את הקטע עם
     // עד שתי המילים שלפניו בטקסט המקורי, אחרת גוף ציבורי מוצע ומושחר.
     if(kind!=="NAME"){const back=text.slice(Math.max(0,s-40),s).split(/\s+/).filter(Boolean).slice(-2); const strip1=x=>x.replace(/^[בהולמכש]/,""); const c2=norm([...back,v].join(" ")), c1=norm([...back.slice(-1),v].join(" ")); if([c2,strip1(c2),c1,strip1(c1)].some(x=>PUBLIC_ORG.test(x)))continue;}
@@ -138,7 +150,7 @@ function nerClean(ents,text,opt){
     // הציבוריים — חיתוך מההתחלה הפך את "משרד הרווחה" ל"הרווחה" והציע אותו.
     if(kind!=="NAME"){const ws=v.split(/\s+/); while(ws.length>1&&(TRAIL.has(norm(ws[ws.length-1]))||VRB.has(norm(ws[ws.length-1]))))ws.pop(); v=ws.join(" ");}
     const key=kind+"|"+norm(v);
-    const g=seen.get(key)||{value:v,kind,score:0,n:0,s,e:en};
+    const g=seen.get(key)||{value:v,kind,score:0,n:0,s,e:en,review:orgReview};
     g.n++; g.score=Math.max(g.score,e.score); seen.set(key,g);
   }
   // "רונית אזולאי" מכסה את "אזולאי" — לא מציעים את שניהם

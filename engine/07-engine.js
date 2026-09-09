@@ -88,8 +88,9 @@ class Engine{
     for(const s of subs){
       if(!s.replacement||!nd)continue;
       if(new RegExp(NW+flex(s.replacement)+NWE,"u").test(nd)){
+        // התחליף שבחרה כבר מופיע במסמך כמילה אמיתית. עד כאן זה נמחק בשקט והתחליף
+        // הוחלף בשם אחר בלי לומר — "לא נותן". עכשיו הבחירה שלה עומדת, והכרטיס מזהיר.
         this.collided.push({value:s.value,rep:s.replacement});
-        s.replacement="";
       }
     }
     this.rules=[];const seen=new Set();
@@ -236,6 +237,9 @@ class Engine{
       else if(real&&typeof fakePlace==="function"&&
               (h.type==="PLACE_CITY"||(h.type==="PLACE_VENUE"&&h.label==="יישוב")))
         base=fakePlace(canonical,this.used,this.forbidden)||`[${lab} ${hord(n)}]`;
+      // גוף שאושר מקבל שם בדוי שמשאיר את מילת הסוג ("מכון אורנים"), לא "[גוף א׳]"
+      else if(fam==="ORG"&&real&&typeof fakeOrg==="function")
+        base=fakeOrg(canonical,this.used,this.forbidden)||`[${lab} ${hord(n)}]`;
       else base = fam==="NAME" ? "פלוני "+hord(n) : `[${lab} ${hord(n)}]`;
     }
     this.map[k]??=base;

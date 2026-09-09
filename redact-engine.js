@@ -234,6 +234,32 @@ function pickFrom(arr,seed,used,forbidden){
 // והמשפט "מר כהן טען" נשבר.
 // סיומות של שם משפחה: מילה בודדת כזאת מקבלת שם משפחה בדוי גם בלי ראיה אחרת
 const SUR_SUFFIX=/(?:וביץ|ביץ|ביץ'|סקי|סקה|ברג|בורג|שטיין|שטין|צקי|נסקי|ינסקי|ובסקי|ייב|ייבה|וביץ')$/;
+/* גופים. עד כאן גוף שאושר קיבל "[גוף א׳]" — תווית בתוך המשפט, שמכריזה שהוסתר
+   משהו ומבלבלת את ה-AI ("חסידי [גוף ב׳]"). ההבחנה, בכללים ולא ברשימה סגורה:
+
+   קבוצה רחבה שאינה מזהה — חסידות, תנועה, מפלגה, זרם, עדה, קהילה — נשארת כמו
+   שהיא; אלפי חברים אינם אדם אחד. מוסד ספציפי — מכון, מרפאה, עמותה, בית ספר,
+   פנימייה, ישיבה, חברה, קרן, מרכז, גן — מקבל שם בדוי שמשאיר את מילת הסוג, כדי
+   שה-AI עדיין יידע שהוא קורא על מכון. גוף בלי אף אחת משתי הראשים עולה לבדיקה. */
+const GROUP_HEADS=/^(?:חסידי|חסידות|חסידת|תנועת|מפלגת|זרם|עדת|קהילת|ארגון\s+ה)/u;
+const ORG_HEADS=/^(?:עמותת|עמותה|מכון|חברת|חברה|בית\s+ספר|בי"ס|ביה"ס|בית\s+הספר|מרכז|אגודת|אגודה|קרן|מוסד|גן|מעון|פנימיית|פנימייה|ישיבת|ישיבה|קופת\s+חולים|בנק|מרפאת|מרפאה|בית\s+חולים|ביה"ח|מכללת|אוניברסיטת|תיכון|חטיבת|מתנ"ס|בית\s+אבות|מועדון|סניף|קבוצת)(?=\s|$)/u;
+const ORG_TAILS=["אורנים","הגפן","שקד","נווה","הרימון","תמר","ארז","הדס","אלון","ברוש","נטע","גלים","אופק","דקל","צבר","הזית","סביון","יובל","עמית","רקפת"];
+function orgHead(v){ const m=ORG_HEADS.exec(norm(v).trim()); return m?m[0]:null; }
+function fakeOrg(value,used,forbidden){
+  const head=orgHead(value);
+  const seed=hash32(norm(value).trim());
+  const raw=value.trim().split(/\s+/);
+  const headWords=head?head.split(/\s+/).length:0;
+  const pre=head?raw.slice(0,headWords).join(" "):"";
+  for(let k=0;k<ORG_TAILS.length;k++){
+    const tail=ORG_TAILS[(seed+k)%ORG_TAILS.length];
+    const cand=pre?pre+" "+tail:tail;
+    if(used&&used.has(cand))continue;
+    if(forbidden&&forbidden.has(norm(tail)))continue;
+    return cand;
+  }
+  return null;
+}
 function fakeName(value,hint,used,forbidden,firstish){
   const org=origin(value), g=gender(value,hint);
   const parts=value.trim().split(/\s+/);
@@ -675,7 +701,10 @@ function nerClean(ents,text,opt){
       const known=!!PLACE_BY[norm(bare)]||KNOWN_FIRST.has(stem);
       // "בעמותת שביל הלב", "ברחוב הארזים": כשהגזע הוא ראש של גוף או של מקום,
       // האות הראשונה היא אות שימוש גם בלי שהגזע מופיע במקום אחר.
-      const headPeel=NER_HEADS.has(stem);
+      // "בבית ספר אורט", "לחסידות ברסלב": גם ראש של מוסד או של קבוצה הוא עדות.
+      const headPeel=NER_HEADS.has(stem)||
+        (typeof ORG_HEADS!=="undefined"&&ORG_HEADS.test(norm(bare)))||
+        (typeof GROUP_HEADS!=="undefined"&&GROUP_HEADS.test(norm(bare)));
       if(wasCut||elsewhere||known||headPeel){
         w[0]=w[0].slice(w[0].length-f.length+1); v=trimEdges(w.join(" "));
       }
@@ -706,6 +735,15 @@ function nerClean(ents,text,opt){
     // ראש של גוף (עמותת, מעון, מרפאת…) באמצע המקטע: מה שלפניו הודבק מהמשפט,
     // "משרד עמותת שביל הלב". חותכים לפני הראש, אחרת הכלל תופס רק את הצורה המודבקת.
     if(kind==="ORG"){const m=/(?:^|\s)(עמותת|עמותה|מעון|מרפאת|מכון|קרן|מרכז|אגודת|חברת|בית ספר|בי"ס|ביה"ס|גן ילדים|פנימיית|ישיבת)\s/u.exec(v); if(m&&m.index>0)v=v.slice(m.index+1);}
+    // גוף לפי כללי ראש, בלי רשימה סגורה: קבוצה רחבה (חסידות, תנועה, מפלגה, זרם,
+    // עדה, קהילה) אינה מזהה ואינה מוצעת; מוסד עם מילת סוג מוצע כרגיל; גוף בלי
+    // אף אחד מהראשים — "ברסלב" לבדו — עולה לבדיקה ולא נכנס לרשימה מעצמו.
+    let orgReview=false;
+    if(kind==="ORG"){
+      const nv=norm(v).trim();
+      if(typeof GROUP_HEADS!=="undefined"&&GROUP_HEADS.test(nv))continue;
+      if(typeof ORG_HEADS!=="undefined"&&!ORG_HEADS.test(nv))orgReview=true;
+    }
     // גם כשהמודל תפס רק קטע: "הרווחה" מתוך "משרד הרווחה". בודקים את הקטע עם
     // עד שתי המילים שלפניו בטקסט המקורי, אחרת גוף ציבורי מוצע ומושחר.
     if(kind!=="NAME"){const back=text.slice(Math.max(0,s-40),s).split(/\s+/).filter(Boolean).slice(-2); const strip1=x=>x.replace(/^[בהולמכש]/,""); const c2=norm([...back,v].join(" ")), c1=norm([...back.slice(-1),v].join(" ")); if([c2,strip1(c2),c1,strip1(c1)].some(x=>PUBLIC_ORG.test(x)))continue;}
@@ -717,7 +755,7 @@ function nerClean(ents,text,opt){
     // הציבוריים — חיתוך מההתחלה הפך את "משרד הרווחה" ל"הרווחה" והציע אותו.
     if(kind!=="NAME"){const ws=v.split(/\s+/); while(ws.length>1&&(TRAIL.has(norm(ws[ws.length-1]))||VRB.has(norm(ws[ws.length-1]))))ws.pop(); v=ws.join(" ");}
     const key=kind+"|"+norm(v);
-    const g=seen.get(key)||{value:v,kind,score:0,n:0,s,e:en};
+    const g=seen.get(key)||{value:v,kind,score:0,n:0,s,e:en,review:orgReview};
     g.n++; g.score=Math.max(g.score,e.score); seen.set(key,g);
   }
   // "רונית אזולאי" מכסה את "אזולאי" — לא מציעים את שניהם
@@ -1290,8 +1328,9 @@ class Engine{
     for(const s of subs){
       if(!s.replacement||!nd)continue;
       if(new RegExp(NW+flex(s.replacement)+NWE,"u").test(nd)){
+        // התחליף שבחרה כבר מופיע במסמך כמילה אמיתית. עד כאן זה נמחק בשקט והתחליף
+        // הוחלף בשם אחר בלי לומר — "לא נותן". עכשיו הבחירה שלה עומדת, והכרטיס מזהיר.
         this.collided.push({value:s.value,rep:s.replacement});
-        s.replacement="";
       }
     }
     this.rules=[];const seen=new Set();
@@ -1438,6 +1477,9 @@ class Engine{
       else if(real&&typeof fakePlace==="function"&&
               (h.type==="PLACE_CITY"||(h.type==="PLACE_VENUE"&&h.label==="יישוב")))
         base=fakePlace(canonical,this.used,this.forbidden)||`[${lab} ${hord(n)}]`;
+      // גוף שאושר מקבל שם בדוי שמשאיר את מילת הסוג ("מכון אורנים"), לא "[גוף א׳]"
+      else if(fam==="ORG"&&real&&typeof fakeOrg==="function")
+        base=fakeOrg(canonical,this.used,this.forbidden)||`[${lab} ${hord(n)}]`;
       else base = fam==="NAME" ? "פלוני "+hord(n) : `[${lab} ${hord(n)}]`;
     }
     this.map[k]??=base;
@@ -1574,7 +1616,11 @@ async function redactDocx(buf,subs,allow,opt){
     for(const h of hits){
       const rec={value:h.text,label:h.label,part:partName(blk.part),why:h.why,
         ctx:ctxHTML(blk.text,h.s,h.e),review:!!h.review,src:h.src,base:h.base||undefined};
-      if(h.apply){const nw=eng.repFor(h);rec.rep=nw;rec.baseRep=eng.map[ckey(h.type,h.text)]||nw;
+      // הכינוי הבסיסי נרשם לפי הערך שברשימה, לא לפי הטקסט שנתפס: "לפנים מאירות"
+      // אינו מפתח, ובלעדיו ההחזרה קיבלה "לגפן" ככינוי ואיבדה את "בגפן".
+      if(h.apply){const nw=eng.repFor(h);rec.rep=nw;
+        const fam=(CANON[h.type]||[h.type])[0];
+        rec.baseRep=eng.map[ckey(fam,h.base||h.text)]||eng.map[ckey(h.type,h.text)]||nw;
         let s=h.s,e=h.e;
         // השמטה: הערך נמחק נקי. רווח אחד סמוך נבלע איתו, כדי ש"נסע ל-X ביום" לא
         // יישאר עם שני רווחים, ומה שנשאר נקרא כאילו הערך לא היה שם מעולם.
@@ -1688,9 +1734,9 @@ async function redactDocx(buf,subs,allow,opt){
           ctx:ctxHTML(blk.text,s,e),review:!!inf.of,rep:out,baseRep:nw,base:o,src:"sweep"})}}
     rep.sweep+=applyReps(blk,reps)}
   for(const c of eng.collided){
-    flagged.push({value:c.rep,label:"התנגשות פרופיל",part:"המסמך",review:true,src:"collide",
-      why:`הפרופיל קבע ש«${c.value}» יהיה «${c.rep}», אבל «${c.rep}» הוא אדם אמיתי במסמך הזה. `+
-          `ניתן שם בדוי אחר, ו«${c.rep}» האמיתי/ת עדיין בטקסט — הוסיפי אותו לרשימה`,
+    flagged.push({value:c.rep,label:"התנגשות תחליף",part:"המסמך",review:true,src:"collide",collideOf:c.value,
+      why:`«${c.value}» הוחלף ב«${c.rep}» כפי שבחרת, אבל «${c.rep}» הוא גם אדם אמיתי במסמך הזה, `+
+          `ושני האנשים ייראו כאחד. אפשר לבחור תחליף אחר בכרטיס של «${c.value}», או להוסיף את «${c.rep}» האמיתי/ת לרשימה`,
       ctx:""});
   }
   for(const pa of partAmbig){
@@ -2259,6 +2305,11 @@ function pseudoRX(p){
   const pat=[...p].map(c=>/['\u05f3\u2019]/.test(c)?"['\u05f3\u2019]"
     :/["\u05f4\u201d]/.test(c)?'["\u05f4\u201d]'
     :/[-\u05be\u2013\s]/.test(c)?"[-\\u05be\\u2013\\s]+":esc(c)).join("");
+  // כינוי שמתחיל ב-ה ("הגפן") נכתב במסמך בלי ה אחרי ב/ל/כ ("בגפן", "לגפן"):
+  // כך addPre כותב אותו, וכך ה-AI מעתיק אותו. הקבוצה השנייה תופסת את הצורה הזאת.
+  if(p[0]==="ה"&&p.length>2)
+    return new RegExp("(?<![\\u0590-\\u05ff])(?:([בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?ה|([בלכ]|ו[בלכ]|כש))"+
+      pat.slice(esc("ה").length)+"(?![\\u0590-\\u05ff])","gu");
   return new RegExp("(?<![\\u0590-\\u05ff])([בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?"+pat+
     "(?![\\u0590-\\u05ff])","gu");
 }
@@ -2290,7 +2341,7 @@ function restoreNames(txt,pairs){
   let out=txt,n=0;const missing=[];
   for(const [pseudo,real] of order){
     let hit=0;
-    out=out.replace(pseudoRX(pseudo),(m,pre)=>{hit++;return (pre||"")+real});
+    out=out.replace(pseudoRX(pseudo),(m,pre,pre2)=>{hit++;return (pre||(typeof pre2==="string"?pre2:"")||"")+real});
     if(hit)n+=hit; else if(seen.has(pseudo))missing.push(pseudo);
   }
   return {text:out,count:n,missing,conflict:[...conflict]};

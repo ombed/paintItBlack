@@ -119,7 +119,11 @@ async function redactDocx(buf,subs,allow,opt){
     for(const h of hits){
       const rec={value:h.text,label:h.label,part:partName(blk.part),why:h.why,
         ctx:ctxHTML(blk.text,h.s,h.e),review:!!h.review,src:h.src,base:h.base||undefined};
-      if(h.apply){const nw=eng.repFor(h);rec.rep=nw;rec.baseRep=eng.map[ckey(h.type,h.text)]||nw;
+      // הכינוי הבסיסי נרשם לפי הערך שברשימה, לא לפי הטקסט שנתפס: "לפנים מאירות"
+      // אינו מפתח, ובלעדיו ההחזרה קיבלה "לגפן" ככינוי ואיבדה את "בגפן".
+      if(h.apply){const nw=eng.repFor(h);rec.rep=nw;
+        const fam=(CANON[h.type]||[h.type])[0];
+        rec.baseRep=eng.map[ckey(fam,h.base||h.text)]||eng.map[ckey(h.type,h.text)]||nw;
         let s=h.s,e=h.e;
         // השמטה: הערך נמחק נקי. רווח אחד סמוך נבלע איתו, כדי ש"נסע ל-X ביום" לא
         // יישאר עם שני רווחים, ומה שנשאר נקרא כאילו הערך לא היה שם מעולם.
@@ -233,9 +237,9 @@ async function redactDocx(buf,subs,allow,opt){
           ctx:ctxHTML(blk.text,s,e),review:!!inf.of,rep:out,baseRep:nw,base:o,src:"sweep"})}}
     rep.sweep+=applyReps(blk,reps)}
   for(const c of eng.collided){
-    flagged.push({value:c.rep,label:"התנגשות פרופיל",part:"המסמך",review:true,src:"collide",
-      why:`הפרופיל קבע ש«${c.value}» יהיה «${c.rep}», אבל «${c.rep}» הוא אדם אמיתי במסמך הזה. `+
-          `ניתן שם בדוי אחר, ו«${c.rep}» האמיתי/ת עדיין בטקסט — הוסיפי אותו לרשימה`,
+    flagged.push({value:c.rep,label:"התנגשות תחליף",part:"המסמך",review:true,src:"collide",collideOf:c.value,
+      why:`«${c.value}» הוחלף ב«${c.rep}» כפי שבחרת, אבל «${c.rep}» הוא גם אדם אמיתי במסמך הזה, `+
+          `ושני האנשים ייראו כאחד. אפשר לבחור תחליף אחר בכרטיס של «${c.value}», או להוסיף את «${c.rep}» האמיתי/ת לרשימה`,
       ctx:""});
   }
   for(const pa of partAmbig){
@@ -804,6 +808,11 @@ function pseudoRX(p){
   const pat=[...p].map(c=>/['\u05f3\u2019]/.test(c)?"['\u05f3\u2019]"
     :/["\u05f4\u201d]/.test(c)?'["\u05f4\u201d]'
     :/[-\u05be\u2013\s]/.test(c)?"[-\\u05be\\u2013\\s]+":esc(c)).join("");
+  // כינוי שמתחיל ב-ה ("הגפן") נכתב במסמך בלי ה אחרי ב/ל/כ ("בגפן", "לגפן"):
+  // כך addPre כותב אותו, וכך ה-AI מעתיק אותו. הקבוצה השנייה תופסת את הצורה הזאת.
+  if(p[0]==="ה"&&p.length>2)
+    return new RegExp("(?<![\\u0590-\\u05ff])(?:([בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?ה|([בלכ]|ו[בלכ]|כש))"+
+      pat.slice(esc("ה").length)+"(?![\\u0590-\\u05ff])","gu");
   return new RegExp("(?<![\\u0590-\\u05ff])([בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?"+pat+
     "(?![\\u0590-\\u05ff])","gu");
 }
@@ -835,7 +844,7 @@ function restoreNames(txt,pairs){
   let out=txt,n=0;const missing=[];
   for(const [pseudo,real] of order){
     let hit=0;
-    out=out.replace(pseudoRX(pseudo),(m,pre)=>{hit++;return (pre||"")+real});
+    out=out.replace(pseudoRX(pseudo),(m,pre,pre2)=>{hit++;return (pre||(typeof pre2==="string"?pre2:"")||"")+real});
     if(hit)n+=hit; else if(seen.has(pseudo))missing.push(pseudo);
   }
   return {text:out,count:n,missing,conflict:[...conflict]};

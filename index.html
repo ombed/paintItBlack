@@ -704,6 +704,7 @@ a:hover{text-decoration:underline}
                       <span style="margin-inline-start:auto;font-size:11.5px;font-weight:500;color:var(--ink3);background:var(--panel2);border-radius:10px;padding:1px 7px">{{ g.count }}×</span>
                     </div>
                     <div style="font-size:12.5px;color:var(--ink2);margin-top:3px;line-height:1.45">{{ g.why }}</div>
+                    <sc-if value="{{ g.collideWarn }}"><div data-collide style="font-size:12px;color:var(--warn);margin-top:3px;line-height:1.5">{{ g.collideWarn }}</div></sc-if>
                     <div style="font-size:11.5px;color:var(--ink3);margin-top:2px">{{ g.meta }}</div>
                     <sc-if value="{{ g.isFlagged }}">
                       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center">
@@ -1190,7 +1191,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         for(const f of found){
           const k=E2.norm(f.value).trim();
           if(rules.some(r=>E2.norm(r.value).trim()===k)||allowN.has(k)) continue;
-          rules.push({value:f.value, kind:f.kind||"NAME", replacement:"", auto:true, g:null});
+          rules.push({value:f.value, kind:f.kind||"NAME", replacement:"", auto:true, g:null, review:!!f.review});
           late++;
         }
         this.log.add("model-late",{found:found.length, added:late, screen:this.state.screen});
@@ -1199,13 +1200,16 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         });
         return;
       }
-      const list=[...this.state.peo]; let added=0;
+      const list=[...this.state.peo]; let added=0; const sug=[...this.state.peoSug];
       for(const f of found){
         if(list.some(p=>E.norm(p.value)===E.norm(f.value))) continue;
+        // גוף בלי מילת סוג ("ברסלב", "שביל הלב" לבדו) אינו נכנס לרשימה מעצמו:
+        // הוא מוצע לאישור, כי בלי הראש אין לדעת אם זה מזהה או מילה מהעולם.
+        if(f.review){ if(!sug.some(x=>E.norm(x.value)===E.norm(f.value))) sug.push({value:f.value, why:"גוף בלי מילת סוג — לאישור", count:f.n, kind:f.kind}); continue; }
         list.push({value:f.value, kind:f.kind, g:null, auto:true, note:f.n>1?`נמצא ${f.n}×`:"נמצא במסמך"});
         added++;
       }
-      this.setState({peo:list, nerBox:false, nerUsed:added>0, peoNote: added
+      this.setState({peo:list, peoSug:sug, nerBox:false, nerUsed:added>0, peoNote: added
         ? `נמצאו ${list.length} שמות ומולאו ברשימה. כדאי לעבור עליהם: להסיר מה שאינו פרט מזהה, ולתקן סוג בלחיצה על התג.`
         : "המודל רץ ולא מצא שמות מעבר למה שברשימה. אפשר להקליד שמות נוספים למטה."});
     }catch(e){
@@ -1214,13 +1218,13 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     }finally{ if(my===this._scan) this.setState({scanning:false}); }
   }
 
-  peoAdd = (txt, note, auto) => {
+  peoAdd = (txt, note, auto, kindAs) => {
     const E=this.state.E; const list=[...this.state.peo];
     for(const raw of String(txt||"").split(/[\n,;]+/)){
       const {v, note:n2, kind} = E.cleanEntry(raw);
       if(v.length<2) continue;
       if(list.some(p=>E.norm(p.value)===E.norm(v))) continue;
-      list.push({value:v, kind, g:null, auto:!!auto, note:note||n2});
+      list.push({value:v, kind:kindAs||kind, g:null, auto:!!auto, note:note||n2});
     }
     this.setState({peo:list});
   };
@@ -1599,6 +1603,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       if(r.i>=0) g.ids.push(r.i);
       if(r.review) g.review=true;
     }
+    // התנגשות פרופיל נרשמת גם על הכרטיס של הערך שהתחליף שלו מתנגש, לא רק בבדיקה
+    for(const r of src) if(r.src==="collide"&&r.collideOf){
+      const g=m.get("a|"+E.norm(r.collideOf).trim()); if(g) g.collide=r.value;
+    }
     return [...m.values()].sort((x,y)=>y.count-x.count || x.value.localeCompare(y.value,"he"));
   }
   sugList(){
@@ -1686,7 +1694,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.log.add("package",{});
     try{
       const enc=new TextEncoder(); const files=[];
-      files.push({name:this.safeBase()+"_מושחר.docx", data:new Uint8Array(await RES.blob.arrayBuffer())});
+      // בתוך החבילה שנשלחת אלינו: שם ASCII, שכל תוכנת פריסה קוראת נכון
+      files.push({name:"redacted-"+new Date().toISOString().slice(0,10)+".docx", data:new Uint8Array(await RES.blob.arrayBuffer())});
       files.push({name:"session-log.json", data:enc.encode(this.log.export())});
       if(this.state.leaks.length&&window.PL) files.push({name:"leak-report.json", data:enc.encode(window.PL.leakReport(this.state.leaks,{version:this.log.v}))});
       files.push({name:"README.txt", data:enc.encode("paintItBlack "+this.log.v+"\nחבילת בדיקה: המסמך אחרי ההשחרה, יומן סשן בלי טקסט, ודוח דליפה אם סומנו שמות ביד.\n")});
@@ -1703,7 +1712,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   download = () => {
     const RES=this.state.res; if(!RES) return; this.log.add("download",{});
     const u=URL.createObjectURL(RES.blob), a=document.createElement("a");
-    a.href=u; a.download=this.safeBase()+"_מושחר.docx";
+    a.href=u; a.download=this.safeBase()+".docx";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(u), 4000);
   };
@@ -1996,7 +2005,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       hasPeoSug:S.peoSug.some(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))),
       peoSugItems:S.peoSug.filter(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))).map(x=>({
         value:x.value, why:x.why,
-        onAdd:()=>this.peoAdd(x.value,"מההקשר",true),
+        onAdd:()=>this.peoAdd(x.value,"מההקשר",true,x.kind),
         onDrop:()=>this.setState({peoSug:S.peoSug.filter(y=>y!==x), allow:S.allow.includes(x.value)?S.allow:[...S.allow, x.value]})})),
       nerFailed:!!S.nerFailed, nerOk:!S.nerFailed,
       onRetryScan:()=>{ const L=this._lastScan; if(!L)return; this.setState({nerFailed:false, peoNote:""}); this.showPeople(L.blocks, L.cands); },
@@ -2274,6 +2283,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           onStyleName:set(nameish?"name":"label"), onStyleBlank:set("blank"), onStyleBlack:set("black"),
           styleNameBtn:btn(cur==="name"||cur==="label"), styleBlankBtn:btn(cur==="blank"), styleBlackBtn:btn(cur==="black"),
           blankWarn:cur==="blank"&&/^שם/.test(g.label||""),
+          // התחליף שהיא בחרה הוא גם שם אמיתי במסמך. הבחירה נשארת, והכרטיס אומר את זה (Q14).
+          collideWarn:g.collide?`«${g.collide}» מופיע במסמך גם כשם אמיתי, ושני האנשים ייראו כאחד. אפשר לבחור תחליף אחר כאן, או להוסיף את «${g.collide}» האמיתי/ת לרשימה.`:"",
         };
       })(),
       onDropRule:e=>{ e.stopPropagation(); this.notAName(g.base||g.value, g.value); },
