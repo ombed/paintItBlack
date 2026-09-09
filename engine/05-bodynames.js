@@ -92,9 +92,13 @@ function nameish(w,docTok){
   // "שהילדה" הוא ש+ה+ילדה. בלי קילוף אותיות השימוש כל מילה מיודעת
   // בטקסט נראית כמו שם.
   for(const st of stems(w)){
-    if(st.length>=2&&COMMON.has(st))return false;
+    // שם פרטי שהוא גם מילה ("שלום", "חיים") יושב ב-WORDLIKE בדיוק בשביל זה, אבל
+    // "שלום" יושב גם ב-STOP בגלל "בית משפט השלום", ו-STOP ניצח: "שלום אמר לי" לא
+    // הוצע מעולם, לא כהחלפה ולא כהצעה. שם כזה לפני פועל דיבור עולה לבדיקה.
+    // ההחלטה: מאשרים-קודם, לא מוחקים בשקט.
+    if(st.length>=2&&COMMON.has(st)&&!WORDLIKE.has(st))return false;
     if(st.length<3)continue;
-    if(STOP.has(st)||VRB.has(st)||ATTR.has(st))return false;
+    if((STOP.has(st)||VRB.has(st)||ATTR.has(st))&&!WORDLIKE.has(st))return false;
     if(PREP.has(st)||KIN.has(st)||CARE.has(st)||REL.has(st))return false;
     if(st!==w&&docTok.has("ה"+st))return false}
   if(w[0]==="ה"){const r=w.slice(1);
@@ -123,6 +127,10 @@ function bodyNames(blocks,known){
         const raw=t.slice(i,i+len);
         // "המכתב אבד. אגבאריה" — שתי מילים משני משפטים אינן שם אחד,
         // ו"מזרחי וכהן" הם שני אנשים ברשימה, לא שם מלא.
+        // "מהוועד אמר", "מהמשרד ביקשו": מילה בודדת שנפתחת ב-מ+ה היא "מן ה-", צירוף
+        // יחס ולא שם. רק כאן, במועמד בודד לפני פועל דיבור: ב-nameish הכלל הזה
+        // הפיל גם את "מהירות", שסורק השיבושים צריך בתור כמעט-התאמה של "מאירות".
+        if(len===1&&/^מה[א-ת]{2,}$/.test(raw[0].w)&&!KNOWN_FIRST.has(raw[0].w))continue;
         if(len>1){
           const gap=n.slice(raw[0].e,raw[1].s);
           if(/[.!?;:,()\n]/.test(gap))continue;

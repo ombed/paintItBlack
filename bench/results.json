@@ -198,13 +198,13 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
-    "suggest",
     "applied"
    ],
    "matched": [
-    "טגניה",
-    "מולו טגניה"
+    "מולו טגניה",
+    "טגניה"
    ],
    "leakedSurfaces": []
   },
@@ -333,7 +333,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "suggest",
+    "discover",
     "applied"
    ],
    "matched": [
@@ -616,6 +616,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -1818,14 +1819,15 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "flagged",
     "applied"
    ],
    "matched": [
+    "מורן",
     "מורן רוזנטל",
-    "רוזנטל",
-    "מורן"
+    "רוזנטל"
    ],
    "leakedSurfaces": []
   },
@@ -1954,6 +1956,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -1989,6 +1992,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -2116,6 +2120,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -2365,6 +2370,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -2942,6 +2948,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -3731,6 +3738,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -3946,6 +3954,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -4097,6 +4106,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -4231,10 +4241,12 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
    "matched": [
+    "יונס פעמיים",
     "יונס"
    ],
    "leakedSurfaces": []
@@ -4248,6 +4260,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "discover",
     "model",
     "applied"
    ],
@@ -4676,27 +4689,244 @@
     "052-8814903"
    ],
    "leakedSurfaces": []
+  },
+  {
+   "doc": "v1",
+   "genre": "interview",
+   "cat": "P_ROLE_TEACHER",
+   "canonical": "אנטונינה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "אנטונינה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "v1",
+   "genre": "interview",
+   "cat": "P_MINOR",
+   "canonical": "תהל",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "תהל"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "v1",
+   "genre": "interview",
+   "cat": "P_WORD_VERB",
+   "canonical": "אור",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "אור"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "v1",
+   "genre": "interview",
+   "cat": "L_TOWN",
+   "canonical": "כפר האורנים",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "applied"
+   ],
+   "matched": [
+    "כפר האורנים"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "v1",
+   "genre": "interview",
+   "cat": "T_NUMBERS",
+   "canonical": "כיתה ג",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "v2",
+   "genre": "interview",
+   "cat": "P_WORD_VERB",
+   "canonical": "שלום",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "שלום"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "v2",
+   "genre": "interview",
+   "cat": "P_MINOR",
+   "canonical": "איתן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "איתן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "v2",
+   "genre": "interview",
+   "cat": "P_ROLE_TEACHER",
+   "canonical": "זינאידה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "discover",
+    "applied"
+   ],
+   "matched": [
+    "זינאידה",
+    "זינאידה היית"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "v2",
+   "genre": "interview",
+   "cat": "P_FORMS",
+   "canonical": "אלרואי קפלינסקי",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "אלרואי קפלינסקי",
+    "קפלינסקי"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "v2",
+   "genre": "interview",
+   "cat": "T_NUMBERS",
+   "canonical": "יום שלישי",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "v3",
+   "genre": "interview",
+   "cat": "P_ROLE_TEACHER",
+   "canonical": "לריסה",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "discover",
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "לריסה"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "v3",
+   "genre": "interview",
+   "cat": "P_WORD_VERB",
+   "canonical": "אושר",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "אושר"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "v3",
+   "genre": "interview",
+   "cat": "P_MINOR",
+   "canonical": "לינוי",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "model",
+    "applied"
+   ],
+   "matched": [
+    "לינוי"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "v3",
+   "genre": "interview",
+   "cat": "T_NUMBERS",
+   "canonical": "שעה שמונה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
   }
  ],
  "unlisted": [
   {
-   "doc": "m4",
+   "doc": "m1",
    "genre": "meeting",
-   "value": "סיכמנו",
+   "value": "בקבוצה",
    "sources": [
     "discover"
    ],
-   "why": "פותח תור דיבור בתמלול",
-   "applied": true
-  },
-  {
-   "doc": "m4",
-   "genre": "meeting",
-   "value": "מהבניין",
-   "sources": [
-    "suggest"
-   ],
-   "why": "",
+   "why": "מופיע אחרי מילת תפקיד טיפולית או חינוכית",
    "applied": true
   },
   {
@@ -4801,6 +5031,16 @@
    "applied": true
   },
   {
+   "doc": "w4",
+   "genre": "welfare",
+   "value": "לסדרי",
+   "sources": [
+    "discover"
+   ],
+   "why": "מופיע אחרי מילת תפקיד טיפולית או חינוכית",
+   "applied": true
+  },
+  {
    "doc": "h1",
    "genre": "medical",
    "value": "המטופלת",
@@ -4893,11 +5133,11 @@
   {
    "doc": "c2",
    "genre": "chat",
-   "value": "מהוועד",
+   "value": "בגן",
    "sources": [
-    "suggest"
+    "discover"
    ],
-   "why": "",
+   "why": "מופיע אחרי מילת תפקיד טיפולית או חינוכית",
    "applied": true
   },
   {
@@ -4935,114 +5175,114 @@
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 214,
-   "rules": 9,
-   "unlisted": 0
+   "ms": 278,
+   "rules": 10,
+   "unlisted": 1
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 159,
+   "ms": 177,
    "rules": 13,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 102,
+   "ms": 134,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 145,
-   "rules": 9,
-   "unlisted": 3
+   "ms": 191,
+   "rules": 7,
+   "unlisted": 1
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 157,
+   "ms": 208,
    "rules": 14,
    "unlisted": 2
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 192,
+   "ms": 236,
    "rules": 16,
    "unlisted": 1
   },
   {
    "id": "f3",
    "genre": "filing",
-   "ms": 132,
+   "ms": 191,
    "rules": 9,
    "unlisted": 0
   },
   {
    "id": "f4",
    "genre": "filing",
-   "ms": 141,
+   "ms": 201,
    "rules": 11,
    "unlisted": 3
   },
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 132,
+   "ms": 150,
    "rules": 8,
    "unlisted": 0
   },
   {
    "id": "t2",
    "genre": "transcript",
-   "ms": 131,
+   "ms": 169,
    "rules": 12,
    "unlisted": 1
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 133,
+   "ms": 172,
    "rules": 11,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 117,
-   "rules": 13,
+   "ms": 149,
+   "rules": 14,
    "unlisted": 1
   },
   {
    "id": "w1",
    "genre": "welfare",
-   "ms": 112,
+   "ms": 98,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "w2",
    "genre": "welfare",
-   "ms": 138,
+   "ms": 115,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "w3",
    "genre": "welfare",
-   "ms": 124,
+   "ms": 126,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "w4",
    "genre": "welfare",
-   "ms": 98,
-   "rules": 5,
-   "unlisted": 0
+   "ms": 118,
+   "rules": 6,
+   "unlisted": 1
   },
   {
    "id": "h1",
@@ -5054,141 +5294,162 @@
   {
    "id": "h2",
    "genre": "medical",
-   "ms": 122,
+   "ms": 134,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "h3",
    "genre": "medical",
-   "ms": 79,
+   "ms": 105,
    "rules": 5,
    "unlisted": 3
   },
   {
    "id": "p1",
    "genre": "police",
-   "ms": 101,
+   "ms": 106,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "p2",
    "genre": "police",
-   "ms": 101,
+   "ms": 84,
    "rules": 4,
    "unlisted": 1
   },
   {
    "id": "p3",
    "genre": "police",
-   "ms": 97,
+   "ms": 95,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "p4",
    "genre": "police",
-   "ms": 81,
+   "ms": 74,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "b1",
    "genre": "bank",
-   "ms": 100,
+   "ms": 110,
    "rules": 7,
    "unlisted": 2
   },
   {
    "id": "b2",
    "genre": "bank",
-   "ms": 73,
+   "ms": 80,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "b3",
    "genre": "bank",
-   "ms": 67,
+   "ms": 87,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "c1",
    "genre": "chat",
-   "ms": 91,
+   "ms": 101,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "c2",
    "genre": "chat",
-   "ms": 112,
+   "ms": 133,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "c3",
    "genre": "chat",
-   "ms": 115,
+   "ms": 129,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "c4",
    "genre": "chat",
-   "ms": 116,
+   "ms": 130,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "x1",
    "genre": "position",
-   "ms": 180,
+   "ms": 229,
    "rules": 8,
    "unlisted": 2
   },
   {
    "id": "x2",
    "genre": "position",
-   "ms": 122,
+   "ms": 112,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "x3",
    "genre": "position",
-   "ms": 113,
-   "rules": 4,
+   "ms": 107,
+   "rules": 5,
    "unlisted": 0
   },
   {
    "id": "a1",
    "genre": "audio",
-   "ms": 110,
+   "ms": 120,
    "rules": 7,
    "unlisted": 0
   },
   {
    "id": "a2",
    "genre": "audio",
-   "ms": 100,
+   "ms": 121,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "a3",
    "genre": "audio",
-   "ms": 129,
+   "ms": 147,
    "rules": 8,
    "unlisted": 1
   },
   {
    "id": "a4",
    "genre": "audio",
-   "ms": 83,
+   "ms": 96,
    "rules": 7,
+   "unlisted": 0
+  },
+  {
+   "id": "v1",
+   "genre": "interview",
+   "ms": 158,
+   "rules": 3,
+   "unlisted": 0
+  },
+  {
+   "id": "v2",
+   "genre": "interview",
+   "ms": 115,
+   "rules": 5,
+   "unlisted": 0
+  },
+  {
+   "id": "v3",
+   "genre": "interview",
+   "ms": 87,
+   "rules": 3,
    "unlisted": 0
   }
  ]

@@ -98,7 +98,7 @@ a:hover{text-decoration:underline}
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v27");
+  console.log("השחרת מסמכים — גרסה v28");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -136,9 +136,9 @@ a:hover{text-decoration:underline}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v27") return;
+        if(served==="v28") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v27 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v28 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -368,6 +368,14 @@ a:hover{text-decoration:underline}
           <button onClick="{{ p.onDel }}" aria-label="הסרה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:13px" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
         </div>
       </sc-for>
+      <sc-if value="{{ hasKept }}">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0 2px;font-size:12.5px;color:var(--ink2)">
+          <span>נשארים כמו שהם:</span>
+          <sc-for list="{{ keptItems }}" as="x" hint-placeholder-count="2">
+            <button onClick="{{ x.onUndo }}" title="להחזיר לרשימה" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:12.5px">{{ x.name }} <span style="color:var(--ink3)">↩</span></button>
+          </sc-for>
+        </div>
+      </sc-if>
       <sc-if value="{{ peoEmpty }}">
         <div style="color:var(--ink3);font-size:13.5px;padding:6px 0">הרשימה ריקה. אפשר להקליד שמות למטה, או להמשיך בלי שמות.</div>
       </sc-if>
@@ -587,7 +595,7 @@ a:hover{text-decoration:underline}
             </sc-if>
             <div style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:14px;margin-bottom:11px;align-items:baseline">
               <span style="font:400 10.5px/2 Rubik,sans-serif;color:var(--ink3);text-align:end">{{ blk.n }}</span>
-              <p style="margin:0;text-wrap:pretty"><sc-for list="{{ blk.segs }}" as="sg" hint-placeholder-count="3"><sc-if value="{{ sg.plain }}"><span>{{ sg.t }}</span></sc-if><sc-if value="{{ sg.mark }}"><span data-mark="{{ sg.id }}" onClick="{{ sg.onClick }}" title="{{ sg.title }}" style="{{ sg.style }}">{{ sg.t }}</span></sc-if></sc-for></p>
+              <p style="margin:0;text-wrap:pretty"><sc-for list="{{ blk.segs }}" as="sg" hint-placeholder-count="3"><sc-if value="{{ sg.plain }}"><span>{{ sg.t }}</span></sc-if><sc-if value="{{ sg.mark }}"><span data-mark="{{ sg.id }}" data-val="{{ sg.val }}" onClick="{{ sg.onClick }}" title="{{ sg.title }}" style="{{ sg.style }}">{{ sg.t }}</span></sc-if></sc-for></p>
             </div>
           </sc-for>
         </div>
@@ -622,6 +630,14 @@ a:hover{text-decoration:underline}
 
           <sc-if value="{{ s.openReview }}">
             <div style="padding:0 15px 15px">
+              <sc-if value="{{ hasAllowed }}">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 0 8px;font-size:12.5px;color:var(--ink2);border-bottom:1px solid var(--line2);margin-bottom:8px">
+                  <span title="שמות שביקשת להשאיר כמו שהם. הם יגיעו ל-AI כפי שהם כתובים.">נשארים כמו שהם:</span>
+                  <sc-for list="{{ allowedItems }}" as="x" hint-placeholder-count="2">
+                    <button onClick="{{ x.onUndo }}" title="לחזור ולהחליף" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:12.5px">{{ x.name }} <span style="color:var(--ink3)">↩</span></button>
+                  </sc-for>
+                </div>
+              </sc-if>
               <sc-for list="{{ nearItems }}" as="x" hint-placeholder-count="1">
                 <div style="border-top:1px solid var(--line2);padding:12px 0">
                   <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
@@ -834,7 +850,7 @@ a:hover{text-decoration:underline}
 
 </div>
 </x-dc>
-<div id="ver">גרסה v27</div>
+<div id="ver">גרסה v28</div>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
@@ -850,7 +866,7 @@ class Component extends DCLogic {
     aiIn:"", aiWarn:"", aiCopyLabel:"העתקת טקסט מושחר",
     rvIn:"", rvOut:"", rvCopyLabel:"העתקת הטקסט המשוחזר",
     copyLabel:"העתקה ל-AI", busyT:"מעבד…", err:"",
-    geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, popup:null, tip:null, repDraft:"",
+    geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, popup:null, tip:null, repDraft:"", peoKept:[],
     // הפרופיל של התיק נשמר בדפדפן אחרי כל שינוי; lastProfile הוא מה שנמצא בכניסה
     caseName:"", lastProfile:null, profileDirty:false, leaks:[], cases:[], copied:false, feedbackMail:"", logCopyLabel:""
   };
@@ -1143,6 +1159,25 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         this.setState({nerMsg:`סורק את המסמך… ${Math.round(pct)}%`+(left>4?`  ·  נותרו כ-${left} שניות`:""), nerPct:pct});
       });
       if(my!==this._scan) return;
+      // מה שהמודל מצא נשמר בנפרד מהרשימה: זה מה שמאפשר לוודא, בכל ריצה, ששם
+      // שנמצא פעמיים ומעלה לא יוצא בלי שהיא החליטה עליו (guardModel)
+      this._modelFound=found;
+      if(this._goneAhead===my){
+        // היא כבר המשיכה. הרשימה שבמסך השמות היא היסטוריה; מה שקובע הוא הכללים.
+        const E2=this.state.E, rules=[...this.state.rules]; let late=0;
+        const allowN=new Set((this.state.allow||[]).map(a=>E2.norm(a).trim()));
+        for(const f of found){
+          const k=E2.norm(f.value).trim();
+          if(rules.some(r=>E2.norm(r.value).trim()===k)||allowN.has(k)) continue;
+          rules.push({value:f.value, kind:f.kind||"NAME", replacement:"", auto:true, g:null});
+          late++;
+        }
+        this.log.add("model-late",{found:found.length, added:late, screen:this.state.screen});
+        this.setState({rules, nerUsed:found.length>0, nerBox:false, nerMsg:""}, ()=>{
+          if(late&&this.state.res) this.rerun();
+        });
+        return;
+      }
       const list=[...this.state.peo]; let added=0;
       for(const f of found){
         if(list.some(p=>E.norm(p.value)===E.norm(f.value))) continue;
@@ -1174,9 +1209,34 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.setState({peo:list}); };
   // מחיקה מהרשימה היא החלטה: השם נכנס ל"אל תחליף", אחרת שכבת הפעלים והמודל מציעים
   // אותו שוב במסך הבדיקה. שם שנוסף ביד ונמחק אינו החלטה על המסמך.
+  /* ה-✕ על שבב היה מחיקה שקטה: השם נכנס ל"אל תחליף" לתמיד, בלי שום סימן על המסך,
+     בלי דרך חזרה במסך הזה, ובלי רישום ביומן. על תיק אמיתי שם שהמודל מצא שבע
+     פעמים יצא בסוף מהכלי, והיומן לא יכול היה לומר אם זה מה שקרה. עכשיו המחיקה
+     גלויה — רצועת "נשארים כמו שהם" עם ↩ — ונרשמת. */
   delPeo = i => { const list=[...this.state.peo]; const [p]=list.splice(i,1);
-    const allow=(p&&p.auto&&p.value&&!this.state.allow.includes(p.value))?[...this.state.allow, p.value]:this.state.allow;
-    this.setState({peo:list, allow}); };
+    if(!p) return;
+    const allow=(p.auto&&p.value&&!this.state.allow.includes(p.value))?[...this.state.allow, p.value]:this.state.allow;
+    const kept=(this.state.peoKept||[]).filter(k=>k.value!==p.value).concat([{...p}]);
+    this.log.add("del-peo",{auto:!!p.auto, kept:kept.length});
+    this.setState({peo:list, allow, peoKept:kept}); };
+  peoRestore = value => {
+    const k=(this.state.peoKept||[]).find(x=>x.value===value); if(!k) return;
+    this.log.add("restore-peo",{});
+    this.setState({peo:[...this.state.peo, k], peoKept:this.state.peoKept.filter(x=>x.value!==value),
+      allow:this.state.allow.filter(a=>a!==value)}); };
+  // "אל תחליף" במסך הבדיקה, מכל מקור: אותה רצועה, אותו ↩
+  allowRestore = value => {
+    this.log.add("restore-allow",{});
+    // שם שנמחק במסך השמות מעולם לא הפך לכלל; "לחזור ולהחליף" חייב להחזיר גם אותו,
+    // אחרת ההיתר נעלם והשם נשאר בטקסט בכל זאת
+    const E=this.state.E, n=x=>E.norm(String(x||"")).trim();
+    const rules=[...this.state.rules];
+    if(!rules.some(r=>n(r.value)===n(value))){
+      const k=(this.state.peoKept||[]).find(x=>n(x.value)===n(value));
+      rules.push({value, kind:(k&&k.kind)||"NAME", replacement:"", auto:true, g:(k&&k.g)||null});
+    }
+    this.setState({allow:this.state.allow.filter(a=>a!==value), rules,
+      peoKept:(this.state.peoKept||[]).filter(x=>n(x.value)!==n(value))}, ()=>this.rerun()); };
 
   /* ── דוגמאות מהמסמך ──
      שני המסכים שלפני מסך הבדיקה מבקשים החלטה על מילה. בלי לראות את המילה
@@ -1354,14 +1414,37 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     // מפספס (שם רוסי, «משפחת X», שם שמופיע רק בפרוזה) תמורת ארבע הצעות עודפות.
     return {on, flag, mode:this.state.mode, near:this.state.o.near, body:true, prefixes:"normal"};
   }
+  /* ההבטחה שהתיק האמיתי הפר: שם שהמודל מצא פעמיים ומעלה אינו יוצא מהכלי בלי
+     שהיא החליטה עליו. הזיהוי היה מושלם — שבע פעמים בביטחון מלא — והשם יצא, כי
+     בין המודל לרשימה יש כמה דרכים לאבד אותו, ולא כולן נרשמות. לכן הבדיקה
+     נעשית אחרי כל ריצה, מול הרשימה ורשימת ההיתר, ולא מול הזיכרון של המסך:
+     שם כזה שאינו בשתיהן נכנס ל"לבדיקה" כהצעה, והסרגל אדום עד שהיא עונה. */
+  guardModel(res, rules, allow){
+    const E=this.state.E, found=this._modelFound||[];
+    if(!res||!res.verification||!found.length) return res;
+    const n=v=>E.norm(String(v||"")).trim();
+    const inRules=new Set((rules||[]).map(r=>n(r.value))), inAllow=new Set((allow||[]).map(n));
+    const sug=res.verification.suggest=res.verification.suggest||[];
+    const already=new Set(sug.map(x=>n(x.value)));
+    let added=0;
+    for(const f of found){
+      if(f.kind&&f.kind!=="NAME") continue;
+      if((f.n||1)<2) continue;
+      const k=n(f.value); if(!k||inRules.has(k)||inAllow.has(k)||already.has(k)) continue;
+      sug.push({value:f.value, why:`המודל מצא ${f.n}× בגוף המסמך, ואינו ברשימה`, src:"model", count:f.n});
+      already.add(k); added++;
+    }
+    if(added){ res.verification.complete=false; this.log.add("model-guard",{added}); }
+    return res;
+  }
   async run(rows){
     const E=this.state.E;
     const rules = rows ? rows.map(r=>({...r})) : this.state.rules;
     this.setState({rules, sel:null, screen:"busy", busyT:"מעבד את המסמך…", err:""});
     try{
-      const res = await E.redactDocx(this.state.buf.slice(0), rules, this.state.allow, this.opts());
+      const res = this.guardModel(await E.redactDocx(this.state.buf.slice(0), rules, this.state.allow, this.opts()), rules, this.state.allow);
       // מגיעים למסמך עצמו קודם: הפאנלים מקופלים, פס הסטטוס אומר מה מחכה
-      const toReview=(res.verification.near||[]).length+(res.verification.suggest||[]).length;
+      const toReview=(res.verification.near||[]).length+(res.verification.suggest||[]).length+(this.state.allow||[]).length;
       this.log.add("run",{applied:res.applied.length, flagged:res.flagged.length, near:(res.verification.near||[]).length, suggest:(res.verification.suggest||[]).length, passed:!!res.verification.passed});
       this.setState({res, screen:"work", open:toReview?["review","findings","send"]:["findings","send"], pane:"doc", docView:"red", markIdx:0, copied:false}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה בעיבוד: "+(e.message||e), screen:"entry", res:null}); }
@@ -1369,7 +1452,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   async rerun(){
     const E=this.state.E; const t0=Date.now();
     try{
-      const res = await E.redactDocx(this.state.buf.slice(0), this.state.rules, this.state.allow, this.opts());
+      const res = this.guardModel(await E.redactDocx(this.state.buf.slice(0), this.state.rules, this.state.allow, this.opts()), this.state.rules, this.state.allow);
       this.log.add("rerun",{ms:Date.now()-t0, applied:res.applied.length, flagged:res.flagged.length});
       this.setState({res, sel:null, err:""}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה: "+(e.message||e)}); }
@@ -1439,13 +1522,29 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   notAName = (base, v) => { this.pushHistory(); this.log.add("not-a-name",{}); return this.setState({allow:this.state.allow.includes(v)?this.state.allow:[...this.state.allow, v],
     rules:this.state.rules.filter(r=>r.value!==base && r.value!==v)}, ()=>this.rerun()); };
   addAllow = v => { if(this.state.allow.includes(v)) return; this.pushHistory(); this.log.add("allow",{});
-    this.setState({allow:[...this.state.allow, v], rules:this.state.rules.filter(r=>r.value!==v)}, ()=>this.rerun()); };
-  setRep = (v, rep) => {
+    // ההיתר נכנס לרצועת "נשארים כמו שהם" שב"לבדיקה", ולכן המקטע נפתח כדי שיראו אותו
+    this.setState({allow:[...this.state.allow, v], rules:this.state.rules.filter(r=>r.value!==v), open:this.openWith("review")}, ()=>this.rerun()); };
+  /* שמונה עריכות של תחליף בסשן אמיתי, ואף אחת לא שינתה דבר. הכרטיס מציג את הערך
+     כפי שנמצא, והכלל יושב לפעמים תחת הצורה המלאה ("תמר גולדשמיט" כשהכרטיס אומר
+     "גולדשמיט"), ולפעמים בכתיב אחר. חיפוש לפי שוויון מחרוזות לא מצא אותו, ואז נוסף
+     כלל חדש מסוג OTHER שהמנוע לא הכיר. עכשיו מחפשים לפי הצורה המנורמלת ולפי הבסיס,
+     והיומן רושם אם העריכה שינתה משהו בפועל. */
+  setRep = (v, rep, base) => {
     this.pushHistory();
-    this.log.add("set-rep",{});
-    const rules=[...this.state.rules]; const r=rules.find(x=>x.value===v);
-    if(r) r.replacement=rep.trim(); else rules.push({value:v, kind:"OTHER", replacement:rep.trim()});
-    this.setState({rules}, ()=>this.rerun());
+    const E=this.state.E, n=x=>E.norm(String(x||"")).trim();
+    const rules=[...this.state.rules];
+    const want=[n(v), n(base)].filter(Boolean);
+    let r=rules.find(x=>want.includes(n(x.value)));
+    if(!r){
+      // הערך שבכרטיס הוא חלק משם מלא שברשימה
+      r=rules.find(x=>x.kind==="NAME"&&n(x.value).split(/\s+/).includes(n(v)));
+    }
+    const before=this.state.res?this.state.res.applied.length:-1, prev=r?r.replacement:null;
+    if(r) r.replacement=rep.trim(); else rules.push({value:v, kind:"NAME", replacement:rep.trim()});
+    this.setState({rules}, ()=>this.rerun().then(()=>{
+      const after=this.state.res?this.state.res.applied.length:-1;
+      this.log.add("set-rep",{matched:!!r, changed:prev!==rep.trim(), appliedBefore:before, appliedAfter:after});
+    }));
   };
 
   /* ── קבוצות ממצאים ── */
@@ -1501,6 +1600,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
   mergeInto(from, to){
     this.pushHistory();
+    this.log.add("merge",{});
     const g=this.groupsOf().find(x=>x.value===to); const rep=(g&&g.rep)||"";
     let rules=this.state.rules.filter(r=>r.value!==from);
     if(!rules.some(r=>r.value===to)) rules=[...rules,{value:to, kind:"NAME", replacement:rep}];
@@ -1690,8 +1790,25 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       if(!sel || sel.isCollapsed){ this.setState({popup:null}); return; }
       const t=E.trimEdges(sel.toString());
       if(!t || t.length<2 || t.length>70){ this.setState({popup:null}); return; }
-      const r=sel.getRangeAt(0).getBoundingClientRect();
-      this.setState({popup:{text:t, x:Math.max(12, Math.min(r.left+r.width/2-130, innerWidth-280)), y:r.bottom+10}});
+      const range=sel.getRangeAt(0), r=range.getBoundingClientRect();
+      /* "מילה רגילה" קיבל את הטקסט הגולמי שנבחר, ולכן בחירה עם אות שימוש או פיסוק
+         ("בשרון,") לא התאימה לערך המסומן ולא עשתה כלום. הפתרון אינו חפיפת מחרוזות —
+         "רון" מוכל ב"שרון" והם שני אנשים. זהות של אלמנט ושוויון: אם הבחירה נוגעת
+         בסימון אחד בדיוק, והטקסט שלה שווה לערך שלו אחרי קיצוץ פיסוק ולכל היותר אות
+         שימוש אחת, פועלים על הערך של הסימון. אחרת — על הטקסט כמו שהוא, כביטוי שלם. */
+      let hit=null;
+      try{
+        const root=this.sheetEl;
+        const els=root?Array.from(root.querySelectorAll("[data-mark]")).filter(el=>range.intersectsNode(el)):[];
+        if(els.length===1){
+          // השוויון נבדק מול מה שכתוב על המסך, כי על החלפה מוצג השם הבדוי; הערך
+          // שפועלים עליו הוא המקורי, שיושב ב-data-val
+          const shown=E.norm(E.trimEdges(els[0].textContent||"")).trim(), st=E.norm(t).trim();
+          const val=E.trimEdges(els[0].getAttribute("data-val")||els[0].textContent||"");
+          if(val&&(st===shown||(/^[בהולמכש]/.test(st)&&st.slice(1)===shown))) hit=val;
+        }
+      }catch(_){}
+      this.setState({popup:{text:t, hit, x:Math.max(12, Math.min(r.left+r.width/2-130, innerWidth-280)), y:r.bottom+10}});
     }, 10);
   };
   scrollToMark = id => {
@@ -1819,7 +1936,10 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onSkipNames:()=>{ if(S.scanning) return; this.setState({peo:[]}); this.toPlaces([]); },
       // בקו איטי ההורדה הראשונה לוקחת דקות; השמות מהכותרת כבר על המסך. הסריקה
       // הזאת מבוטלת (כמו מסמך שהוחלף באמצע), המודל ממשיך לרדת ברקע למסמך הבא.
-      onGoNow:()=>{ if(!S.scanning) return; this._scan=(this._scan||0)+1; this.log.add("go-without-model",{names:S.peo.length});
+      /* "להמשיך בלי לחכות" קידם את מונה הסריקה, ולכן כשהמודל סיים — תוצאתו נזרקה
+         כולה: שמות שנמצאו שבע פעמים בביטחון מלא לא הגיעו לשום מקום. עכשיו הסריקה
+         ממשיכה ברקע; כשהיא נגמרת השמות נכנסים לכללים ולא לרשימה שכבר עזבה. */
+      onGoNow:()=>{ if(!S.scanning) return; this._goneAhead=this._scan; this.log.add("go-without-model",{names:S.peo.length});
         this.setState({scanning:false, nerBox:false, nerUsed:false, peoNote:"המשכת בלי המודל. השמות שברשימה הם מהכותרת ומתורות הדיבור; שמות מגוף הטקסט יוצעו במסך הבדיקה."});
         this.peoAdd(S.peoIn); setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g}))), 0); },
       onLoadProf:this.loadProfileClick, onSaveProf:this.saveProfile,
@@ -1880,6 +2000,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         from:m.from, to:S.geoEdits[i] ?? m.to,
         onChange:e=>this.setState({geoEdits:{...S.geoEdits, [i]:e.target.value}}),
         onRemove:()=>this.geoRemove(m.from), ...this.tipProps(m.from)})),
+      // מחיקה במסך השמות ו"אל תחליף" במסך הבדיקה: שניהם גלויים ושניהם עם ↩
+      hasKept:(S.peoKept||[]).length>0,
+      keptItems:(S.peoKept||[]).map(k=>({name:k.value, onUndo:()=>this.peoRestore(k.value)})),
+      hasAllowed:S.screen==="work"&&(S.allow||[]).length>0,
+      allowedItems:(S.allow||[]).map(a=>({name:a, onUndo:()=>this.allowRestore(a)})),
       hasExcluded:(S.geoExcluded||[]).length>0,
       excluded:(S.geoExcluded||[]).map(n=>({name:n, onUndo:()=>this.geoRestore(n)})),
       mapLand:MV?MV.land:"", hasLand:!!(MV&&MV.hasLand), showMap:!!S.showMap, mapLabel:S.showMap?"הסתרת המפה":"הצגת המפה", onToggleMap:()=>{ if(!S.showMap) this.loadAtlas(); this.setState({showMap:!S.showMap}); },
@@ -1915,7 +2040,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       popupKinds:KINDS.map(([k,l])=>({label:l, wide:"",
           onClick:()=>{ this.addRule(S.popup.text, k, "", "mark"); getSelection().removeAllRanges(); }}))
         .concat([{label:"מילה רגילה — לא להחליף", wide:"flex-basis:100%;justify-content:center;color:var(--ink2)",
-          onClick:()=>{ this.addAllow(S.popup.text); this.setState({popup:null}); getSelection().removeAllRanges(); }}]),
+          onClick:()=>{ this.addAllow(S.popup.hit||S.popup.text); this.setState({popup:null}); getSelection().removeAllRanges(); }}]),
       hasLeaks:S.leaks.length>0, leakCount:S.leaks.length, leakCopyLabel:S.leakCopyLabel||"העתקת דוח הדליפה",
       logCopyLabel:S.logCopyLabel||"העתקת יומן הסשן",
       onCopyLog:()=>{ try{ this.copyTo(this.log.export(), "logCopyLabel", "העתקת יומן הסשן"); }catch(e){ this.setState({err:String(e.message||e)}); } },
@@ -1987,7 +2112,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
              אי אפשר למצוא אותו. עכשיו הקשה עליו בוחרת את הכרטיס שלו וגוללת
              אליו, בדיוק כמו הקשה על החלפה. */
           const fkey="f|"+E.norm(m.val||"").trim();
-          segs.push({plain:false, mark:true, id:-1, t:b.text.slice(m.s,m.e),
+          segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:b.text.slice(m.s,m.e),
             title:"נמצא ולא הוחלף — הכרטיס שלו ב«מה נמצא והוחלף»",
             style:"cursor:pointer;border-radius:3px;box-decoration-break:clone;padding:1px 2px;"+
               "background:var(--warn-soft);color:var(--warn);border-bottom:1px dashed var(--warn);",
@@ -2005,7 +2130,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         const src=RES.applied[m.id];
         const orig=(!m.amb && src)?src.value:"";
         const selected = S.sel && src && ("a|"+E.norm(src.value).trim())===S.sel;
-        segs.push({plain:false, mark:true, id:pos, t:b.text.slice(m.s,m.e),
+        segs.push({plain:false, mark:true, id:pos, val:orig||(src?src.value:""), t:b.text.slice(m.s,m.e),
           title: orig ? orig+" ← במקור" : "הוחלף — המקור אינו חד-משמעי",
           style:"cursor:pointer;border-radius:3px;box-decoration-break:clone;padding:1px 2px;"+
             ((selected||S.hot===m.id)
@@ -2098,8 +2223,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onLeave:()=>this.setState({hot:null}),
       stop:e=>e.stopPropagation(),
       onRepChange:e=>this.setState({repDraft:e.target.value}),
-      onRepKey:e=>{ e.stopPropagation(); if(e.key==="Enter") this.setRep(g.value, this.state.repDraft); },
-      onSave:e=>{ e.stopPropagation(); this.setRep(g.value, this.state.repDraft); },
+      onRepKey:e=>{ e.stopPropagation(); if(e.key==="Enter") this.setRep(g.value, this.state.repDraft, g.base); },
+      onSave:e=>{ e.stopPropagation(); this.setRep(g.value, this.state.repDraft, g.base); },
       onAllow:e=>{ e.stopPropagation(); this.addAllow(g.value); },
       showSame: g.ap && g.label.startsWith("שם") && nameOpts.filter(o=>o!==g.value).length>0,
       sameOpts: nameOpts.filter(o=>o!==g.value).map(o=>({value:o, label:o})),
@@ -2188,7 +2313,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     const open=Array.isArray(S.open)?S.open:(S.open?[S.open]:[]);
     const isOpen=k=>open.includes(k);
     const secDef=[
-      ["review","לבדיקה", near.length+sug.length, near.length+sug.length?"warn":"ok"],
+      // שם שהיא ביקשה להשאיר הוא החלטה שמחכה לאישור לפני השליחה, ולכן הוא נספר כאן
+      ["review","לבדיקה", near.length+sug.length+(S.allow||[]).length, near.length+sug.length+(S.allow||[]).length?"warn":"ok"],
       ["findings","מה נמצא והוחלף", RES.applied.length+RES.flagged.length, "ok"],
       ["send","שליחת הסשן אלינו", 0, "plain"],
       ["profile","הרשימה ופרופיל התיק", S.rules.length, "plain"],

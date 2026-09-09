@@ -88,7 +88,8 @@ function makeBench(E, opt) {
   }
 
   async function runDoc(pipe, doc, rawOut) {
-    const raw = fs.readFileSync(path.join(__dirname, doc.file));
+    // a private fixture arrives with an absolute path outside the repository
+    const raw = fs.readFileSync(path.isAbsolute(doc.file) ? doc.file : path.join(__dirname, doc.file));
     const buf = raw.buffer.slice(raw.byteOffset, raw.byteOffset + raw.byteLength);
     const blocks = await blocksOf(buf);
     const surfaced = new Map(); // norm -> {value, sources}
@@ -167,7 +168,10 @@ function makeBench(E, opt) {
     return { rows, unlisted, applied: [...res.applied] };
   }
 
-  function table(rows, groupBy, label) {
+  // meta: categories / expectedFail / exemptFromDisjoint to label with; the
+  // corpus key by default, a merged key when private fixtures are in the run
+  function table(rows, groupBy, label, meta) {
+    const M = meta || KEY;
     const g = {};
     for (const r of rows) {
       const k = r[groupBy];
@@ -179,17 +183,17 @@ function makeBench(E, opt) {
     const lines = [`| ${label} | found | missed | leaked | false positives |`, "|---|---|---|---|---|"];
     for (const k of Object.keys(g)) {
       const o = g[k];
-      const name = groupBy === "cat" ? (KEY.categories[k] || k) : k;
-      const mark = groupBy === "cat" && KEY.expectedFail.includes(k) ? " (expected to fail)" : groupBy === "cat" && KEY.exemptFromDisjoint.includes(k) && k !== "T_IDIOM" ? " (lexicon-aided)" : "";
+      const name = groupBy === "cat" ? (M.categories[k] || k) : k;
+      const mark = groupBy === "cat" && (M.expectedFail || []).includes(k) ? " (expected to fail)" : groupBy === "cat" && (M.exemptFromDisjoint || []).includes(k) && k !== "T_IDIOM" ? " (lexicon-aided)" : "";
       lines.push(`| ${name}${mark} | ${o.scored ? o.found : "–"} | ${o.scored ? o.missed : "–"} | ${o.scored ? o.leaked : "–"} | ${o.fp} |`);
     }
     return lines.join("\n");
   }
 
   // the whole corpus in one call: totals plus the rows, for sweeps
-  async function runAll(pipe, rawOut) {
+  async function runAll(pipe, rawOut, docs) {
     const rows = [], unlisted = [], perDoc = [];
-    for (const doc of KEY.docs) {
+    for (const doc of docs || KEY.docs) {
       const t1 = Date.now();
       const res = await runDoc(pipe, doc, rawOut);
       const s = scoreDoc(doc, res);
