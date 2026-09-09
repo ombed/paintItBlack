@@ -187,6 +187,8 @@ class Engine{
         hits.push({s,e,type:r.kind,label:KINDLBL[r.kind]||r.kind,text:text.slice(s,e),
           apply:!r.soft,src:"list",prio:0,base:r.base,rep:r.rep,pre:r.pre,
           style:r.style||null,
+          // "שכונת X", "מושב X": מילת הסוג שלפני המקום קובעת מאיזה סוג יהיה התחליף
+          kind:(r.kind==="PLACE"&&typeof placeKind==="function")?placeKind(n,s):null,
           why:r.auto?"התגלה אוטומטית מההקשר":(r.pre?`מהרשימה שהגדרת, עם אות השימוש "${r.pre}" שנשמרה`:"מהרשימה שהגדרת"),
           review:!!r.pre,conf:"high"});
       }}
@@ -234,9 +236,10 @@ class Engine{
       // מציע משהו, כי הוא שומר על המרחקים; זה מה שקורה לכל השאר, כולל מה שנגזר
       // ממילת יישוב ("מושב X", "שכונת Y"). מוסד רפואי, עסק או מוסד חינוך נשאר
       // תווית: שם יישוב במקומו היה משקר על סוג המקום.
+      // מקום מהרשימה (סוג PLACE) מקבל שם לפי סוגו — שכונה, רחוב, מושב — ולא תווית (Q11)
       else if(real&&typeof fakePlace==="function"&&
-              (h.type==="PLACE_CITY"||(h.type==="PLACE_VENUE"&&h.label==="יישוב")))
-        base=fakePlace(canonical,this.used,this.forbidden)||`[${lab} ${hord(n)}]`;
+              (h.type==="PLACE"||h.type==="PLACE_CITY"||(h.type==="PLACE_VENUE"&&h.label==="יישוב")))
+        base=fakePlace(canonical,this.used,this.forbidden,h.kind)||`[${lab} ${hord(n)}]`;
       // גוף שאושר מקבל שם בדוי שמשאיר את מילת הסוג ("מכון אורנים"), לא "[גוף א׳]"
       else if(fam==="ORG"&&real&&typeof fakeOrg==="function")
         base=fakeOrg(canonical,this.used,this.forbidden)||`[${lab} ${hord(n)}]`;

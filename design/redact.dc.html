@@ -395,6 +395,7 @@ a:hover{text-decoration:underline}
             <input value="{{ g.to }}" onChange="{{ g.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
             <button onClick="{{ g.onRemove }}" title="להשאיר את שם היישוב כמו שהוא" style="font-size:12.5px;color:var(--ink2);padding:7px 11px;border-radius:8px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)">אל תחליף</button>
           </div>
+          <sc-if value="{{ g.tagNote }}"><div data-tags style="padding:0 18px 9px 160px;margin-top:-6px;font-size:11.5px;color:var(--ink3);border-bottom:1px solid var(--line2)">{{ g.tagNote }}</div></sc-if>
         </sc-for>
         <sc-if value="{{ hasExcluded }}">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--line2);font-size:12.5px;color:var(--ink2)">
@@ -1956,6 +1957,10 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       geoQuality:S.geo?(S.geo.err<2?"דיוק מצוין":S.geo.err<5?"דיוק טוב":"דיוק סביר"):"",
       geoRows:(S.geo?S.geo.map:[]).map((m,i)=>({
         from:m.from, to:S.geoEdits[i] ?? m.to,
+        // מה משותף ומה שונה בין היישוב לתחליפו, לפי הטבלה שלה (docs/atlas-tags-he.md)
+        tagNote:(()=>{ if(!S.E.atlasTags) return ""; const t=S.E.atlasTags(m.to), d=S.E.atlasDiff?S.E.atlasDiff(m.from,m.to):[];
+          const same=["סוג","אוכלוסייה","דת","גודל"].filter(k=>!d.includes(k)).map(k=>t[k]).join(" · ");
+          return (same?same:"")+(d.length?(same?"  ·  ":"")+"שונה: "+d.map(k=>k+" ("+S.E.atlasTags(m.from)[k]+" ← "+t[k]+")").join(", "):""); })(),
         onChange:e=>this.setState({geoEdits:{...S.geoEdits, [i]:e.target.value}}),
         onRemove:()=>this.geoRemove(m.from), ...this.tipProps(m.from)})),
       // מחיקה במסך השמות ו"אל תחליף" במסך הבדיקה: שניהם גלויים ושניהם עם ↩

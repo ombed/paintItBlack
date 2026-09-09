@@ -408,10 +408,43 @@ const AMBIG=new Set(["דן","מגן","כרמל","עלי","שילה","דליה","
    מסך היישובים עדיין קודם כשהוא רלוונטי, כי הוא שומר על המרחקים בין היישובים.
    זה הרשת מתחתיו. הבחירה נגזרת מ-hash של השם המקורי, ולכן היא יציבה בין
    הרצות; יישוב שמופיע במסמך עצמו לא ייבחר כתחליף, ולא ייבחר שם דו-משמעי. */
-function fakePlace(value,used,forbidden){
+/* מקום לפי סוגו (Q11): "שכונת הפרדס" מקבלת שם של שכונה, "רחוב הארזים" שם של
+   רחוב, "מושב X" שם של מושב, "קיבוץ X" שם של קיבוץ, "כפר X" זנב של כפר.
+   מילת הסוג עצמה נשארת בטקסט (היא לא חלק מהערך), ולכן התחליף הוא רק השם.
+   מה שאין לו מאגר משלו נופל למאגר היישובים הכללי — לעולם לא לתווית. */
+const NEIGHBORHOODS=["רמות","גבעת שאול","נווה שאנן","הדר","קרית משה","נאות אפקה","רמת אביב",
+  "גבעת מרדכי","קרית היובל","נווה יעקב","רמת אשכול","נאות שקמה","נווה עוז","קרית שרת",
+  "גבעת התמרים","נווה שלום","רמת הנשיא","גני אביב","נווה זאב","קרית מנחם","שכונת הפועלים",
+  "נאות גנים","רמת ורבר","נווה עמל","גבעת רם","קרית חיים","נאות רחל","רמת חן"].map(n=>n.replace(/^שכונת\s+/,""));
+const STREETS=["הרצל","ויצמן","ז'בוטינסקי","בן גוריון","רוטשילד","הנשיא","האלון","הזית","התמר",
+  "הדקל","הברוש","האורנים","השקד","הרימון","ביאליק","סוקולוב","אחד העם","הפלמ\"ח","הנרקיס",
+  "הכלנית","הרקפת","החרוב","השיטה","הבנים","העצמאות","הגליל","הכרמל","הירדן","הנגב","השרון"];
+const PLACE_KIND_HEADS=[
+  [/(?:^|[^֐-׿])(?:[בהולמכש]|ו[בהלמכ]|כש)?שכונ(?:ת|ה)\s*$/u,"שכונה"],
+  [/(?:^|[^֐-׿])(?:[בהולמכש]|ו[בהלמכ]|כש)?(?:רחוב|רח'|שדרות|שד'|סמטת|סמטה|דרך)\s*$/u,"רחוב"],
+  [/(?:^|[^֐-׿])(?:[בהולמכש]|ו[בהלמכ]|כש)?מושב\s*$/u,"מושב"],
+  [/(?:^|[^֐-׿])(?:[בהולמכש]|ו[בהלמכ]|כש)?קיבוץ\s*$/u,"קיבוץ"],
+  [/(?:^|[^֐-׿])(?:[בהולמכש]|ו[בהלמכ]|כש)?כפר\s*$/u,"כפר"],
+];
+// מילת הסוג שלפני מקום בטקסט (מנורמל), או null כשאין
+function placeKind(text,s){
+  const back=String(text||"").slice(Math.max(0,s-20),s);
+  for(const [rx,k] of PLACE_KIND_HEADS) if(rx.test(back))return k;
+  return null;
+}
+function placePool(kind){
   const gaz=(typeof GAZ!=="undefined"&&Array.isArray(GAZ))?GAZ:[];
-  const pool=PLACES.map(p=>p.n).concat(gaz)
-    .filter(n=>n&&n.length>=3&&!AMBIG.has(n));
+  const all=PLACES.map(p=>p.n).concat(gaz);
+  const tagged=t=>(typeof ATLAS_TAGS!=="undefined")?PLACES.map(p=>p.n).filter(n=>(ATLAS_TAGS[n]||"").split("|")[0]===t):[];
+  if(kind==="שכונה")return NEIGHBORHOODS;
+  if(kind==="רחוב")return STREETS;
+  if(kind==="מושב"){const p=tagged("מושב"); if(p.length>=8)return p;}
+  if(kind==="קיבוץ"){const p=tagged("קיבוץ"); if(p.length>=8)return p;}
+  if(kind==="כפר"){const p=all.filter(n=>/^כפר\s+\S/.test(n)).map(n=>n.replace(/^כפר\s+/,"")); if(p.length>=8)return p;}
+  return all.filter(n=>n&&n.length>=3&&!AMBIG.has(n));
+}
+function fakePlace(value,used,forbidden,kind){
+  const pool=placePool(kind||null);
   if(!pool.length)return null;
   const free=n=>{
     if(used&&used.has(n))return false;
@@ -425,7 +458,8 @@ function fakePlace(value,used,forbidden){
     const cand=pool[(start+k)%pool.length];
     if(free(cand))return cand;
   }
-  return null;
+  // המאגר של הסוג נגמר (או שכל שמותיו במסמך): נופלים למאגר הכללי, לא לתווית
+  return kind?fakePlace(value,used,forbidden,null):null;
 }
 
 const PLACE_RX=new RegExp(
@@ -519,7 +553,7 @@ function findPlaces(text){
       if(PUBLIC_ORG.test(norm(g[0]))||PUBLIC_ORG.test(norm(g[0]).replace(/^[בהולמכש]/,"")))continue;
       out.push({s,e,type:"PLACE_VENUE",label:v.l,text:text.slice(s,e),
         why:"מופיע אחרי מילה שמציינת מקום",apply:false,src:"pattern",
-        prio:2,conf:"medium",review:true});
+        prio:2,conf:"medium",review:true,kind:placeKind(n,s)});
     }
   }
   return out;
@@ -596,19 +630,25 @@ function geoMap(names,variant){
     for(let ang=0;ang<360;ang+=30){
       for(const mir of [1,-1]){
         const r=ang*R2, cs=Math.cos(r), sn=Math.sin(r);
-        const used=new Set(block), pick=[]; let bad=false;
+        const used=new Set(block), pick=[]; let bad=false, pen=0;
         for(const off of offs){
           const x=off.x*mir, y=off.y;
           const rx=x*cs-y*sn, ry=x*sn+y*cs;
           const tA=anc.a+ry, tO=anc.o+rx/Math.cos(anc.a*R2);
-          let best=null,bd=1e9;
+          // מאפיינים לפני מרחק (Q11): הציון הוא מרחק ועוד מחיר אי-ההתאמה,
+          // כך שעיר חרדית רחוקה יותר עדיפה על קיבוץ קרוב. אוכלוסייה שונה
+          // פסולה בכל מרחק. הסף רחב מ-20 ק"מ של פעם, כי התאמה מלאה נדירה.
+          let best=null,bs=1e9,bp=0;
+          const from=orig[pick.length].n;
           for(const p of PLACES){
             if(used.has(p.n))continue;
-            const d=hav(p.a,p.o,tA,tO);
-            if(d<bd){bd=d;best=p}
+            const pen=(typeof atlasPenalty==="function")?atlasPenalty(from,p.n):0;
+            if(pen===Infinity)continue;
+            const d=hav(p.a,p.o,tA,tO), sc=d+pen;
+            if(sc<bs){bs=sc;best=p;bp=pen}
           }
-          if(!best||bd>20){bad=true;break}
-          used.add(best.n); pick.push(best);
+          if(!best||bs>110){bad=true;break}
+          used.add(best.n); pick.push(best); pen+=bp;
         }
         if(bad)continue;
         let err=0,c=0;
@@ -617,13 +657,14 @@ function geoMap(names,variant){
           const d1=hav(pick[i].a,pick[i].o,pick[j].a,pick[j].o);
           err+=Math.abs(d0-d1); c++;
         }
+        // הדירוג: שגיאת המרחקים ועוד מחיר אי-ההתאמה הממוצע, שוב ביחידות ק"מ
         res.push({map:orig.map((o,i)=>({from:o.n,to:pick[i].n})),
-                  err:c?err/c:0, anchor:anc.n});
+                  err:c?err/c:0, pen:orig.length?pen/orig.length:0, anchor:anc.n});
       }
     }
   }
   if(!res.length)return null;
-  res.sort((a,b)=>a.err-b.err);
+  res.sort((a,b)=>(a.err+a.pen)-(b.err+b.pen));
   const uniq=[],seen=new Set();
   for(const r of res){
     const k=r.map.map(x=>x.to).join("|");
