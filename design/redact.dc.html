@@ -245,6 +245,14 @@ a:hover{text-decoration:underline}
             <button onClick="{{ mBlock }}" style="{{ segBlock }}">███</button>
           </div>
           <p style="margin:12px 0 0;font-size:12.5px;line-height:1.55;color:var(--ink2)">{{ modeNote }}</p>
+          <label style="display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line2);font-size:13px">
+            <span style="flex:1"><b style="font-weight:500">מספרים, תאריכים וכתובות</b><br><small style="color:var(--ink2);font-size:12px">ת״ז, טלפון, חשבון, רכב, תאריכים. גיל נשאר תמיד.</small></span>
+            <select value="{{ numStyle }}" onChange="{{ onNumStyle }}" style="background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:13px">
+              <option value="blank" selected="{{ numBlank }}">נמחקים מהטקסט</option>
+              <option value="label" selected="{{ numLabel }}">תווית: [ת״ז א׳]</option>
+              <option value="black" selected="{{ numBlack }}">███</option>
+            </select>
+          </label>
         </div>
         <div style="margin-top:12px;padding:13px 15px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);font-size:12.5px;color:var(--ink2);line-height:1.55">
           <b style="display:block;color:var(--ink);font-weight:500;margin-bottom:3px">פרופיל תיק</b>
@@ -627,6 +635,12 @@ a:hover{text-decoration:underline}
                     <sc-if value="{{ g.selected }}">
                       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--line2)">
                         <sc-if value="{{ g.applied }}">
+                          <div onClick="{{ g.stop }}" title="מה נכנס במקום הערך הזה" style="display:flex;gap:2px;background:var(--panel2);border-radius:14px;padding:2px;flex:0 0 auto">
+                            <button onClick="{{ g.onStyleName }}" style="{{ g.styleNameBtn }}">{{ g.styleNameLabel }}</button>
+                            <button onClick="{{ g.onStyleBlank }}" style="{{ g.styleBlankBtn }}">ריק</button>
+                            <button onClick="{{ g.onStyleBlack }}" style="{{ g.styleBlackBtn }}">███</button>
+                          </div>
+                          <sc-if value="{{ g.blankWarn }}"><div style="flex-basis:100%;font-size:12px;color:var(--warn);line-height:1.5">תשובת ה-AI לא תוכל להחזיר את השם הזה: הוא נמחק, ולא הוחלף.</div></sc-if>
                           <input value="{{ g.repDraft }}" onChange="{{ g.onRepChange }}" onClick="{{ g.stop }}" onKeyDown="{{ g.onRepKey }}" placeholder="תחליף" style="width:120px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12.5px">
                           <button onClick="{{ g.onSave }}" style="padding:6px 11px;border-radius:14px;background:var(--accent);color:var(--panel);font-size:12px;font-weight:500">שמירת תחליף</button>
                           <sc-if value="{{ g.showSame }}">
@@ -770,7 +784,8 @@ a:hover{text-decoration:underline}
 class Component extends DCLogic {
   state = {
     screen:"entry", theme:"light", ready:false, E:null,
-    mode:"real", o:{auto:true, places:true, ner:true, near:true},
+    // numStyle: מה נכנס במקום מספר, תאריך או כתובת — blank (נמחק), label, black
+    mode:"real", o:{auto:true, places:true, ner:true, near:true, numStyle:"blank"},
     nerOff:false, nerHint:"", nerMsg:"", nerPct:null, nerBox:false, nerUsed:false,
     buf:null, name:"", cands:[], peo:[], peoSug:[], peoIn:"", peoNote:"", scanning:false,
     rules:[], allow:[], res:null, profile:null,
@@ -834,8 +849,14 @@ class Component extends DCLogic {
   }
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); removeEventListener("resize", this._resize);
     if(this._barObs) this._barObs.disconnect(); }
-  componentDidUpdate(prev){ this.applyProps(); if(this._barSize) this._barSize();
-    if(prev&&prev.screen!==this.state.screen&&this.log) this.log.add("screen",{to:this.state.screen, from:prev.screen}); }
+  /* ביומן של הסשן האמיתי 347 מתוך 375 האירועים היו "screen" — אותו מסך, שוב ושוב,
+     בכל רינדור. הארגומנט הראשון של ההוק הוא ה-props הקודמים, לא ה-state הקודם, ולכן
+     prev.screen היה undefined תמיד, ההשוואה תמיד "השתנה", ושדה from נעלם מהיומן.
+     המסך האחרון נשמר על המופע ולא נלקח מההוק. */
+  componentDidUpdate(){ this.applyProps(); if(this._barSize) this._barSize();
+    const cur=this.state.screen;
+    if(this._lastScreen!==undefined&&this._lastScreen!==cur&&this.log) this.log.add("screen",{to:cur, from:this._lastScreen});
+    this._lastScreen=cur; }
   applyProps(){
     const r=document.documentElement.style;
     const accents={forest:["#1F5B44","#E6EFE9","#79D3A8"], ink:["#1F3F63","#E4EBF3","#7FB6EE"], plum:["#5A2B4C","#F0E6EE","#DC9BC9"]};
@@ -1324,7 +1345,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(this.state.o.places) on.add("PLACES"); else flag.add("PLACES");
     // שכבת הפעלים רצה גם כשהמודל רץ: על הקורפוס היא סוגרת ארבע דליפות שהמודל
     // מפספס (שם רוסי, «משפחת X», שם שמופיע רק בפרוזה) תמורת ארבע הצעות עודפות.
-    return {on, flag, mode:this.state.mode, near:this.state.o.near, body:true, prefixes:"normal"};
+    // סגנון לפי סוג: שמות, גופים ומקומות לפי המצב הגלובלי; כל השאר — מספרים,
+    // תאריכים, כתובות — לפי בחירתה, ומחיקה כברירת מחדל. כרטיס יכול לעקוף.
+    return {on, flag, mode:this.state.mode, near:this.state.o.near, body:true, prefixes:"normal",
+      styles:{"*":this.state.o.numStyle||"blank"}};
   }
   /* ההבטחה שהתיק האמיתי הפר: שם שהמודל מצא פעמיים ומעלה אינו יוצא מהכלי בלי
      שהיא החליטה עליו. הזיהוי היה מושלם — שבע פעמים בביטחון מלא — והשם יצא, כי
@@ -1436,6 +1460,17 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   addAllow = v => { if(this.state.allow.includes(v)) return; this.pushHistory(); this.log.add("allow",{});
     // ההיתר נכנס לרצועת "נשארים כמו שהם" שב"לבדיקה", ולכן המקטע נפתח כדי שיראו אותו
     this.setState({allow:[...this.state.allow, v], rules:this.state.rules.filter(r=>r.value!==v), open:this.openWith("review")}, ()=>this.rerun()); };
+  /* סגנון לערך אחד: name / label / blank / black. הכלל נוצר אם אין — גם לערך שנתפס
+     בדפוס בלי כלל, כמו ת"ז — כדי שהבחירה תחזיק בכל ריצה ותישמר בפרופיל התיק. */
+  setStyle = (v, kind, style, base) => {
+    this.pushHistory();
+    const E=this.state.E, n=x=>E.norm(String(x||"")).trim();
+    const rules=[...this.state.rules];
+    let r=rules.find(x=>n(x.value)===n(base||v)||n(x.value)===n(v));
+    if(!r){ r={value:v, kind:kind||"OTHER", replacement:"", auto:false}; rules.push(r); }
+    const prev=r.style||null; r.style=style;
+    this.setState({rules}, ()=>this.rerun().then(()=>this.log.add("set-style",{style, changed:prev!==style, kind:r.kind})));
+  };
   /* שמונה עריכות של תחליף בסשן אמיתי, ואף אחת לא שינתה דבר. הכרטיס מציג את הערך
      כפי שנמצא, והכלל יושב לפעמים תחת הצורה המלאה ("תמר גולדשמיט" כשהכרטיס אומר
      "גולדשמיט"), ולפעמים בכתיב אחר. חיפוש לפי שוויון מחרוזות לא מצא אותו, ואז נוסף
@@ -1742,7 +1777,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     // הבחירה הזאת נוגעת לשמות בלבד. מספר מזהה לעולם אינו מוחלף במספר בדוי אחר —
     // הוא מוחלף בתווית, בכל אחד משלושת המצבים. בלי לומר את זה, תווית כמו [ת"ז א׳]
     // בתוך הטקסט נקראת כאילו הכלי פספס משהו.
-    const NUMNOTE="מספרים מזהים — ת״ז, טלפון, חשבון, רכב, תאריך לידה — מוחלפים תמיד בתווית כמו «[ת״ז א׳]», ולא במספר בדוי אחר. הבחירה כאן נוגעת לשמות בלבד.";
+    const NUMNOTE="מספרים מזהים ותאריכים — ת״ז, טלפון, חשבון, רכב, תאריכים — נמחקים מהטקסט כברירת מחדל, ולא מוחלפים במספר בדוי; אפשר לשנות למטה, ובכל כרטיס בנפרד. גיל נשאר תמיד. הבחירה כאן נוגעת לשמות.";
     const MNOTE={
       real:"«רונית לוי» תהפוך ל«מיכל ברנע». המשפט נשאר תקין דקדוקית, וכלי ה-AI מגיב על טקסט שנקרא כמו מסמך אמיתי. אותו אדם מקבל את אותו שם גם במסמך הבא באותו תיק. "+NUMNOTE,
       label:"«רונית לוי» תהפוך ל«פלוני א׳». חד-משמעי לעין, אבל הטקסט נקרא פחות טבעי. "+NUMNOTE,
@@ -1834,6 +1869,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       mBlock:()=>this.setState({mode:"block"}, ()=>{ if(S.res) this.rerun(); }),
       segReal:seg(S.mode==="real"), segLabel:seg(S.mode==="label"), segBlock:seg(S.mode==="block"),
       modeNote:MNOTE[S.mode],
+      numStyle:S.o.numStyle||"blank", numBlank:(S.o.numStyle||"blank")==="blank", numLabel:S.o.numStyle==="label", numBlack:S.o.numStyle==="black",
+      onNumStyle:e=>{ const v=e.target.value; this.log.add("num-style",{}); this.setState({o:{...S.o, numStyle:v}}, ()=>{ if(this.state.res) this.rerun(); }); },
       nerBox:S.nerBox, nerMsg:S.nerMsg,
       nerBarStyle:"height:100%;border-radius:2px;background:var(--accent);transition:width .25s ease;width:"+Math.round(S.nerPct||0)+"%",
       peoIn:S.peoIn, peoNote:S.peoNote, peoEmpty:!S.peo.length,
@@ -2016,6 +2053,20 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       for(const m of b.marks){
         // ערך שנמצא ולא הוחלף: מסומן בצבע אזהרה, כדי שלא ייראה כמו טקסט שלא נגעו בו.
         // בלי זה מספר שנשאר בטקסט נקרא "פוספס". אינו נכנס לסדר החיצים, שרץ על ההחלפות.
+        // השמטה: הערך איננו בטקסט, אבל נשאר סימן קטן במקום שבו היה, כדי שתראה שמשהו
+        // נמחק ותוכל לבטל. לחיצה בוחרת את הכרטיס, ושם אפשר לעבור לשם או ל-███.
+        if(m.del){
+          if(m.s>last) segs.push({plain:true, mark:false, t:b.text.slice(last,m.s)});
+          const dkey="a|"+E.norm(m.val||"").trim();
+          segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:"∅",
+            title:"הושמט: "+(m.val||"")+" — לחיצה פותחת את הכרטיס",
+            style:"cursor:pointer;border-radius:3px;padding:0 3px;font-size:11px;color:var(--ink3);border:1px dashed var(--line);",
+            onClick:()=>this.setState({sel:dkey, filter:"all", cat:"", open:this.openWith("findings"), pane:this.state.narrow?"find":this.state.pane}, ()=>{
+              const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape(dkey)+'"]');
+              if(node && this.listEl){ const nr=node.getBoundingClientRect(), lr=this.listEl.getBoundingClientRect(); this.listEl.scrollTop += (nr.top-lr.top) - 40; }
+            })});
+          last=Math.max(last,m.s); continue;
+        }
         if(m.flag){
           if(m.s>last) segs.push({plain:true, mark:false, t:b.text.slice(last,m.s)});
           /* הסימון הזה נוסף כדי שערך שנמצא ולא הוחלף לא ייראה כמו טקסט שאיש לא
@@ -2121,6 +2172,22 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       // את השם שהמודל טעה בו. עד עכשיו הן הופיעו רק אחרי לחיצה על הכרטיס, בלי רמז.
       isApplied:!!g.ap, isFlagged:!g.ap, fromList:g.src==="list"||g.src==="sweep",
       onQuickAllow:e=>{ e.stopPropagation(); this.addAllow(g.value); },
+      // הבחירה לכל ערך: שם בדוי (או תווית למספר), ריק, ███. ברירת המחדל לפי סוג;
+      // כלל שנקבע על הכרטיס גובר. ריק על אדם מקבל שורת אזהרה, לא חלון.
+      ...(()=>{
+        const n=x=>E.norm(String(x||"")).trim();
+        const rule=S.rules.find(r=>n(r.value)===n(g.base||g.value)||n(r.value)===n(g.value));
+        const nameish=/^(שם|גוף|יישוב|מקום)/.test(g.label||"");
+        const cur=(rule&&rule.style)||(nameish?(S.mode==="block"?"black":S.mode==="label"?"label":"name"):(S.o.numStyle||"blank"));
+        const btn=on=>"padding:5px 10px;border-radius:12px;font-size:12px;white-space:nowrap;"+(on?"background:var(--panel);box-shadow:var(--shadow);color:var(--ink);font-weight:500":"color:var(--ink2)");
+        const set=st=>e=>{ e.stopPropagation(); this.setStyle(g.value, rule?rule.kind:(nameish?"NAME":"OTHER"), st, g.base); };
+        return {
+          styleNameLabel: nameish?"שם":"תווית",
+          onStyleName:set(nameish?"name":"label"), onStyleBlank:set("blank"), onStyleBlack:set("black"),
+          styleNameBtn:btn(cur==="name"||cur==="label"), styleBlankBtn:btn(cur==="blank"), styleBlackBtn:btn(cur==="black"),
+          blankWarn:cur==="blank"&&/^שם/.test(g.label||""),
+        };
+      })(),
       onDropRule:e=>{ e.stopPropagation(); this.notAName(g.base||g.value, g.value); },
       repStyle:"font-weight:500;font-size:14px;color:"+(g.ap?"var(--accent-ink)":"var(--warn)"),
       meta:g.label+" · "+[...g.parts].join(", "),

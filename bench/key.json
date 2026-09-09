@@ -42,6 +42,7 @@
   "I_EMAIL": "pii: email address",
   "I_BANK": "pii: bank account",
   "I_PLATE": "pii: licence plate",
+  "I_DATE": "pii: full date (omitted by default)",
   "I_DOB": "pii: date of birth",
   "P_SPEAKERLINE": "person: speaker written on a line of its own (no colon)",
   "P_ROLE_TEACHER": "person: foreign first name only after a care or teaching role word, in child speech",
@@ -145,10 +146,19 @@
      "must": false,
      "canonical": "14.5.2026",
      "surfaces": [
-      "14.5.2026",
       "סעיף 3(א)"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "14.5.2026",
+     "surfaces": [
+      "14.5.2026"
+     ],
+     "note": "full date, omitted by default"
     },
     {
      "cat": "T_IDIOM",
@@ -547,10 +557,19 @@
      "canonical": "תלה\"מ 12345-06-24",
      "surfaces": [
       "תלה\"מ 12345-06-24",
-      "3.6.2026",
       "סעיף 7(ב)"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "3.6.2026",
+     "surfaces": [
+      "3.6.2026"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },
@@ -704,10 +723,19 @@
      "canonical": "סעיף 2",
      "surfaces": [
       "סעיף 2",
-      "18.7.2026",
       "ת\"פ 4471-02-26"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "18.7.2026",
+     "surfaces": [
+      "18.7.2026"
+     ],
+     "note": "full date, omitted by default"
     },
     {
      "cat": "T_IDIOM",
@@ -839,10 +867,19 @@
      "must": false,
      "canonical": "סעיף 14",
      "surfaces": [
-      "סעיף 14",
-      "22.1.2026"
+      "סעיף 14"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "22.1.2026",
+     "surfaces": [
+      "22.1.2026"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },
@@ -946,10 +983,19 @@
      "canonical": "סעיף 5",
      "surfaces": [
       "סעיף 5",
-      "9.9.2025",
       "ת/7"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "9.9.2025",
+     "surfaces": [
+      "9.9.2025"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },
@@ -1469,10 +1515,19 @@
      "must": false,
      "canonical": "סעיף 3",
      "surfaces": [
-      "סעיף 3",
-      "11.2.2026"
+      "סעיף 3"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "11.2.2026",
+     "surfaces": [
+      "11.2.2026"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },
@@ -1647,10 +1702,19 @@
      "must": false,
      "canonical": "סעיף 12",
      "surfaces": [
-      "סעיף 12",
-      "7.7.2026"
+      "סעיף 12"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "7.7.2026",
+     "surfaces": [
+      "7.7.2026"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },
@@ -1730,10 +1794,19 @@
      "must": false,
      "canonical": "סעיף 8(א)",
      "surfaces": [
-      "סעיף 8(א)",
-      "1.1.2026"
+      "סעיף 8(א)"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "1.1.2026",
+     "surfaces": [
+      "1.1.2026"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },
@@ -1822,10 +1895,19 @@
      "must": false,
      "canonical": "2.3.2026",
      "surfaces": [
-      "2.3.2026",
       "סעיף 4"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "2.3.2026",
+     "surfaces": [
+      "2.3.2026"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },
@@ -1895,10 +1977,19 @@
      "must": false,
      "canonical": "18.8.2025",
      "surfaces": [
-      "18.8.2025",
       "סעיף 2(ג)"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "18.8.2025",
+     "surfaces": [
+      "18.8.2025"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },
@@ -2071,10 +2162,19 @@
      "must": false,
      "canonical": "תיק 4471/26",
      "surfaces": [
-      "תיק 4471/26",
-      "23.5.2026"
+      "תיק 4471/26"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "23.5.2026",
+     "surfaces": [
+      "23.5.2026"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },
@@ -2153,10 +2253,19 @@
      "must": false,
      "canonical": "סעיף 192",
      "surfaces": [
-      "סעיף 192",
-      "4.4.2026"
+      "סעיף 192"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "4.4.2026",
+     "surfaces": [
+      "4.4.2026"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },
@@ -2370,10 +2479,19 @@
      "must": false,
      "canonical": "1,250.00",
      "surfaces": [
-      "1,250.00",
-      "31.3.2026"
+      "1,250.00"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "31.3.2026",
+     "surfaces": [
+      "31.3.2026"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },
@@ -2442,10 +2560,19 @@
      "must": false,
      "canonical": "12.6.2026",
      "surfaces": [
-      "12.6.2026",
       "סעיף 5"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "12.6.2026",
+     "surfaces": [
+      "12.6.2026"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },
@@ -2513,10 +2640,19 @@
      "must": false,
      "canonical": "30.6.2026",
      "surfaces": [
-      "30.6.2026",
       "42,000"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "30.6.2026",
+     "surfaces": [
+      "30.6.2026"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },
@@ -2584,10 +2720,19 @@
      "must": false,
      "canonical": "12.3.2026",
      "surfaces": [
-      "12.3.2026",
       "21:14"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "12.3.2026",
+     "surfaces": [
+      "12.3.2026"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },
@@ -2729,10 +2874,19 @@
      "must": false,
      "canonical": "15.4.2026",
      "surfaces": [
-      "15.4.2026",
       "17:40"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "15.4.2026",
+     "surfaces": [
+      "15.4.2026"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },
@@ -2802,10 +2956,19 @@
      "must": false,
      "canonical": "800",
      "surfaces": [
-      "800",
-      "20.2.2026"
+      "800"
      ],
      "note": ""
+    },
+    {
+     "cat": "I_DATE",
+     "kind": "PII",
+     "must": true,
+     "canonical": "20.2.2026",
+     "surfaces": [
+      "20.2.2026"
+     ],
+     "note": "full date, omitted by default"
     }
    ]
   },

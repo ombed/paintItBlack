@@ -49,6 +49,15 @@ function resolve(hits){
   for(const h of hits){ if(h.s>=last){out.push(h);last=h.e} }
   return out}
 
+// אזורי גיל: מספר קטן אחרי בן/בת/גיל או לפני שנה/שנים. בתוך אזור כזה שום דפוס
+// מספרי אינו נתפס, גם כשמספרים מושמטים כברירת מחדל. הבטחה שניתנה בכתב ללקוחה.
+function ageZones(n){
+  const z=[]; let m;
+  const a=/(?<![א-ת])(?:בן|בת|בני|בנות|גיל|בגיל|כבן|כבת)\s+(\d{1,3})(?![\d])/gu;
+  while((m=a.exec(n))){const s=m.index+m[0].lastIndexOf(m[1]);z.push([s,s+m[1].length])}
+  const b=/(?<![\d])(\d{1,3})\s+(?:שנה|שנים|שנתיים|וחצי)(?![א-ת])/gu;
+  while((m=b.exec(n)))z.push([m.index,m.index+m[1].length]);
+  return z}
 class Engine{
   constructor(subs,allow,opt,docText){
     subs=subs.map(x=>({...x}));
@@ -100,7 +109,7 @@ class Engine{
       for(const [v,pre] of variants(s.value,lvl,protect)){
         if(seen.has(v))continue; seen.add(v);
         this.rules.push({rx:new RegExp(NW+flex(v)+NWE,"gu"),base:s.value,
-          kind:s.kind,rep:s.replacement,pre,auto:s.auto,soft:!!pre&&shortSingle});
+          kind:s.kind,rep:s.replacement,style:s.style||null,pre,auto:s.auto,soft:!!pre&&shortSingle});
       }
       // "עמותת שביל הלב" אושרה: גם "שביל הלב" לבדו הוא אותו גוף, כמו שם משפחה
       // לבדו אצל אדם. אחרת המופע הראשון מוחלף והשני נשאר בטקסט.
@@ -110,7 +119,7 @@ class Engine{
         if(rest&&(rest.split(/\s+/).length>=2||rest.length>=5)&&!protect.has(rest))
           for(const [v,pre] of variants(rest,lvl,protect)){
             if(seen.has(v))continue; seen.add(v);
-            this.rules.push({rx:new RegExp(NW+flex(v)+NWE,"gu"),base:s.value,kind:s.kind,rep:s.replacement,pre,auto:s.auto,soft:false});
+            this.rules.push({rx:new RegExp(NW+flex(v)+NWE,"gu"),base:s.value,kind:s.kind,rep:s.replacement,style:s.style||null,pre,auto:s.auto,soft:false});
           }
       }
     }
@@ -154,6 +163,7 @@ class Engine{
   blocked(s,e,zones){return zones.some(([a,b])=>a<=s&&e<=b)}
   detect(text){
     const n=norm(text),zones=[];
+    const AGE=ageZones(n);
     // רשימת ההיתר תופסת גם צורות עם אות שימוש, ו-ש היא אות שימוש: "אל תחליף" על
     // "רון" היה חוסם גם את "שרון", שני אנשים. אם המילה המלאה עם האות היא בעצמה
     // ערך ברשימה, זה אינו "ש+רון" אלא "שרון", והאזור לא נפתח.
@@ -175,17 +185,39 @@ class Engine{
         if(r.base.trim().split(" ").length===1){const nx=n.slice(e,e+30).trim().split(" ")[0]||""; const t2=(m[0]+" "+nx).trim(); if(PUBLIC_ORG.test(t2)||PUBLIC_ORG.test(t2.replace(/^[בהולמכש]/,"")))continue;}
         hits.push({s,e,type:r.kind,label:KINDLBL[r.kind]||r.kind,text:text.slice(s,e),
           apply:!r.soft,src:"list",prio:0,base:r.base,rep:r.rep,pre:r.pre,
+          style:r.style||null,
           why:r.auto?"התגלה אוטומטית מההקשר":(r.pre?`מהרשימה שהגדרת, עם אות השימוש "${r.pre}" שנשמרה`:"מהרשימה שהגדרת"),
           review:!!r.pre,conf:"high"});
       }}
     for(const h of findPatterns(text,this.opt.on,this.opt.flag)){
       if(this.blocked(h.s,h.e,zones))continue;
+      // גיל אינו מזהה, וההבטחה הייתה "הכול חוץ מגילאים": "בת 9", "בן 12", "גיל 7",
+      // "3 שנים" — מספר בהקשר של גיל נשאר גם כשמספרים מושמטים. צר ומבוסס הקשר בלבד.
+      if(this.blocked(h.s,h.e,AGE))continue;
       h.review=h.conf!=="high"; h.base=h.text; hits.push(h);
     }
     return resolve(hits)}
+  /* מה נכנס במקום ערך: name (שם או יישוב בדוי), label (פלוני א׳ / [ת"ז א׳]),
+     black (███), או blank — הערך נמחק נקי מהטקסט.
+
+     עד כאן הבחירה הייתה גלובלית, ומספר מזהה תמיד קיבל תווית. היא ביקשה שמספרים
+     ותאריכים פשוט ייעלמו, ושאדם מסוים ("אליעזר המתמלל") ייעלם גם הוא. הסדר:
+     סגנון שנקבע על הכלל עצמו, ואם אין — ברירת המחדל לפי סוג מתוך האפשרויות
+     (opt.styles, עם "*" לכל מה שאינו שם, גוף או מקום), ואם אין — המצב הגלובלי. */
+  styleFor(h){
+    if(h.style) return h.style;
+    const fam=(CANON[h.type]||[h.type])[0];
+    const st=this.opt.styles||{};
+    const d=st[fam]||((fam==="NAME"||fam==="ORG"||fam==="PLACE")?null:st["*"]);
+    if(d) return d;
+    return this.opt.mode==="block"?"black":this.opt.mode==="label"?"label":"name";
+  }
   repFor(h){
     const pre=h.pre||"";
-    if(this.opt.mode==="block") return addPre(pre,"███");
+    const style=this.styleFor(h);
+    // מחיקה: גם אות השימוש הולכת, ומי שמדביק את הטקסט למקומו (applyReps) סוגר את הרווח
+    if(style==="blank") return "";
+    if(style==="black") return addPre(pre,"███");
     // המפתח לפי הערך הבסיסי, לא לפי הטקסט שנתפס — אחרת
     // "מאורי בן-שחר" מקבל כינוי אחר מ"אורי בן-שחר".
     const canonical=(h.base&&this.alias[h.base])||h.base||h.text;
@@ -194,13 +226,14 @@ class Engine{
     if(!base){
       const [fam,lab]=CANON[h.type]||[h.type,h.label];
       const n=(this.cnt[fam]||0)+1;this.cnt[fam]=n;
-      if(fam==="NAME"&&this.opt.mode==="real")
+      const real=style==="name";
+      if(fam==="NAME"&&real)
         base=fakeName(canonical,this.gmap[canonical]||h.g,this.used,this.forbidden,this.firstish);
       // יישוב מקבל שם יישוב אמיתי, כמו ששם מקבל שם. מסך היישובים קודם כשהוא
       // מציע משהו, כי הוא שומר על המרחקים; זה מה שקורה לכל השאר, כולל מה שנגזר
       // ממילת יישוב ("מושב X", "שכונת Y"). מוסד רפואי, עסק או מוסד חינוך נשאר
       // תווית: שם יישוב במקומו היה משקר על סוג המקום.
-      else if(this.opt.mode==="real"&&typeof fakePlace==="function"&&
+      else if(real&&typeof fakePlace==="function"&&
               (h.type==="PLACE_CITY"||(h.type==="PLACE_VENUE"&&h.label==="יישוב")))
         base=fakePlace(canonical,this.used,this.forbidden)||`[${lab} ${hord(n)}]`;
       else base = fam==="NAME" ? "פלוני "+hord(n) : `[${lab} ${hord(n)}]`;

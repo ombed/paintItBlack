@@ -120,9 +120,20 @@ async function redactDocx(buf,subs,allow,opt){
       const rec={value:h.text,label:h.label,part:partName(blk.part),why:h.why,
         ctx:ctxHTML(blk.text,h.s,h.e),review:!!h.review,src:h.src,base:h.base||undefined};
       if(h.apply){const nw=eng.repFor(h);rec.rep=nw;rec.baseRep=eng.map[ckey(h.type,h.text)]||nw;
-        reps.push([h.s,h.e,nw]);applied.push(rec);secrets.push(h.text);
+        let s=h.s,e=h.e;
+        // השמטה: הערך נמחק נקי. רווח אחד סמוך נבלע איתו, כדי ש"נסע ל-X ביום" לא
+        // יישאר עם שני רווחים, ומה שנשאר נקרא כאילו הערך לא היה שם מעולם.
+        if(nw===""){ rec.deleted=true; rec.rep="";
+          if(blk.text[e]===" "&&(s===0||blk.text[s-1]===" "||/[\s(]/.test(blk.text[s-1]||" ")))e++;
+          else if(blk.text[s-1]===" ")s--; }
+        reps.push([s,e,nw]);applied.push(rec);secrets.push(h.text);
         if(h.base)secrets.push(h.base)}
       else flagged.push(rec)}
+    // מיקום המחיקות בטקסט החדש, לסימון במסך הבדיקה: הערך איננו, אבל היא צריכה לראות
+    // שהיה שם משהו ולוכל לבטל. כל החלפה שלפני נקודה מזיזה אותה בהפרש האורכים.
+    {const srt=reps.slice().sort((a,b)=>a[0]-b[0]); let shift=0; const dels=[];
+     for(const [s,e,nw] of srt){ if(nw==="")dels.push({s:s-shift, val:blk.text.slice(s,e).trim()}); shift+=(e-s)-nw.length; }
+     if(dels.length)blk.dels=dels;}
     applyReps(blk,reps)}
   // מעבר אחידות
   const sweep={};
@@ -253,8 +264,13 @@ async function redactDocx(buf,subs,allow,opt){
   // "לא נמצא" ו"התנגשות פרופיל" אינם מוטבעים בטקסט ולכן אינם מסומנים.
   const flagVals=[...new Set(flagged.filter(r=>r.src!=="nohit"&&r.src!=="collide"&&r.value)
     .map(r=>String(r.value)).filter(v=>v.length>=2))];
+  // המחיקות נרשמו על הבלוקים המקוריים; blocks3 הוא אותם בלוקים אחרי ההחלפה, באותו סדר
+  const delsByIdx=blocks.map(b=>b.dels||[]);
+  let bi3=-1;
   for(const blk of blocks3){
+    bi3++;
     const marks=[];
+    for(const d of delsByIdx[bi3]||[]) marks.push({s:d.s,e:d.s,del:true,val:d.val});
     for(const [rp,id] of Object.entries(ids)){
       if(!rp||!blk.text.includes(rp))continue;
       let i=0;while((i=blk.text.indexOf(rp,i))>=0){marks.push({s:i,e:i+rp.length,id,amb:ambiguous.has(rp)});i+=rp.length}}
