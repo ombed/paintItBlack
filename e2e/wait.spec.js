@@ -2,14 +2,18 @@ const { test, expect } = require("@playwright/test");
 const H = require("./helpers");
 
 /* On a slow line the first model download takes minutes while the names
-   from the header are already on screen. She can continue without waiting:
-   the scan is cancelled the way a replaced document cancels it, and the
-   model keeps loading for the next document. The session log records it,
-   with counts and never text. */
+   from the header are already on screen. She can continue without waiting.
 
-const DOC = "פרוטוקול דיון — התובעת: רונית לוי\nרונית לוי הגישה בקשה לצו הגנה.\nהדיון התקיים ביום שלישי.";
+   This test used to assert that a late model result "must not land
+   anywhere", and the tool obliged: continuing bumped the scan counter and the
+   result was discarded whole. On a real case file that is exactly how a
+   teacher's name, found seven times at full confidence, left the tool. A late
+   result now lands in the rules and the document is processed again. The
+   session log records it all, with counts and never text. */
 
-test("continuing without the model keeps the header names, and the log says so without text", async ({ page }) => {
+const DOC = "פרוטוקול דיון — התובעת: רונית לוי\nרונית לוי הגישה בקשה לצו הגנה.\nברקוביץ העיד שראה את ברקוביץ ליד הבית.\nהדיון התקיים ביום שלישי.";
+
+test("continuing without the model keeps the header names, and a late model result is still applied", async ({ page }) => {
   await H.serveEngineWithStub(page);
   await H.boot(page);
   await page.evaluate(() => { window.__ner = { delay: () => 8000, names: () => ["ברקוביץ"] }; });
@@ -26,7 +30,10 @@ test("continuing without the model keeps the header names, and the log says so w
   await page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לעיבוד/ }).first().click();
   await expect(page.locator("[data-mark]").first()).toBeVisible({ timeout: 15000 });
   await expect(page.locator("[data-work] section").first()).not.toContainText("רונית לוי");
-  await expect(page.locator("aside")).not.toContainText("ברקוביץ");
+  // the late result landed: the name it found is replaced in the document,
+  // even though she never saw it on the people screen
+  await expect(page.locator('[data-mark][data-val="ברקוביץ"]').first()).toBeVisible({ timeout: 20000 });
+  await expect(page.locator("[data-work] section").first()).not.toContainText("ברקוביץ");
 
   // the session log
   await page.evaluate(() => { navigator.clipboard.writeText = (t) => { window.__copied = t; return Promise.resolve(); }; });

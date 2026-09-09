@@ -120,6 +120,8 @@ class Engine{
     this.allow=(allow||[]).map(a=>new RegExp(
       "(?<![\\u0590-\\u05ff])(?:[בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?"+
       flex(a)+NWE,"gu"));
+    // הצורה המנורמלת של כל ערך מותר, באותו סדר, בשביל השער שב-detect
+    this.allowN=(allow||[]).map(a=>norm(a).trim());
     this.cnt={};this.map={};
     // "גולדשמיט" ו"תמר גולדשמיט" הם אותו אדם — אותו כינוי, לא שניים.
     const named=subs.filter(x=>x.kind==="NAME")
@@ -152,8 +154,17 @@ class Engine{
   blocked(s,e,zones){return zones.some(([a,b])=>a<=s&&e<=b)}
   detect(text){
     const n=norm(text),zones=[];
-    for(const rx of this.allow){rx.lastIndex=0;let m;
-      while((m=rx.exec(n)))zones.push([m.index,m.index+m[0].length])}
+    // רשימת ההיתר תופסת גם צורות עם אות שימוש, ו-ש היא אות שימוש: "אל תחליף" על
+    // "רון" היה חוסם גם את "שרון", שני אנשים. אם המילה המלאה עם האות היא בעצמה
+    // ערך ברשימה, זה אינו "ש+רון" אלא "שרון", והאזור לא נפתח.
+    const listed=this._listed||(this._listed=new Set(this.subs.map(s=>norm(s.value).trim()).filter(Boolean)));
+    this.allow.forEach((rx,i)=>{rx.lastIndex=0;let m;
+      const own=(this.allowN||[])[i]||"";
+      while((m=rx.exec(n))){
+        const tok=m[0].trim();
+        // רק כשההרחבה נחתה על ערך אחר ברשימה; "שרון" שהותרה בעצמה נשארת מותרת
+        if(tok!==own&&listed.has(tok))continue;
+        zones.push([m.index,m.index+m[0].length])}});
     const hits=[];
     for(const r of this.rules){r.rx.lastIndex=0;let m;
       while((m=r.rx.exec(n))){

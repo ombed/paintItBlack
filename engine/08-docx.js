@@ -407,12 +407,19 @@ function discover(blocks){
   // discover החזיר אפס מועמדים. פסקה קצרה בלי פיסוק בסוף, שאחריה פסקה של ממש, היא דובר.
   const extra=[];
   for(let bi=0;bi<blocks.length;bi++){
-    const t=trimEdges(blocks[bi].text||""), w=t.split(/\s+/).filter(Boolean);
+    const rawLine=(blocks[bi].text||"").trim();
+    const t=trimEdges(rawLine), w=t.split(/\s+/).filter(Boolean);
     const nxt=blocks[bi+1]&&trimEdges(blocks[bi+1].text||"");
-    if(!t||w.length>3||t.length>25||/[.,?!:;]$/.test(t))continue;
+    // הפיסוק נבדק על השורה הגולמית: trimEdges מסיר נקודה בסוף, ואז "לא." נראה
+    // כמו "לא" — שורה בת מילה אחת בלי פיסוק, כלומר שורת דובר. על תמלול של שיחה
+    // עם ילדה זה נתן אחת-עשרה הצעות: "וואי", "אההה", "תגידי", "לא.".
+    if(!t||w.length>3||t.length>25||/[.,?!:;…]$/.test(rawLine))continue;
     if(!nxt||nxt.split(/\s+/).length<4)continue;
     const c=cleanName(t); if(!c||!anchorOK(c))continue;
-    if(!c.split(/\s+/).every(x=>x.length>=2))continue;
+    // שם חשוף הוא לפחות שלוש אותיות במילה, אינו מילת עצירה או מילה נפוצה או
+    // פועל, ואינו קריאה: אות שחוזרת שלוש פעמים ("אההה", "וואי") אינה שם.
+    if(!c.split(/\s+/).every(x=>x.length>=3))continue;
+    if(c.split(/\s+/).some(x=>{const n=norm(x); return STOP.has(n)||COMMON.has(n)||VRB.has(n)||/(.)\1\1/.test(n);}))continue;
     // תמלול מלא בשורות קצרות שאינן שמות: "הבנתי", "טוב", "יודעת". הן נראות בדיוק
     // כמו שורת דובר, ושתיים מהן אף חזרו ולכן קיבלו ביטחון גבוה ומילוי אוטומטי.
     if(c.split(/\s+/).some(x=>FILLER.has(norm(x))||/(?:תי|נו)$/.test(norm(x))))continue;

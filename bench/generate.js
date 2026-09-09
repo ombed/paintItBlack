@@ -52,7 +52,7 @@ const C = {
   T_NUMBERS: "trap: case numbers, dates, section references",
   T_IDIOM: "trap: idiom or public title beside a same-word name",
 };
-const EXEMPT_FROM_DISJOINT = new Set(["P_WORD", "T_IDIOM"]);
+const EXEMPT_FROM_DISJOINT = new Set(["P_WORD", "T_IDIOM", "P_WORD_VERB"]);
 const EXPECTED_FAIL = new Set(["P_PREFIX_ONCE", "P_CORRUPT_ONLY"]);
 
 // ── document builder ────────────────────────────────────────────────────────
@@ -350,6 +350,8 @@ docs.push(...require("./corpus-more.js")(Doc, C));
 // transcribed audio: the shape her real transcripts have, and the typos the
 // near-miss layer exists for
 docs.push(...require("./corpus-audio.js")(Doc, C));
+// interview: spoken conversation with a child, the genre a real session leaked in
+docs.push(...require("./corpus-interview.js")(Doc, C));
 
 // ── assertions: the key cannot drift, every category is covered, nothing is known ──
 const strip = (s) => s.replace(/[֑-ׇ]/g, "");

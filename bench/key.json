@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-07",
+ "generated": "2026-09-09",
  "categories": {
   "P_WORD": "person: name that is also a common word",
   "P_PROSE": "person: only in prose, never before a speech verb",
@@ -43,11 +43,14 @@
   "I_BANK": "pii: bank account",
   "I_PLATE": "pii: licence plate",
   "I_DOB": "pii: date of birth",
-  "P_SPEAKERLINE": "person: speaker written on a line of its own (no colon)"
+  "P_SPEAKERLINE": "person: speaker written on a line of its own (no colon)",
+  "P_ROLE_TEACHER": "person: foreign first name only after a care or teaching role word, in child speech",
+  "P_WORD_VERB": "person: everyday word as a first name, before a speech verb (lexicon-aided by design)"
  },
  "exemptFromDisjoint": [
   "P_WORD",
-  "T_IDIOM"
+  "T_IDIOM",
+  "P_WORD_VERB"
  ],
  "expectedFail": [
   "P_PREFIX_ONCE",
@@ -3385,6 +3388,182 @@
      "canonical": "052-8814903",
      "surfaces": [
       "052-8814903"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "v1",
+   "genre": "interview",
+   "title": "שיחה עם ילדה, תמלול מוקלט",
+   "file": "corpus/v1.docx",
+   "words": 97,
+   "entities": [
+    {
+     "cat": "P_ROLE_TEACHER",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אנטונינה",
+     "surfaces": [
+      "למורה אנטונינה",
+      "אנטונינה"
+     ],
+     "note": "foreign first name, only after a role word, in child speech"
+    },
+    {
+     "cat": "P_MINOR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "תהל",
+     "surfaces": [
+      "תהל"
+     ],
+     "note": "the child, first name only"
+    },
+    {
+     "cat": "P_WORD_VERB",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אור",
+     "surfaces": [
+      "אור אמרה",
+      "אור"
+     ],
+     "note": "everyday word as a first name, before a speech verb"
+    },
+    {
+     "cat": "L_TOWN",
+     "kind": "PLACE",
+     "must": true,
+     "canonical": "כפר האורנים",
+     "surfaces": [
+      "כפר האורנים"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "כיתה ג",
+     "surfaces": [
+      "כיתה ג"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "v2",
+   "genre": "interview",
+   "title": "שיחה עם ילד, תמלול מוקלט",
+   "file": "corpus/v2.docx",
+   "words": 74,
+   "entities": [
+    {
+     "cat": "P_WORD_VERB",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "שלום",
+     "surfaces": [
+      "שלום אמר",
+      "שלום"
+     ],
+     "note": "an everyday word as a first name, before a speech verb"
+    },
+    {
+     "cat": "P_MINOR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "איתן",
+     "surfaces": [
+      "איתן"
+     ],
+     "note": "the child, first name only"
+    },
+    {
+     "cat": "P_ROLE_TEACHER",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "זינאידה",
+     "surfaces": [
+      "המטפלת זינאידה",
+      "זינאידה"
+     ],
+     "note": "foreign first name, only after a care role word"
+    },
+    {
+     "cat": "P_FORMS",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אלרואי קפלינסקי",
+     "surfaces": [
+      "אלרואי קפלינסקי",
+      "קפלינסקי"
+     ],
+     "note": "the neighbour, full then surname"
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "יום שלישי",
+     "surfaces": [
+      "יום שלישי",
+      "17:30"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "v3",
+   "genre": "interview",
+   "title": "שיחה עם ילדה בגן, תמלול מוקלט",
+   "file": "corpus/v3.docx",
+   "words": 45,
+   "entities": [
+    {
+     "cat": "P_ROLE_TEACHER",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "לריסה",
+     "surfaces": [
+      "הגננת לריסה",
+      "לריסה"
+     ],
+     "note": "foreign first name, only after הגננת"
+    },
+    {
+     "cat": "P_WORD_VERB",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אושר",
+     "surfaces": [
+      "אושר אמר",
+      "אושר"
+     ],
+     "note": "everyday word as a first name, before a speech verb"
+    },
+    {
+     "cat": "P_MINOR",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "לינוי",
+     "surfaces": [
+      "לינוי"
+     ],
+     "note": "the child, first name only"
+    },
+    {
+     "cat": "T_NUMBERS",
+     "kind": "TRAP",
+     "must": false,
+     "canonical": "שעה שמונה",
+     "surfaces": [
+      "שעה שמונה",
+      "8:00"
      ],
      "note": ""
     }
