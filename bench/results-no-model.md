@@ -50,7 +50,7 @@
 | trap: ordinary word that is also a locality name (קדימה, לשם, גבעות) | – | – | – | 2 |
 | person: speaker written on a line of its own (no colon) | 5 | 0 | 0 | 0 |
 | person: foreign first name only after a care or teaching role word, in child speech | 3 | 0 | 0 | 0 |
-| person: everyday word as a first name, before a speech verb (lexicon-aided by design) (lexicon-aided) | 2 | 1 | 1 | 0 |
+| person: everyday word as a first name, before a speech verb (lexicon-aided by design) (lexicon-aided) | 3 | 0 | 0 | 0 |
 
 ## Per genre
 
@@ -66,7 +66,7 @@
 | chat | 13 | 7 | 8 | 0 |
 | position | 12 | 1 | 2 | 2 |
 | audio | 17 | 3 | 8 | 0 |
-| interview | 7 | 4 | 4 | 0 |
+| interview | 8 | 3 | 3 | 0 |
 
 ## Unlisted suggestions (match nothing in the key; one tap each) — 23 in total
 
@@ -156,7 +156,6 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 - a4 · person: same person, one clean and one corrupted spelling · מקונן: found via suggest+applied as «מקונן», **leaked**: מכונן
 - v1 · person: minor, first name only · תהל: missed, **leaked**: תהל
 - v2 · person: minor, first name only · איתן: missed, **leaked**: איתן
-- v3 · person: everyday word as a first name, before a speech verb (lexicon-aided by design) · חן: missed, **leaked**: חן אמר
 - v3 · person: minor, first name only · לינוי: missed, **leaked**: לינוי
 
 ## Traps and public bodies touched
@@ -170,43 +169,43 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 75 | 4 | 1 |
-| m2 | meeting | 28 | 6 | 0 |
-| m3 | meeting | 24 | 3 | 0 |
-| m4 | meeting | 19 | 3 | 1 |
-| f1 | filing | 45 | 10 | 1 |
-| f2 | filing | 56 | 13 | 1 |
-| f3 | filing | 25 | 5 | 0 |
-| f4 | filing | 28 | 8 | 3 |
-| t1 | transcript | 28 | 6 | 0 |
-| t2 | transcript | 19 | 5 | 1 |
-| t3 | transcript | 23 | 6 | 1 |
+| m1 | meeting | 68 | 4 | 1 |
+| m2 | meeting | 32 | 6 | 0 |
+| m3 | meeting | 25 | 3 | 0 |
+| m4 | meeting | 20 | 3 | 1 |
+| f1 | filing | 40 | 10 | 1 |
+| f2 | filing | 57 | 13 | 1 |
+| f3 | filing | 22 | 5 | 0 |
+| f4 | filing | 31 | 8 | 3 |
+| t1 | transcript | 30 | 6 | 0 |
+| t2 | transcript | 20 | 5 | 1 |
+| t3 | transcript | 21 | 6 | 1 |
 | t4 | transcript | 31 | 9 | 1 |
-| w1 | welfare | 12 | 1 | 0 |
-| w2 | welfare | 21 | 3 | 0 |
-| w3 | welfare | 17 | 2 | 0 |
-| w4 | welfare | 20 | 5 | 1 |
-| h1 | medical | 26 | 6 | 2 |
-| h2 | medical | 21 | 2 | 0 |
-| h3 | medical | 20 | 3 | 3 |
-| p1 | police | 21 | 2 | 1 |
-| p2 | police | 21 | 3 | 1 |
-| p3 | police | 12 | 1 | 0 |
-| p4 | police | 16 | 3 | 0 |
-| b1 | bank | 21 | 5 | 2 |
-| b2 | bank | 9 | 1 | 0 |
-| b3 | bank | 10 | 2 | 0 |
-| c1 | chat | 9 | 1 | 0 |
-| c2 | chat | 14 | 2 | 1 |
-| c3 | chat | 8 | 2 | 0 |
-| c4 | chat | 13 | 3 | 0 |
-| x1 | position | 22 | 5 | 1 |
-| x2 | position | 17 | 4 | 0 |
-| x3 | position | 19 | 4 | 0 |
-| a1 | audio | 14 | 3 | 0 |
+| w1 | welfare | 10 | 1 | 0 |
+| w2 | welfare | 15 | 3 | 0 |
+| w3 | welfare | 12 | 2 | 0 |
+| w4 | welfare | 17 | 5 | 1 |
+| h1 | medical | 21 | 6 | 2 |
+| h2 | medical | 15 | 2 | 0 |
+| h3 | medical | 13 | 3 | 3 |
+| p1 | police | 20 | 2 | 1 |
+| p2 | police | 14 | 3 | 1 |
+| p3 | police | 9 | 1 | 0 |
+| p4 | police | 14 | 3 | 0 |
+| b1 | bank | 19 | 5 | 2 |
+| b2 | bank | 7 | 1 | 0 |
+| b3 | bank | 8 | 2 | 0 |
+| c1 | chat | 8 | 1 | 0 |
+| c2 | chat | 10 | 2 | 1 |
+| c3 | chat | 9 | 2 | 0 |
+| c4 | chat | 12 | 3 | 0 |
+| x1 | position | 20 | 5 | 1 |
+| x2 | position | 18 | 4 | 0 |
+| x3 | position | 18 | 4 | 0 |
+| a1 | audio | 16 | 3 | 0 |
 | a2 | audio | 17 | 5 | 0 |
-| a3 | audio | 25 | 7 | 1 |
-| a4 | audio | 13 | 4 | 0 |
+| a3 | audio | 23 | 7 | 1 |
+| a4 | audio | 14 | 4 | 0 |
 | v1 | interview | 14 | 2 | 0 |
-| v2 | interview | 15 | 3 | 0 |
-| v3 | interview | 10 | 1 | 0 |
+| v2 | interview | 16 | 3 | 0 |
+| v3 | interview | 10 | 2 | 0 |
