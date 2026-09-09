@@ -37,9 +37,11 @@ let pass=0,fail=0;const ok=(c,m)=>{c?pass++:(fail++,console.log("  ✗ "+m))};
  const out=r.preview.map(b=>b.text).join("\n");
  console.log("   "+out.replace(/\n/g,"\n   "));
  ok(!out.includes("פנים מאירות"),"כל מופעי הגוף הוחלפו");
- ok(/[בלמ]\[גוף/.test(out),"כולל אותיות שימוש: "+(out.match(/[בלמ]\[גוף[^\]]*\]/g)||[]).join(", "));
+ // גוף שאושר מקבל שם בדוי של גוף, לא תווית; אות השימוש נשמרת לפניו ("לגפן", "מהגפן")
  const orgRep=(r.applied.find(x=>x.value==="פנים מאירות")||{}).rep;
- ok(/^\[גוף/.test(orgRep||""),"הגוף קיבל תווית גוף ולא שם של אדם: "+orgRep);
+ ok(orgRep&&!/^\[/.test(orgRep)&&!/\s/.test(orgRep),"הגוף קיבל שם בדוי של גוף ולא תווית: "+orgRep);
+ const stem=(orgRep||"").replace(/^ה/,"");
+ ok(stem&&new RegExp("[בלמ]ה?"+stem).test(out),"כולל אותיות שימוש: "+(out.match(new RegExp("[בלמ]ה?"+stem,"g"))||[]).join(", "));
  const near=(r.verification.near||[]).map(x=>x.value);
  ok(near.some(x=>/מארות/.test(x)),"ושיבוש כתיב של גוף נתפס: "+(near.join(", ")||"—"));
 

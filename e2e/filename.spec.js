@@ -55,5 +55,7 @@ test("the redacted download is not named after the person in the file name", asy
 
   expect(name).not.toContain("רונית");
   expect(name).not.toContain("לוי");
-  expect(name).toMatch(/_מושחר\.docx$/);
+  // "מסמך-מושחר-<date>.docx": the word appears once, and the date is the only
+  // thing the name says about the file.
+  expect(name).toMatch(/^מסמך-מושחר-\d{4}-\d{2}-\d{2}(?:-\d+)?\.docx$/);
 });
