@@ -98,7 +98,8 @@ const PUBLIC = ["בית המשפט לענייני משפחה", "משרד הרו�
   d.ent("P_SPLITRUN", "NAME", true, "עמיחי אלמגור", ["עמיחי אלמגור"], "split mid-word across two runs");
   const [o1, o1b] = d.ent("O_PRIVATE", "ORG", true, "עמותת שביל הלב", ["עמותת שביל הלב", "שביל הלב"]);
   const [l1] = d.ent("L_TOWN", "PLACE", true, "נוף הגליל", ["נוף הגליל"]);
-  d.ent("T_NUMBERS", "TRAP", false, "14.5.2026", ["14.5.2026", "סעיף 3(א)"]);
+  d.ent("T_NUMBERS", "TRAP", false, "14.5.2026", ["סעיף 3(א)"]);
+  d.ent("I_DATE", "PII", true, "14.5.2026", ["14.5.2026"], "full date, omitted by default");
   d.ent("T_IDIOM", "TRAP", false, "בחיים לא ראיתי", ["בחיים לא ראיתי"]);
   d.p("סיכום פגישה מיום 14.5.2026")
    .p(`נפגשתי היום עם ${a1} במשרד. ${a2} הגיע עם אחותו ובלי הילדים. הוא סיפר ש${w1} לא העביר מזונות כבר שלושה חודשים, ושהמצב בבית קשה.`)
@@ -174,7 +175,8 @@ const PUBLIC = ["בית המשפט לענייני משפחה", "משרד הרו�
   const [l1] = d.ent("L_TOWN", "PLACE", true, "בית זית", ["בית זית"]);
   const [st] = d.ent("L_STREET", "PLACE", true, "רחוב התאנה 4", ["רחוב התאנה 4"]);
   d.ent("T_PLONI", "TRAP", false, "פלונית", ["פלונית", "פלוני"]);
-  d.ent("T_NUMBERS", "TRAP", false, 'תלה"מ 12345-06-24', ['תלה"מ 12345-06-24', "3.6.2026", "סעיף 7(ב)"]);
+  d.ent("T_NUMBERS", "TRAP", false, 'תלה"מ 12345-06-24', ['תלה"מ 12345-06-24', "סעיף 7(ב)"]);
+  d.ent("I_DATE", "PII", true, "3.6.2026", ["3.6.2026"], "full date, omitted by default");
   d.p(`ב${PUBLIC[0]} בירושלים`)
    .p('תלה"מ 12345-06-24')
    .p(`${rn1}, מ${st}, ${l1}`)
@@ -203,7 +205,8 @@ const PUBLIC = ["בית המשפט לענייני משפחה", "משרד הרו�
   d.ent("O_PUBLIC", "ORG", false, PUBLIC[1], [PUBLIC[1]]);
   const [nb] = d.ent("L_NEIGHBOURHOOD", "PLACE", true, "שכונת גני אביב", ["שכונת גני אביב"]);
   d.ent("T_PLONI", "TRAP", false, "פלוני", ["פלוני"]);
-  d.ent("T_NUMBERS", "TRAP", false, "סעיף 2", ["סעיף 2", "18.7.2026", 'ת"פ 4471-02-26']);
+  d.ent("T_NUMBERS", "TRAP", false, "סעיף 2", ["סעיף 2", 'ת"פ 4471-02-26']);
+  d.ent("I_DATE", "PII", true, "18.7.2026", ["18.7.2026"], "full date, omitted by default");
   d.ent("T_IDIOM", "TRAP", false, "בגיל 8", ["בגיל 8", "עם שחר"], "בגיל 8 beside גיל; עם שחר beside שחר");
   d.p(`בקשה לצו הגנה — ${PUBLIC[0]}`)
    .p(`המבקשת: ${s1}. המשיב: ${s2}. ת"פ 4471-02-26.`)
@@ -227,7 +230,8 @@ const PUBLIC = ["בית המשפט לענייני משפחה", "משרד הרו�
   d.ent("O_PUBLIC", "ORG", false, PUBLIC[1], [PUBLIC[1]]);
   d.ent("O_PUBLIC", "ORG", false, PUBLIC[2], [PUBLIC[2]]);
   const [l1] = d.ent("L_TOWN", "PLACE", true, "מבוא חורון", ["מבוא חורון"]);
-  d.ent("T_NUMBERS", "TRAP", false, "סעיף 14", ["סעיף 14", "22.1.2026"]);
+  d.ent("T_NUMBERS", "TRAP", false, "סעיף 14", ["סעיף 14"]);
+  d.ent("I_DATE", "PII", true, "22.1.2026", ["22.1.2026"], "full date, omitted by default");
   d.p(`תסקיר ${PUBLIC[1]} — לשכת הרווחה`)
    .p(`${rn} הגישה בקשה להסדרי שהות. ${e1}, האם, מתגוררת ב${l1} עם ${mn}. ${e2}, אחיה של האם, מתגורר בסמוך.`)
    .p(`${e1b} ו${e2b} הם שני אנשים שונים, ויש להיזהר בניסוח. ${t1} השכנים מסרו כי ${mn} משחק אצלם אחר הצהריים.`)
@@ -247,7 +251,8 @@ const PUBLIC = ["בית המשפט לענייני משפחה", "משרד הרו�
   const [nk1, nk2] = d.ent("P_NIKUD", "NAME", true, "מיקה", ["מיקה", NIK_MIKA], "one occurrence carries nikud");
   const [lp] = d.ent("O_LOOKS_PERSON", "ORG", true, "שילה ואופק", ["שילה ואופק"], "a daycare named like two children");
   const [st, stb] = d.ent("L_STREET", "PLACE", true, "שדרות הנשיאים 8", ["שדרות הנשיאים 8", "הנשיאים"]);
-  d.ent("T_NUMBERS", "TRAP", false, "סעיף 5", ["סעיף 5", "9.9.2025", "ת/7"]);
+  d.ent("T_NUMBERS", "TRAP", false, "סעיף 5", ["סעיף 5", "ת/7"]);
+  d.ent("I_DATE", "PII", true, "9.9.2025", ["9.9.2025"], "full date, omitted by default");
   d.p("תצהיר")
    .p(`אני הח"מ ${a1}, לאחר שהוזהרתי כי עליי לומר את האמת, מצהירה בזאת כדלקמן:`)
    .p(`1. אני מתגוררת ב${st} מאז 9.9.2025. ${a2}, בעלי לשעבר, עזב את הדירה. ${a3} הוא אביו.`)
