@@ -1789,13 +1789,17 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         const {textToDocx} = await import("./text-to-docx.js");
         const buf = await textToDocx(this.constructor.SAMPLE);
         const blocks = await this.blocksOf(buf);
-        this.setState({buf, name:"מסמך לדוגמה", origBlocks:blocks.map(b=>({part:b.part, text:b.text})), pending:false, tour:{...t, i:1}});
+        this.setState({buf, name:"מסמך לדוגמה", origBlocks:blocks.map(b=>({part:b.part, text:b.text})), pending:false});
+        // הצעד מתקדם רק אחרי שהסריקה נגמרה: באתר החי הלוח הראה "מי בתיק" בזמן
+        // שהרשימה עוד הייתה ריקה, ו"המשך" המשיך בלי אף שם — והמסמך יצא לא מושחר
         await this.scanNames();
+        if(this.state.tour) this.setState({tour:{...this.state.tour, i:1}});
       }catch(e){ this.setState({err:"הסיור לא הצליח לטעון את המסמך לדוגמה: "+(e.message||e)}); }
       return;
     }
     if(cur.screen==="people"){
       const S=this.state;
+      if(S.scanning||S.screen!=="people") return;
       this.setState({tour:{...t, i:2}});
       await this.toPlaces(S.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined})));
       // בלי מסך יישובים (אין שני יישובים למפה) מדלגים ישר למסך הבדיקה

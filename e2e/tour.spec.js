@@ -28,6 +28,8 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   // step 1 → the tool loads the sample itself and reaches the people screen
   await tour.getByRole("button", { name: /טעינת המסמך לדוגמה/ }).click();
   await expect(tour).toContainText("מי בתיק", { timeout: 20000 });
+  // the step advances only after the scan: the list is already filled here
+  await expect(H.peopleRows(page).first()).toBeVisible();
   const names = await H.listedNames(page);
   expect(names.some((n) => /שרעבי/.test(n))).toBe(true);
 

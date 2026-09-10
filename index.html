@@ -98,7 +98,7 @@ a:hover{text-decoration:underline}
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v29");
+  console.log("השחרת מסמכים — גרסה v30");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -136,9 +136,9 @@ a:hover{text-decoration:underline}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v29") return;
+        if(served==="v30") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v29 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v30 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -897,7 +897,7 @@ a:hover{text-decoration:underline}
 
 </div>
 </x-dc>
-<div id="ver">גרסה v29</div>
+<div id="ver">גרסה v30</div>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
@@ -1877,13 +1877,17 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         const {textToDocx} = await import((window.__resources && window.__resources.todocx) || "./text-to-docx.js");
         const buf = await textToDocx(this.constructor.SAMPLE);
         const blocks = await this.blocksOf(buf);
-        this.setState({buf, name:"מסמך לדוגמה", origBlocks:blocks.map(b=>({part:b.part, text:b.text})), pending:false, tour:{...t, i:1}});
+        this.setState({buf, name:"מסמך לדוגמה", origBlocks:blocks.map(b=>({part:b.part, text:b.text})), pending:false});
+        // הצעד מתקדם רק אחרי שהסריקה נגמרה: באתר החי הלוח הראה "מי בתיק" בזמן
+        // שהרשימה עוד הייתה ריקה, ו"המשך" המשיך בלי אף שם — והמסמך יצא לא מושחר
         await this.scanNames();
+        if(this.state.tour) this.setState({tour:{...this.state.tour, i:1}});
       }catch(e){ this.setState({err:"הסיור לא הצליח לטעון את המסמך לדוגמה: "+(e.message||e)}); }
       return;
     }
     if(cur.screen==="people"){
       const S=this.state;
+      if(S.scanning||S.screen!=="people") return;
       this.setState({tour:{...t, i:2}});
       await this.toPlaces(S.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined})));
       // בלי מסך יישובים (אין שני יישובים למפה) מדלגים ישר למסך הבדיקה
