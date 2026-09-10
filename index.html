@@ -98,7 +98,7 @@ a:hover{text-decoration:underline}
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v28");
+  console.log("השחרת מסמכים — גרסה v29");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -136,9 +136,9 @@ a:hover{text-decoration:underline}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v28") return;
+        if(served==="v29") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v28 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v29 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -194,6 +194,23 @@ a:hover{text-decoration:underline}
   <input type="file" accept=".docx,.pdf" ref="{{ fileRef }}" onChange="{{ onFile }}" style="display:none">
   <input type="file" accept=".json,.txt" ref="{{ profRef }}" onChange="{{ onProfFile }}" style="display:none">
 
+  <sc-if value="{{ tourOn }}">
+    <div data-tour style="position:fixed;bottom:18px;inset-inline-start:18px;z-index:80;max-width:400px;background:var(--panel);border:1px solid var(--accent);border-radius:14px;padding:16px 18px;box-shadow:0 18px 48px rgba(0,0,0,.28)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;background:var(--accent-soft);color:var(--accent-ink)">סיור · מסמך לדוגמה</span>
+        <span style="font-size:11.5px;color:var(--ink3)">{{ tourPos }}</span>
+        <button onClick="{{ onTourClose }}" aria-label="סגירת הסיור" style="margin-inline-start:auto;width:24px;height:24px;border-radius:50%;color:var(--ink3);display:grid;place-items:center">✕</button>
+      </div>
+      <b style="display:block;font-weight:500;font-size:15px;margin-bottom:4px">{{ tourTitle }}</b>
+      <p style="margin:0 0 12px;font-size:13px;color:var(--ink2);line-height:1.6">{{ tourText }}</p>
+      <div style="display:flex;gap:7px;align-items:center">
+        <button onClick="{{ onTourNext }}" style="padding:8px 16px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500">{{ tourNextLabel }}</button>
+        <sc-if value="{{ tourHasBack }}"><button onClick="{{ onTourBack }}" style="padding:8px 12px;border-radius:9px;border:1px solid var(--line);font-size:13px">חזרה</button></sc-if>
+        <button onClick="{{ onTourClose }}" style="margin-inline-start:auto;font-size:12.5px;color:var(--ink3);padding:8px 6px">דילוג</button>
+      </div>
+    </div>
+  </sc-if>
+
   <sc-if value="{{ showIntro }}">
     <div style="position:fixed;inset:0;z-index:70;background:rgba(10,14,12,.5);display:grid;place-items:center;padding:24px">
       <div style="max-width:560px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px 30px;box-shadow:0 24px 60px rgba(0,0,0,.35)">
@@ -206,7 +223,11 @@ a:hover{text-decoration:underline}
             <small style="color:var(--ink2);font-size:12.5px;line-height:1.5">{{ s.text }}</small></span>
           </div>
         </sc-for>
-        <button onClick="{{ onCloseIntro }}" style="{{ primaryBtn }}">הבנתי, נתחיל</button>
+        <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
+          <button onClick="{{ onTourStart }}" style="{{ primaryBtn }}">סיור קצר על מסמך לדוגמה</button>
+          <button onClick="{{ onCloseIntro }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px">להתחיל ישר</button>
+        </div>
+        <p style="margin:10px 0 0;font-size:12px;color:var(--ink3);line-height:1.55">הסיור רץ על מסמך בדוי שמובנה בכלי. שום דבר ממנו לא נשמר, לא מועתק ולא יורד.</p>
       </div>
     </div>
   </sc-if>
@@ -218,7 +239,10 @@ a:hover{text-decoration:underline}
   <!-- ═════ מסך פתיחה ═════ -->
   <sc-if value="{{ isEntry }}" hint-placeholder-val="{{ true }}">
   <main style="max-width:1120px;margin:0 auto;padding:38px 22px 70px;animation:rise .3s ease">
-    <h1 style="font-size:29px;font-weight:500;letter-spacing:-.02em;margin:0 0 6px">מה יוצא מהמסמך, ומה נכנס במקומו</h1>
+    <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+      <h1 style="font-size:29px;font-weight:500;letter-spacing:-.02em;margin:0 0 6px;flex:1;min-width:0">מה יוצא מהמסמך, ומה נכנס במקומו</h1>
+      <button data-tour-start onClick="{{ onTourStart }}" title="סיור קצר על מסמך בדוי שמובנה בכלי — שום דבר ממנו לא נשמר" style="font-size:13px;color:var(--ink2);padding:8px 13px;border-radius:9px;border:1px solid var(--line);background:var(--panel);white-space:nowrap;margin-top:6px" style-hover="background:var(--panel2);color:var(--ink)">סיור על מסמך לדוגמה</button>
+    </div>
     <p style="margin:0 0 26px;color:var(--ink2);font-size:14.5px;max-width:62ch">מעלים קובץ Word, מאשרים את רשימת האנשים, ומקבלים מסמך מושחר עם דוח מלא של כל החלפה. הזיהוי, ההחלפה והאימות רצים כאן בדפדפן.</p>
 
     <div data-stack style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch">
@@ -332,6 +356,14 @@ a:hover{text-decoration:underline}
             <button onClick="{{ mBlock }}" style="{{ segBlock }}">███</button>
           </div>
           <p style="margin:12px 0 0;font-size:12.5px;line-height:1.55;color:var(--ink2)">{{ modeNote }}</p>
+          <label style="display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line2);font-size:13px">
+            <span style="flex:1"><b style="font-weight:500">מספרים, תאריכים וכתובות</b><br><small style="color:var(--ink2);font-size:12px">ת״ז, טלפון, חשבון, רכב, תאריכים. גיל נשאר תמיד.</small></span>
+            <select value="{{ numStyle }}" onChange="{{ onNumStyle }}" style="background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:13px">
+              <option value="blank" selected="{{ numBlank }}">נמחקים מהטקסט</option>
+              <option value="label" selected="{{ numLabel }}">תווית: [ת״ז א׳]</option>
+              <option value="black" selected="{{ numBlack }}">███</option>
+            </select>
+          </label>
         </div>
         <div style="margin-top:12px;padding:13px 15px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);font-size:12.5px;color:var(--ink2);line-height:1.55">
           <b style="display:block;color:var(--ink);font-weight:500;margin-bottom:3px">פרופיל תיק</b>
@@ -379,6 +411,13 @@ a:hover{text-decoration:underline}
       <sc-if value="{{ peoEmpty }}">
         <div style="color:var(--ink3);font-size:13.5px;padding:6px 0">הרשימה ריקה. אפשר להקליד שמות למטה, או להמשיך בלי שמות.</div>
       </sc-if>
+      <sc-for list="{{ mergeSugs }}" as="m" hint-placeholder-count="2">
+        <div data-merge-sug style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;margin-top:6px;border-radius:12px;border:1px dashed var(--line);background:var(--panel2);font-size:12.5px;color:var(--ink2)">
+          <span>אותו אדם? <b style="font-weight:500;color:var(--ink)">{{ m.from }}</b> ו<b style="font-weight:500;color:var(--ink)">{{ m.to }}</b> <small style="color:var(--ink3)">({{ m.why }})</small></span>
+          <button onClick="{{ m.onSame }}" style="padding:4px 11px;border-radius:14px;background:var(--accent-soft);color:var(--accent-ink);font-size:12.5px;font-weight:500">כן, אותו אדם</button>
+          <button onClick="{{ m.onNotSame }}" style="padding:4px 11px;border-radius:14px;border:1px solid var(--line);font-size:12.5px">לא, שני אנשים</button>
+        </div>
+      </sc-for>
     </div>
 
     <sc-if value="{{ hasPeoSug }}">
@@ -474,6 +513,7 @@ a:hover{text-decoration:underline}
             <input value="{{ g.to }}" onChange="{{ g.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
             <button onClick="{{ g.onRemove }}" title="להשאיר את שם היישוב כמו שהוא" style="font-size:12.5px;color:var(--ink2);padding:7px 11px;border-radius:8px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)">אל תחליף</button>
           </div>
+          <sc-if value="{{ g.tagNote }}"><div data-tags style="padding:0 18px 9px 160px;margin-top:-6px;font-size:11.5px;color:var(--ink3);border-bottom:1px solid var(--line2)">{{ g.tagNote }}</div></sc-if>
         </sc-for>
         <sc-if value="{{ hasExcluded }}">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--line2);font-size:12.5px;color:var(--ink2)">
@@ -696,6 +736,7 @@ a:hover{text-decoration:underline}
                       <span style="margin-inline-start:auto;font-size:11.5px;font-weight:500;color:var(--ink3);background:var(--panel2);border-radius:10px;padding:1px 7px">{{ g.count }}×</span>
                     </div>
                     <div style="font-size:12.5px;color:var(--ink2);margin-top:3px;line-height:1.45">{{ g.why }}</div>
+                    <sc-if value="{{ g.collideWarn }}"><div data-collide style="font-size:12px;color:var(--warn);margin-top:3px;line-height:1.5">{{ g.collideWarn }}</div></sc-if>
                     <div style="font-size:11.5px;color:var(--ink3);margin-top:2px">{{ g.meta }}</div>
                     <sc-if value="{{ g.isFlagged }}">
                       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center">
@@ -714,6 +755,12 @@ a:hover{text-decoration:underline}
                     <sc-if value="{{ g.selected }}">
                       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--line2)">
                         <sc-if value="{{ g.applied }}">
+                          <div onClick="{{ g.stop }}" title="מה נכנס במקום הערך הזה" style="display:flex;gap:2px;background:var(--panel2);border-radius:14px;padding:2px;flex:0 0 auto">
+                            <button onClick="{{ g.onStyleName }}" style="{{ g.styleNameBtn }}">{{ g.styleNameLabel }}</button>
+                            <button onClick="{{ g.onStyleBlank }}" style="{{ g.styleBlankBtn }}">ריק</button>
+                            <button onClick="{{ g.onStyleBlack }}" style="{{ g.styleBlackBtn }}">███</button>
+                          </div>
+                          <sc-if value="{{ g.blankWarn }}"><div style="flex-basis:100%;font-size:12px;color:var(--warn);line-height:1.5">תשובת ה-AI לא תוכל להחזיר את השם הזה: הוא נמחק, ולא הוחלף.</div></sc-if>
                           <input value="{{ g.repDraft }}" onChange="{{ g.onRepChange }}" onClick="{{ g.stop }}" onKeyDown="{{ g.onRepKey }}" placeholder="תחליף" style="width:120px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12.5px">
                           <button onClick="{{ g.onSave }}" style="padding:6px 11px;border-radius:14px;background:var(--accent);color:var(--panel);font-size:12px;font-weight:500">שמירת תחליף</button>
                           <sc-if value="{{ g.showSame }}">
@@ -822,8 +869,8 @@ a:hover{text-decoration:underline}
         <span style="{{ step2Style }}">2 העתקה ל-AI{{ step2Mark }}</span><span style="color:var(--ink3)">›</span>
         <span style="{{ step3Style }}">3 החזרת השמות</span>
       </div>
-      <button onClick="{{ onCopyAi }}" style="{{ copyBtnStyle }}">{{ copyLabel }}</button>
-      <button onClick="{{ onDownload }}" style="padding:11px 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">הורדת Word</button>
+      <button onClick="{{ onCopyAi }}" title="מעתיק את הטקסט המושחר ללוח. מדביקים ב-AI; כשהתשובה חוזרת, «החזרת שמות מתשובת AI» בכותרת מחזיר את השמות האמיתיים" style="{{ copyBtnStyle }}">{{ copyLabel }}</button>
+      <button onClick="{{ onDownload }}" title="קובץ Word מושחר, בשם ניטרלי עם תאריך — לא בשם הקובץ המקורי" style="padding:11px 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">הורדת Word</button>
     </div>
   </div>
 
@@ -850,14 +897,15 @@ a:hover{text-decoration:underline}
 
 </div>
 </x-dc>
-<div id="ver">גרסה v28</div>
+<div id="ver">גרסה v29</div>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
 class Component extends DCLogic {
   state = {
     screen:"entry", theme:"light", ready:false, E:null,
-    mode:"real", o:{auto:true, places:true, ner:true, near:true},
+    // numStyle: מה נכנס במקום מספר, תאריך או כתובת — blank (נמחק), label, black
+    mode:"real", o:{auto:true, places:true, ner:true, near:true, numStyle:"blank"},
     nerOff:false, nerHint:"", nerMsg:"", nerPct:null, nerBox:false, nerUsed:false,
     buf:null, name:"", cands:[], peo:[], peoSug:[], peoIn:"", peoNote:"", scanning:false,
     rules:[], allow:[], res:null, profile:null,
@@ -866,7 +914,7 @@ class Component extends DCLogic {
     aiIn:"", aiWarn:"", aiCopyLabel:"העתקת טקסט מושחר",
     rvIn:"", rvOut:"", rvCopyLabel:"העתקת הטקסט המשוחזר",
     copyLabel:"העתקה ל-AI", busyT:"מעבד…", err:"",
-    geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, popup:null, tip:null, repDraft:"", peoKept:[],
+    geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, popup:null, tip:null, repDraft:"", peoKept:[], peoNotSame:[],
     // הפרופיל של התיק נשמר בדפדפן אחרי כל שינוי; lastProfile הוא מה שנמצא בכניסה
     caseName:"", lastProfile:null, profileDirty:false, leaks:[], cases:[], copied:false, feedbackMail:"", logCopyLabel:""
   };
@@ -882,7 +930,8 @@ class Component extends DCLogic {
     let th="light";
     try{ th = localStorage.getItem("redact-theme") || (matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"); }catch(_){}
     this.applyTheme(th);
-    let seen=false; try{ seen = localStorage.getItem("redact-intro-seen")==="1"; }catch(_){}
+    // הסיור מוצע פעם אחת לכל גרסה: המפתח נושא את מספר הגרסה, ו-"*" (מהבדיקות) מכסה את כולן
+    let seen=false; try{ const t=localStorage.getItem("redact-tour-seen"); seen = localStorage.getItem("redact-intro-seen")==="1" && (t==="*"||t===this.ver()); }catch(_){}
     let lastProfile=null; try{ const j=localStorage.getItem("redact-profile-last"); const p=j&&JSON.parse(j); if(p&&p.v===1&&(p.rules||[]).length) lastProfile=p; }catch(_){}
     this.setState({theme:th, intro:!seen, lastProfile, cases:this.readCases()});
     // יומן הסשן (Q16): זמנים ואירועים בלי טקסט, בדפדפן בלבד, מיוצא בכפתור ליד דוח הדליפה
@@ -922,8 +971,14 @@ class Component extends DCLogic {
   }
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); removeEventListener("resize", this._resize);
     if(this._barObs) this._barObs.disconnect(); }
-  componentDidUpdate(prev){ this.applyProps(); if(this._barSize) this._barSize();
-    if(prev&&prev.screen!==this.state.screen&&this.log) this.log.add("screen",{to:this.state.screen, from:prev.screen}); }
+  /* ביומן של הסשן האמיתי 347 מתוך 375 האירועים היו "screen" — אותו מסך, שוב ושוב,
+     בכל רינדור. הארגומנט הראשון של ההוק הוא ה-props הקודמים, לא ה-state הקודם, ולכן
+     prev.screen היה undefined תמיד, ההשוואה תמיד "השתנה", ושדה from נעלם מהיומן.
+     המסך האחרון נשמר על המופע ולא נלקח מההוק. */
+  componentDidUpdate(){ this.applyProps(); if(this._barSize) this._barSize();
+    const cur=this.state.screen;
+    if(this._lastScreen!==undefined&&this._lastScreen!==cur&&this.log) this.log.add("screen",{to:cur, from:this._lastScreen});
+    this._lastScreen=cur; }
   applyProps(){
     const r=document.documentElement.style;
     const accents={forest:["#1F5B44","#E6EFE9","#79D3A8"], ink:["#1F3F63","#E4EBF3","#7FB6EE"], plum:["#5A2B4C","#F0E6EE","#DC9BC9"]};
@@ -1169,7 +1224,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         for(const f of found){
           const k=E2.norm(f.value).trim();
           if(rules.some(r=>E2.norm(r.value).trim()===k)||allowN.has(k)) continue;
-          rules.push({value:f.value, kind:f.kind||"NAME", replacement:"", auto:true, g:null});
+          rules.push({value:f.value, kind:f.kind||"NAME", replacement:"", auto:true, g:null, review:!!f.review});
           late++;
         }
         this.log.add("model-late",{found:found.length, added:late, screen:this.state.screen});
@@ -1178,13 +1233,16 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         });
         return;
       }
-      const list=[...this.state.peo]; let added=0;
+      const list=[...this.state.peo]; let added=0; const sug=[...this.state.peoSug];
       for(const f of found){
         if(list.some(p=>E.norm(p.value)===E.norm(f.value))) continue;
+        // גוף בלי מילת סוג ("ברסלב", "שביל הלב" לבדו) אינו נכנס לרשימה מעצמו:
+        // הוא מוצע לאישור, כי בלי הראש אין לדעת אם זה מזהה או מילה מהעולם.
+        if(f.review){ if(!sug.some(x=>E.norm(x.value)===E.norm(f.value))) sug.push({value:f.value, why:"גוף בלי מילת סוג — לאישור", count:f.n, kind:f.kind}); continue; }
         list.push({value:f.value, kind:f.kind, g:null, auto:true, note:f.n>1?`נמצא ${f.n}×`:"נמצא במסמך"});
         added++;
       }
-      this.setState({peo:list, nerBox:false, nerUsed:added>0, peoNote: added
+      this.setState({peo:list, peoSug:sug, nerBox:false, nerUsed:added>0, peoNote: added
         ? `נמצאו ${list.length} שמות ומולאו ברשימה. כדאי לעבור עליהם: להסיר מה שאינו פרט מזהה, ולתקן סוג בלחיצה על התג.`
         : "המודל רץ ולא מצא שמות מעבר למה שברשימה. אפשר להקליד שמות נוספים למטה."});
     }catch(e){
@@ -1193,13 +1251,13 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     }finally{ if(my===this._scan) this.setState({scanning:false}); }
   }
 
-  peoAdd = (txt, note, auto) => {
+  peoAdd = (txt, note, auto, kindAs) => {
     const E=this.state.E; const list=[...this.state.peo];
     for(const raw of String(txt||"").split(/[\n,;]+/)){
       const {v, note:n2, kind} = E.cleanEntry(raw);
       if(v.length<2) continue;
       if(list.some(p=>E.norm(p.value)===E.norm(v))) continue;
-      list.push({value:v, kind, g:null, auto:!!auto, note:note||n2});
+      list.push({value:v, kind:kindAs||kind, g:null, auto:!!auto, note:note||n2});
     }
     this.setState({peo:list});
   };
@@ -1219,6 +1277,19 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const kept=(this.state.peoKept||[]).filter(k=>k.value!==p.value).concat([{...p}]);
     this.log.add("del-peo",{auto:!!p.auto, kept:kept.length});
     this.setState({peo:list, allow, peoKept:kept}); };
+  // מיזוג שאושר: הקצר מקבל sameAs לארוך, ובמנוע שניהם מקבלים אותו כינוי.
+  // נרשם מבנית בלבד — כמה אותות היו, לא איזה שמות.
+  peoSame = (from, to, signals) => {
+    this.log.add("merge-suggest",{accepted:true, signals});
+    this.setState({peo:this.state.peo.map(p=>p.value===from?{...p, sameAs:to, note:""}:p)});
+  };
+  peoNotSame = (key, signals) => {
+    this.log.add("merge-suggest",{accepted:false, signals});
+    this.setState({peoNotSame:[...(this.state.peoNotSame||[]), key]});
+  };
+  peoUnSame = value => {
+    this.setState({peo:this.state.peo.map(p=>p.value===value?{...p, sameAs:undefined}:p)});
+  };
   peoRestore = value => {
     const k=(this.state.peoKept||[]).find(x=>x.value===value); if(!k) return;
     this.log.add("restore-peo",{});
@@ -1412,7 +1483,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(this.state.o.places) on.add("PLACES"); else flag.add("PLACES");
     // שכבת הפעלים רצה גם כשהמודל רץ: על הקורפוס היא סוגרת ארבע דליפות שהמודל
     // מפספס (שם רוסי, «משפחת X», שם שמופיע רק בפרוזה) תמורת ארבע הצעות עודפות.
-    return {on, flag, mode:this.state.mode, near:this.state.o.near, body:true, prefixes:"normal"};
+    // סגנון לפי סוג: שמות, גופים ומקומות לפי המצב הגלובלי; כל השאר — מספרים,
+    // תאריכים, כתובות — לפי בחירתה, ומחיקה כברירת מחדל. כרטיס יכול לעקוף.
+    return {on, flag, mode:this.state.mode, near:this.state.o.near, body:true, prefixes:"normal",
+      styles:{"*":this.state.o.numStyle||"blank"}};
   }
   /* ההבטחה שהתיק האמיתי הפר: שם שהמודל מצא פעמיים ומעלה אינו יוצא מהכלי בלי
      שהיא החליטה עליו. הזיהוי היה מושלם — שבע פעמים בביטחון מלא — והשם יצא, כי
@@ -1524,6 +1598,17 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   addAllow = v => { if(this.state.allow.includes(v)) return; this.pushHistory(); this.log.add("allow",{});
     // ההיתר נכנס לרצועת "נשארים כמו שהם" שב"לבדיקה", ולכן המקטע נפתח כדי שיראו אותו
     this.setState({allow:[...this.state.allow, v], rules:this.state.rules.filter(r=>r.value!==v), open:this.openWith("review")}, ()=>this.rerun()); };
+  /* סגנון לערך אחד: name / label / blank / black. הכלל נוצר אם אין — גם לערך שנתפס
+     בדפוס בלי כלל, כמו ת"ז — כדי שהבחירה תחזיק בכל ריצה ותישמר בפרופיל התיק. */
+  setStyle = (v, kind, style, base) => {
+    this.pushHistory();
+    const E=this.state.E, n=x=>E.norm(String(x||"")).trim();
+    const rules=[...this.state.rules];
+    let r=rules.find(x=>n(x.value)===n(base||v)||n(x.value)===n(v));
+    if(!r){ r={value:v, kind:kind||"OTHER", replacement:"", auto:false}; rules.push(r); }
+    const prev=r.style||null; r.style=style;
+    this.setState({rules}, ()=>this.rerun().then(()=>this.log.add("set-style",{style, changed:prev!==style, kind:r.kind})));
+  };
   /* שמונה עריכות של תחליף בסשן אמיתי, ואף אחת לא שינתה דבר. הכרטיס מציג את הערך
      כפי שנמצא, והכלל יושב לפעמים תחת הצורה המלאה ("תמר גולדשמיט" כשהכרטיס אומר
      "גולדשמיט"), ולפעמים בכתיב אחר. חיפוש לפי שוויון מחרוזות לא מצא אותו, ואז נוסף
@@ -1563,6 +1648,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       g.parts.add(r.part);
       if(r.i>=0) g.ids.push(r.i);
       if(r.review) g.review=true;
+    }
+    // התנגשות פרופיל נרשמת גם על הכרטיס של הערך שהתחליף שלו מתנגש, לא רק בבדיקה
+    for(const r of src) if(r.src==="collide"&&r.collideOf){
+      const g=m.get("a|"+E.norm(r.collideOf).trim()); if(g) g.collide=r.value;
     }
     return [...m.values()].sort((x,y)=>y.count-x.count || x.value.localeCompare(y.value,"he"));
   }
@@ -1632,6 +1721,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
   copyAi = () => {
     if(!this.state.res) return;
+    if(this.tourBlocks("copy")) return;
     this.log.add("copy",{applied:this.state.res.applied.length, open:this.state.res.flagged.length});
     this.copyTo(this.redactedText(), "copyLabel", "העתקה ל-AI");
     // שלב 2 מתוך 3 (Q12 ב-docs/PLAN-v18.md): אחרי ההעתקה הסרגל מציע את שלב 3 —
@@ -1648,10 +1738,12 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   // מייל שנפתח אצלה עם הכתובת מלאה. בלי שרת: היא מצרפת את הקובץ ולוחצת שלח.
   sendPackage = async () => {
     const RES=this.state.res, E=this.state.E; if(!RES) return;
+    if(this.tourBlocks("package")) return;
     this.log.add("package",{});
     try{
       const enc=new TextEncoder(); const files=[];
-      files.push({name:this.safeBase()+"_מושחר.docx", data:new Uint8Array(await RES.blob.arrayBuffer())});
+      // בתוך החבילה שנשלחת אלינו: שם ASCII, שכל תוכנת פריסה קוראת נכון
+      files.push({name:"redacted-"+new Date().toISOString().slice(0,10)+".docx", data:new Uint8Array(await RES.blob.arrayBuffer())});
       files.push({name:"session-log.json", data:enc.encode(this.log.export())});
       if(this.state.leaks.length&&window.PL) files.push({name:"leak-report.json", data:enc.encode(window.PL.leakReport(this.state.leaks,{version:this.log.v}))});
       files.push({name:"README.txt", data:enc.encode("paintItBlack "+this.log.v+"\nחבילת בדיקה: המסמך אחרי ההשחרה, יומן סשן בלי טקסט, ודוח דליפה אם סומנו שמות ביד.\n")});
@@ -1666,9 +1758,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     }catch(e){ this.setState({err:"הכנת החבילה נכשלה: "+(e.message||e)}); }
   };
   download = () => {
-    const RES=this.state.res; if(!RES) return; this.log.add("download",{});
+    const RES=this.state.res; if(!RES) return; if(this.tourBlocks("download")) return; this.log.add("download",{});
     const u=URL.createObjectURL(RES.blob), a=document.createElement("a");
-    a.href=u; a.download=this.safeBase()+"_מושחר.docx";
+    a.href=u; a.download=this.safeBase()+".docx";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(u), 4000);
   };
@@ -1732,7 +1824,109 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.setState({cases:this.readCases()});
   };
   resumeCase = name => { const p=this.readCases().find(c=>c.name===name); if(!p) return; this.setState({caseName:name, lastProfile:null}); this.applyProfile(p); };
+  /* ── הסיור (Q15) ──
+     פעם אחת לכל גרסה, על מסמך בדוי שמובנה בכלי, ומסומן ככזה בכותרתו. הסיור
+     מנווט בעצמו בין המסכים באותם מסלולים שהיא תלחץ בהם; המודל כבוי כדי שלא
+     תחכי להורדה; שום דבר מהמסמך לא נשמר בפרופיל, לא מועתק ולא יורד. */
+  ver(){ return ((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"")||"v0"; }
+  tourMarkSeen(){ try{ localStorage.setItem("redact-intro-seen","1"); localStorage.setItem("redact-tour-seen", this.ver()); }catch(_){} }
+  static SAMPLE=[
+    "מסמך לדוגמה — סיור בכלי. כל השמות והפרטים כאן בדויים.",
+    "תסקיר בעניין הקטינה נועה שרעבי, בת 9.",
+    "האם, מיכל שרעבי, מתגוררת בחולון ברחוב הזית 12. האב, אורן שרעבי, מתגורר ברמת גן.",
+    "מיכל שרעבי: הילדה לומדת בבית ספר אורט. המורה, גב' לודמילה כץ, מדווחת על שיפור.",
+    "אורן שרעבי: אני מסכים. מספר הזהות שלי 314277062, והטלפון 052-6613874.",
+    "מיכל שרעבי: הדיון הקודם התקיים ב-11.2.2026 בבית המשפט לענייני משפחה.",
+  ].join("\n");
+  static TOUR=[
+    {screen:"entry", title:"קובץ או טקסט", next:"טעינת המסמך לדוגמה",
+     text:"בתיק אמיתי גוררים לכאן קובץ Word, או מדביקים טקסט. בסיור הכלי טוען בעצמו מסמך בדוי. המודל שמוצא שמות מגוף הטקסט כבוי בסיור, כדי שלא תחכי להורדה שלו; בתיק אמיתי הוא רץ."},
+    {screen:"people", title:"מי בתיק — הרשימה", next:"המשך",
+     text:"הכלי מילא את מי שזיהה. כאן מוסיפים מי שחסר, מוחקים עם ✕ (מי שנמחק נשאר כמו שהוא, ומופיע ברצועה עם ↩), ומתקנים סוג ברשימה הנפתחת. שני כתיבים של אותו אדם? הצעת מיזוג תופיע מתחת לרשימה, ומתקבלת רק בהקשה שלך."},
+    {screen:"places", title:"יישובים", next:"החלת הקבוצה",
+     text:"יישוב מוחלף ביישוב אחר ששומר על המרחקים ועל האופי: עיר בעיר, מושב במושב. השורה הקטנה מתחת לכל התאמה אומרת מה משותף ומה שונה. «אל תחליף» משאיר יישוב כמו שהוא."},
+    {screen:"work", title:"מסך הבדיקה", next:"המשך",
+     text:"משמאל המסמך אחרי ההשחרה: צבע ראשי — הוחלף; כתום — נמצא ומחכה להחלטה; ∅ — נמחק. מימין הכרטיסים, ולכל ערך שלוש בחירות: שם או תווית, ריק, ███. סימון טקסט במסמך מוסיף אותו ביד."},
+    {screen:"work", title:"שמירה", next:"המשך", open:"profile",
+     text:"כשיש שם תיק, הפרופיל נשמר בדפדפן אחרי כל שינוי, ואותו אדם מקבל את אותו שם בדוי במסמך הבא. הדפדפן אינו גיבוי — «שמירה לקובץ» היא."},
+    {screen:"work", title:"העתקה ל-AI, ובחזרה", next:"המשך",
+     text:"«העתקה ל-AI» בסרגל התחתון מעתיק את הטקסט המושחר; מדביקים ב-ChatGPT. כשהתשובה חוזרת, «החזרת שמות מתשובת AI» בכותרת מחזיר את השמות האמיתיים לתוכה. בסיור ההעתקה וההורדה כבויות."},
+    {screen:"work", title:"זהו", next:"סיום",
+     text:"הסיור נגמר. המסמך הבדוי נמחק עכשיו, ושום דבר ממנו לא נשמר. אפשר להריץ אותו שוב מכפתור «סיור» במסך הפתיחה."},
+  ];
+  tourStart = async () => {
+    this.log.add("tour",{at:"start"});
+    this._tourNer=this.state.o.ner;
+    this.setState({intro:false, tour:{i:0, hadPlaces:false}, o:{...this.state.o, ner:false}, buf:null, res:null, rules:[], peo:[], peoSug:[], allow:[], pending:false, screen:"entry", err:""});
+  };
+  tourStep(i){ return this.constructor.TOUR[i]; }
+  tourClose = () => {
+    const t=this.state.tour; if(!t) return;
+    this.log.add("tour",{at:"close", step:t.i, done:t.i>=this.constructor.TOUR.length-1});
+    this.tourMarkSeen();
+    const o={...this.state.o, ner:this._tourNer===undefined?this.state.o.ner:this._tourNer};
+    this.setState({tour:null, o, buf:null, res:null, rules:[], peo:[], peoSug:[], allow:[], geo:null, geoNames:[], geoExtra:[], pending:false, screen:"entry", err:"", copied:false});
+  };
+  tourNext = async () => {
+    const t=this.state.tour; if(!t) return;
+    const T=this.constructor.TOUR, cur=T[t.i];
+    if(t.i>=T.length-1){ this.tourClose(); return; }
+    this.log.add("tour",{at:"next", step:t.i});
+    if(cur.screen==="entry"){
+      try{
+        const {textToDocx} = await import((window.__resources && window.__resources.todocx) || "./text-to-docx.js");
+        const buf = await textToDocx(this.constructor.SAMPLE);
+        const blocks = await this.blocksOf(buf);
+        this.setState({buf, name:"מסמך לדוגמה", origBlocks:blocks.map(b=>({part:b.part, text:b.text})), pending:false, tour:{...t, i:1}});
+        await this.scanNames();
+      }catch(e){ this.setState({err:"הסיור לא הצליח לטעון את המסמך לדוגמה: "+(e.message||e)}); }
+      return;
+    }
+    if(cur.screen==="people"){
+      const S=this.state;
+      this.setState({tour:{...t, i:2}});
+      await this.toPlaces(S.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined})));
+      // בלי מסך יישובים (אין שני יישובים למפה) מדלגים ישר למסך הבדיקה
+      if(this.state.screen!=="places") this.setState({tour:{...this.state.tour, i:3, hadPlaces:false}});
+      else this.setState({tour:{...this.state.tour, hadPlaces:true}});
+      return;
+    }
+    if(cur.screen==="places"){ this.setState({tour:{...t, i:3}}); this.geoApply(); return; }
+    const nx=T[t.i+1];
+    this.setState({tour:{...t, i:t.i+1}, open:nx.open?this.openWith(nx.open):this.state.open});
+  };
+  tourBack = () => {
+    const t=this.state.tour; if(!t||t.i<=0) return;
+    const T=this.constructor.TOUR; let i=t.i-1;
+    if(T[i].screen==="places"&&!t.hadPlaces) i--;
+    const cur=T[i];
+    this.log.add("tour",{at:"back", step:t.i});
+    const patch={tour:{...t, i}};
+    if(cur.screen==="entry") Object.assign(patch,{screen:"entry", pending:!!this.state.buf});
+    else if(cur.screen==="people") Object.assign(patch,{screen:"people"});
+    else if(cur.screen==="places") Object.assign(patch,{screen:"places"});
+    else if(cur.screen==="work"&&this.state.res) Object.assign(patch,{screen:"work"});
+    this.setState(patch);
+  };
+  // בסיור אין העתקה, הורדה או חבילה: המסמך הבדוי לא יוצא מהכלי, וזה גם מה שהסיור אומר
+  tourBlocks(what){
+    if(!this.state.tour) return false;
+    this.log.add("tour",{at:"blocked", what});
+    this.setState({err:"בסיור אין "+(what==="copy"?"העתקה":what==="download"?"הורדה":"שליחת חבילה")+" — זה מסמך בדוי. בתיק אמיתי הכפתור הזה עובד."});
+    return true;
+  }
+  tourView(){
+    const t=this.state.tour; if(!t) return {tourOn:false};
+    const T=this.constructor.TOUR, cur=T[t.i]||T[0];
+    const shown=T.filter((s,i)=>!(s.screen==="places"&&!t.hadPlaces&&i!==t.i));
+    const pos=shown.indexOf(cur)+1;
+    return {tourOn:true, tourTitle:cur.title, tourText:cur.text, tourNextLabel:cur.next,
+      tourPos:`${pos} מתוך ${shown.length}`, tourHasBack:t.i>0,
+      onTourNext:this.tourNext, onTourBack:this.tourBack, onTourClose:this.tourClose};
+  }
   persistProfile(){
+    // המסמך לדוגמה של הסיור אינו תיק: שום דבר ממנו לא נשמר בדפדפן
+    if(this.state.tour) return;
     if(!this.state.res||!this.state.rules.length) return;
     const prof=this.profileObj();
     try{ localStorage.setItem("redact-profile-last", JSON.stringify(prof)); }catch(_){}
@@ -1830,7 +2024,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     // הבחירה הזאת נוגעת לשמות בלבד. מספר מזהה לעולם אינו מוחלף במספר בדוי אחר —
     // הוא מוחלף בתווית, בכל אחד משלושת המצבים. בלי לומר את זה, תווית כמו [ת"ז א׳]
     // בתוך הטקסט נקראת כאילו הכלי פספס משהו.
-    const NUMNOTE="מספרים מזהים — ת״ז, טלפון, חשבון, רכב, תאריך לידה — מוחלפים תמיד בתווית כמו «[ת״ז א׳]», ולא במספר בדוי אחר. הבחירה כאן נוגעת לשמות בלבד.";
+    const NUMNOTE="מספרים מזהים ותאריכים — ת״ז, טלפון, חשבון, רכב, תאריכים — נמחקים מהטקסט כברירת מחדל, ולא מוחלפים במספר בדוי; אפשר לשנות למטה, ובכל כרטיס בנפרד. גיל נשאר תמיד. הבחירה כאן נוגעת לשמות.";
     const MNOTE={
       real:"«רונית לוי» תהפוך ל«מיכל ברנע». המשפט נשאר תקין דקדוקית, וכלי ה-AI מגיב על טקסט שנקרא כמו מסמך אמיתי. אותו אדם מקבל את אותו שם גם במסמך הבא באותו תיק. "+NUMNOTE,
       label:"«רונית לוי» תהפוך ל«פלוני א׳». חד-משמעי לעין, אבל הטקסט נקרא פחות טבעי. "+NUMNOTE,
@@ -1884,8 +2078,10 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           ? `המיפוי נלקח מפרופיל התיק שנטען — ${Object.keys((S.profile.map)||{}).length} שמות. אפשר להשתמש במסך הזה גם בלי להעלות מסמך.`
           : "המסך הזה עצמאי: הוא מחזיר שמות לפי מיפוי. אפשר לטעון פרופיל תיק שנשמר קודם, או להשחיר מסמך בחלון הזה ולחזור לכאן."),
       showTagline:!S.narrow,
-      showIntro:!!S.intro,
-      onCloseIntro:()=>{ try{ localStorage.setItem("redact-intro-seen","1"); }catch(_){} this.setState({intro:false}); },
+      showIntro:!!S.intro&&!S.tour,
+      onCloseIntro:()=>{ this.tourMarkSeen(); this.setState({intro:false}); },
+      onTourStart:()=>this.tourStart(),
+      ...this.tourView(),
       introSteps:[
         {n:"1", title:"קובץ או טקסט", text:"מעלים מסמך Word או מדביקים טקסט. אפשר לכבות ולהדליק סוגי זיהוי לפני ההרצה."},
         {n:"2", title:"מי בתיק", text:"מאשרים את רשימת האנשים. כל שם ברשימה מכוסה בכל צורה שהוא מופיע בה — כולל אותיות שימוש ושיבושי תמלול."},
@@ -1922,6 +2118,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       mBlock:()=>this.setState({mode:"block"}, ()=>{ if(S.res) this.rerun(); }),
       segReal:seg(S.mode==="real"), segLabel:seg(S.mode==="label"), segBlock:seg(S.mode==="block"),
       modeNote:MNOTE[S.mode],
+      numStyle:S.o.numStyle||"blank", numBlank:(S.o.numStyle||"blank")==="blank", numLabel:S.o.numStyle==="label", numBlack:S.o.numStyle==="black",
+      onNumStyle:e=>{ const v=e.target.value; this.log.add("num-style",{}); this.setState({o:{...S.o, numStyle:v}}, ()=>{ if(this.state.res) this.rerun(); }); },
       nerBox:S.nerBox, nerMsg:S.nerMsg,
       nerBarStyle:"height:100%;border-radius:2px;background:var(--accent);transition:width .25s ease;width:"+Math.round(S.nerPct||0)+"%",
       peoIn:S.peoIn, peoNote:S.peoNote, peoEmpty:!S.peo.length,
@@ -1932,7 +2130,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         if(t && /[\n,;]/.test(t)){ e.preventDefault(); this.peoAdd(t); } },
       onPeoAdd:()=>{ this.peoAdd(S.peoIn); this.setState({peoIn:""}); },
       onPeoGo:()=>{ if(S.scanning) return; this.peoAdd(S.peoIn);
-        setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g}))), 0); },
+        setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined}))), 0); },
       onSkipNames:()=>{ if(S.scanning) return; this.setState({peo:[]}); this.toPlaces([]); },
       // בקו איטי ההורדה הראשונה לוקחת דקות; השמות מהכותרת כבר על המסך. הסריקה
       // הזאת מבוטלת (כמו מסמך שהוחלף באמצע), המודל ממשיך לרדת ברקע למסמך הבא.
@@ -1941,7 +2139,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
          ממשיכה ברקע; כשהיא נגמרת השמות נכנסים לכללים ולא לרשימה שכבר עזבה. */
       onGoNow:()=>{ if(!S.scanning) return; this._goneAhead=this._scan; this.log.add("go-without-model",{names:S.peo.length});
         this.setState({scanning:false, nerBox:false, nerUsed:false, peoNote:"המשכת בלי המודל. השמות שברשימה הם מהכותרת ומתורות הדיבור; שמות מגוף הטקסט יוצעו במסך הבדיקה."});
-        this.peoAdd(S.peoIn); setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g}))), 0); },
+        this.peoAdd(S.peoIn); setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined}))), 0); },
       onLoadProf:this.loadProfileClick, onSaveProf:this.saveProfile,
       hasCases:S.cases.length>0&&S.screen==="entry"&&!S.profile,
       caseItems:S.cases.map(c=>({name:c.name, meta:(c.rules||[]).length+" ערכים · עודכן "+new Date(c.updated||c.created).toLocaleString("he-IL",{dateStyle:"short",timeStyle:"short"}),
@@ -1959,15 +2157,27 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       hasPeoSug:S.peoSug.some(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))),
       peoSugItems:S.peoSug.filter(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))).map(x=>({
         value:x.value, why:x.why,
-        onAdd:()=>this.peoAdd(x.value,"מההקשר",true),
+        onAdd:()=>this.peoAdd(x.value,"מההקשר",true,x.kind),
         onDrop:()=>this.setState({peoSug:S.peoSug.filter(y=>y!==x), allow:S.allow.includes(x.value)?S.allow:[...S.allow, x.value]})})),
       nerFailed:!!S.nerFailed, nerOk:!S.nerFailed,
       onRetryScan:()=>{ const L=this._lastScan; if(!L)return; this.setState({nerFailed:false, peoNote:""}); this.showPeople(L.blocks, L.cands); },
       // הרשימה מקובצת: אנשים, גופים, מקומות. הסדר לתצוגה בלבד; המחיקה והחלפת הסוג
       // עובדות על האינדקס המקורי.
       // הרשימה נשארת בסדר ההוספה: מיון לפי סוג הזיז שבב מתחת לאצבע כשהסוג שונה
+      // שני שמות שעשויים להיות אותו אדם: מוצע עם הסיבה, ומתקבל רק בהקשה (Q12)
+      mergeSugs:(()=>{ const out=[]; const not=new Set(S.peoNotSame||[]);
+        for(let i=0;i<S.peo.length;i++)for(let j=i+1;j<S.peo.length;j++){
+          const a=S.peo[i], b=S.peo[j]; if(a.sameAs||b.sameAs||(a.kind||"NAME")!=="NAME"||(b.kind||"NAME")!=="NAME")continue;
+          const why=S.E.mergeSignals?S.E.mergeSignals(a.value,b.value):[]; if(!why.length)continue;
+          const k=[a.value,b.value].sort().join("|"); if(not.has(k))continue;
+          // הקצר מתמזג לתוך הארוך: השם המלא הוא הכינוי המשותף
+          const [from,to]=a.value.length<=b.value.length?[a.value,b.value]:[b.value,a.value];
+          out.push({from,to,why:why.join(" · "),
+            onSame:()=>this.peoSame(from,to,why.length), onNotSame:()=>this.peoNotSame(k,why.length)});
+        } return out; })(),
+      hasMergeSugs:false,
       peoItems:S.peo.map((p,i)=>({
-        value:p.value, note:p.note, kindName:KIND_NAME[p.kind]||"אדם",
+        value:p.value, note:p.sameAs?"= "+p.sameAs:p.note, kindName:KIND_NAME[p.kind]||"אדם",
         style:"display:flex;align-items:center;gap:8px;padding:7px 10px 7px 12px;border-radius:20px;font-size:14px;white-space:nowrap;"+
           "border:1px solid "+(p.auto?"var(--accent-soft)":"var(--line)")+";background:"+(p.auto?"var(--accent-soft)":"var(--panel)"),
         kindOpts:KIND_ORDER.map(k=>({value:k, label:KIND_NAME[k]||k, sel:(p.kind||"NAME")===k})),
@@ -1998,6 +2208,10 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       geoQuality:S.geo?(S.geo.err<2?"דיוק מצוין":S.geo.err<5?"דיוק טוב":"דיוק סביר"):"",
       geoRows:(S.geo?S.geo.map:[]).map((m,i)=>({
         from:m.from, to:S.geoEdits[i] ?? m.to,
+        // מה משותף ומה שונה בין היישוב לתחליפו, לפי הטבלה שלה (docs/atlas-tags-he.md)
+        tagNote:(()=>{ if(!S.E.atlasTags) return ""; const t=S.E.atlasTags(m.to), d=S.E.atlasDiff?S.E.atlasDiff(m.from,m.to):[];
+          const same=["סוג","אוכלוסייה","דת","גודל"].filter(k=>!d.includes(k)).map(k=>t[k]).join(" · ");
+          return (same?same:"")+(d.length?(same?"  ·  ":"")+"שונה: "+d.map(k=>k+" ("+S.E.atlasTags(m.from)[k]+" ← "+t[k]+")").join(", "):""); })(),
         onChange:e=>this.setState({geoEdits:{...S.geoEdits, [i]:e.target.value}}),
         onRemove:()=>this.geoRemove(m.from), ...this.tipProps(m.from)})),
       // מחיקה במסך השמות ו"אל תחליף" במסך הבדיקה: שניהם גלויים ושניהם עם ↩
@@ -2104,6 +2318,20 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       for(const m of b.marks){
         // ערך שנמצא ולא הוחלף: מסומן בצבע אזהרה, כדי שלא ייראה כמו טקסט שלא נגעו בו.
         // בלי זה מספר שנשאר בטקסט נקרא "פוספס". אינו נכנס לסדר החיצים, שרץ על ההחלפות.
+        // השמטה: הערך איננו בטקסט, אבל נשאר סימן קטן במקום שבו היה, כדי שתראה שמשהו
+        // נמחק ותוכל לבטל. לחיצה בוחרת את הכרטיס, ושם אפשר לעבור לשם או ל-███.
+        if(m.del){
+          if(m.s>last) segs.push({plain:true, mark:false, t:b.text.slice(last,m.s)});
+          const dkey="a|"+E.norm(m.val||"").trim();
+          segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:"∅",
+            title:"הושמט: "+(m.val||"")+" — לחיצה פותחת את הכרטיס",
+            style:"cursor:pointer;border-radius:3px;padding:0 3px;font-size:11px;color:var(--ink3);border:1px dashed var(--line);",
+            onClick:()=>this.setState({sel:dkey, filter:"all", cat:"", open:this.openWith("findings"), pane:this.state.narrow?"find":this.state.pane}, ()=>{
+              const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape(dkey)+'"]');
+              if(node && this.listEl){ const nr=node.getBoundingClientRect(), lr=this.listEl.getBoundingClientRect(); this.listEl.scrollTop += (nr.top-lr.top) - 40; }
+            })});
+          last=Math.max(last,m.s); continue;
+        }
         if(m.flag){
           if(m.s>last) segs.push({plain:true, mark:false, t:b.text.slice(last,m.s)});
           /* הסימון הזה נוסף כדי שערך שנמצא ולא הוחלף לא ייראה כמו טקסט שאיש לא
@@ -2209,6 +2437,24 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       // את השם שהמודל טעה בו. עד עכשיו הן הופיעו רק אחרי לחיצה על הכרטיס, בלי רמז.
       isApplied:!!g.ap, isFlagged:!g.ap, fromList:g.src==="list"||g.src==="sweep",
       onQuickAllow:e=>{ e.stopPropagation(); this.addAllow(g.value); },
+      // הבחירה לכל ערך: שם בדוי (או תווית למספר), ריק, ███. ברירת המחדל לפי סוג;
+      // כלל שנקבע על הכרטיס גובר. ריק על אדם מקבל שורת אזהרה, לא חלון.
+      ...(()=>{
+        const n=x=>E.norm(String(x||"")).trim();
+        const rule=S.rules.find(r=>n(r.value)===n(g.base||g.value)||n(r.value)===n(g.value));
+        const nameish=/^(שם|גוף|יישוב|מקום)/.test(g.label||"");
+        const cur=(rule&&rule.style)||(nameish?(S.mode==="block"?"black":S.mode==="label"?"label":"name"):(S.o.numStyle||"blank"));
+        const btn=on=>"padding:5px 10px;border-radius:12px;font-size:12px;white-space:nowrap;"+(on?"background:var(--panel);box-shadow:var(--shadow);color:var(--ink);font-weight:500":"color:var(--ink2)");
+        const set=st=>e=>{ e.stopPropagation(); this.setStyle(g.value, rule?rule.kind:(nameish?"NAME":"OTHER"), st, g.base); };
+        return {
+          styleNameLabel: nameish?"שם":"תווית",
+          onStyleName:set(nameish?"name":"label"), onStyleBlank:set("blank"), onStyleBlack:set("black"),
+          styleNameBtn:btn(cur==="name"||cur==="label"), styleBlankBtn:btn(cur==="blank"), styleBlackBtn:btn(cur==="black"),
+          blankWarn:cur==="blank"&&/^שם/.test(g.label||""),
+          // התחליף שהיא בחרה הוא גם שם אמיתי במסמך. הבחירה נשארת, והכרטיס אומר את זה (Q14).
+          collideWarn:g.collide?`«${g.collide}» מופיע במסמך גם כשם אמיתי, ושני האנשים ייראו כאחד. אפשר לבחור תחליף אחר כאן, או להוסיף את «${g.collide}» האמיתי/ת לרשימה.`:"",
+        };
+      })(),
       onDropRule:e=>{ e.stopPropagation(); this.notAName(g.base||g.value, g.value); },
       repStyle:"font-weight:500;font-size:14px;color:"+(g.ap?"var(--accent-ink)":"var(--warn)"),
       meta:g.label+" · "+[...g.parts].join(", "),

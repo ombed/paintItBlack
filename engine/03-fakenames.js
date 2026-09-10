@@ -84,6 +84,32 @@ function pickFrom(arr,seed,used,forbidden){
 // והמשפט "מר כהן טען" נשבר.
 // סיומות של שם משפחה: מילה בודדת כזאת מקבלת שם משפחה בדוי גם בלי ראיה אחרת
 const SUR_SUFFIX=/(?:וביץ|ביץ|ביץ'|סקי|סקה|ברג|בורג|שטיין|שטין|צקי|נסקי|ינסקי|ובסקי|ייב|ייבה|וביץ')$/;
+/* גופים. עד כאן גוף שאושר קיבל "[גוף א׳]" — תווית בתוך המשפט, שמכריזה שהוסתר
+   משהו ומבלבלת את ה-AI ("חסידי [גוף ב׳]"). ההבחנה, בכללים ולא ברשימה סגורה:
+
+   קבוצה רחבה שאינה מזהה — חסידות, תנועה, מפלגה, זרם, עדה, קהילה — נשארת כמו
+   שהיא; אלפי חברים אינם אדם אחד. מוסד ספציפי — מכון, מרפאה, עמותה, בית ספר,
+   פנימייה, ישיבה, חברה, קרן, מרכז, גן — מקבל שם בדוי שמשאיר את מילת הסוג, כדי
+   שה-AI עדיין יידע שהוא קורא על מכון. גוף בלי אף אחת משתי הראשים עולה לבדיקה. */
+const GROUP_HEADS=/^(?:חסידי|חסידות|חסידת|תנועת|מפלגת|זרם|עדת|קהילת|ארגון\s+ה)/u;
+const ORG_HEADS=/^(?:עמותת|עמותה|מכון|חברת|חברה|בית\s+ספר|בי"ס|ביה"ס|בית\s+הספר|מרכז|אגודת|אגודה|קרן|מוסד|גן|מעון|פנימיית|פנימייה|ישיבת|ישיבה|קופת\s+חולים|בנק|מרפאת|מרפאה|בית\s+חולים|ביה"ח|מכללת|אוניברסיטת|תיכון|חטיבת|מתנ"ס|בית\s+אבות|מועדון|סניף|קבוצת)(?=\s|$)/u;
+const ORG_TAILS=["אורנים","הגפן","שקד","נווה","הרימון","תמר","ארז","הדס","אלון","ברוש","נטע","גלים","אופק","דקל","צבר","הזית","סביון","יובל","עמית","רקפת"];
+function orgHead(v){ const m=ORG_HEADS.exec(norm(v).trim()); return m?m[0]:null; }
+function fakeOrg(value,used,forbidden){
+  const head=orgHead(value);
+  const seed=hash32(norm(value).trim());
+  const raw=value.trim().split(/\s+/);
+  const headWords=head?head.split(/\s+/).length:0;
+  const pre=head?raw.slice(0,headWords).join(" "):"";
+  for(let k=0;k<ORG_TAILS.length;k++){
+    const tail=ORG_TAILS[(seed+k)%ORG_TAILS.length];
+    const cand=pre?pre+" "+tail:tail;
+    if(used&&used.has(cand))continue;
+    if(forbidden&&forbidden.has(norm(tail)))continue;
+    return cand;
+  }
+  return null;
+}
 function fakeName(value,hint,used,forbidden,firstish){
   const org=origin(value), g=gender(value,hint);
   const parts=value.trim().split(/\s+/);

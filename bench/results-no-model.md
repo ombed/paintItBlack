@@ -1,6 +1,6 @@
 # Benchmark results (no model)
 
-40 documents, 296 keyed entities, model off. Generated 2026-09-09.
+40 documents, 314 keyed entities, model off. Generated 2026-09-10.
 
 ## Per category
 
@@ -14,6 +14,7 @@
 | org: private body, must be redacted | 7 | 3 | 4 | 0 |
 | place: town | 11 | 2 | 2 | 0 |
 | trap: case numbers, dates, section references | – | – | – | 1 |
+| pii: full date (omitted by default) | 18 | 0 | 0 | 0 |
 | trap: idiom or public title beside a same-word name | – | – | – | 1 |
 | person: full name, surname alone, first name alone | 9 | 0 | 3 | 0 |
 | person: only in prose, never before a speech verb | 7 | 0 | 0 | 0 |
@@ -56,14 +57,14 @@
 
 | genre | found | missed | leaked | false positives |
 |---|---|---|---|---|
-| meeting | 16 | 10 | 13 | 0 |
-| filing | 29 | 6 | 8 | 2 |
+| meeting | 17 | 10 | 13 | 0 |
+| filing | 33 | 6 | 8 | 2 |
 | transcript | 23 | 10 | 13 | 0 |
-| welfare | 19 | 5 | 7 | 0 |
-| medical | 12 | 5 | 5 | 0 |
-| police | 18 | 3 | 3 | 0 |
-| bank | 13 | 2 | 2 | 0 |
-| chat | 13 | 7 | 8 | 0 |
+| welfare | 22 | 5 | 7 | 0 |
+| medical | 14 | 5 | 5 | 0 |
+| police | 20 | 3 | 3 | 0 |
+| bank | 16 | 2 | 2 | 0 |
+| chat | 16 | 7 | 8 | 0 |
 | position | 12 | 1 | 2 | 2 |
 | audio | 17 | 3 | 8 | 0 |
 | interview | 8 | 3 | 3 | 0 |
@@ -169,43 +170,43 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 68 | 4 | 1 |
-| m2 | meeting | 32 | 6 | 0 |
-| m3 | meeting | 25 | 3 | 0 |
-| m4 | meeting | 20 | 3 | 1 |
-| f1 | filing | 40 | 10 | 1 |
-| f2 | filing | 57 | 13 | 1 |
-| f3 | filing | 22 | 5 | 0 |
-| f4 | filing | 31 | 8 | 3 |
-| t1 | transcript | 30 | 6 | 0 |
-| t2 | transcript | 20 | 5 | 1 |
-| t3 | transcript | 21 | 6 | 1 |
-| t4 | transcript | 31 | 9 | 1 |
-| w1 | welfare | 10 | 1 | 0 |
-| w2 | welfare | 15 | 3 | 0 |
-| w3 | welfare | 12 | 2 | 0 |
-| w4 | welfare | 17 | 5 | 1 |
-| h1 | medical | 21 | 6 | 2 |
-| h2 | medical | 15 | 2 | 0 |
+| m1 | meeting | 63 | 4 | 1 |
+| m2 | meeting | 26 | 6 | 0 |
+| m3 | meeting | 16 | 3 | 0 |
+| m4 | meeting | 17 | 3 | 1 |
+| f1 | filing | 37 | 10 | 1 |
+| f2 | filing | 47 | 13 | 1 |
+| f3 | filing | 18 | 5 | 0 |
+| f4 | filing | 24 | 8 | 3 |
+| t1 | transcript | 21 | 6 | 0 |
+| t2 | transcript | 21 | 5 | 1 |
+| t3 | transcript | 20 | 6 | 1 |
+| t4 | transcript | 20 | 9 | 1 |
+| w1 | welfare | 11 | 1 | 0 |
+| w2 | welfare | 11 | 3 | 0 |
+| w3 | welfare | 10 | 2 | 0 |
+| w4 | welfare | 13 | 5 | 1 |
+| h1 | medical | 15 | 6 | 2 |
+| h2 | medical | 12 | 2 | 0 |
 | h3 | medical | 13 | 3 | 3 |
-| p1 | police | 20 | 2 | 1 |
-| p2 | police | 14 | 3 | 1 |
-| p3 | police | 9 | 1 | 0 |
-| p4 | police | 14 | 3 | 0 |
-| b1 | bank | 19 | 5 | 2 |
-| b2 | bank | 7 | 1 | 0 |
+| p1 | police | 13 | 2 | 1 |
+| p2 | police | 12 | 3 | 1 |
+| p3 | police | 7 | 1 | 0 |
+| p4 | police | 11 | 3 | 0 |
+| b1 | bank | 15 | 5 | 2 |
+| b2 | bank | 6 | 1 | 0 |
 | b3 | bank | 8 | 2 | 0 |
-| c1 | chat | 8 | 1 | 0 |
-| c2 | chat | 10 | 2 | 1 |
-| c3 | chat | 9 | 2 | 0 |
-| c4 | chat | 12 | 3 | 0 |
-| x1 | position | 20 | 5 | 1 |
-| x2 | position | 18 | 4 | 0 |
-| x3 | position | 18 | 4 | 0 |
-| a1 | audio | 16 | 3 | 0 |
-| a2 | audio | 17 | 5 | 0 |
-| a3 | audio | 23 | 7 | 1 |
-| a4 | audio | 14 | 4 | 0 |
-| v1 | interview | 14 | 2 | 0 |
-| v2 | interview | 16 | 3 | 0 |
-| v3 | interview | 10 | 2 | 0 |
+| c1 | chat | 6 | 1 | 0 |
+| c2 | chat | 12 | 2 | 1 |
+| c3 | chat | 7 | 2 | 0 |
+| c4 | chat | 9 | 3 | 0 |
+| x1 | position | 17 | 5 | 1 |
+| x2 | position | 12 | 4 | 0 |
+| x3 | position | 15 | 4 | 0 |
+| a1 | audio | 8 | 3 | 0 |
+| a2 | audio | 13 | 5 | 0 |
+| a3 | audio | 17 | 7 | 1 |
+| a4 | audio | 10 | 4 | 0 |
+| v1 | interview | 11 | 2 | 0 |
+| v2 | interview | 14 | 3 | 0 |
+| v3 | interview | 8 | 2 | 0 |

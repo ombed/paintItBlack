@@ -119,10 +119,25 @@ async function redactDocx(buf,subs,allow,opt){
     for(const h of hits){
       const rec={value:h.text,label:h.label,part:partName(blk.part),why:h.why,
         ctx:ctxHTML(blk.text,h.s,h.e),review:!!h.review,src:h.src,base:h.base||undefined};
-      if(h.apply){const nw=eng.repFor(h);rec.rep=nw;rec.baseRep=eng.map[ckey(h.type,h.text)]||nw;
-        reps.push([h.s,h.e,nw]);applied.push(rec);secrets.push(h.text);
+      // הכינוי הבסיסי נרשם לפי הערך שברשימה, לא לפי הטקסט שנתפס: "לפנים מאירות"
+      // אינו מפתח, ובלעדיו ההחזרה קיבלה "לגפן" ככינוי ואיבדה את "בגפן".
+      if(h.apply){const nw=eng.repFor(h);rec.rep=nw;
+        const fam=(CANON[h.type]||[h.type])[0];
+        rec.baseRep=eng.map[ckey(fam,h.base||h.text)]||eng.map[ckey(h.type,h.text)]||nw;
+        let s=h.s,e=h.e;
+        // השמטה: הערך נמחק נקי. רווח אחד סמוך נבלע איתו, כדי ש"נסע ל-X ביום" לא
+        // יישאר עם שני רווחים, ומה שנשאר נקרא כאילו הערך לא היה שם מעולם.
+        if(nw===""){ rec.deleted=true; rec.rep="";
+          if(blk.text[e]===" "&&(s===0||blk.text[s-1]===" "||/[\s(]/.test(blk.text[s-1]||" ")))e++;
+          else if(blk.text[s-1]===" ")s--; }
+        reps.push([s,e,nw]);applied.push(rec);secrets.push(h.text);
         if(h.base)secrets.push(h.base)}
       else flagged.push(rec)}
+    // מיקום המחיקות בטקסט החדש, לסימון במסך הבדיקה: הערך איננו, אבל היא צריכה לראות
+    // שהיה שם משהו ולוכל לבטל. כל החלפה שלפני נקודה מזיזה אותה בהפרש האורכים.
+    {const srt=reps.slice().sort((a,b)=>a[0]-b[0]); let shift=0; const dels=[];
+     for(const [s,e,nw] of srt){ if(nw==="")dels.push({s:s-shift, val:blk.text.slice(s,e).trim()}); shift+=(e-s)-nw.length; }
+     if(dels.length)blk.dels=dels;}
     applyReps(blk,reps)}
   // מעבר אחידות
   const sweep={};
@@ -222,9 +237,9 @@ async function redactDocx(buf,subs,allow,opt){
           ctx:ctxHTML(blk.text,s,e),review:!!inf.of,rep:out,baseRep:nw,base:o,src:"sweep"})}}
     rep.sweep+=applyReps(blk,reps)}
   for(const c of eng.collided){
-    flagged.push({value:c.rep,label:"התנגשות פרופיל",part:"המסמך",review:true,src:"collide",
-      why:`הפרופיל קבע ש«${c.value}» יהיה «${c.rep}», אבל «${c.rep}» הוא אדם אמיתי במסמך הזה. `+
-          `ניתן שם בדוי אחר, ו«${c.rep}» האמיתי/ת עדיין בטקסט — הוסיפי אותו לרשימה`,
+    flagged.push({value:c.rep,label:"התנגשות תחליף",part:"המסמך",review:true,src:"collide",collideOf:c.value,
+      why:`«${c.value}» הוחלף ב«${c.rep}» כפי שבחרת, אבל «${c.rep}» הוא גם אדם אמיתי במסמך הזה, `+
+          `ושני האנשים ייראו כאחד. אפשר לבחור תחליף אחר בכרטיס של «${c.value}», או להוסיף את «${c.rep}» האמיתי/ת לרשימה`,
       ctx:""});
   }
   for(const pa of partAmbig){
@@ -253,8 +268,13 @@ async function redactDocx(buf,subs,allow,opt){
   // "לא נמצא" ו"התנגשות פרופיל" אינם מוטבעים בטקסט ולכן אינם מסומנים.
   const flagVals=[...new Set(flagged.filter(r=>r.src!=="nohit"&&r.src!=="collide"&&r.value)
     .map(r=>String(r.value)).filter(v=>v.length>=2))];
+  // המחיקות נרשמו על הבלוקים המקוריים; blocks3 הוא אותם בלוקים אחרי ההחלפה, באותו סדר
+  const delsByIdx=blocks.map(b=>b.dels||[]);
+  let bi3=-1;
   for(const blk of blocks3){
+    bi3++;
     const marks=[];
+    for(const d of delsByIdx[bi3]||[]) marks.push({s:d.s,e:d.s,del:true,val:d.val});
     for(const [rp,id] of Object.entries(ids)){
       if(!rp||!blk.text.includes(rp))continue;
       let i=0;while((i=blk.text.indexOf(rp,i))>=0){marks.push({s:i,e:i+rp.length,id,amb:ambiguous.has(rp)});i+=rp.length}}
@@ -788,6 +808,11 @@ function pseudoRX(p){
   const pat=[...p].map(c=>/['\u05f3\u2019]/.test(c)?"['\u05f3\u2019]"
     :/["\u05f4\u201d]/.test(c)?'["\u05f4\u201d]'
     :/[-\u05be\u2013\s]/.test(c)?"[-\\u05be\\u2013\\s]+":esc(c)).join("");
+  // כינוי שמתחיל ב-ה ("הגפן") נכתב במסמך בלי ה אחרי ב/ל/כ ("בגפן", "לגפן"):
+  // כך addPre כותב אותו, וכך ה-AI מעתיק אותו. הקבוצה השנייה תופסת את הצורה הזאת.
+  if(p[0]==="ה"&&p.length>2)
+    return new RegExp("(?<![\\u0590-\\u05ff])(?:([בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?ה|([בלכ]|ו[בלכ]|כש))"+
+      pat.slice(esc("ה").length)+"(?![\\u0590-\\u05ff])","gu");
   return new RegExp("(?<![\\u0590-\\u05ff])([בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?"+pat+
     "(?![\\u0590-\\u05ff])","gu");
 }
@@ -819,7 +844,7 @@ function restoreNames(txt,pairs){
   let out=txt,n=0;const missing=[];
   for(const [pseudo,real] of order){
     let hit=0;
-    out=out.replace(pseudoRX(pseudo),(m,pre)=>{hit++;return (pre||"")+real});
+    out=out.replace(pseudoRX(pseudo),(m,pre,pre2)=>{hit++;return (pre||(typeof pre2==="string"?pre2:"")||"")+real});
     if(hit)n+=hit; else if(seen.has(pseudo))missing.push(pseudo);
   }
   return {text:out,count:n,missing,conflict:[...conflict]};
@@ -828,7 +853,8 @@ function restoreNames(txt,pairs){
 
 export {nerLast, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
   variants, validID, ibanOK, luhn, hord, POOL, WORDLIKE, FEM, MASC, fakeName, near1, HOMO, WEAK,
-  findNear, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
+  findNear, mergeSignals, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,
-  discover, PLACES, PLACE_BY, geoMap, geoNames, placesFound, examplesOf, findPlaces, fakePlace, nerEnv, nerCached, nerPersist, nerLoad, nerRun,
+  discover, PLACES, PLACE_BY, geoMap, geoNames, placesFound, examplesOf, findPlaces, fakePlace,
+  atlasTags, atlasDiff, atlasPenalty, placeKind, nerEnv, nerCached, nerPersist, nerLoad, nerRun,
   TITLE_RX, ORG_RX, likelyOrg, cleanEntry, trimEdges, pseudoRX, restoreNames, STOP};

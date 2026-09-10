@@ -86,6 +86,9 @@ function nerClean(ents,text,opt){
     let v=trimEdges(text.slice(s,en));
     if(!v||v.length<2)continue;
     // ── קילוף אות שימוש ──
+    // "המוסד לביטוח לאומי": הקילוף לפי ראש מוסד ("מוסד") הפך גוף ציבורי לגוף
+    // פרטי לכאורה. הצורה שלפני הקילוף נשמרת ונבדקת גם היא מול הגופים הציבוריים.
+    const v0=v;
     const w=v.split(/\s+/), f=norm(w[0]);
     if(PFX.has(f[0])&&f.length>=4){
       const stem=f.slice(1);
@@ -96,7 +99,10 @@ function nerClean(ents,text,opt){
       const known=!!PLACE_BY[norm(bare)]||KNOWN_FIRST.has(stem);
       // "בעמותת שביל הלב", "ברחוב הארזים": כשהגזע הוא ראש של גוף או של מקום,
       // האות הראשונה היא אות שימוש גם בלי שהגזע מופיע במקום אחר.
-      const headPeel=NER_HEADS.has(stem);
+      // "בבית ספר אורט", "לחסידות ברסלב": גם ראש של מוסד או של קבוצה הוא עדות.
+      const headPeel=NER_HEADS.has(stem)||
+        (typeof ORG_HEADS!=="undefined"&&ORG_HEADS.test(norm(bare)))||
+        (typeof GROUP_HEADS!=="undefined"&&GROUP_HEADS.test(norm(bare)));
       if(wasCut||elsewhere||known||headPeel){
         w[0]=w[0].slice(w[0].length-f.length+1); v=trimEdges(w.join(" "));
       }
@@ -127,18 +133,28 @@ function nerClean(ents,text,opt){
     // ראש של גוף (עמותת, מעון, מרפאת…) באמצע המקטע: מה שלפניו הודבק מהמשפט,
     // "משרד עמותת שביל הלב". חותכים לפני הראש, אחרת הכלל תופס רק את הצורה המודבקת.
     if(kind==="ORG"){const m=/(?:^|\s)(עמותת|עמותה|מעון|מרפאת|מכון|קרן|מרכז|אגודת|חברת|בית ספר|בי"ס|ביה"ס|גן ילדים|פנימיית|ישיבת)\s/u.exec(v); if(m&&m.index>0)v=v.slice(m.index+1);}
+    // גוף לפי כללי ראש, בלי רשימה סגורה: קבוצה רחבה (חסידות, תנועה, מפלגה, זרם,
+    // עדה, קהילה) אינה מזהה ואינה מוצעת; מוסד עם מילת סוג מוצע כרגיל; גוף בלי
+    // אף אחד מהראשים — "ברסלב" לבדו — עולה לבדיקה ולא נכנס לרשימה מעצמו.
+    let orgReview=false;
+    if(kind==="ORG"){
+      const nv=norm(v).trim();
+      if(typeof GROUP_HEADS!=="undefined"&&GROUP_HEADS.test(nv))continue;
+      if(typeof ORG_HEADS!=="undefined"&&!ORG_HEADS.test(nv))orgReview=true;
+    }
     // גם כשהמודל תפס רק קטע: "הרווחה" מתוך "משרד הרווחה". בודקים את הקטע עם
     // עד שתי המילים שלפניו בטקסט המקורי, אחרת גוף ציבורי מוצע ומושחר.
     if(kind!=="NAME"){const back=text.slice(Math.max(0,s-40),s).split(/\s+/).filter(Boolean).slice(-2); const strip1=x=>x.replace(/^[בהולמכש]/,""); const c2=norm([...back,v].join(" ")), c1=norm([...back.slice(-1),v].join(" ")); if([c2,strip1(c2),c1,strip1(c1)].some(x=>PUBLIC_ORG.test(x)))continue;}
     // בית משפט ומשרד ממשלתי אינם פרט מזהה, ואין טעם להציע אותם
     if(kind!=="NAME"&&PUBLIC_ORG.test(norm(v).replace(/^[\u05d1\u05d4\u05d5\u05dc\u05de\u05db\u05e9]/,"")))continue;
     if(kind!=="NAME"&&PUBLIC_ORG.test(norm(v)))continue;
+    if(kind!=="NAME"&&(PUBLIC_ORG.test(norm(v0))||PUBLIC_ORG.test(norm(v0).replace(/^[בהולמכש]/,""))))continue;
     // "הפרדס בעקבות": המודל גרר את מילת היחס הבאה לתוך מקום. מילת יחס או פועל
     // בסוף גוף או מקום אינם חלק מהשם. רק מהסוף, ורק אחרי בדיקת הגופים
     // הציבוריים — חיתוך מההתחלה הפך את "משרד הרווחה" ל"הרווחה" והציע אותו.
     if(kind!=="NAME"){const ws=v.split(/\s+/); while(ws.length>1&&(TRAIL.has(norm(ws[ws.length-1]))||VRB.has(norm(ws[ws.length-1]))))ws.pop(); v=ws.join(" ");}
     const key=kind+"|"+norm(v);
-    const g=seen.get(key)||{value:v,kind,score:0,n:0,s,e:en};
+    const g=seen.get(key)||{value:v,kind,score:0,n:0,s,e:en,review:orgReview};
     g.n++; g.score=Math.max(g.score,e.score); seen.set(key,g);
   }
   // "רונית אזולאי" מכסה את "אזולאי" — לא מציעים את שניהם
@@ -154,6 +170,10 @@ function nerClean(ents,text,opt){
 const STREET="(?:רחוב|רח'|שדרות|שד'|סמטת|סמטה|דרך|שכונת|כיכר|ככר|מעלה|נחל|משעול)";
 const PAT=[
  ["EMAIL",'כתובת דוא"ל',`(?<![\\w.%+-])[\\w.%+-]+@[\\w.-]+\\.[A-Za-z\u05d0-\u05ea]{2,}`,0,null,0,1],
+ // תאריך מלא. עד כאן תאריכים לא זוהו בכלל (רק תאריך לידה אחרי "יליד"), והיא ביקשה
+ // שתאריכים ומספרי תיק יושמטו מאליהם. תאריך מושמט כברירת מחדל, ובכל כרטיס אפשר
+ // להשאיר אותו. גיל ("בת 9") אינו תאריך ואינו נתפס כאן.
+ ["DATE","תאריך",`${NW}\\d{1,2}[./]\\d{1,2}[./](?:\\d{4}|\\d{2})${NWE}`,0,null,5,1],
  ["PHONE_MOBILE","טלפון נייד",`${NW}(?:\\+?972[-\\s]?|0)5\\d[-\\s.]?\\d{3}[-\\s.]?\\d{4}${NWE}`,0,null,3,1],
  ["PHONE_LAND","טלפון קווי",`${NW}(?:\\+?972[-\\s]?|0)(?:[2-4689]|7\\d)[-\\s.]?\\d{3}[-\\s.]?\\d{4}${NWE}`,0,null,4,1],
  ["PHONE_TOLL","מספר חיוג","(?:\\*\\d{3,5}|1[-\\s]?[38]00[-\\s]?\\d{3}[-\\s]?\\d{3})",0,null,3,1],
@@ -176,7 +196,8 @@ const PAT=[
  ["IP","כתובת IP","\\b(?:(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\b",0,null,3,0],
 ].map(([n,l,r,g,v,p,on])=>({n,l,rx:new RegExp(r,"gu"),g,v,p,on:!!on}));
 
-const WHYP={ISRAELI_ID:"תשע ספרות שעוברות בדיקת ספרת ביקורת",
+const WHYP={DATE:"מבנה של תאריך — מושמט כברירת מחדל; אפשר להשאיר בכרטיס",
+ ISRAELI_ID:"תשע ספרות שעוברות בדיקת ספרת ביקורת",
  ISRAELI_ID_LABELED:"מספר שמופיע אחרי תווית זהות",CREDIT_CARD:"רצף ספרות שעובר בדיקת Luhn",
  EMAIL:'מבנה של כתובת דוא"ל',PHONE_MOBILE:"מבנה של מספר נייד ישראלי",
  PHONE_LAND:"מבנה של מספר קווי ישראלי",PHONE_TOLL:"מספר חיוג מיוחד",
@@ -391,10 +412,43 @@ const AMBIG=new Set(["דן","מגן","כרמל","עלי","שילה","דליה","
    מסך היישובים עדיין קודם כשהוא רלוונטי, כי הוא שומר על המרחקים בין היישובים.
    זה הרשת מתחתיו. הבחירה נגזרת מ-hash של השם המקורי, ולכן היא יציבה בין
    הרצות; יישוב שמופיע במסמך עצמו לא ייבחר כתחליף, ולא ייבחר שם דו-משמעי. */
-function fakePlace(value,used,forbidden){
+/* מקום לפי סוגו (Q11): "שכונת הפרדס" מקבלת שם של שכונה, "רחוב הארזים" שם של
+   רחוב, "מושב X" שם של מושב, "קיבוץ X" שם של קיבוץ, "כפר X" זנב של כפר.
+   מילת הסוג עצמה נשארת בטקסט (היא לא חלק מהערך), ולכן התחליף הוא רק השם.
+   מה שאין לו מאגר משלו נופל למאגר היישובים הכללי — לעולם לא לתווית. */
+const NEIGHBORHOODS=["רמות","גבעת שאול","נווה שאנן","הדר","קרית משה","נאות אפקה","רמת אביב",
+  "גבעת מרדכי","קרית היובל","נווה יעקב","רמת אשכול","נאות שקמה","נווה עוז","קרית שרת",
+  "גבעת התמרים","נווה שלום","רמת הנשיא","גני אביב","נווה זאב","קרית מנחם","שכונת הפועלים",
+  "נאות גנים","רמת ורבר","נווה עמל","גבעת רם","קרית חיים","נאות רחל","רמת חן"].map(n=>n.replace(/^שכונת\s+/,""));
+const STREETS=["הרצל","ויצמן","ז'בוטינסקי","בן גוריון","רוטשילד","הנשיא","האלון","הזית","התמר",
+  "הדקל","הברוש","האורנים","השקד","הרימון","ביאליק","סוקולוב","אחד העם","הפלמ\"ח","הנרקיס",
+  "הכלנית","הרקפת","החרוב","השיטה","הבנים","העצמאות","הגליל","הכרמל","הירדן","הנגב","השרון"];
+const PLACE_KIND_HEADS=[
+  [/(?:^|[^֐-׿])(?:[בהולמכש]|ו[בהלמכ]|כש)?שכונ(?:ת|ה)\s*$/u,"שכונה"],
+  [/(?:^|[^֐-׿])(?:[בהולמכש]|ו[בהלמכ]|כש)?(?:רחוב|רח'|שדרות|שד'|סמטת|סמטה|דרך)\s*$/u,"רחוב"],
+  [/(?:^|[^֐-׿])(?:[בהולמכש]|ו[בהלמכ]|כש)?מושב\s*$/u,"מושב"],
+  [/(?:^|[^֐-׿])(?:[בהולמכש]|ו[בהלמכ]|כש)?קיבוץ\s*$/u,"קיבוץ"],
+  [/(?:^|[^֐-׿])(?:[בהולמכש]|ו[בהלמכ]|כש)?כפר\s*$/u,"כפר"],
+];
+// מילת הסוג שלפני מקום בטקסט (מנורמל), או null כשאין
+function placeKind(text,s){
+  const back=String(text||"").slice(Math.max(0,s-20),s);
+  for(const [rx,k] of PLACE_KIND_HEADS) if(rx.test(back))return k;
+  return null;
+}
+function placePool(kind){
   const gaz=(typeof GAZ!=="undefined"&&Array.isArray(GAZ))?GAZ:[];
-  const pool=PLACES.map(p=>p.n).concat(gaz)
-    .filter(n=>n&&n.length>=3&&!AMBIG.has(n));
+  const all=PLACES.map(p=>p.n).concat(gaz);
+  const tagged=t=>(typeof ATLAS_TAGS!=="undefined")?PLACES.map(p=>p.n).filter(n=>(ATLAS_TAGS[n]||"").split("|")[0]===t):[];
+  if(kind==="שכונה")return NEIGHBORHOODS;
+  if(kind==="רחוב")return STREETS;
+  if(kind==="מושב"){const p=tagged("מושב"); if(p.length>=8)return p;}
+  if(kind==="קיבוץ"){const p=tagged("קיבוץ"); if(p.length>=8)return p;}
+  if(kind==="כפר"){const p=all.filter(n=>/^כפר\s+\S/.test(n)).map(n=>n.replace(/^כפר\s+/,"")); if(p.length>=8)return p;}
+  return all.filter(n=>n&&n.length>=3&&!AMBIG.has(n));
+}
+function fakePlace(value,used,forbidden,kind){
+  const pool=placePool(kind||null);
   if(!pool.length)return null;
   const free=n=>{
     if(used&&used.has(n))return false;
@@ -408,7 +462,8 @@ function fakePlace(value,used,forbidden){
     const cand=pool[(start+k)%pool.length];
     if(free(cand))return cand;
   }
-  return null;
+  // המאגר של הסוג נגמר (או שכל שמותיו במסמך): נופלים למאגר הכללי, לא לתווית
+  return kind?fakePlace(value,used,forbidden,null):null;
 }
 
 const PLACE_RX=new RegExp(
@@ -502,7 +557,7 @@ function findPlaces(text){
       if(PUBLIC_ORG.test(norm(g[0]))||PUBLIC_ORG.test(norm(g[0]).replace(/^[בהולמכש]/,"")))continue;
       out.push({s,e,type:"PLACE_VENUE",label:v.l,text:text.slice(s,e),
         why:"מופיע אחרי מילה שמציינת מקום",apply:false,src:"pattern",
-        prio:2,conf:"medium",review:true});
+        prio:2,conf:"medium",review:true,kind:placeKind(n,s)});
     }
   }
   return out;
@@ -579,19 +634,25 @@ function geoMap(names,variant){
     for(let ang=0;ang<360;ang+=30){
       for(const mir of [1,-1]){
         const r=ang*R2, cs=Math.cos(r), sn=Math.sin(r);
-        const used=new Set(block), pick=[]; let bad=false;
+        const used=new Set(block), pick=[]; let bad=false, pen=0;
         for(const off of offs){
           const x=off.x*mir, y=off.y;
           const rx=x*cs-y*sn, ry=x*sn+y*cs;
           const tA=anc.a+ry, tO=anc.o+rx/Math.cos(anc.a*R2);
-          let best=null,bd=1e9;
+          // מאפיינים לפני מרחק (Q11): הציון הוא מרחק ועוד מחיר אי-ההתאמה,
+          // כך שעיר חרדית רחוקה יותר עדיפה על קיבוץ קרוב. אוכלוסייה שונה
+          // פסולה בכל מרחק. הסף רחב מ-20 ק"מ של פעם, כי התאמה מלאה נדירה.
+          let best=null,bs=1e9,bp=0;
+          const from=orig[pick.length].n;
           for(const p of PLACES){
             if(used.has(p.n))continue;
-            const d=hav(p.a,p.o,tA,tO);
-            if(d<bd){bd=d;best=p}
+            const pen=(typeof atlasPenalty==="function")?atlasPenalty(from,p.n):0;
+            if(pen===Infinity)continue;
+            const d=hav(p.a,p.o,tA,tO), sc=d+pen;
+            if(sc<bs){bs=sc;best=p;bp=pen}
           }
-          if(!best||bd>20){bad=true;break}
-          used.add(best.n); pick.push(best);
+          if(!best||bs>110){bad=true;break}
+          used.add(best.n); pick.push(best); pen+=bp;
         }
         if(bad)continue;
         let err=0,c=0;
@@ -600,13 +661,14 @@ function geoMap(names,variant){
           const d1=hav(pick[i].a,pick[i].o,pick[j].a,pick[j].o);
           err+=Math.abs(d0-d1); c++;
         }
+        // הדירוג: שגיאת המרחקים ועוד מחיר אי-ההתאמה הממוצע, שוב ביחידות ק"מ
         res.push({map:orig.map((o,i)=>({from:o.n,to:pick[i].n})),
-                  err:c?err/c:0, anchor:anc.n});
+                  err:c?err/c:0, pen:orig.length?pen/orig.length:0, anchor:anc.n});
       }
     }
   }
   if(!res.length)return null;
-  res.sort((a,b)=>a.err-b.err);
+  res.sort((a,b)=>(a.err+a.pen)-(b.err+b.pen));
   const uniq=[],seen=new Set();
   for(const r of res){
     const k=r.map.map(x=>x.to).join("|");
