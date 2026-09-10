@@ -300,6 +300,13 @@ a:hover{text-decoration:underline}
       <sc-if value="{{ peoEmpty }}">
         <div style="color:var(--ink3);font-size:13.5px;padding:6px 0">הרשימה ריקה. אפשר להקליד שמות למטה, או להמשיך בלי שמות.</div>
       </sc-if>
+      <sc-for list="{{ mergeSugs }}" as="m" hint-placeholder-count="2">
+        <div data-merge-sug style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;margin-top:6px;border-radius:12px;border:1px dashed var(--line);background:var(--panel2);font-size:12.5px;color:var(--ink2)">
+          <span>אותו אדם? <b style="font-weight:500;color:var(--ink)">{{ m.from }}</b> ו<b style="font-weight:500;color:var(--ink)">{{ m.to }}</b> <small style="color:var(--ink3)">({{ m.why }})</small></span>
+          <button onClick="{{ m.onSame }}" style="padding:4px 11px;border-radius:14px;background:var(--accent-soft);color:var(--accent-ink);font-size:12.5px;font-weight:500">כן, אותו אדם</button>
+          <button onClick="{{ m.onNotSame }}" style="padding:4px 11px;border-radius:14px;border:1px solid var(--line);font-size:12.5px">לא, שני אנשים</button>
+        </div>
+      </sc-for>
     </div>
 
     <sc-if value="{{ hasPeoSug }}">
@@ -796,7 +803,7 @@ class Component extends DCLogic {
     aiIn:"", aiWarn:"", aiCopyLabel:"העתקת טקסט מושחר",
     rvIn:"", rvOut:"", rvCopyLabel:"העתקת הטקסט המשוחזר",
     copyLabel:"העתקה ל-AI", busyT:"מעבד…", err:"",
-    geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, popup:null, tip:null, repDraft:"", peoKept:[],
+    geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, popup:null, tip:null, repDraft:"", peoKept:[], peoNotSame:[],
     // הפרופיל של התיק נשמר בדפדפן אחרי כל שינוי; lastProfile הוא מה שנמצא בכניסה
     caseName:"", lastProfile:null, profileDirty:false, leaks:[], cases:[], copied:false, feedbackMail:"", logCopyLabel:""
   };
@@ -1157,6 +1164,19 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const kept=(this.state.peoKept||[]).filter(k=>k.value!==p.value).concat([{...p}]);
     this.log.add("del-peo",{auto:!!p.auto, kept:kept.length});
     this.setState({peo:list, allow, peoKept:kept}); };
+  // מיזוג שאושר: הקצר מקבל sameAs לארוך, ובמנוע שניהם מקבלים אותו כינוי.
+  // נרשם מבנית בלבד — כמה אותות היו, לא איזה שמות.
+  peoSame = (from, to, signals) => {
+    this.log.add("merge-suggest",{accepted:true, signals});
+    this.setState({peo:this.state.peo.map(p=>p.value===from?{...p, sameAs:to, note:""}:p)});
+  };
+  peoNotSame = (key, signals) => {
+    this.log.add("merge-suggest",{accepted:false, signals});
+    this.setState({peoNotSame:[...(this.state.peoNotSame||[]), key]});
+  };
+  peoUnSame = value => {
+    this.setState({peo:this.state.peo.map(p=>p.value===value?{...p, sameAs:undefined}:p)});
+  };
   peoRestore = value => {
     const k=(this.state.peoKept||[]).find(x=>x.value===value); if(!k) return;
     this.log.add("restore-peo",{});
@@ -1891,7 +1911,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         if(t && /[\n,;]/.test(t)){ e.preventDefault(); this.peoAdd(t); } },
       onPeoAdd:()=>{ this.peoAdd(S.peoIn); this.setState({peoIn:""}); },
       onPeoGo:()=>{ if(S.scanning) return; this.peoAdd(S.peoIn);
-        setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g}))), 0); },
+        setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined}))), 0); },
       onSkipNames:()=>{ if(S.scanning) return; this.setState({peo:[]}); this.toPlaces([]); },
       // בקו איטי ההורדה הראשונה לוקחת דקות; השמות מהכותרת כבר על המסך. הסריקה
       // הזאת מבוטלת (כמו מסמך שהוחלף באמצע), המודל ממשיך לרדת ברקע למסמך הבא.
@@ -1900,7 +1920,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
          ממשיכה ברקע; כשהיא נגמרת השמות נכנסים לכללים ולא לרשימה שכבר עזבה. */
       onGoNow:()=>{ if(!S.scanning) return; this._goneAhead=this._scan; this.log.add("go-without-model",{names:S.peo.length});
         this.setState({scanning:false, nerBox:false, nerUsed:false, peoNote:"המשכת בלי המודל. השמות שברשימה הם מהכותרת ומתורות הדיבור; שמות מגוף הטקסט יוצעו במסך הבדיקה."});
-        this.peoAdd(S.peoIn); setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g}))), 0); },
+        this.peoAdd(S.peoIn); setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined}))), 0); },
       onLoadProf:this.loadProfileClick, onSaveProf:this.saveProfile,
       hasCases:S.cases.length>0&&S.screen==="entry"&&!S.profile,
       caseItems:S.cases.map(c=>({name:c.name, meta:(c.rules||[]).length+" ערכים · עודכן "+new Date(c.updated||c.created).toLocaleString("he-IL",{dateStyle:"short",timeStyle:"short"}),
@@ -1925,8 +1945,20 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       // הרשימה מקובצת: אנשים, גופים, מקומות. הסדר לתצוגה בלבד; המחיקה והחלפת הסוג
       // עובדות על האינדקס המקורי.
       // הרשימה נשארת בסדר ההוספה: מיון לפי סוג הזיז שבב מתחת לאצבע כשהסוג שונה
+      // שני שמות שעשויים להיות אותו אדם: מוצע עם הסיבה, ומתקבל רק בהקשה (Q12)
+      mergeSugs:(()=>{ const out=[]; const not=new Set(S.peoNotSame||[]);
+        for(let i=0;i<S.peo.length;i++)for(let j=i+1;j<S.peo.length;j++){
+          const a=S.peo[i], b=S.peo[j]; if(a.sameAs||b.sameAs||(a.kind||"NAME")!=="NAME"||(b.kind||"NAME")!=="NAME")continue;
+          const why=S.E.mergeSignals?S.E.mergeSignals(a.value,b.value):[]; if(!why.length)continue;
+          const k=[a.value,b.value].sort().join("|"); if(not.has(k))continue;
+          // הקצר מתמזג לתוך הארוך: השם המלא הוא הכינוי המשותף
+          const [from,to]=a.value.length<=b.value.length?[a.value,b.value]:[b.value,a.value];
+          out.push({from,to,why:why.join(" · "),
+            onSame:()=>this.peoSame(from,to,why.length), onNotSame:()=>this.peoNotSame(k,why.length)});
+        } return out; })(),
+      hasMergeSugs:false,
       peoItems:S.peo.map((p,i)=>({
-        value:p.value, note:p.note, kindName:KIND_NAME[p.kind]||"אדם",
+        value:p.value, note:p.sameAs?"= "+p.sameAs:p.note, kindName:KIND_NAME[p.kind]||"אדם",
         style:"display:flex;align-items:center;gap:8px;padding:7px 10px 7px 12px;border-radius:20px;font-size:14px;white-space:nowrap;"+
           "border:1px solid "+(p.auto?"var(--accent-soft)":"var(--line)")+";background:"+(p.auto?"var(--accent-soft)":"var(--panel)"),
         kindOpts:KIND_ORDER.map(k=>({value:k, label:KIND_NAME[k]||k, sel:(p.kind||"NAME")===k})),

@@ -24,6 +24,30 @@ const WEAK=new Set(["א","ה","ו","י"]);
 const WRX=/[\u0590-\u05ff][\u0590-\u05ff'"\u05f3\u05f4-]*/gu;
 function words(t){const o=[];WRX.lastIndex=0;let m;
   while((m=WRX.exec(t)))o.push({w:m[0],s:m.index,e:m.index+m[0].length});return o}
+/* למה שני שמות ברשימה עשויים להיות אותו אדם (Q12). האותות, כל אחד בשמו:
+   כתיב מלא מול חסר או אות דומה במילה אחת ("שלוה"/"שלווה"), מקף מול רווח או
+   סדר מילים שונה, שם פרטי לבדו מול השם המלא, שם משפחה לבדו מול השם המלא,
+   וחלק מהשם המשולש. מחזיר רשימת סיבות; ריקה כשאין. ההצעה מוצגת, ולעולם
+   אינה מתקבלת מעצמה: מיזוג הוא הקשה שלה על הכרטיס. */
+function mergeSignals(a,b){
+  const A=norm(String(a||"")).trim(), B=norm(String(b||"")).trim();
+  if(!A||!B||A===B)return [];
+  const aw=A.split(/[\s\-־–]+/).filter(Boolean), bw=B.split(/[\s\-־–]+/).filter(Boolean);
+  const out=[];
+  const sameW=(x,y)=>{if(x===y)return true;const r=near1(x,y);return !!r&&(r.k==="sub"?HOMO.has(r.p):WEAK.has(r.p))};
+  if(aw.length===bw.length&&aw.length>=1){
+    if(aw.every((w,k)=>w===bw[k])){ if(A!==B)out.push("מקף מול רווח"); }
+    else if(aw.every((w,k)=>sameW(w,bw[k]))&&aw.some((w,k)=>w!==bw[k])&&aw.join("").length>=4)out.push("כתיב מלא מול חסר");
+    else if(aw.length>=2&&[...aw].sort().join(" ")===[...bw].sort().join(" "))out.push("אותן מילים בסדר אחר");
+  }
+  const [s,l]=aw.length<bw.length?[aw,bw]:[bw,aw];
+  if(s.length<l.length&&s.every(w=>w.length>=3)){
+    if(s.length===1&&l[0]===s[0])out.push("שם פרטי לבדו");
+    else if(s.length===1&&l[l.length-1]===s[0])out.push("שם משפחה לבדו");
+    else if(s.every(w=>l.includes(w)))out.push("חלק מהשם המלא");
+  }
+  return out;
+}
 function findNear(blocks,targets,banned){
   // הסף הקודם דרש חמש אותיות לשם בן מילה אחת, וכך חסם בדיוק את המקרה
   // שממנו התחלנו: "שלוה" מול "שלווה". ארבע אותיות זה שם.
