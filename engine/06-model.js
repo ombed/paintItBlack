@@ -86,6 +86,9 @@ function nerClean(ents,text,opt){
     let v=trimEdges(text.slice(s,en));
     if(!v||v.length<2)continue;
     // ── קילוף אות שימוש ──
+    // "המוסד לביטוח לאומי": הקילוף לפי ראש מוסד ("מוסד") הפך גוף ציבורי לגוף
+    // פרטי לכאורה. הצורה שלפני הקילוף נשמרת ונבדקת גם היא מול הגופים הציבוריים.
+    const v0=v;
     const w=v.split(/\s+/), f=norm(w[0]);
     if(PFX.has(f[0])&&f.length>=4){
       const stem=f.slice(1);
@@ -145,6 +148,7 @@ function nerClean(ents,text,opt){
     // בית משפט ומשרד ממשלתי אינם פרט מזהה, ואין טעם להציע אותם
     if(kind!=="NAME"&&PUBLIC_ORG.test(norm(v).replace(/^[\u05d1\u05d4\u05d5\u05dc\u05de\u05db\u05e9]/,"")))continue;
     if(kind!=="NAME"&&PUBLIC_ORG.test(norm(v)))continue;
+    if(kind!=="NAME"&&(PUBLIC_ORG.test(norm(v0))||PUBLIC_ORG.test(norm(v0).replace(/^[בהולמכש]/,""))))continue;
     // "הפרדס בעקבות": המודל גרר את מילת היחס הבאה לתוך מקום. מילת יחס או פועל
     // בסוף גוף או מקום אינם חלק מהשם. רק מהסוף, ורק אחרי בדיקת הגופים
     // הציבוריים — חיתוך מההתחלה הפך את "משרד הרווחה" ל"הרווחה" והציע אותו.

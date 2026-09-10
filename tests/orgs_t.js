@@ -54,6 +54,12 @@ console.log("\n— the model's ORG candidates: group dropped, headless flagged �
   ok(val("עמותת שביל הלב") && !val("עמותת שביל הלב").review, "עמותת offered as usual");
   ok(val("ברסלב") && val("ברסלב").review === true, "headless name flagged for review");
   ok(!val("משרד הרווחה"), "public body still never offered");
+  // "המוסד לביטוח לאומי": the head-word peel took the ה off and turned a public
+  // body into a private-looking "מוסד לביטוח לאומי" (three new false positives on the bench)
+  const T2 = "התובעת פנתה למוסד לביטוח לאומי. המוסד לביטוח לאומי השיב.";
+  const E2 = (surface, type, score) => ({ s: T2.lastIndexOf(surface), e: T2.lastIndexOf(surface) + surface.length, type, score });
+  const out2 = C.nerClean([E2("המוסד לביטוח לאומי", "ORG", 0.99)], T2);
+  ok(out2.length === 0, "a public body is not offered after the head-word peel: " + out2.map((x) => x.value).join(", "));
 }
 
 console.log("\n— end to end: the replacement keeps the head —");
