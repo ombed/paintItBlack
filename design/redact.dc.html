@@ -59,6 +59,11 @@ a:hover{text-decoration:underline}
   [data-wrap]>span:first-child{min-width:0!important;flex:1 1 100%}
   [data-wrap] input{flex:1 1 140px!important}
   [data-work]{padding-bottom:132px!important}
+  /* "לפני שמתחילים" על מסך קטן: בלי תיאורי הצעדים, פחות ריווח — הכפתורים נראים בלי גלילה */
+  [data-intro]{padding:16px 16px!important}
+  [data-intro] h2{font-size:18px!important}
+  [data-intro] small{display:none}
+  [data-intro] p{font-size:13px!important;line-height:1.5!important;margin-bottom:10px!important}
   header{flex-wrap:wrap;height:auto!important;padding:8px 14px!important;row-gap:4px}
   header>div:first-child{flex:1 1 100%}
   #ver{position:static!important;display:block;text-align:center;padding:14px 0 12px}
@@ -108,6 +113,9 @@ a:hover{text-decoration:underline}
   <input type="file" accept=".json,.txt" ref="{{ profRef }}" onChange="{{ onProfFile }}" style="display:none">
 
   <sc-if value="{{ tourOn }}">
+    <sc-if value="{{ tourSpot }}">
+      <div data-spot style="{{ tourSpotStyle }}"></div>
+    </sc-if>
     <div data-tour style="position:fixed;bottom:18px;inset-inline-start:18px;z-index:80;max-width:400px;background:var(--panel);border:1px solid var(--accent);border-radius:14px;padding:16px 18px;box-shadow:0 18px 48px rgba(0,0,0,.28)">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
         <span style="font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;background:var(--accent-soft);color:var(--accent-ink)">סיור · מסמך לדוגמה</span>
@@ -125,8 +133,8 @@ a:hover{text-decoration:underline}
   </sc-if>
 
   <sc-if value="{{ showIntro }}">
-    <div style="position:fixed;inset:0;z-index:70;background:rgba(10,14,12,.5);display:grid;place-items:center;padding:24px">
-      <div style="max-width:560px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px 30px;box-shadow:0 24px 60px rgba(0,0,0,.35)">
+    <div style="position:fixed;inset:0;z-index:70;background:rgba(10,14,12,.5);display:grid;place-items:center;padding:16px;overflow:auto">
+      <div data-intro style="max-width:560px;max-height:calc(100vh - 32px);overflow:auto;box-sizing:border-box;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 24px;box-shadow:0 24px 60px rgba(0,0,0,.35)">
         <h2 style="margin:0 0 6px;font-size:21px;font-weight:500;letter-spacing:-.02em">לפני שמתחילים</h2>
         <p style="margin:0 0 18px;color:var(--ink2);font-size:14px;line-height:1.6">הכלי מכין מסמך משפטי לשליחה לכלי AI: הוא מחליף פרטים מזהים בשמות חלופיים, בודק מה נשאר, ומאפשר להחזיר את השמות האמיתיים לתשובה שחוזרת. הכול רץ בדפדפן — שום קובץ לא נשלח לשרת.</p>
         <sc-for list="{{ introSteps }}" as="s" hint-placeholder-count="4">
@@ -159,7 +167,7 @@ a:hover{text-decoration:underline}
     <p style="margin:0 0 26px;color:var(--ink2);font-size:14.5px;max-width:62ch">מעלים קובץ Word, מאשרים את רשימת האנשים, ומקבלים מסמך מושחר עם דוח מלא של כל החלפה. הזיהוי, ההחלפה והאימות רצים כאן בדפדפן.</p>
 
     <div data-stack style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch">
-      <button onClick="{{ onPick }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDropFile }}" style="{{ dropStyle }}">
+      <button data-tour-target="upload" onClick="{{ onPick }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDropFile }}" style="{{ dropStyle }}">
         <span style="width:38px;height:38px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none;font-size:17px">↑</span>
         <span style="text-align:start">
           <b style="display:block;font-weight:500;font-size:15px">בחירת קובץ</b>
@@ -302,7 +310,7 @@ a:hover{text-decoration:underline}
       </div>
     </sc-if>
 
-    <div style="display:flex;flex-wrap:wrap;gap:8px">
+    <div data-tour-target="people" style="display:flex;flex-wrap:wrap;gap:8px">
       <sc-for list="{{ peoItems }}" as="p" hint-placeholder-count="4">
         <div style="{{ p.style }}">
           <select onChange="{{ p.onKindSel }}" aria-label="סוג" title="סוג: אדם · גוף · מקום" style="font-size:11px;font-weight:500;color:var(--ink2);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:2px 4px">
@@ -377,7 +385,7 @@ a:hover{text-decoration:underline}
     <p style="margin:0 0 22px;color:var(--ink2);font-size:14px;max-width:68ch">החלפת יישוב בשם אקראי הורסת את הגיאוגרפיה של התיק: נסיעה של עשר דקות הופכת לנסיעה של שעתיים. הקבוצה החלופית שלמטה שומרת על אותם מרחקים וכיוונים יחסיים בין היישובים שנמצאו במסמך.</p>
 
     <sc-if value="{{ hasGeo }}">
-      <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden">
+      <div data-tour-target="places" style="background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden">
         <div style="display:flex;align-items:baseline;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line2)">
           <b style="font-weight:500">{{ geoCount }} יישובים במסמך</b>
           <span style="font-size:12.5px;color:var(--ink2)">סטיית מרחק {{ geoErr }} ק״מ · {{ geoQuality }}</span>
@@ -574,7 +582,7 @@ a:hover{text-decoration:underline}
 
       <sc-for list="{{ sections }}" as="s" hint-placeholder-count="5">
         <div style="{{ s.wrapStyle }}">
-          <button onClick="{{ s.onToggle }}" style="display:flex;align-items:center;gap:10px;width:100%;padding:13px 15px;text-align:start">
+          <button data-section="{{ s.key }}" onClick="{{ s.onToggle }}" style="display:flex;align-items:center;gap:10px;width:100%;padding:13px 15px;text-align:start">
             <span style="{{ s.dotStyle }}"></span>
             <b style="font-weight:500;font-size:13.5px">{{ s.title }}</b>
             <span style="font-size:12px;color:var(--ink3)">{{ s.count }}</span>
@@ -782,7 +790,7 @@ a:hover{text-decoration:underline}
         <span style="{{ step2Style }}">2 העתקה ל-AI{{ step2Mark }}</span><span style="color:var(--ink3)">›</span>
         <span style="{{ step3Style }}">3 החזרת השמות</span>
       </div>
-      <button onClick="{{ onCopyAi }}" title="מעתיק את הטקסט המושחר ללוח. מדביקים ב-AI; כשהתשובה חוזרת, «החזרת שמות מתשובת AI» בכותרת מחזיר את השמות האמיתיים" style="{{ copyBtnStyle }}">{{ copyLabel }}</button>
+      <button data-tour-target="copy" onClick="{{ onCopyAi }}" title="מעתיק את הטקסט המושחר ללוח. מדביקים ב-AI; כשהתשובה חוזרת, «החזרת שמות מתשובת AI» בכותרת מחזיר את השמות האמיתיים" style="{{ copyBtnStyle }}">{{ copyLabel }}</button>
       <button onClick="{{ onDownload }}" title="קובץ Word מושחר, בשם ניטרלי עם תאריך — לא בשם הקובץ המקורי" style="padding:11px 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">הורדת Word</button>
     </div>
   </div>
@@ -888,6 +896,11 @@ class Component extends DCLogic {
      prev.screen היה undefined תמיד, ההשוואה תמיד "השתנה", ושדה from נעלם מהיומן.
      המסך האחרון נשמר על המופע ולא נלקח מההוק. */
   componentDidUpdate(){ this.applyProps(); if(this._barSize) this._barSize();
+    // הזרקור של הסיור נמדד אחרי שהמסך צויר, פעם אחת לכל צעד+מסך+מקטע פתוח
+    if(this.state.tour){
+      const key=this.state.tour.i+"|"+this.state.screen+"|"+(this.state.open||[]).join(",");
+      if(this._spotKey!==key){ this._spotKey=key; requestAnimationFrame(()=>this.tourMeasure()); }
+    }
     const cur=this.state.screen;
     if(this._lastScreen!==undefined&&this._lastScreen!==cur&&this.log) this.log.add("screen",{to:cur, from:this._lastScreen});
     this._lastScreen=cur; }
@@ -1757,17 +1770,17 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     "נועה שרעבי: ואת המורה.",
   ].join("\n");
   static TOUR=[
-    {screen:"entry", title:"קובץ או טקסט", next:"טעינת המסמך לדוגמה",
+    {screen:"entry", title:"קובץ או טקסט", next:"טעינת המסמך לדוגמה", target:"[data-tour-target=upload]",
      text:"בתיק אמיתי גוררים לכאן קובץ Word, או מדביקים טקסט. בסיור הכלי טוען בעצמו מסמך בדוי. המודל שמוצא שמות מגוף הטקסט כבוי בסיור, כדי שלא תחכי להורדה שלו; בתיק אמיתי הוא רץ."},
-    {screen:"people", title:"מי בתיק — הרשימה", next:"המשך",
+    {screen:"people", title:"מי בתיק — הרשימה", next:"המשך", target:"[data-tour-target=people]",
      text:"הכלי מילא את מי שזיהה. כאן מוסיפים מי שחסר, מוחקים עם ✕ (מי שנמחק נשאר כמו שהוא, ומופיע ברצועה עם ↩), ומתקנים סוג ברשימה הנפתחת. שני כתיבים של אותו אדם? הצעת מיזוג תופיע מתחת לרשימה, ומתקבלת רק בהקשה שלך."},
-    {screen:"places", title:"יישובים", next:"החלת הקבוצה",
+    {screen:"places", title:"יישובים", next:"החלת הקבוצה", target:"[data-tour-target=places]",
      text:"יישוב מוחלף ביישוב אחר ששומר על המרחקים ועל האופי: עיר בעיר, מושב במושב. השורה הקטנה מתחת לכל התאמה אומרת מה משותף ומה שונה. «אל תחליף» משאיר יישוב כמו שהוא."},
-    {screen:"work", title:"מסך הבדיקה", next:"המשך",
+    {screen:"work", title:"מסך הבדיקה", next:"המשך", target:"[data-work] section",
      text:"משמאל המסמך אחרי ההשחרה: צבע ראשי — הוחלף; כתום — נמצא ומחכה להחלטה; ∅ — נמחק. מימין הכרטיסים, ולכל ערך שלוש בחירות: שם או תווית, ריק, ███. סימון טקסט במסמך מוסיף אותו ביד."},
-    {screen:"work", title:"שמירה", next:"המשך", open:"profile",
+    {screen:"work", title:"שמירה", next:"המשך", open:"profile", target:'[data-section="profile"]',
      text:"כשיש שם תיק, הפרופיל נשמר בדפדפן אחרי כל שינוי, ואותו אדם מקבל את אותו שם בדוי במסמך הבא. הדפדפן אינו גיבוי — «שמירה לקובץ» היא."},
-    {screen:"work", title:"העתקה ל-AI, ובחזרה", next:"המשך",
+    {screen:"work", title:"העתקה ל-AI, ובחזרה", next:"המשך", target:"[data-tour-target=copy]",
      text:"«העתקה ל-AI» בסרגל התחתון מעתיק את הטקסט המושחר; מדביקים ב-ChatGPT. כשהתשובה חוזרת, «החזרת שמות מתשובת AI» בכותרת מחזיר את השמות האמיתיים לתוכה. בסיור ההעתקה וההורדה כבויות."},
     {screen:"work", title:"זהו", next:"סיום",
      text:"הסיור נגמר. המסמך הבדוי נמחק עכשיו, ושום דבר ממנו לא נשמר. אפשר להריץ אותו שוב מכפתור «סיור» במסך הפתיחה."},
@@ -1775,15 +1788,31 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   tourStart = async () => {
     this.log.add("tour",{at:"start"});
     this._tourNer=this.state.o.ner;
-    this.setState({intro:false, tour:{i:0, hadPlaces:false}, o:{...this.state.o, ner:false}, buf:null, res:null, rules:[], peo:[], peoSug:[], allow:[], pending:false, screen:"entry", err:""});
+    // hadPlaces: null עד שיודעים — כך המונה מראה שבעה צעדים מההתחלה ולא קופץ
+    this.setState({intro:false, tour:{i:0, hadPlaces:null}, tourSpot:null, o:{...this.state.o, ner:false}, buf:null, res:null, rules:[], peo:[], peoSug:[], allow:[], pending:false, screen:"entry", err:""});
+    this._spotKey=null;
+    this._onSpot=()=>{ if(this.state.tour) this.tourMeasure(); };
+    window.addEventListener("resize", this._onSpot); window.addEventListener("scroll", this._onSpot, true);
   };
+  // הזרקור: מלבן סביב מה שהצעד מדבר עליו, והשאר מוחשך. אינו חוסם לחיצות.
+  tourMeasure(){
+    const t=this.state.tour; if(!t) return;
+    const cur=this.constructor.TOUR[t.i]; const el=cur&&cur.target?document.querySelector(cur.target):null;
+    if(!el){ if(this.state.tourSpot) this.setState({tourSpot:null}); return; }
+    const r=el.getBoundingClientRect();
+    if(r.bottom<0||r.top>innerHeight){ el.scrollIntoView({block:"center"}); return; }
+    const spot={x:Math.round(r.left)-6, y:Math.round(r.top)-6, w:Math.round(r.width)+12, h:Math.round(r.height)+12};
+    const p=this.state.tourSpot;
+    if(!p||p.x!==spot.x||p.y!==spot.y||p.w!==spot.w||p.h!==spot.h) this.setState({tourSpot:spot});
+  }
   tourStep(i){ return this.constructor.TOUR[i]; }
   tourClose = () => {
     const t=this.state.tour; if(!t) return;
     this.log.add("tour",{at:"close", step:t.i, done:t.i>=this.constructor.TOUR.length-1});
     this.tourMarkSeen();
     const o={...this.state.o, ner:this._tourNer===undefined?this.state.o.ner:this._tourNer};
-    this.setState({tour:null, o, buf:null, res:null, rules:[], peo:[], peoSug:[], allow:[], geo:null, geoNames:[], geoExtra:[], pending:false, screen:"entry", err:"", copied:false});
+    if(this._onSpot){ window.removeEventListener("resize", this._onSpot); window.removeEventListener("scroll", this._onSpot, true); this._onSpot=null; }
+    this.setState({tour:null, tourSpot:null, o, buf:null, res:null, rules:[], peo:[], peoSug:[], allow:[], geo:null, geoNames:[], geoExtra:[], pending:false, screen:"entry", err:"", copied:false});
   };
   tourNext = async () => {
     const t=this.state.tour; if(!t) return;
@@ -1848,10 +1877,13 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   tourView(){
     const t=this.state.tour; if(!t) return {tourOn:false};
     const T=this.constructor.TOUR, cur=T[t.i]||T[0];
-    const shown=T.filter((s,i)=>!(s.screen==="places"&&!t.hadPlaces&&i!==t.i));
+    // צעד היישובים נספר עד שיודעים בוודאות שאין יישובים; אחרת המונה קופץ
+    const shown=T.filter((s,i)=>!(s.screen==="places"&&t.hadPlaces===false&&i!==t.i));
     const pos=shown.indexOf(cur)+1;
+    const sp=this.state.tourSpot;
     return {tourOn:true, tourTitle:cur.title, tourText:cur.text, tourNextLabel:cur.next,
       tourPos:`${pos} מתוך ${shown.length}`, tourHasBack:t.i>0,
+      tourSpot:!!sp, tourSpotStyle:sp?`position:fixed;left:${sp.x}px;top:${sp.y}px;width:${sp.w}px;height:${sp.h}px;border-radius:12px;box-shadow:0 0 0 9999px rgba(10,14,12,.45);pointer-events:none;z-index:75;transition:left .25s,top .25s,width .25s,height .25s`:"",
       onTourNext:this.tourNext, onTourBack:this.tourBack, onTourClose:this.tourClose};
   }
   persistProfile(){
@@ -2497,7 +2529,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       ["clean","מה נוקה מהקובץ", stats.length, "plain"]
     ];
     v.sections = secDef.map(([key,title,count,tone])=>({
-      title, count:count?count:"", chev:isOpen(key)?"▲":"▼",
+      key, title, count:count?count:"", chev:isOpen(key)?"▲":"▼",
       wrapStyle:"background:var(--panel);border:1px solid "+(isOpen(key)?"var(--line)":"var(--line2)")+";border-radius:12px;box-shadow:"+(isOpen(key)?"var(--shadow)":"none")+";overflow:hidden",
       dotStyle:"width:7px;height:7px;border-radius:50%;flex:none;background:"+(tone==="warn"?"var(--warn)":tone==="ok"?"var(--accent)":"var(--ink3)"),
       onToggle:()=>this.setState({open:isOpen(key)?open.filter(k=>k!==key):[...open,key]}),
