@@ -20,7 +20,9 @@ const INK = "16211C", ACCENT = "1F5B44", WARN = "9C5511";
 const PANEL = "EFF4F1", WARNBG = "FBF2E4";
 const FONT = "Arial";
 
-const md = fs.readFileSync(path.join(REPO, "docs", "trial-guide-he.md"), "utf8");
+// node scripts/build-guide.js [source.md] [out.docx] — the trial guide by default
+const SRC = process.argv[2] && /\.md$/.test(process.argv[2]) ? path.resolve(process.argv[2]) : path.join(REPO, "docs", "trial-guide-he.md");
+const md = fs.readFileSync(SRC, "utf8");
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const W = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"';
 
@@ -110,6 +112,7 @@ const buf = mkzip([
   { name: "word/styles.xml", body: styles },
   { name: "word/settings.xml", body: settings },
 ]);
-const out = process.argv[2] || path.join(REPO, "docs", "trial-guide-he.docx");
+const outArg = process.argv.slice(2).find((a) => /\.docx$/.test(a));
+const out = outArg || SRC.replace(/\.md$/, ".docx");
 fs.writeFileSync(out, Buffer.from(buf));
 console.log("wrote " + out + " (" + paras.filter((p) => p[0]).length + " paragraphs)");

@@ -24,7 +24,7 @@ test("the model loads, repairs its tokenizer, and scans the whole document", asy
   // The tool opens on an onboarding overlay and remembers dismissal in
   // localStorage. Seed it, or the file input is never reachable.
   await page.addInitScript(() => {
-    try { localStorage.setItem("redact-intro-seen", "1"); } catch (_) {}
+    try { localStorage.setItem("redact-intro-seen", "1"); localStorage.setItem("redact-tour-seen", "*"); } catch (_) {}
   });
 
   await page.goto("/index.html");

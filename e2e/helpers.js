@@ -51,7 +51,7 @@ async function serveEngineWithStub(page) {
 // The onboarding overlay leaves the file input inert until dismissed.
 async function boot(page) {
   await page.addInitScript(() => {
-    try { localStorage.setItem("redact-intro-seen", "1"); } catch (_) {}
+    try { localStorage.setItem("redact-intro-seen", "1"); localStorage.setItem("redact-tour-seen", "*"); } catch (_) {}
   });
   await page.goto("/index.html");
   await expect(page.locator("#dc-root")).toBeAttached({ timeout: 60000 });
