@@ -1743,12 +1743,18 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   ver(){ return ((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"")||"v0"; }
   tourMarkSeen(){ try{ localStorage.setItem("redact-intro-seen","1"); localStorage.setItem("redact-tour-seen", this.ver()); }catch(_){} }
   static SAMPLE=[
+    // כל אדם כאן דובר פעמיים לפחות: כך הרשימה מתמלאת גם בלי המודל, והסיור
+    // מראה השחרה שלמה ולא מסמך עם שמות שנשארו בו. שם פרטי לבדו אינו מופיע.
     "מסמך לדוגמה — סיור בכלי. כל השמות והפרטים כאן בדויים.",
-    "תסקיר בעניין הקטינה נועה שרעבי, בת 9.",
-    "האם, מיכל שרעבי, מתגוררת בחולון ברחוב הזית 12. האב, אורן שרעבי, מתגורר ברמת גן.",
-    "מיכל שרעבי: הילדה לומדת בבית ספר אורט. המורה, גב' לודמילה כץ, מדווחת על שיפור.",
-    "אורן שרעבי: אני מסכים. מספר הזהות שלי 314277062, והטלפון 052-6613874.",
-    "מיכל שרעבי: הדיון הקודם התקיים ב-11.2.2026 בבית המשפט לענייני משפחה.",
+    "פרוטוקול פגישה בעניין הקטינה נועה שרעבי, בת 9.",
+    "מיכל שרעבי: אני האם. אנחנו גרים בחולון, ברחוב הזית 12.",
+    "אורן שרעבי: אני האב. אני גר ברמת גן, והילדה אצלי בסופי שבוע.",
+    "לודמילה כץ: אני המורה של הילדה. יש שיפור בלימודים.",
+    "נועה שרעבי: אני אוהבת את בית הספר.",
+    "מיכל שרעבי: מספר הזהות שלי 314277062, והטלפון 052-6613874.",
+    "אורן שרעבי: הדיון הקודם התקיים ב-11.2.2026 בבית המשפט לענייני משפחה.",
+    "לודמילה כץ: אשמח לעדכן שוב בחודש הבא.",
+    "נועה שרעבי: ואת המורה.",
   ].join("\n");
   static TOUR=[
     {screen:"entry", title:"קובץ או טקסט", next:"טעינת המסמך לדוגמה",
@@ -1800,17 +1806,25 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(cur.screen==="people"){
       const S=this.state;
       if(S.scanning||S.screen!=="people") return;
-      this.setState({tour:{...t, i:2}});
       await this.toPlaces(S.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined})));
-      // בלי מסך יישובים (אין שני יישובים למפה) מדלגים ישר למסך הבדיקה
-      if(this.state.screen!=="places") this.setState({tour:{...this.state.tour, i:3, hadPlaces:false}});
-      else this.setState({tour:{...this.state.tour, hadPlaces:true}});
+      // הלוח מתקדם רק כשהמסך הבא באמת על המסך. בלי מסך יישובים (אין שני
+      // יישובים למפה) מחכים למסך הבדיקה ומדלגים ישר אליו.
+      if(this.state.screen==="places"){ this.setState({tour:{...this.state.tour, i:2, hadPlaces:true}}); return; }
+      await this.tourWait(()=>this.state.screen==="work"||this.state.err);
+      if(this.state.tour) this.setState({tour:{...this.state.tour, i:3, hadPlaces:false}});
       return;
     }
-    if(cur.screen==="places"){ this.setState({tour:{...t, i:3}}); this.geoApply(); return; }
+    if(cur.screen==="places"){
+      this.geoApply();
+      await this.tourWait(()=>this.state.screen==="work"||this.state.err);
+      if(this.state.tour) this.setState({tour:{...this.state.tour, i:3}});
+      return;
+    }
     const nx=T[t.i+1];
     this.setState({tour:{...t, i:t.i+1}, open:nx.open?this.openWith(nx.open):this.state.open});
   };
+  // עד עשרים שניות, בפסיעות קטנות, עד שהתנאי מתקיים — העיבוד רץ בלי await
+  async tourWait(cond){ for(let i=0;i<200&&!cond();i++) await new Promise(r=>setTimeout(r,100)); }
   tourBack = () => {
     const t=this.state.tour; if(!t||t.i<=0) return;
     const T=this.constructor.TOUR; let i=t.i-1;
