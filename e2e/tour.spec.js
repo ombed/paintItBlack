@@ -24,6 +24,10 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   await expect(tour).toBeVisible();
   await expect(tour).toContainText("קובץ או טקסט");
   await expect(page.getByText("לפני שמתחילים")).toHaveCount(0);
+  // seven steps from the start: the places step is counted until it is known to be absent
+  await expect(tour).toContainText("1 מתוך 7");
+  // the spotlight sits on the upload zone and does not block it
+  await expect(page.locator("[data-spot]")).toBeVisible();
 
   // step 1 → the tool loads the sample itself and reaches the people screen
   await tour.getByRole("button", { name: /טעינת המסמך לדוגמה/ }).click();
@@ -40,6 +44,11 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   // the panel moves only once the places screen is really there, rows and notes included
   await expect(page.locator('div:has(> button:text-is("אל תחליף"))').first()).toBeVisible();
   expect(await page.locator("[data-tags]").count()).toBeGreaterThan(0);
+  await expect(tour).toContainText("3 מתוך 7");
+  // the spotlight moved to the places card
+  const spot = await page.locator("[data-spot]").boundingBox();
+  const card = await page.locator("[data-tour-target=places]").boundingBox();
+  expect(spot && card && Math.abs(spot.y - card.y) < 12).toBe(true);
 
   // back goes to the people screen, forward returns
   await tour.getByRole("button", { name: "חזרה" }).click();
@@ -51,6 +60,7 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   await tour.getByRole("button", { name: /החלת הקבוצה/ }).click();
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   await expect(tour).toContainText("מסך הבדיקה");
+  await expect(tour).toContainText("4 מתוך 7");
   const text = await page.locator("[data-work] section").first().innerText();
   // a complete redaction: no person, no number, no date left in the sample
   for (const s of ["שרעבי", "לודמילה", "כץ", "314277062", "052-6613874", "11.2.2026"]) expect(text).not.toContain(s);
