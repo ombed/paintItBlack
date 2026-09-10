@@ -145,19 +145,18 @@ class Engine{
         f.value.split(/\s+/).slice(-1)[0]===toks[0]);
       if(full)this.alias[short.value]=full.value;
     }
-    // "שלוה ליבוביץ" ו"שלווה ליבוביץ" הוקלדו שניהם — זו אותה אישה.
-    // כל מילה זהה או במרחק אות-קריאה אחת מהמקבילה שלה.
-    const same=(a,b)=>{if(a===b)return true;const r=near1(a,b);
-      return !!r&&(r.k==="sub"?HOMO.has(r.p):WEAK.has(r.p))};
-    for(let i=0;i<named.length;i++)for(let j=i+1;j<named.length;j++){
-      const A=named[i],B=named[j];
-      if(A.replacement&&B.replacement)continue;
-      const aw=norm(A.value).trim().split(/\s+/),bw=norm(B.value).trim().split(/\s+/);
-      if(aw.length<2||aw.length!==bw.length)continue;
-      if(aw.every((w,k)=>same(w,bw[k]))&&!this.alias[B.value]&&!this.alias[A.value]){
-        const [keep,drop]=A.replacement?[A,B]:[B.replacement?B:A,B.replacement?A:B];
-        this.alias[drop.value]=keep.value;
-      }
+    // "שלוה ליבוביץ" ו"שלווה ליבוביץ": עד כאן מוזגו מעצמם כשכל מילה במרחק
+    // אות-קריאה. ההחלטה שלה (Q12): מיזוג לעולם אינו אוטומטי — מסך השמות מציע
+    // אותו (mergeSignals) והיא מקישה. מה שאושר מגיע כאן כ-sameAs על הכלל.
+    for(const s of subs){
+      if(!s.sameAs||s.sameAs===s.value)continue;
+      if(subs.some(f=>f.value===s.sameAs))this.alias[s.value]=s.sameAs;
+    }
+    // שרשרת (א→ב, ב→ג) נפתרת עד הסוף, בלי מעגלים
+    for(const k of Object.keys(this.alias)){
+      let t=this.alias[k], n=0; const seen=new Set([k]);
+      while(this.alias[t]&&!seen.has(t)&&n++<20){seen.add(t);t=this.alias[t];}
+      this.alias[k]=t;
     }
     for(const s of subs) if(s.replacement) this.map[ckey(s.kind,s.value)]??=s.replacement;
   }

@@ -308,6 +308,30 @@ const WEAK=new Set(["א","ה","ו","י"]);
 const WRX=/[\u0590-\u05ff][\u0590-\u05ff'"\u05f3\u05f4-]*/gu;
 function words(t){const o=[];WRX.lastIndex=0;let m;
   while((m=WRX.exec(t)))o.push({w:m[0],s:m.index,e:m.index+m[0].length});return o}
+/* למה שני שמות ברשימה עשויים להיות אותו אדם (Q12). האותות, כל אחד בשמו:
+   כתיב מלא מול חסר או אות דומה במילה אחת ("שלוה"/"שלווה"), מקף מול רווח או
+   סדר מילים שונה, שם פרטי לבדו מול השם המלא, שם משפחה לבדו מול השם המלא,
+   וחלק מהשם המשולש. מחזיר רשימת סיבות; ריקה כשאין. ההצעה מוצגת, ולעולם
+   אינה מתקבלת מעצמה: מיזוג הוא הקשה שלה על הכרטיס. */
+function mergeSignals(a,b){
+  const A=norm(String(a||"")).trim(), B=norm(String(b||"")).trim();
+  if(!A||!B||A===B)return [];
+  const aw=A.split(/[\s\-־–]+/).filter(Boolean), bw=B.split(/[\s\-־–]+/).filter(Boolean);
+  const out=[];
+  const sameW=(x,y)=>{if(x===y)return true;const r=near1(x,y);return !!r&&(r.k==="sub"?HOMO.has(r.p):WEAK.has(r.p))};
+  if(aw.length===bw.length&&aw.length>=1){
+    if(aw.every((w,k)=>w===bw[k])){ if(A!==B)out.push("מקף מול רווח"); }
+    else if(aw.every((w,k)=>sameW(w,bw[k]))&&aw.some((w,k)=>w!==bw[k])&&aw.join("").length>=4)out.push("כתיב מלא מול חסר");
+    else if(aw.length>=2&&[...aw].sort().join(" ")===[...bw].sort().join(" "))out.push("אותן מילים בסדר אחר");
+  }
+  const [s,l]=aw.length<bw.length?[aw,bw]:[bw,aw];
+  if(s.length<l.length&&s.every(w=>w.length>=3)){
+    if(s.length===1&&l[0]===s[0])out.push("שם פרטי לבדו");
+    else if(s.length===1&&l[l.length-1]===s[0])out.push("שם משפחה לבדו");
+    else if(s.every(w=>l.includes(w)))out.push("חלק מהשם המלא");
+  }
+  return out;
+}
 function findNear(blocks,targets,banned){
   // הסף הקודם דרש חמש אותיות לשם בן מילה אחת, וכך חסם בדיוק את המקרה
   // שממנו התחלנו: "שלוה" מול "שלווה". ארבע אותיות זה שם.
@@ -1692,19 +1716,18 @@ class Engine{
         f.value.split(/\s+/).slice(-1)[0]===toks[0]);
       if(full)this.alias[short.value]=full.value;
     }
-    // "שלוה ליבוביץ" ו"שלווה ליבוביץ" הוקלדו שניהם — זו אותה אישה.
-    // כל מילה זהה או במרחק אות-קריאה אחת מהמקבילה שלה.
-    const same=(a,b)=>{if(a===b)return true;const r=near1(a,b);
-      return !!r&&(r.k==="sub"?HOMO.has(r.p):WEAK.has(r.p))};
-    for(let i=0;i<named.length;i++)for(let j=i+1;j<named.length;j++){
-      const A=named[i],B=named[j];
-      if(A.replacement&&B.replacement)continue;
-      const aw=norm(A.value).trim().split(/\s+/),bw=norm(B.value).trim().split(/\s+/);
-      if(aw.length<2||aw.length!==bw.length)continue;
-      if(aw.every((w,k)=>same(w,bw[k]))&&!this.alias[B.value]&&!this.alias[A.value]){
-        const [keep,drop]=A.replacement?[A,B]:[B.replacement?B:A,B.replacement?A:B];
-        this.alias[drop.value]=keep.value;
-      }
+    // "שלוה ליבוביץ" ו"שלווה ליבוביץ": עד כאן מוזגו מעצמם כשכל מילה במרחק
+    // אות-קריאה. ההחלטה שלה (Q12): מיזוג לעולם אינו אוטומטי — מסך השמות מציע
+    // אותו (mergeSignals) והיא מקישה. מה שאושר מגיע כאן כ-sameAs על הכלל.
+    for(const s of subs){
+      if(!s.sameAs||s.sameAs===s.value)continue;
+      if(subs.some(f=>f.value===s.sameAs))this.alias[s.value]=s.sameAs;
+    }
+    // שרשרת (א→ב, ב→ג) נפתרת עד הסוף, בלי מעגלים
+    for(const k of Object.keys(this.alias)){
+      let t=this.alias[k], n=0; const seen=new Set([k]);
+      while(this.alias[t]&&!seen.has(t)&&n++<20){seen.add(t);t=this.alias[t];}
+      this.alias[k]=t;
     }
     for(const s of subs) if(s.replacement) this.map[ckey(s.kind,s.value)]??=s.replacement;
   }
@@ -2660,7 +2683,7 @@ function restoreNames(txt,pairs){
 
 export {nerLast, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
   variants, validID, ibanOK, luhn, hord, POOL, WORDLIKE, FEM, MASC, fakeName, near1, HOMO, WEAK,
-  findNear, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
+  findNear, mergeSignals, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,
   discover, PLACES, PLACE_BY, geoMap, geoNames, placesFound, examplesOf, findPlaces, fakePlace,
   atlasTags, atlasDiff, atlasPenalty, placeKind, nerEnv, nerCached, nerPersist, nerLoad, nerRun,
