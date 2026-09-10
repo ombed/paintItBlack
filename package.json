@@ -11,6 +11,7 @@
     "test:browser": "playwright test",
     "build:fixtures": "node tests/build-fixtures.js",
     "build:design": "node scripts/build-design.js",
+    "build:atlas": "node scripts/build-atlas-doc.js",
     "build:engine": "node scripts/build-engine.js",
     "lint": "eslint .",
     "report": "node tests/report.js",
