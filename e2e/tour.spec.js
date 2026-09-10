@@ -31,12 +31,15 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   // the step advances only after the scan: the list is already filled here
   await expect(H.peopleRows(page).first()).toBeVisible();
   const names = await H.listedNames(page);
-  expect(names.some((n) => /שרעבי/.test(n))).toBe(true);
+  // every person in the sample speaks twice, so the list is full without the model
+  for (const n of ["מיכל שרעבי", "אורן שרעבי", "לודמילה כץ", "נועה שרעבי"]) expect(names).toContain(n);
 
   // → places: two towns in the sample
   await tour.getByRole("button", { name: "המשך", exact: true }).click();
   await expect(tour).toContainText("יישובים", { timeout: 20000 });
+  // the panel moves only once the places screen is really there, rows and notes included
   await expect(page.locator('div:has(> button:text-is("אל תחליף"))').first()).toBeVisible();
+  expect(await page.locator("[data-tags]").count()).toBeGreaterThan(0);
 
   // back goes to the people screen, forward returns
   await tour.getByRole("button", { name: "חזרה" }).click();
@@ -49,7 +52,8 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   await expect(tour).toContainText("מסך הבדיקה");
   const text = await page.locator("[data-work] section").first().innerText();
-  expect(text).not.toContain("שרעבי");
+  // a complete redaction: no person, no number, no date left in the sample
+  for (const s of ["שרעבי", "לודמילה", "כץ", "314277062", "052-6613874", "11.2.2026"]) expect(text).not.toContain(s);
   expect(text).toContain("מסמך לדוגמה");
 
   // copy is refused during the tour
