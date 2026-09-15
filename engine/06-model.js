@@ -118,6 +118,11 @@ function nerClean(ents,text,opt){
     // "כאמור גדעון", "משכך גדעון": מילת קישור בראש המקטע אינה חלק מהשם
     if(v){let ws=v.split(/\s+/); while(ws.length>1&&LEAD.has(norm(ws[0])))ws.shift(); v=ws.join(" ");}
     if(v&&!/\s/.test(v)&&(STOP.has(v)||COMMON.has(v)||VRB.has(v)||STOP.has(norm(v))||COMMON.has(norm(v))))continue;
+    // "שדוברת רוסית": אות שימוש על פועל או מילה נפוצה בראש המקטע אינה שם
+    if(v){const fw=norm(v.split(/\s+/)[0]), st=fw.slice(1);
+      if(fw.length>=4&&PFX.has(fw[0])&&(VRB.has(st)||COMMON.has(st)))continue;
+      // ש + בינוני או תואר ("שדוברת", "שגרים", "שעובדות"): מילת זיקה, לא שם — אלא אם הגזע הוא שם ("שרות")
+      if(fw.length>=5&&fw[0]==="ש"&&/(?:ת|ות|ים)$/.test(st)&&!KNOWN_FIRST.has(st)&&!FEM.has(st)&&!MASC.has(st))continue;}
     // "אפוטרופא לדין", "משה אפטרופא": מילת תפקיד בכל צורה אינה שם, לבדה או בקצה
     if(v&&v.split(/\s+/).every(w=>ROLEWORD.test(norm(w))))continue;
     if(v){let ws=v.split(/\s+/); while(ws.length>1&&ROLEWORD.test(norm(ws[ws.length-1])))ws.pop(); while(ws.length>1&&ROLEWORD.test(norm(ws[0])))ws.shift(); v=ws.join(" ");}
@@ -154,8 +159,8 @@ function nerClean(ents,text,opt){
     // הציבוריים — חיתוך מההתחלה הפך את "משרד הרווחה" ל"הרווחה" והציע אותו.
     if(kind!=="NAME"){const ws=v.split(/\s+/); while(ws.length>1&&(TRAIL.has(norm(ws[ws.length-1]))||VRB.has(norm(ws[ws.length-1]))))ws.pop(); v=ws.join(" ");}
     const key=kind+"|"+norm(v);
-    const g=seen.get(key)||{value:v,kind,score:0,n:0,s,e:en,review:orgReview};
-    g.n++; g.score=Math.max(g.score,e.score); seen.set(key,g);
+    const g=seen.get(key)||{value:v,kind,score:0,n:0,s,e:en,review:orgReview,cut:false};
+    g.n++; g.score=Math.max(g.score,e.score); if(wasCut)g.cut=true; seen.set(key,g);
   }
   // "רונית אזולאי" מכסה את "אזולאי" — לא מציעים את שניהם
   const all=[...seen.values()].sort((a,b)=>b.value.length-a.value.length);
@@ -196,7 +201,7 @@ const PAT=[
  ["IP","כתובת IP","\\b(?:(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\b",0,null,3,0],
 ].map(([n,l,r,g,v,p,on])=>({n,l,rx:new RegExp(r,"gu"),g,v,p,on:!!on}));
 
-const WHYP={DATE:"מבנה של תאריך — מושמט כברירת מחדל; אפשר להשאיר בכרטיס",
+const WHYP={DATE:"מבנה של תאריך — מוזז כברירת מחדל באותו מספר ימים לכל המסמך; אפשר למחוק או להשאיר בכרטיס",
  ISRAELI_ID:"תשע ספרות שעוברות בדיקת ספרת ביקורת",
  ISRAELI_ID_LABELED:"מספר שמופיע אחרי תווית זהות",CREDIT_CARD:"רצף ספרות שעובר בדיקת Luhn",
  EMAIL:'מבנה של כתובת דוא"ל',PHONE_MOBILE:"מבנה של מספר נייד ישראלי",
@@ -436,7 +441,7 @@ function placeKind(text,s){
   for(const [rx,k] of PLACE_KIND_HEADS) if(rx.test(back))return k;
   return null;
 }
-function placePool(kind){
+function placePool(kind,value){
   const gaz=(typeof GAZ!=="undefined"&&Array.isArray(GAZ))?GAZ:[];
   const all=PLACES.map(p=>p.n).concat(gaz);
   const tagged=t=>(typeof ATLAS_TAGS!=="undefined")?PLACES.map(p=>p.n).filter(n=>(ATLAS_TAGS[n]||"").split("|")[0]===t):[];
@@ -445,16 +450,31 @@ function placePool(kind){
   if(kind==="מושב"){const p=tagged("מושב"); if(p.length>=8)return p;}
   if(kind==="קיבוץ"){const p=tagged("קיבוץ"); if(p.length>=8)return p;}
   if(kind==="כפר"){const p=all.filter(n=>/^כפר\s+\S/.test(n)).map(n=>n.replace(/^כפר\s+/,"")); if(p.length>=8)return p;}
-  return all.filter(n=>n&&n.length>=3&&!AMBIG.has(n));
+  // "שמות אקראיים" (Q7 בגרסה 3): רק יישובים מתויגים, ולעולם לא המאגר הלא-מתויג —
+  // ירושלים הפכה ל"משמר הנגב" ומודיעין ל"אמונים" כי המאגר הגדול אינו יודע מה הם.
+  // יישוב מתויג מקבל יישוב מאותו אופי (אוכלוסייה, דת, עירוני/כפרי); הגודל רשאי לזוז.
+  const base=PLACES.map(p=>p.n).filter(n=>n&&n.length>=3&&!AMBIG.has(n));
+  const v=norm(String(value||"")).trim();
+  if(v&&typeof ATLAS_TAGS!=="undefined"&&ATLAS_TAGS[v]&&typeof atlasPenalty==="function"){
+    // הקרובים ביותר באופי: לפחות שישה, כדי שיהיה מבחר, ובלי אוכלוסייה שונה לעולם
+    const scored=base.filter(n=>n!==v).map(n=>[n,atlasPenalty(v,n)]).filter(x=>x[1]!==Infinity).sort((a,b)=>a[1]-b[1]);
+    if(scored.length){const cap=scored[Math.min(5,scored.length-1)][1]; return scored.filter(x=>x[1]<=cap).map(x=>x[0]);}
+  }
+  return base;
 }
 function fakePlace(value,used,forbidden,kind){
-  const pool=placePool(kind||null);
+  const pool=placePool(kind||null,value);
   if(!pool.length)return null;
   const free=n=>{
     if(used&&used.has(n))return false;
     if(!forbidden)return true;
-    // גם מילה בודדת מתוך שם דו-מילתי נחשבת: "בית שמש" נפסל אם "שמש" במסמך
-    for(const w of norm(n).split(/\s+/)) if(w&&forbidden.has(w))return false;
+    // גם מילה בודדת מתוך שם דו-מילתי נחשבת: "בית שמש" נפסל אם "שמש" במסמך;
+    // וגם צורה עם אות שימוש: "לחיפה" במסמך פוסל את חיפה כתחליף לירושלים
+    for(const w of norm(n).split(/\s+/)){
+      if(!w)continue;
+      if(forbidden.has(w))return false;
+      for(const p of "בלמוהשכ") if(forbidden.has(p+w))return false;
+    }
     return true;
   };
   const start=hash32(norm(String(value||"")).trim())%pool.length;

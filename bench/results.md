@@ -1,6 +1,6 @@
 # Benchmark results
 
-40 documents, 314 keyed entities, model on (q8, same artifact as the browser). Generated 2026-09-10.
+40 documents, 314 keyed entities, model on (q8, same artifact as the browser). Generated 2026-09-15.
 
 ## Per category
 
@@ -104,43 +104,43 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 116 | 10 | 1 |
-| m2 | meeting | 73 | 13 | 0 |
-| m3 | meeting | 58 | 6 | 0 |
-| m4 | meeting | 69 | 7 | 1 |
-| f1 | filing | 94 | 14 | 2 |
-| f2 | filing | 95 | 16 | 1 |
-| f3 | filing | 63 | 9 | 0 |
-| f4 | filing | 82 | 11 | 3 |
-| t1 | transcript | 64 | 8 | 0 |
-| t2 | transcript | 67 | 12 | 1 |
-| t3 | transcript | 63 | 11 | 1 |
-| t4 | transcript | 64 | 14 | 1 |
-| w1 | welfare | 41 | 4 | 0 |
-| w2 | welfare | 40 | 5 | 0 |
-| w3 | welfare | 55 | 6 | 0 |
-| w4 | welfare | 57 | 6 | 1 |
-| h1 | medical | 49 | 7 | 2 |
-| h2 | medical | 48 | 4 | 0 |
-| h3 | medical | 42 | 5 | 3 |
-| p1 | police | 43 | 5 | 1 |
-| p2 | police | 47 | 4 | 1 |
-| p3 | police | 34 | 2 | 0 |
-| p4 | police | 34 | 3 | 0 |
-| b1 | bank | 43 | 7 | 2 |
-| b2 | bank | 32 | 3 | 0 |
-| b3 | bank | 30 | 3 | 0 |
-| c1 | chat | 43 | 5 | 0 |
-| c2 | chat | 55 | 5 | 1 |
-| c3 | chat | 53 | 4 | 0 |
-| c4 | chat | 52 | 5 | 0 |
-| x1 | position | 86 | 8 | 2 |
-| x2 | position | 46 | 5 | 0 |
-| x3 | position | 44 | 5 | 0 |
-| a1 | audio | 49 | 7 | 0 |
-| a2 | audio | 46 | 6 | 0 |
-| a3 | audio | 53 | 8 | 1 |
-| a4 | audio | 45 | 7 | 0 |
-| v1 | interview | 56 | 3 | 0 |
-| v2 | interview | 45 | 5 | 0 |
-| v3 | interview | 31 | 3 | 0 |
+| m1 | meeting | 239 | 10 | 1 |
+| m2 | meeting | 141 | 13 | 0 |
+| m3 | meeting | 95 | 6 | 0 |
+| m4 | meeting | 132 | 7 | 1 |
+| f1 | filing | 179 | 14 | 2 |
+| f2 | filing | 200 | 16 | 1 |
+| f3 | filing | 131 | 9 | 0 |
+| f4 | filing | 183 | 11 | 3 |
+| t1 | transcript | 172 | 8 | 0 |
+| t2 | transcript | 230 | 12 | 1 |
+| t3 | transcript | 187 | 11 | 1 |
+| t4 | transcript | 140 | 14 | 1 |
+| w1 | welfare | 98 | 4 | 0 |
+| w2 | welfare | 102 | 5 | 0 |
+| w3 | welfare | 116 | 6 | 0 |
+| w4 | welfare | 114 | 6 | 1 |
+| h1 | medical | 135 | 7 | 2 |
+| h2 | medical | 111 | 4 | 0 |
+| h3 | medical | 116 | 5 | 3 |
+| p1 | police | 105 | 5 | 1 |
+| p2 | police | 118 | 4 | 1 |
+| p3 | police | 81 | 2 | 0 |
+| p4 | police | 86 | 3 | 0 |
+| b1 | bank | 88 | 6 | 2 |
+| b2 | bank | 85 | 3 | 0 |
+| b3 | bank | 69 | 3 | 0 |
+| c1 | chat | 123 | 5 | 0 |
+| c2 | chat | 158 | 5 | 1 |
+| c3 | chat | 119 | 4 | 0 |
+| c4 | chat | 158 | 5 | 0 |
+| x1 | position | 198 | 7 | 2 |
+| x2 | position | 105 | 5 | 0 |
+| x3 | position | 118 | 5 | 0 |
+| a1 | audio | 112 | 7 | 0 |
+| a2 | audio | 97 | 6 | 0 |
+| a3 | audio | 122 | 8 | 1 |
+| a4 | audio | 87 | 7 | 0 |
+| v1 | interview | 102 | 3 | 0 |
+| v2 | interview | 100 | 5 | 0 |
+| v3 | interview | 66 | 3 | 0 |

@@ -36,6 +36,22 @@ const MERGE=new Set(["ב","ל","כ","ה"]);
 function addPre(pre,rep){ if(!pre)return rep; if(!rep)return pre;
   if(rep[0]==="ה"&&MERGE.has(pre[pre.length-1])) return pre+rep.slice(1);
   return pre+rep}
+/* תאריך מוזז (Q5 בגרסה 3). תאריך שנמחק הוציא מה-AI "חסר תאריך ההחלטה"; תווית לא
+   נותנת לו לחשב פרקי זמן. לכן כל תאריך מלא במסמך זז באותו מספר ימים — ההיסט
+   נגזר מהמסמך (30–400 יום) ולכן יציב בין הרצות, המרווחים והסדר נשמרים, וההחזרה
+   מחזירה כל תאריך למקורו כמו שם. הפורמט נשמר: אותו מפריד, אותו רוחב שנה. */
+function fakeDate(s,offDays){
+  const m=/^(\d{1,2})([./])(\d{1,2})\2(\d{4}|\d{2})$/.exec(String(s||"").trim());
+  if(!m)return null;
+  const d=+m[1], mo=+m[3], y2=m[4].length===2, y=y2?2000+ +m[4]:+m[4];
+  if(d<1||d>31||mo<1||mo>12)return null;
+  const t=new Date(Date.UTC(y,mo-1,d));
+  if(t.getUTCDate()!==d||t.getUTCMonth()!==mo-1)return null;
+  t.setUTCDate(t.getUTCDate()+(offDays|0));
+  const yy=t.getUTCFullYear();
+  const ys=y2?String(yy%100).padStart(2,"0"):String(yy);
+  return `${t.getUTCDate()}${m[2]}${t.getUTCMonth()+1}${m[2]}${ys}`;
+}
 function validID(s){const d=s.replace(/\D/g,"");if(!d||d.length>9)return false;
   if(/^0+$/.test(d)||/^(\d)\1+$/.test(d))return false;
   const p=d.padStart(9,"0");let t=0;

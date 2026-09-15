@@ -40,6 +40,12 @@ function mergeSignals(a,b){
     else if(aw.every((w,k)=>sameW(w,bw[k]))&&aw.some((w,k)=>w!==bw[k])&&aw.join("").length>=4)out.push("כתיב מלא מול חסר");
     else if(aw.length>=2&&[...aw].sort().join(" ")===[...bw].sort().join(" "))out.push("אותן מילים בסדר אחר");
   }
+  // "ארסן" ו"שארסן": אחד הוא השני עם אות שימוש לפניו. כשהמודל לא הכריע (או כבוי)
+  // זה נשאר הצעה, לא קיפול — "רון" ו"שרון" הם שני אנשים.
+  if(aw.length===bw.length){
+    const [x,y]=A.length<B.length?[A,B]:[B,A];
+    if(y.length===x.length+1&&/^[בלמושהכ]/.test(y)&&y.slice(1)===x&&x.replace(/[\s\-־–]/g,"").length>=3)out.push("אות שימוש?");
+  }
   const [s,l]=aw.length<bw.length?[aw,bw]:[bw,aw];
   if(s.length<l.length&&s.every(w=>w.length>=3)){
     if(s.length===1&&l[0]===s[0])out.push("שם פרטי לבדו");

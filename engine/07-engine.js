@@ -85,6 +85,8 @@ class Engine{
     // ולומר את זה, מאשר לערבב שני אנשים.
     this.collided=[];
     const nd=docText?norm(docText):"";
+    // היסט התאריכים: אחד לכל המסמך, נגזר ממנו ולכן זהה בכל ריצה חוזרת
+    this.dateOff=30+(typeof hash32==="function"?hash32(nd):0)%371;
     for(const s of subs){
       if(!s.replacement||!nd)continue;
       if(new RegExp(NW+flex(s.replacement)+NWE,"u").test(nd)){
@@ -105,12 +107,16 @@ class Engine{
       // שכולו על קטינה בשם בן שלוש אותיות, "ליעל" ו"שיעל" סומנו לבדיקה עשר פעמים
       // במקום להיות מוחלפים, והשם נשאר בטקסט עד שהיא מטפלת בכל אחד מהם.
       const nv=norm(s.value).trim();
-      const shortSingle = s.kind==="NAME" && nv.split(/\s+/).length===1 && nv.length<=3 &&
-        (WORDLIKE.has(nv)||COMMON.has(nv)||this.forbidden.has("ה"+nv));
+      // שם קצר שאושר (Q3 בגרסה 3): הצורות עם אות שימוש מוחלפות, חוץ מצורה שהיא
+      // בעצמה מילה עברית — "לשי" ו"שרן" מוחלפים, "ושם" (ו+שם) נשאר לבדיקה. עד כאן כל
+      // צורה של שם בן שתיים-שלוש אותיות חיכתה לאישור, והיא הוסיפה "ושי", "לרן",
+      // "שרן" ביד, אחת-אחת, ו"לשי" עדיין יצא ארבע פעמים.
+      const shortSingle = s.kind==="NAME" && nv.split(/\s+/).length===1 && nv.length<=3;
+      const isWord=x=>WORDLIKE.has(x)||COMMON.has(x)||STOP.has(x)||VRB.has(x)||this.forbidden.has("ה"+x);
       for(const [v,pre] of variants(s.value,lvl,protect)){
         if(seen.has(v))continue; seen.add(v);
         this.rules.push({rx:new RegExp(NW+flex(v)+NWE,"gu"),base:s.value,
-          kind:s.kind,rep:s.replacement,style:s.style||null,pre,auto:s.auto,soft:!!pre&&shortSingle});
+          kind:s.kind,rep:s.replacement,style:s.style||null,pre,auto:s.auto,soft:!!pre&&shortSingle&&isWord(norm(v).trim())});
       }
       // "עמותת שביל הלב" אושרה: גם "שביל הלב" לבדו הוא אותו גוף, כמו שם משפחה
       // לבדו אצל אדם. אחרת המופע הראשון מוחלף והשני נשאר בטקסט.
@@ -235,6 +241,9 @@ class Engine{
       // מציע משהו, כי הוא שומר על המרחקים; זה מה שקורה לכל השאר, כולל מה שנגזר
       // ממילת יישוב ("מושב X", "שכונת Y"). מוסד רפואי, עסק או מוסד חינוך נשאר
       // תווית: שם יישוב במקומו היה משקר על סוג המקום.
+      // תאריך מלא במצב "שם" הוא תאריך מוזז — אותו היסט לכל המסמך
+      else if(fam==="DATE"&&real&&typeof fakeDate==="function")
+        base=fakeDate(canonical,this.dateOff)||`[${lab} ${hord(n)}]`;
       // מקום מהרשימה (סוג PLACE) מקבל שם לפי סוגו — שכונה, רחוב, מושב — ולא תווית (Q11)
       else if(real&&typeof fakePlace==="function"&&
               (h.type==="PLACE"||h.type==="PLACE_CITY"||(h.type==="PLACE_VENUE"&&h.label==="יישוב")))
