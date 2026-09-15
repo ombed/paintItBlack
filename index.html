@@ -243,6 +243,13 @@ a:hover{text-decoration:underline}
   <sc-if value="{{ errTop }}">
     <div style="margin:14px 22px 0;padding:11px 14px;border-radius:10px;background:var(--bad-soft);color:var(--bad);font-size:13.5px">{{ err }}</div>
   </sc-if>
+  <sc-if value="{{ notice }}">
+    <div data-notice style="position:fixed;bottom:calc(var(--bar-h, 64px) + 14px);inset-inline-start:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;color:var(--ink)">
+      <span>{{ notice }}</span>
+      <button onClick="{{ onNoticeUndo }}" style="padding:4px 10px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">ביטול ↶</button>
+      <button onClick="{{ onNoticeClose }}" aria-label="סגירה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center">✕</button>
+    </div>
+  </sc-if>
 
   <!-- ═════ מסך פתיחה ═════ -->
   <sc-if value="{{ isEntry }}" hint-placeholder-val="{{ true }}">
@@ -1237,6 +1244,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         for(const f of found){
           const k=E2.norm(f.value).trim();
           if(rules.some(r=>E2.norm(r.value).trim()===k)||allowN.has(k)) continue;
+          if(f.prefixOf&&f.fold==="yes") continue;
           rules.push({value:f.value, kind:f.kind||"NAME", replacement:"", auto:true, g:null, review:!!f.review});
           late++;
         }
@@ -1252,6 +1260,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         // גוף בלי מילת סוג ("ברסלב", "שביל הלב" לבדו) אינו נכנס לרשימה מעצמו:
         // הוא מוצע לאישור, כי בלי הראש אין לדעת אם זה מזהה או מילה מהעולם.
         if(f.review){ if(!sug.some(x=>E.norm(x.value)===E.norm(f.value))) sug.push({value:f.value, why:"גוף בלי מילת סוג — לאישור", count:f.n, kind:f.kind}); continue; }
+        // "שארסן" ליד "ארסן": כשהמודל עצמו אומר שהאות אינה חלק מהשם (Q4 בגרסה 3) הצורה
+        // מתקפלת לשם הבסיס ואינה שבב; בספק היא שבב, והצעת המיזוג עולה עם "אות שימוש?"
+        if(f.prefixOf&&f.fold==="yes"){ this.log.add("fold",{why:f.foldWhy||""}); continue; }
         list.push({value:f.value, kind:f.kind, g:null, auto:true, note:f.n>1?`נמצא ${f.n}×`:"נמצא במסמך"});
         added++;
       }
@@ -1453,22 +1464,44 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
 
   geoAlt = () => { const E=this.state.E; const v=this.state.geoV+1;
     this.setState({geoV:v, geo:E.geoMap(this.state.geoNames, v), geoEdits:{}}); };
+  /* "אל תחליף" על יישוב אחד (Q7 בגרסה 3): שאר הזוגות לא זזים. עד כאן המפה חושבה
+     מחדש ומה שאישרה השתנה מאחורי גבה; עם פחות משני יישובים המפה התפרקה והשאר קיבלו
+     שמות אקראיים מהמאגר הלא-מתויג ("אשדוד" הפכה ל"אמונים"). עכשיו הזוגות שאושרו
+     נשמרים, ומפה שהתפרקה מוסרת את שמותיה לרשימת "יישובים נוספים" כמו שהם. */
   geoRemove = name => {
     const E=this.state.E;
     const names=this.state.geoNames.filter(n=>n!==name);
     const allow=this.state.allow.includes(name)?this.state.allow:[...this.state.allow, name];
     const ex=this.state.geoExcluded||[];
+    const old=this.state.geo, edits=this.state.geoEdits||{};
+    const kept=old?old.map.map((m,i)=>({from:m.from, to:(edits[i]??m.to)})).filter(m=>m.from!==name):[];
+    let geo=null, extra=this.state.geoExtra||[];
+    if(kept.length>=2) geo={...old, map:kept};
+    else if(kept.length===1&&!extra.some(x=>E.norm(x.name).trim()===E.norm(kept[0].from).trim()))
+      extra=[{name:kept[0].from, ambiguous:false, to:kept[0].to, on:true}, ...extra];
     this.setState({geoNames:names, allow, geoEdits:{}, geoV:0,
       // בלי הבדיקה הזאת לחיצה שנייה על אותו יישוב הכניסה אותו לרצועה פעמיים
       geoExcluded: ex.includes(name) ? ex : [...ex, name],
-      geo: names.length>=2 ? E.geoMap(names,0) : null});
+      geo, geoExtra:extra});
   };
   geoRestore = name => {
     const E=this.state.E;
     const names=[...this.state.geoNames, name];
+    const old=this.state.geo, edits=this.state.geoEdits||{};
+    const kept=old?old.map.map((m,i)=>({from:m.from, to:(edits[i]??m.to)})):[];
+    let extra=(this.state.geoExtra||[]).filter(x=>E.norm(x.name).trim()!==E.norm(name).trim());
+    let geo=null;
+    if(kept.length){
+      // היישוב שחזר מקבל תחליף משלו; מה שכבר אושר לא זז
+      const used=new Set(kept.map(m=>m.to));
+      const to=(E.fakePlace&&E.fakePlace(name, used, new Set()))||name;
+      geo={...old, map:[...kept, {from:name, to}]};
+    } else if(names.length>=2){
+      geo=E.geoMap(names,0);
+      if(geo) extra=extra.filter(x=>!geo.map.some(m=>E.norm(m.from).trim()===E.norm(x.name).trim()));
+    }
     this.setState({geoNames:names, allow:this.state.allow.filter(a=>a!==name),
-      geoExcluded:(this.state.geoExcluded||[]).filter(x=>x!==name), geoEdits:{}, geoV:0,
-      geo: names.length>=2 ? E.geoMap(names,0) : null});
+      geoExcluded:(this.state.geoExcluded||[]).filter(x=>x!==name), geoEdits:{}, geoV:0, geo, geoExtra:extra});
   };
   geoApply = () => {
     const rules=[...this.state.rules], g=this.state.geo;
@@ -1499,7 +1532,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     // סגנון לפי סוג: שמות, גופים ומקומות לפי המצב הגלובלי; כל השאר — מספרים,
     // תאריכים, כתובות — לפי בחירתה, ומחיקה כברירת מחדל. כרטיס יכול לעקוף.
     return {on, flag, mode:this.state.mode, near:this.state.o.near, body:true, prefixes:"normal",
-      styles:{"*":this.state.o.numStyle||"blank"}};
+      // תאריך מלא מוזז כברירת מחדל (Q5 בגרסה 3), בלי קשר לבחירה על שאר המספרים; כרטיס יכול לעקוף
+      styles:{"*":this.state.o.numStyle||"blank", DATE:"name"}};
   }
   /* ההבטחה שהתיק האמיתי הפר: שם שהמודל מצא פעמיים ומעלה אינו יוצא מהכלי בלי
      שהיא החליטה עליו. הזיהוי היה מושלם — שבע פעמים בביטחון מלא — והשם יצא, כי
@@ -1560,7 +1594,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   pushHistory(){
     this._undo=(this._undo||[]).concat([this.snapshot()]).slice(-40);
     this._redo=[];
-    this.setState({undoN:this._undo.length, redoN:0});
+    // הודעת סתירה חיה עד ההחלטה הבאה
+    this.setState({undoN:this._undo.length, redoN:0, notice:""});
   }
   stepHistory(back){
     const from=back?(this._undo=this._undo||[]):(this._redo=this._redo||[]);
@@ -1590,7 +1625,13 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     // אפשר לשחזר אותו בלי המסמך.
     this.log.add("add-rule",{origin:origin||"list", kind:kind||"NAME", words:value.split(/\s+/).length});
     if(origin==="mark"&&this.state.res&&this.state.buf&&window.PL) this.recordLeak(value, kind||"NAME");
+    // סתירה עם היתר קיים (Q6): ההחלטה החדשה מנצחת, וההיתר מוסר עם שורת הודעה
+    const nrm=x=>E.norm(String(x||"")).trim();
+    const allowGone=this.state.allow.filter(a=>nrm(a)===nrm(value));
+    if(allowGone.length) this.log.add("conflict",{won:"rule"});
     this.setState({rules:[...this.state.rules, {value, kind:kind||"NAME", replacement:(rep||"").trim(), auto:false}],
+      allow:this.state.allow.filter(a=>nrm(a)!==nrm(value)),
+      notice:allowGone.length?`«${value}» יוחלף; ההיתר «אל תחליף» שהיה עליו הוסר.`:"",
       addV:"", addR:"", popup:null, err:""}, ()=>this.rerun());
   };
   async recordLeak(value, kind){
@@ -1608,9 +1649,15 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   // "לא שם": הכלל יורד מהרשימה על כל צורותיו, והטקסט הזה לא יוצע שוב
   notAName = (base, v) => { this.pushHistory(); this.log.add("not-a-name",{}); return this.setState({allow:this.state.allow.includes(v)?this.state.allow:[...this.state.allow, v],
     rules:this.state.rules.filter(r=>r.value!==base && r.value!==v)}, ()=>this.rerun()); };
+  /* החלטה חדשה שסותרת ישנה (Q6 בגרסה 3): החדשה מנצחת, הישנה מוסרת, ושורה אחת
+     אומרת מה הוחלף — עם ביטול. בפרופיל אמיתי ישב "קפדן" גם ככלל (נמחק) וגם בהיתר. */
   addAllow = v => { if(this.state.allow.includes(v)) return; this.pushHistory(); this.log.add("allow",{});
+    const E=this.state.E, n=x=>E.norm(String(x||"")).trim();
+    const gone=this.state.rules.filter(r=>n(r.value)===n(v));
+    const notice=gone.length?`«${v}» יישאר כמו שהוא; הכלל שהחליף אותו הוסר.`:"";
+    if(gone.length) this.log.add("conflict",{won:"allow"});
     // ההיתר נכנס לרצועת "נשארים כמו שהם" שב"לבדיקה", ולכן המקטע נפתח כדי שיראו אותו
-    this.setState({allow:[...this.state.allow, v], rules:this.state.rules.filter(r=>r.value!==v), open:this.openWith("review")}, ()=>this.rerun()); };
+    this.setState({allow:[...this.state.allow, v], rules:this.state.rules.filter(r=>n(r.value)!==n(v)), notice, open:this.openWith("review")}, ()=>this.rerun()); };
   /* סגנון לערך אחד: name / label / blank / black. הכלל נוצר אם אין — גם לערך שנתפס
      בדפוס בלי כלל, כמו ת"ז — כדי שהבחירה תחזיק בכל ריצה ותישמר בפרופיל התיק. */
   setStyle = (v, kind, style, base) => {
@@ -1700,13 +1747,22 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     for(const r of this.state.rules) if(r.replacement) m[r.value]=r.replacement;
     return m;
   }
+  /* "זה אותו אחד כמו" (גרסה 3): עד כאן הכרטיס העתיק את השם הבדוי של היעד לכלל
+     של המקור — ועל צורה עם אות שימוש ("לארסן") לא היה כלל כזה, אז נוסף כלל חדש
+     לצורה עצמה ולא קרה כלום. עכשיו שני הכללים נשארים, והמקור מקבל sameAs ליעד:
+     אותו מנגנון של הצעת המיזוג במסך השמות, ואותו כינוי לשניהם. */
   mergeInto(from, to){
+    const E=this.state.E, n=v=>E.norm(String(v||"")).trim();
+    const rules=[...this.state.rules];
+    const target=rules.find(r=>n(r.value)===n(to));
+    if(!target||n(from)===n(target.value)) return;
     this.pushHistory();
-    this.log.add("merge",{});
-    const g=this.groupsOf().find(x=>x.value===to); const rep=(g&&g.rep)||"";
-    let rules=this.state.rules.filter(r=>r.value!==from);
-    if(!rules.some(r=>r.value===to)) rules=[...rules,{value:to, kind:"NAME", replacement:rep}];
-    this.setState({rules:[...rules,{value:from, kind:"NAME", replacement:rep}]}, ()=>this.rerun());
+    let src=rules.find(r=>n(r.value)===n(from));
+    if(!src){ src={value:from, kind:"NAME", replacement:"", auto:false}; rules.push(src); }
+    const i=rules.indexOf(src);
+    rules[i]={...src, replacement:"", sameAs:target.value};
+    this.log.add("merge",{origin:"card", effect:true});
+    this.setState({rules}, ()=>this.rerun());
   }
 
   // בתוך iframe או בלי הרשאה, navigator.clipboard נחסם — יש נפילה חזרה ל-execCommand
@@ -2074,7 +2130,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     // הבחירה הזאת נוגעת לשמות בלבד. מספר מזהה לעולם אינו מוחלף במספר בדוי אחר —
     // הוא מוחלף בתווית, בכל אחד משלושת המצבים. בלי לומר את זה, תווית כמו [ת"ז א׳]
     // בתוך הטקסט נקראת כאילו הכלי פספס משהו.
-    const NUMNOTE="מספרים מזהים ותאריכים — ת״ז, טלפון, חשבון, רכב, תאריכים — נמחקים מהטקסט כברירת מחדל, ולא מוחלפים במספר בדוי; אפשר לשנות למטה, ובכל כרטיס בנפרד. גיל נשאר תמיד. הבחירה כאן נוגעת לשמות.";
+    const NUMNOTE="מספרים מזהים — ת״ז, טלפון, חשבון, רכב, מספר תיק, כתובת — נמחקים מהטקסט כברירת מחדל, ולא מוחלפים במספר בדוי; אפשר לשנות למטה, ובכל כרטיס בנפרד. תאריך מלא מוזז באותו מספר ימים לכל המסמך, כך שה-AI רואה תאריכים ומרווחים אמיתיים והחזרת השמות מחזירה אותם. גיל נשאר תמיד. הבחירה כאן נוגעת לשמות.";
     const MNOTE={
       real:"«רונית לוי» תהפוך ל«מיכל ברנע». המשפט נשאר תקין דקדוקית, וכלי ה-AI מגיב על טקסט שנקרא כמו מסמך אמיתי. אותו אדם מקבל את אותו שם גם במסמך הבא באותו תיק. "+NUMNOTE,
       label:"«רונית לוי» תהפוך ל«פלוני א׳». חד-משמעי לעין, אבל הטקסט נקרא פחות טבעי. "+NUMNOTE,
@@ -2151,6 +2207,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           ? "border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent-ink);font-weight:500"
           : "color:var(--ink2)"),
       onHome:()=>this.setState({screen:"entry", pending:!!S.buf, err:""}),
+      notice:S.notice||"", onNoticeClose:()=>this.setState({notice:""}),
+      onNoticeUndo:()=>{ this.setState({notice:""}); this.undo(); },
       err:S.err, busyT:S.busyT, primaryBtn,
       fileRef:el=>{ if(el) this.fileEl=el; }, profRef:el=>{ if(el) this.profEl=el; },
       onPick:this.pickFile, onFile:this.onFile, onProfFile:this.onProfFile,
@@ -2493,12 +2551,13 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         const n=x=>E.norm(String(x||"")).trim();
         const rule=S.rules.find(r=>n(r.value)===n(g.base||g.value)||n(r.value)===n(g.value));
         const nameish=/^(שם|גוף|יישוב|מקום)/.test(g.label||"");
-        const cur=(rule&&rule.style)||(nameish?(S.mode==="block"?"black":S.mode==="label"?"label":"name"):(S.o.numStyle||"blank"));
+        const isDate=/^תאריך/.test(g.label||"");
+        const cur=(rule&&rule.style)||(nameish?(S.mode==="block"?"black":S.mode==="label"?"label":"name"):isDate?"name":(S.o.numStyle||"blank"));
         const btn=on=>"padding:5px 10px;border-radius:12px;font-size:12px;white-space:nowrap;"+(on?"background:var(--panel);box-shadow:var(--shadow);color:var(--ink);font-weight:500":"color:var(--ink2)");
         const set=st=>e=>{ e.stopPropagation(); this.setStyle(g.value, rule?rule.kind:(nameish?"NAME":"OTHER"), st, g.base); };
         return {
-          styleNameLabel: nameish?"שם":"תווית",
-          onStyleName:set(nameish?"name":"label"), onStyleBlank:set("blank"), onStyleBlack:set("black"),
+          styleNameLabel: nameish?"שם":isDate?"תאריך מוזז":"תווית",
+          onStyleName:set(nameish||isDate?"name":"label"), onStyleBlank:set("blank"), onStyleBlack:set("black"),
           styleNameBtn:btn(cur==="name"||cur==="label"), styleBlankBtn:btn(cur==="blank"), styleBlackBtn:btn(cur==="black"),
           blankWarn:cur==="blank"&&/^שם/.test(g.label||""),
           // התחליף שהיא בחרה הוא גם שם אמיתי במסמך. הבחירה נשארת, והכרטיס אומר את זה (Q14).
@@ -2523,8 +2582,9 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onSave:e=>{ e.stopPropagation(); this.setRep(g.value, this.state.repDraft, g.base); },
       onAllow:e=>{ e.stopPropagation(); this.addAllow(g.value); },
       showSame: g.ap && g.label.startsWith("שם") && nameOpts.filter(o=>o!==g.value).length>0,
-      sameOpts: nameOpts.filter(o=>o!==g.value).map(o=>({value:o, label:o})),
-      onSame:e=>{ e.stopPropagation(); const to=e.target.value; if(to) this.mergeInto(g.value, to); },
+      // היעדים הם ערכי הרשימה עצמם (הבסיס), לא הצורות שנתפסו עם אות שימוש
+      sameOpts: [...new Set(S.rules.filter(r=>(r.kind||"NAME")==="NAME"&&!r.sameAs).map(r=>r.value))].filter(o=>E.norm(o).trim()!==E.norm(g.base||g.value).trim()).map(o=>({value:o, label:o})),
+      onSame:e=>{ e.stopPropagation(); const to=e.target.value; if(to) this.mergeInto(g.base||g.value, to); },
       kinds:KINDS.map(([k,l])=>({label:l, onClick:e=>{ e.stopPropagation(); this.addRule(g.value,k,""); }}))
     }));
 

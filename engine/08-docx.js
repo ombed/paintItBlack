@@ -413,8 +413,13 @@ async function verify(buf,secrets){
     for(const enc of ["utf-8","utf-16le"]){
       let t;try{t=new TextDecoder(enc).decode(f.data)}catch(_){continue}
       const nt=norm(t);
-      for(const [o,nv] of sec) if(nv&&nt.includes(nv))
-        leaks.push({value:o,part:f.name});
+      // מספר או תאריך נבדקים בגבולות ספרות: "1.3.2026" אינו דולף בתוך התאריך המוזז "11.3.2026"
+      for(const [o,nv] of sec){
+        if(!nv)continue;
+        const digital=/^\d/.test(nv)||/\d$/.test(nv);
+        const hit=digital?new RegExp((/^\d/.test(nv)?"(?<!\\d)":"")+esc(nv)+(/\d$/.test(nv)?"(?!\\d)":""),"u").test(nt):nt.includes(nv);
+        if(hit)leaks.push({value:o,part:f.name});
+      }
     }}
   const uniq=[],seen=new Set();
   for(const l of leaks){const k=l.part+"|"+l.value;if(!seen.has(k)){seen.add(k);uniq.push(l)}}
@@ -752,6 +757,56 @@ function nerGroup(toks){
 // הפלט הגולמי של הריצה האחרונה, לדוח הדליפה: מה המודל חשב על מקטע שפוספס
 let NER_LAST=[];
 function nerLast(){return NER_LAST}
+/* אות שימוש או שם אחר? (Q4 בגרסה 3) "שארסן" הוצע לצד "ארסן" וקיבל שם בדוי משלו.
+   מקפלים צורה כזאת לשם הבסיס רק כשהמודל עצמו אומר שהאות אינה חלק מהמילה:
+   הטוקנייזר שלו מפצל את האות לבדה ("ש" + "##ארסן"), בעוד "שרון" הוא יחידה אחת.
+   עדות נוספת: קיצוץ בקצה המקטע (המודל בלע אות שימוש), ומיקום — תור דיבור או
+   תואר לפני הצורה אומרים "שם" ומונעים קיפול. רשימות השמות רק חוסמות: הימצאות
+   בהן אומרת "שם", היעדרות אינה אומרת דבר. כשאין הכרעה — הצעה, לא קיפול. */
+function tokPieces(pipe,word){
+  const tk=pipe&&pipe.tokenizer; if(!tk)return null;
+  try{
+    if(typeof tk.tokenize==="function")return tk.tokenize(word);
+    if(typeof tk._encode_text==="function"){const r=tk._encode_text(word); if(Array.isArray(r))return r;}
+    if(typeof tk.encode==="function"&&tk.model&&typeof tk.model.convert_ids_to_tokens==="function"){
+      const ids=tk.encode(word,null,{add_special_tokens:false}); return tk.model.convert_ids_to_tokens(ids);}
+  }catch(_){}
+  return null;
+}
+function namePosition(text,surface){
+  const n=norm(text), s=esc(norm(surface));
+  // תור דיבור: בראש שורה, אולי אחרי חותמת זמן בסוגריים; או אחרי תואר
+  if(new RegExp("(?:^|\\n)\\s*(?:\\[[^\\]\\n]*\\]\\s*)?"+s+"\\s*:","u").test(n))return true;
+  if(new RegExp("(?:^|\\s)"+TITLE_RX.source.replace(/^\^/,"")+s+"(?![\\u0590-\\u05ff])","u").test(n))return true;
+  return false;
+}
+function listedName(v){
+  const x=norm(v).trim();
+  return (typeof KNOWN_FIRST!=="undefined"&&KNOWN_FIRST.has(x))||(typeof FEM!=="undefined"&&FEM.has(x))||
+    (typeof MASC!=="undefined"&&MASC.has(x))||(typeof POOL!=="undefined"&&(POOL.he_s||[]).includes(x))||
+    (typeof PLACE_BY!=="undefined"&&!!PLACE_BY[x]);
+}
+async function foldEvidence(pipe,out,text){
+  const names=out.filter(o=>o.kind==="NAME");
+  const byNorm=new Map(names.map(o=>[norm(o.value).trim(),o]));
+  for(const o of names){
+    const v=norm(o.value).trim();
+    if(/\s/.test(v)||v.length<4||!/^[בלמושהכ]/.test(v))continue;
+    const stem=v.slice(1); const base=byNorm.get(stem); if(!base)continue;
+    o.prefixOf=base.value;
+    let fold="unknown", why=[];
+    const pieces=tokPieces(pipe,o.value);
+    if(pieces&&pieces.length){
+      const first=String(pieces[0]).replace(/^[▁#]+/,"");
+      if(pieces.length>=2&&first===v[0]){fold="yes";why.push("tokenizer:split");}
+      else {fold="no";why.push("tokenizer:whole");}
+    }
+    if(o.cut){ if(fold!=="no")fold="yes"; why.push("cut"); }
+    if(namePosition(text,o.value)){fold="no";why.push("position");}
+    if(listedName(o.value)){fold="no";why.push("listed");}
+    o.fold=fold; o.foldWhy=why.join(",");
+  }
+}
 async function nerRun(blocks,onProgress){
   const pipe=await nerLoad();
   const text=blocks.map(b=>b.text).join("\n");
@@ -775,6 +830,7 @@ async function nerRun(blocks,onProgress){
   }
   NER_LAST=ents.map(e=>({type:e.type,score:e.score,s:e.s,e:e.e}));
   const out=nerClean(ents,text);
+  await foldEvidence(pipe,out,text);
   const chars=parts.reduce((a,p)=>a+p.t.length,0);
   console.log(`זיהוי: ${parts.length} קטעים (${chars}/${text.length} תווים) · `+
     `${raw} חיזויים גולמיים · ${withOff} עם היסט מהצינור · `+
@@ -853,7 +909,7 @@ function restoreNames(txt,pairs){
 
 export {nerLast, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
   variants, validID, ibanOK, luhn, hord, POOL, WORDLIKE, FEM, MASC, fakeName, near1, HOMO, WEAK,
-  findNear, mergeSignals, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
+  findNear, mergeSignals, fakeDate, foldEvidence, tokPieces, namePosition, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,
   discover, PLACES, PLACE_BY, geoMap, geoNames, placesFound, examplesOf, findPlaces, fakePlace,
   atlasTags, atlasDiff, atlasPenalty, placeKind, nerEnv, nerCached, nerPersist, nerLoad, nerRun,

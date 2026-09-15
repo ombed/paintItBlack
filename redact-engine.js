@@ -121,6 +121,22 @@ const MERGE=new Set(["ב","ל","כ","ה"]);
 function addPre(pre,rep){ if(!pre)return rep; if(!rep)return pre;
   if(rep[0]==="ה"&&MERGE.has(pre[pre.length-1])) return pre+rep.slice(1);
   return pre+rep}
+/* תאריך מוזז (Q5 בגרסה 3). תאריך שנמחק הוציא מה-AI "חסר תאריך ההחלטה"; תווית לא
+   נותנת לו לחשב פרקי זמן. לכן כל תאריך מלא במסמך זז באותו מספר ימים — ההיסט
+   נגזר מהמסמך (30–400 יום) ולכן יציב בין הרצות, המרווחים והסדר נשמרים, וההחזרה
+   מחזירה כל תאריך למקורו כמו שם. הפורמט נשמר: אותו מפריד, אותו רוחב שנה. */
+function fakeDate(s,offDays){
+  const m=/^(\d{1,2})([./])(\d{1,2})\2(\d{4}|\d{2})$/.exec(String(s||"").trim());
+  if(!m)return null;
+  const d=+m[1], mo=+m[3], y2=m[4].length===2, y=y2?2000+ +m[4]:+m[4];
+  if(d<1||d>31||mo<1||mo>12)return null;
+  const t=new Date(Date.UTC(y,mo-1,d));
+  if(t.getUTCDate()!==d||t.getUTCMonth()!==mo-1)return null;
+  t.setUTCDate(t.getUTCDate()+(offDays|0));
+  const yy=t.getUTCFullYear();
+  const ys=y2?String(yy%100).padStart(2,"0"):String(yy);
+  return `${t.getUTCDate()}${m[2]}${t.getUTCMonth()+1}${m[2]}${ys}`;
+}
 function validID(s){const d=s.replace(/\D/g,"");if(!d||d.length>9)return false;
   if(/^0+$/.test(d)||/^(\d)\1+$/.test(d))return false;
   const p=d.padStart(9,"0");let t=0;
@@ -323,6 +339,12 @@ function mergeSignals(a,b){
     if(aw.every((w,k)=>w===bw[k])){ if(A!==B)out.push("מקף מול רווח"); }
     else if(aw.every((w,k)=>sameW(w,bw[k]))&&aw.some((w,k)=>w!==bw[k])&&aw.join("").length>=4)out.push("כתיב מלא מול חסר");
     else if(aw.length>=2&&[...aw].sort().join(" ")===[...bw].sort().join(" "))out.push("אותן מילים בסדר אחר");
+  }
+  // "ארסן" ו"שארסן": אחד הוא השני עם אות שימוש לפניו. כשהמודל לא הכריע (או כבוי)
+  // זה נשאר הצעה, לא קיפול — "רון" ו"שרון" הם שני אנשים.
+  if(aw.length===bw.length){
+    const [x,y]=A.length<B.length?[A,B]:[B,A];
+    if(y.length===x.length+1&&/^[בלמושהכ]/.test(y)&&y.slice(1)===x&&x.replace(/[\s\-־–]/g,"").length>=3)out.push("אות שימוש?");
   }
   const [s,l]=aw.length<bw.length?[aw,bw]:[bw,aw];
   if(s.length<l.length&&s.every(w=>w.length>=3)){
@@ -1013,6 +1035,11 @@ function nerClean(ents,text,opt){
     // "כאמור גדעון", "משכך גדעון": מילת קישור בראש המקטע אינה חלק מהשם
     if(v){let ws=v.split(/\s+/); while(ws.length>1&&LEAD.has(norm(ws[0])))ws.shift(); v=ws.join(" ");}
     if(v&&!/\s/.test(v)&&(STOP.has(v)||COMMON.has(v)||VRB.has(v)||STOP.has(norm(v))||COMMON.has(norm(v))))continue;
+    // "שדוברת רוסית": אות שימוש על פועל או מילה נפוצה בראש המקטע אינה שם
+    if(v){const fw=norm(v.split(/\s+/)[0]), st=fw.slice(1);
+      if(fw.length>=4&&PFX.has(fw[0])&&(VRB.has(st)||COMMON.has(st)))continue;
+      // ש + בינוני או תואר ("שדוברת", "שגרים", "שעובדות"): מילת זיקה, לא שם — אלא אם הגזע הוא שם ("שרות")
+      if(fw.length>=5&&fw[0]==="ש"&&/(?:ת|ות|ים)$/.test(st)&&!KNOWN_FIRST.has(st)&&!FEM.has(st)&&!MASC.has(st))continue;}
     // "אפוטרופא לדין", "משה אפטרופא": מילת תפקיד בכל צורה אינה שם, לבדה או בקצה
     if(v&&v.split(/\s+/).every(w=>ROLEWORD.test(norm(w))))continue;
     if(v){let ws=v.split(/\s+/); while(ws.length>1&&ROLEWORD.test(norm(ws[ws.length-1])))ws.pop(); while(ws.length>1&&ROLEWORD.test(norm(ws[0])))ws.shift(); v=ws.join(" ");}
@@ -1049,8 +1076,8 @@ function nerClean(ents,text,opt){
     // הציבוריים — חיתוך מההתחלה הפך את "משרד הרווחה" ל"הרווחה" והציע אותו.
     if(kind!=="NAME"){const ws=v.split(/\s+/); while(ws.length>1&&(TRAIL.has(norm(ws[ws.length-1]))||VRB.has(norm(ws[ws.length-1]))))ws.pop(); v=ws.join(" ");}
     const key=kind+"|"+norm(v);
-    const g=seen.get(key)||{value:v,kind,score:0,n:0,s,e:en,review:orgReview};
-    g.n++; g.score=Math.max(g.score,e.score); seen.set(key,g);
+    const g=seen.get(key)||{value:v,kind,score:0,n:0,s,e:en,review:orgReview,cut:false};
+    g.n++; g.score=Math.max(g.score,e.score); if(wasCut)g.cut=true; seen.set(key,g);
   }
   // "רונית אזולאי" מכסה את "אזולאי" — לא מציעים את שניהם
   const all=[...seen.values()].sort((a,b)=>b.value.length-a.value.length);
@@ -1091,7 +1118,7 @@ const PAT=[
  ["IP","כתובת IP","\\b(?:(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\b",0,null,3,0],
 ].map(([n,l,r,g,v,p,on])=>({n,l,rx:new RegExp(r,"gu"),g,v,p,on:!!on}));
 
-const WHYP={DATE:"מבנה של תאריך — מושמט כברירת מחדל; אפשר להשאיר בכרטיס",
+const WHYP={DATE:"מבנה של תאריך — מוזז כברירת מחדל באותו מספר ימים לכל המסמך; אפשר למחוק או להשאיר בכרטיס",
  ISRAELI_ID:"תשע ספרות שעוברות בדיקת ספרת ביקורת",
  ISRAELI_ID_LABELED:"מספר שמופיע אחרי תווית זהות",CREDIT_CARD:"רצף ספרות שעובר בדיקת Luhn",
  EMAIL:'מבנה של כתובת דוא"ל',PHONE_MOBILE:"מבנה של מספר נייד ישראלי",
@@ -1331,7 +1358,7 @@ function placeKind(text,s){
   for(const [rx,k] of PLACE_KIND_HEADS) if(rx.test(back))return k;
   return null;
 }
-function placePool(kind){
+function placePool(kind,value){
   const gaz=(typeof GAZ!=="undefined"&&Array.isArray(GAZ))?GAZ:[];
   const all=PLACES.map(p=>p.n).concat(gaz);
   const tagged=t=>(typeof ATLAS_TAGS!=="undefined")?PLACES.map(p=>p.n).filter(n=>(ATLAS_TAGS[n]||"").split("|")[0]===t):[];
@@ -1340,16 +1367,31 @@ function placePool(kind){
   if(kind==="מושב"){const p=tagged("מושב"); if(p.length>=8)return p;}
   if(kind==="קיבוץ"){const p=tagged("קיבוץ"); if(p.length>=8)return p;}
   if(kind==="כפר"){const p=all.filter(n=>/^כפר\s+\S/.test(n)).map(n=>n.replace(/^כפר\s+/,"")); if(p.length>=8)return p;}
-  return all.filter(n=>n&&n.length>=3&&!AMBIG.has(n));
+  // "שמות אקראיים" (Q7 בגרסה 3): רק יישובים מתויגים, ולעולם לא המאגר הלא-מתויג —
+  // ירושלים הפכה ל"משמר הנגב" ומודיעין ל"אמונים" כי המאגר הגדול אינו יודע מה הם.
+  // יישוב מתויג מקבל יישוב מאותו אופי (אוכלוסייה, דת, עירוני/כפרי); הגודל רשאי לזוז.
+  const base=PLACES.map(p=>p.n).filter(n=>n&&n.length>=3&&!AMBIG.has(n));
+  const v=norm(String(value||"")).trim();
+  if(v&&typeof ATLAS_TAGS!=="undefined"&&ATLAS_TAGS[v]&&typeof atlasPenalty==="function"){
+    // הקרובים ביותר באופי: לפחות שישה, כדי שיהיה מבחר, ובלי אוכלוסייה שונה לעולם
+    const scored=base.filter(n=>n!==v).map(n=>[n,atlasPenalty(v,n)]).filter(x=>x[1]!==Infinity).sort((a,b)=>a[1]-b[1]);
+    if(scored.length){const cap=scored[Math.min(5,scored.length-1)][1]; return scored.filter(x=>x[1]<=cap).map(x=>x[0]);}
+  }
+  return base;
 }
 function fakePlace(value,used,forbidden,kind){
-  const pool=placePool(kind||null);
+  const pool=placePool(kind||null,value);
   if(!pool.length)return null;
   const free=n=>{
     if(used&&used.has(n))return false;
     if(!forbidden)return true;
-    // גם מילה בודדת מתוך שם דו-מילתי נחשבת: "בית שמש" נפסל אם "שמש" במסמך
-    for(const w of norm(n).split(/\s+/)) if(w&&forbidden.has(w))return false;
+    // גם מילה בודדת מתוך שם דו-מילתי נחשבת: "בית שמש" נפסל אם "שמש" במסמך;
+    // וגם צורה עם אות שימוש: "לחיפה" במסמך פוסל את חיפה כתחליף לירושלים
+    for(const w of norm(n).split(/\s+/)){
+      if(!w)continue;
+      if(forbidden.has(w))return false;
+      for(const p of "בלמוהשכ") if(forbidden.has(p+w))return false;
+    }
     return true;
   };
   const start=hash32(norm(String(value||"")).trim())%pool.length;
@@ -1660,6 +1702,8 @@ class Engine{
     // ולומר את זה, מאשר לערבב שני אנשים.
     this.collided=[];
     const nd=docText?norm(docText):"";
+    // היסט התאריכים: אחד לכל המסמך, נגזר ממנו ולכן זהה בכל ריצה חוזרת
+    this.dateOff=30+(typeof hash32==="function"?hash32(nd):0)%371;
     for(const s of subs){
       if(!s.replacement||!nd)continue;
       if(new RegExp(NW+flex(s.replacement)+NWE,"u").test(nd)){
@@ -1680,12 +1724,16 @@ class Engine{
       // שכולו על קטינה בשם בן שלוש אותיות, "ליעל" ו"שיעל" סומנו לבדיקה עשר פעמים
       // במקום להיות מוחלפים, והשם נשאר בטקסט עד שהיא מטפלת בכל אחד מהם.
       const nv=norm(s.value).trim();
-      const shortSingle = s.kind==="NAME" && nv.split(/\s+/).length===1 && nv.length<=3 &&
-        (WORDLIKE.has(nv)||COMMON.has(nv)||this.forbidden.has("ה"+nv));
+      // שם קצר שאושר (Q3 בגרסה 3): הצורות עם אות שימוש מוחלפות, חוץ מצורה שהיא
+      // בעצמה מילה עברית — "לשי" ו"שרן" מוחלפים, "ושם" (ו+שם) נשאר לבדיקה. עד כאן כל
+      // צורה של שם בן שתיים-שלוש אותיות חיכתה לאישור, והיא הוסיפה "ושי", "לרן",
+      // "שרן" ביד, אחת-אחת, ו"לשי" עדיין יצא ארבע פעמים.
+      const shortSingle = s.kind==="NAME" && nv.split(/\s+/).length===1 && nv.length<=3;
+      const isWord=x=>WORDLIKE.has(x)||COMMON.has(x)||STOP.has(x)||VRB.has(x)||this.forbidden.has("ה"+x);
       for(const [v,pre] of variants(s.value,lvl,protect)){
         if(seen.has(v))continue; seen.add(v);
         this.rules.push({rx:new RegExp(NW+flex(v)+NWE,"gu"),base:s.value,
-          kind:s.kind,rep:s.replacement,style:s.style||null,pre,auto:s.auto,soft:!!pre&&shortSingle});
+          kind:s.kind,rep:s.replacement,style:s.style||null,pre,auto:s.auto,soft:!!pre&&shortSingle&&isWord(norm(v).trim())});
       }
       // "עמותת שביל הלב" אושרה: גם "שביל הלב" לבדו הוא אותו גוף, כמו שם משפחה
       // לבדו אצל אדם. אחרת המופע הראשון מוחלף והשני נשאר בטקסט.
@@ -1810,6 +1858,9 @@ class Engine{
       // מציע משהו, כי הוא שומר על המרחקים; זה מה שקורה לכל השאר, כולל מה שנגזר
       // ממילת יישוב ("מושב X", "שכונת Y"). מוסד רפואי, עסק או מוסד חינוך נשאר
       // תווית: שם יישוב במקומו היה משקר על סוג המקום.
+      // תאריך מלא במצב "שם" הוא תאריך מוזז — אותו היסט לכל המסמך
+      else if(fam==="DATE"&&real&&typeof fakeDate==="function")
+        base=fakeDate(canonical,this.dateOff)||`[${lab} ${hord(n)}]`;
       // מקום מהרשימה (סוג PLACE) מקבל שם לפי סוגו — שכונה, רחוב, מושב — ולא תווית (Q11)
       else if(real&&typeof fakePlace==="function"&&
               (h.type==="PLACE"||h.type==="PLACE_CITY"||(h.type==="PLACE_VENUE"&&h.label==="יישוב")))
@@ -2247,8 +2298,13 @@ async function verify(buf,secrets){
     for(const enc of ["utf-8","utf-16le"]){
       let t;try{t=new TextDecoder(enc).decode(f.data)}catch(_){continue}
       const nt=norm(t);
-      for(const [o,nv] of sec) if(nv&&nt.includes(nv))
-        leaks.push({value:o,part:f.name});
+      // מספר או תאריך נבדקים בגבולות ספרות: "1.3.2026" אינו דולף בתוך התאריך המוזז "11.3.2026"
+      for(const [o,nv] of sec){
+        if(!nv)continue;
+        const digital=/^\d/.test(nv)||/\d$/.test(nv);
+        const hit=digital?new RegExp((/^\d/.test(nv)?"(?<!\\d)":"")+esc(nv)+(/\d$/.test(nv)?"(?!\\d)":""),"u").test(nt):nt.includes(nv);
+        if(hit)leaks.push({value:o,part:f.name});
+      }
     }}
   const uniq=[],seen=new Set();
   for(const l of leaks){const k=l.part+"|"+l.value;if(!seen.has(k)){seen.add(k);uniq.push(l)}}
@@ -2586,6 +2642,56 @@ function nerGroup(toks){
 // הפלט הגולמי של הריצה האחרונה, לדוח הדליפה: מה המודל חשב על מקטע שפוספס
 let NER_LAST=[];
 function nerLast(){return NER_LAST}
+/* אות שימוש או שם אחר? (Q4 בגרסה 3) "שארסן" הוצע לצד "ארסן" וקיבל שם בדוי משלו.
+   מקפלים צורה כזאת לשם הבסיס רק כשהמודל עצמו אומר שהאות אינה חלק מהמילה:
+   הטוקנייזר שלו מפצל את האות לבדה ("ש" + "##ארסן"), בעוד "שרון" הוא יחידה אחת.
+   עדות נוספת: קיצוץ בקצה המקטע (המודל בלע אות שימוש), ומיקום — תור דיבור או
+   תואר לפני הצורה אומרים "שם" ומונעים קיפול. רשימות השמות רק חוסמות: הימצאות
+   בהן אומרת "שם", היעדרות אינה אומרת דבר. כשאין הכרעה — הצעה, לא קיפול. */
+function tokPieces(pipe,word){
+  const tk=pipe&&pipe.tokenizer; if(!tk)return null;
+  try{
+    if(typeof tk.tokenize==="function")return tk.tokenize(word);
+    if(typeof tk._encode_text==="function"){const r=tk._encode_text(word); if(Array.isArray(r))return r;}
+    if(typeof tk.encode==="function"&&tk.model&&typeof tk.model.convert_ids_to_tokens==="function"){
+      const ids=tk.encode(word,null,{add_special_tokens:false}); return tk.model.convert_ids_to_tokens(ids);}
+  }catch(_){}
+  return null;
+}
+function namePosition(text,surface){
+  const n=norm(text), s=esc(norm(surface));
+  // תור דיבור: בראש שורה, אולי אחרי חותמת זמן בסוגריים; או אחרי תואר
+  if(new RegExp("(?:^|\\n)\\s*(?:\\[[^\\]\\n]*\\]\\s*)?"+s+"\\s*:","u").test(n))return true;
+  if(new RegExp("(?:^|\\s)"+TITLE_RX.source.replace(/^\^/,"")+s+"(?![\\u0590-\\u05ff])","u").test(n))return true;
+  return false;
+}
+function listedName(v){
+  const x=norm(v).trim();
+  return (typeof KNOWN_FIRST!=="undefined"&&KNOWN_FIRST.has(x))||(typeof FEM!=="undefined"&&FEM.has(x))||
+    (typeof MASC!=="undefined"&&MASC.has(x))||(typeof POOL!=="undefined"&&(POOL.he_s||[]).includes(x))||
+    (typeof PLACE_BY!=="undefined"&&!!PLACE_BY[x]);
+}
+async function foldEvidence(pipe,out,text){
+  const names=out.filter(o=>o.kind==="NAME");
+  const byNorm=new Map(names.map(o=>[norm(o.value).trim(),o]));
+  for(const o of names){
+    const v=norm(o.value).trim();
+    if(/\s/.test(v)||v.length<4||!/^[בלמושהכ]/.test(v))continue;
+    const stem=v.slice(1); const base=byNorm.get(stem); if(!base)continue;
+    o.prefixOf=base.value;
+    let fold="unknown", why=[];
+    const pieces=tokPieces(pipe,o.value);
+    if(pieces&&pieces.length){
+      const first=String(pieces[0]).replace(/^[▁#]+/,"");
+      if(pieces.length>=2&&first===v[0]){fold="yes";why.push("tokenizer:split");}
+      else {fold="no";why.push("tokenizer:whole");}
+    }
+    if(o.cut){ if(fold!=="no")fold="yes"; why.push("cut"); }
+    if(namePosition(text,o.value)){fold="no";why.push("position");}
+    if(listedName(o.value)){fold="no";why.push("listed");}
+    o.fold=fold; o.foldWhy=why.join(",");
+  }
+}
 async function nerRun(blocks,onProgress){
   const pipe=await nerLoad();
   const text=blocks.map(b=>b.text).join("\n");
@@ -2609,6 +2715,7 @@ async function nerRun(blocks,onProgress){
   }
   NER_LAST=ents.map(e=>({type:e.type,score:e.score,s:e.s,e:e.e}));
   const out=nerClean(ents,text);
+  await foldEvidence(pipe,out,text);
   const chars=parts.reduce((a,p)=>a+p.t.length,0);
   console.log(`זיהוי: ${parts.length} קטעים (${chars}/${text.length} תווים) · `+
     `${raw} חיזויים גולמיים · ${withOff} עם היסט מהצינור · `+
@@ -2687,7 +2794,7 @@ function restoreNames(txt,pairs){
 
 export {nerLast, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
   variants, validID, ibanOK, luhn, hord, POOL, WORDLIKE, FEM, MASC, fakeName, near1, HOMO, WEAK,
-  findNear, mergeSignals, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
+  findNear, mergeSignals, fakeDate, foldEvidence, tokPieces, namePosition, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,
   discover, PLACES, PLACE_BY, geoMap, geoNames, placesFound, examplesOf, findPlaces, fakePlace,
   atlasTags, atlasDiff, atlasPenalty, placeKind, nerEnv, nerCached, nerPersist, nerLoad, nerRun,
