@@ -1098,14 +1098,39 @@ class Component extends DCLogic {
       else if((k==="z"&&e.shiftKey)||k==="y"){ e.preventDefault(); this.redo(); }
     };
     document.addEventListener("keydown", this._keys);
+    /* H5 בביקורת השנייה: רענון, "אחורה" בדפדפן וסגירת הלשונית מחקו את המסמך, את
+       ההחלטות ואת היומן בלי מילה, בזמן ש"מסמך חדש" לבדו שאל. כשיש מסמך (ולא
+       הסיור): הדפדפן שואל לפני רענון או סגירה, ו"אחורה" נתפס — בטעינת המסמך
+       נדחפת רשומת היסטוריה, כך ש"אחורה" חוזר אליה במקום לצאת מהאתר, ושאלה אחת
+       מכריעה. ביטול משאיר הכול; אישור יוצא באמת, ובלי שאלה שנייה. */
+    this._unload = e => {
+      if(!this.state.buf || this.state.tour || this._leaving) return;
+      e.preventDefault(); e.returnValue = "המסמך וההחלטות שנעשו עליו יאבדו.";
+      return e.returnValue;
+    };
+    this._pop = () => {
+      if(!(this._hist && this.state.buf && !this.state.tour)) return;
+      if(confirm("לצאת מהמסמך? המסמך, ההחלטות שנעשו עליו ויומן הסשן יאבדו. פרופיל התיק נשאר שמור בדפדפן.")){
+        this._hist=false; this._leaving=true; this.log.add("leave",{how:"back"});
+        try{ history.back(); }catch(_){}
+      } else {
+        try{ history.pushState({pib:1}, ""); }catch(_){}
+      }
+    };
+    addEventListener("beforeunload", this._unload);
+    addEventListener("popstate", this._pop);
   }
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); removeEventListener("resize", this._resize);
+    removeEventListener("beforeunload", this._unload); removeEventListener("popstate", this._pop);
     if(this._barObs) this._barObs.disconnect(); }
   /* ביומן של הסשן האמיתי 347 מתוך 375 האירועים היו "screen" — אותו מסך, שוב ושוב,
      בכל רינדור. הארגומנט הראשון של ההוק הוא ה-props הקודמים, לא ה-state הקודם, ולכן
      prev.screen היה undefined תמיד, ההשוואה תמיד "השתנה", ושדה from נעלם מהיומן.
      המסך האחרון נשמר על המופע ולא נלקח מההוק. */
   componentDidUpdate(){ this.applyProps(); if(this._barSize) this._barSize();
+    // רשומת היסטוריה אחת לכל מסמך (H5): "אחורה" חוזר אליה ולא יוצא מהאתר
+    if(this.state.buf&&!this.state.tour&&!this._hist){ this._hist=true; this._leaving=false; try{ history.pushState({pib:1}, ""); }catch(_){} }
+    else if(!this.state.buf&&this._hist) this._hist=false;
     // "לפני שמתחילים" מקבל פוקוס כשהוא נפתח, כך שהמקלדת מתחילה בתוכו (ביקורת QA 003)
     if(this.state.intro&&!this.state.tour&&!this._introFocused){
       const b=document.querySelector("[data-intro] button"); if(b){ b.focus(); this._introFocused=true; }
@@ -1296,12 +1321,18 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     }
     this.setState({pending:false, nerAsk:false});
     if(!this.state.o.auto){ this.setState({peo:[], cands:[]}); this.toPlaces([]); return; }
+    /* אותו מסמך, אותן הגדרות, והרשימה כבר קיימת (H2 בביקורת השנייה): "‹ קובץ" ואז
+       הכפתור הראשי בנו את הרשימה מחדש ומחקו בשקט שמות שהוקלדו, הצעה שנוספה
+       ו"לא אדם" שנדחה, בזמן שפירור הלחם "מי בתיק" שמר עליה. הכפתור חוזר לרשימה
+       הקיימת; סריקה חדשה רק למסמך אחר, או כשהמודל הודלק אחרי הסריקה. */
+    if(this._scannedBuf===S.buf && (S.peo||[]).length && this._scanNer===!!S.o.ner){ this.log.add("list-again",{}); this.showList(); return; }
     return this.scanNames();
   };
 
   async scanNames(){
     const E=this.state.E, buf=this.state.buf;
-    this.setState({screen:"busy", busyT:"מאתר שמות…"});
+    this._scannedBuf=buf; this._scanNer=!!this.state.o.ner;
+    this.setState({screen:"busy", busyT:"מאתר שמות…", peoKept:[]});
     try{
       const blocks = (await this.blocksOf(buf)).concat(this.nameBlock());
       const cands = E.discover(blocks);
@@ -1346,6 +1377,11 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       if(!c.speaker && (!w.every(x=>E.nameish(x,dt)) || w[0][0]==="ו" || w.some(x=>x[0]==="ה"))) continue;
       peo.push({value:c.value, note:c.speaker?"דובר בתמלול":"מהכותרת", auto:true, g:c.g, kind:"NAME"});
     }
+    // תיק שנבחר לפני המסמך (C2 בביקורת השנייה): האנשים שלו נכנסים לרשימה כאן,
+    // כמו שקורה כשהתיק נבחר כשהרשימה כבר על המסך — אחרת אדם מהתיק הופיע רק
+    // כהצעה, והכינוי שלו מהמסמך הקודם לא הגיע לכללים.
+    for(const r of this.profileRules()) if((r.kind==="NAME"||r.kind==="ORG")&&!peo.some(p=>E.norm(p.value)===E.norm(r.value)))
+      peo.push({value:r.value, kind:r.kind, note:"מהפרופיל", auto:true, g:null});
     // מה ש-discover מצא ולא מילא מעצמו לא נעלם: הוא מוצג לאישור בהקשה אחת.
     // ניחוש בינוני עולה הקשה; שם שהיא לא נשאלה עליו הוא הכשל שהכלי נועד למנוע.
     const inList=v=>peo.some(p=>E.norm(p.value)===E.norm(v));
@@ -1424,31 +1460,83 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
   peoGo(){
     this.setState({sugAsk:false});
-    this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined})));
+    this.toPlaces(this.rulesFromPeo(this.state.peo));
+  }
+  profileRules(){ const p=this.state.profile; return (p&&Array.isArray(p.rules)?p.rules:[]).filter(r=>r&&r.value); }
+  /* הרשימה הופכת לכללים. עד כאן כל כלל נולד ריק (replacement:""), גם כשהתיק
+     כבר ידע מה הכינוי של האדם הזה: "יוני כהן" שהוקלד במסמך הקודם נזרק, והוא קיבל
+     שם בדוי חדש (C2). עכשיו כלל של ערך שכבר הוחלט עליו — בכללים הנוכחיים או
+     בפרופיל התיק — יורש את התחליף, הסגנון וההצמדה. */
+  rulesFromPeo(list){
+    const E=this.state.E, n=v=>E.norm(String(v||"")).trim();
+    const known=[...(this.state.rules||[]), ...this.profileRules()];
+    const pm=(this.state.profile&&this.state.profile.map)||{};
+    const out=list.map(p=>{
+      const r={value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined};
+      const old=known.find(x=>x&&n(x.value)===n(p.value)&&(x.kind||"NAME")===r.kind);
+      const rep=(old&&old.replacement)||pm[p.value]||"";
+      if(rep) r.replacement=rep;
+      if(old&&old.pinned&&old.replacement) r.pinned=true;
+      if(old&&old.style) r.style=old.style;
+      return r;
+    });
+    // מה שאינו ברשימה — יישובים ממסך היישובים, מספרים וערכים שסומנו במסך הבדיקה —
+    // אינו נבנה ממנה, ולכן נשאר כמו שהוא (H1 בביקורת השנייה: "קריית אתא" שנוספה
+    // כמקום חזרה לטקסט הגלוי אחרי סיבוב דרך הרשימה).
+    for(const r of this.state.rules||[]) if(r&&r.value&&r.kind!=="NAME"&&r.kind!=="ORG"&&!out.some(x=>n(x.value)===n(r.value))) out.push(r);
+    return out;
+  }
+  /* חזרה לרשימה ממסך הבדיקה (H1): הרשימה מראה את המצב הנוכחי. אדם שנוסף שם —
+     דרך "הוספה ידנית" או סימון בטקסט — מופיע כשבב; מי שהוסר שם ("אל תחליף",
+     "לא שם") יורד מהרשימה ונראה ב"נשארים כמו שהם". אחרת "המשך" בנה את הכללים
+     מרשימה ישנה ומחק בשקט את ההחלטות שנעשו אחריה. */
+  showList(){
+    const S=this.state; if(!S.buf) return;
+    const E=S.E, n=v=>E.norm(String(v||"")).trim();
+    const rules=S.rules||[], has=v=>rules.some(r=>r&&n(r.value)===n(v));
+    const kept=[...(S.peoKept||[])], list=[];
+    const decided=S.res&&rules.length; // הכללים קיימים רק אחרי שהרשימה כבר עברה למסך הבדיקה
+    for(const p of S.peo||[]){
+      if(!decided||has(p.value)) list.push(p);
+      else if(!kept.some(k=>n(k.value)===n(p.value))) kept.push({...p});
+    }
+    if(decided) for(const r of rules) if((r.kind==="NAME"||r.kind==="ORG")&&r.value&&!list.some(p=>n(p.value)===n(r.value)))
+      list.push({value:r.value, kind:r.kind, note:"נוסף במסך הבדיקה", auto:!!r.auto, g:r.g||null, sameAs:r.sameAs||undefined});
+    this.setState({screen:"people", err:"", peo:list, peoKept:kept});
   }
   peoAddAll(){
     const open=this.openSugs(); if(!open.length) return;
     this.log.add("add-all",{n:open.length});
     // רשימה אחת, בקריאה אחת: peoAdd קורא את הרשימה מה-state, ולולאה הייתה משאירה רק את האחרון
     const E=this.state.E, list=[...this.state.peo];
+    const added=[];
     for(const x of open){
       const {v, kind} = E.cleanEntry(x.value);
       if(v.length<2||list.some(p=>E.norm(p.value)===E.norm(v))) continue;
-      list.push({value:v, kind:x.kind||kind, g:null, auto:true, note:"מההקשר"});
+      list.push({value:v, kind:x.kind||kind, g:null, auto:true, note:"מההקשר"}); added.push(v);
     }
-    this.setState({peo:list, sugAsk:false});
+    this.setState({peo:list, sugAsk:false, ...this.unkeep(added)});
+  }
+  /* שם שנוסף לרשימה הוא ההחלטה החדשה (H3 בביקורת השנייה): "לא אדם" על הצעה שם
+     אותו ב"אל תחליף", והקלדה של אותו שם אחר כך הוסיפה שבב שנראה רגיל, אבל רשימת
+     ההיתר עדיין חסמה אותו, והשם יצא בטקסט עם "האימות נכשל". ההוספה מסירה אותו
+     מרשימת ההיתר ומרצועת "נשארים כמו שהם". */
+  unkeep(values){
+    const E=this.state.E, n=v=>E.norm(String(v||"")).trim(), set=new Set(values.map(n));
+    if(!set.size) return {};
+    return {allow:(this.state.allow||[]).filter(a=>!set.has(n(a))), peoKept:(this.state.peoKept||[]).filter(k=>!set.has(n(k.value)))};
   }
   peoAdd = (txt, note, auto, kindAs) => {
-    const E=this.state.E; const list=[...this.state.peo]; let tooLong=0;
+    const E=this.state.E; const list=[...this.state.peo]; let tooLong=0; const added=[];
     for(const raw of String(txt||"").split(/[\n,;]+/)){
       const {v, note:n2, kind} = E.cleanEntry(raw);
       if(v.length<2) continue;
       // פסקה שהודבקה לשדה השם אינה שם (ביקורת QA 007): לא נכנסת, ונאמר למה
       if(v.length>80||v.split(/\s+/).length>8){ tooLong++; continue; }
       if(list.some(p=>E.norm(p.value)===E.norm(v))) continue;
-      list.push({value:v, kind:kindAs||kind, g:null, auto:!!auto, note:note||n2});
+      list.push({value:v, kind:kindAs||kind, g:null, auto:!!auto, note:note||n2}); added.push(v);
     }
-    this.setState(tooLong?{peo:list, peoNote:"קטע ארוך לא נוסף: שם או גוף הם עד שמונה מילים. אפשר להדביק כמה שמות, שורה לכל אחד."}:{peo:list});
+    this.setState({...(tooLong?{peo:list, peoNote:"קטע ארוך לא נוסף: שם או גוף הם עד שמונה מילים. אפשר להדביק כמה שמות, שורה לכל אחד."}:{peo:list}), ...this.unkeep(added)});
   };
   setKind = (i, kind) => { const list=[...this.state.peo]; list[i]={...list[i], kind, note:""}; this.setState({peo:list}); };
   cycleKind = i => { const list=[...this.state.peo]; const ks=["NAME","ORG","PLACE"];
@@ -1551,7 +1639,11 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const on = new Set((this.state.allow||[]).map(a=>E.norm(String(a||"")).trim()));
       const found = all.filter(n=>!on.has(E.norm(n).trim()));
       const excluded = all.filter(n=>on.has(E.norm(n).trim()));
-      const geo = found.length>=2 ? E.geoMap(found, 0) : null;
+      // יעד למפה אינו יישוב שמופיע במסמך, גם לא כזה שנשאר מחוץ למפה (H4), ולא
+      // שם שאחת ממילותיו בטקסט. אותם גבולות משמשים גם את "קבוצה אחרת" ואת ↩.
+      this._geoAvoid = new Set([...all, ...(every||[]).map(p=>p.name)]);
+      this._geoForbid = new Set(E.norm(text).match(/[א-ת][א-ת'"׳״]*/g)||[]);
+      const geo = found.length>=2 ? E.geoMap(found, 0, this._geoAvoid, this._geoForbid) : null;
 
       /* כל מה שלא נכנס למפת המרחקים, ועדיין נמצא במסמך: יישוב מהמאגר הגדול
          שאין לו קואורדינטות, ויישוב ששמו גם מילה רגילה. עד כאן הם לא הופיעו
@@ -1632,7 +1724,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
 
   geoAlt = () => { const E=this.state.E; const v=this.state.geoV+1;
-    this.setState({geoV:v, geo:E.geoMap(this.state.geoNames, v), geoEdits:{}}); };
+    this.setState({geoV:v, geo:E.geoMap(this.state.geoNames, v, this._geoAvoid, this._geoForbid), geoEdits:{}}); };
   /* "אל תחליף" על יישוב אחד (Q7 בגרסה 3): שאר הזוגות לא זזים. עד כאן המפה חושבה
      מחדש ומה שאישרה השתנה מאחורי גבה; עם פחות משני יישובים המפה התפרקה והשאר קיבלו
      שמות אקראיים מהמאגר הלא-מתויג ("אשדוד" הפכה ל"אמונים"). עכשיו הזוגות שאושרו
@@ -1663,10 +1755,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(kept.length){
       // היישוב שחזר מקבל תחליף משלו; מה שכבר אושר לא זז
       const used=new Set(kept.map(m=>m.to));
-      const to=(E.fakePlace&&E.fakePlace(name, used, new Set()))||name;
+      const to=(E.fakePlace&&E.fakePlace(name, new Set([...used, ...(this._geoAvoid||[])]), this._geoForbid||new Set()))||name;
       geo={...old, map:[...kept, {from:name, to}]};
     } else if(names.length>=2){
-      geo=E.geoMap(names,0);
+      geo=E.geoMap(names,0,this._geoAvoid,this._geoForbid);
       if(geo) extra=extra.filter(x=>!geo.map.some(m=>E.norm(m.from).trim()===E.norm(x.name).trim()));
     }
     this.setState({geoNames:names, allow:this.state.allow.filter(a=>a!==name),
@@ -1746,7 +1838,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const toReview=(res.verification.near||[]).length+(res.verification.suggest||[]).length+(this.state.allow||[]).length+
         res.flagged.filter(f=>f.src!=="near"&&f.src!=="nohit"&&f.src!=="collide").length;
       this.log.add("run",{applied:res.applied.length, flagged:res.flagged.length, near:(res.verification.near||[]).length, suggest:(res.verification.suggest||[]).length, passed:!!res.verification.passed});
-      this.setState({res, screen:"work", open:toReview?["review","findings","send"]:["findings","send"], pane:"doc", docView:"red", markIdx:0, copied:false}, ()=>this.persistProfile());
+      this.setState({res, rules:this.pinReps(rules,res), screen:"work", open:toReview?["review","findings","send"]:["findings","send"], pane:"doc", docView:"red", markIdx:0, copied:false}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה בעיבוד: "+(e.message||e), screen:"entry", res:null}); }
   }
   async rerun(){
@@ -1754,8 +1846,27 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     try{
       const res = this.guardModel(await E.redactDocx(this.state.buf.slice(0), this.state.rules, this.state.allow, this.opts()), this.state.rules, this.state.allow);
       this.log.add("rerun",{ms:Date.now()-t0, applied:res.applied.length, flagged:res.flagged.length});
-      this.setState({res, sel:null, err:"", inline:null}, ()=>this.persistProfile());
+      this.setState({res, rules:this.pinReps(this.state.rules,res), sel:null, err:"", inline:null}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה: "+(e.message||e)}); }
+  }
+  /* C1 בביקורת השנייה: כינוי אוטומטי נבחר מתוך מאגר תוך דילוג על שמות שכבר
+     נלקחו, ולכן היה תלוי בכל מה שהוקצה לפניו. שינוי כינוי של אדם אחד פינה שם
+     במאגר, ובריצה הבאה אדם אחר קיבל אותו: "יהודית אשכנזי" הפכה ל"מרים אשכנזי"
+     בלי שאיש נגע בה, והתשובה שכבר הועתקה ל-AI חזרה עם אנשים לא נכונים. אחרי כל
+     ריצה הכינוי שנבחר לאדם או לגוף נכתב על הכלל עצמו (pinned), ומכאן הוא קבוע:
+     המאגר יכול להשתנות, הוא לא. המנוע מתעלם מכינוי מוצמד כשהסגנון אינו "שם". */
+  pinReps(rules,res){
+    if(!res||this.state.mode!=="real") return rules;
+    const got={};
+    for(const r of res.applied){ const v=r.base||r.value, rp=r.baseRep||r.rep; if(v&&rp&&!(v in got)) got[v]=rp; }
+    let changed=false;
+    const out=rules.map(r=>{
+      if(r.replacement||r.style||r.sameAs||(r.kind!=="NAME"&&r.kind!=="ORG")) return r;
+      const rp=got[r.value];
+      if(!rp||/^\[|^פלוני\b|███|^\s*$/.test(rp)) return r;
+      changed=true; return {...r, replacement:rp, pinned:true};
+    });
+    return changed?out:rules;
   }
   /* ביטול.
 
@@ -1864,7 +1975,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       r=rules.find(x=>x.kind==="NAME"&&n(x.value).split(/\s+/).includes(n(v)));
     }
     const before=this.state.res?this.state.res.applied.length:-1, prev=r?r.replacement:null;
-    if(r) r.replacement=rep.trim(); else rules.push({value:v, kind:"NAME", replacement:rep.trim()});
+    if(r){ r.replacement=rep.trim(); delete r.pinned; } else rules.push({value:v, kind:"NAME", replacement:rep.trim()});
     this.setState({rules}, ()=>this.rerun().then(()=>{
       const after=this.state.res?this.state.res.applied.length:-1;
       this.log.add("set-rep",{matched:!!r, changed:prev!==rep.trim(), appliedBefore:before, appliedAfter:after});
@@ -2117,7 +2228,26 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       return Object.values(m).filter(p=>p&&p.v===1&&p.name).sort((a,b)=>String(b.updated||"").localeCompare(String(a.updated||""))); }catch(_){ return []; }
   }
   writeCase(prof){
-    try{ const m=JSON.parse(localStorage.getItem("redact-cases")||"{}"); m[prof.name]=prof; localStorage.setItem("redact-cases", JSON.stringify(m)); }catch(_){}
+    try{ const m=JSON.parse(localStorage.getItem("redact-cases")||"{}");
+      const prev=m[prof.name];
+      m[prof.name]=(prev&&prev.v===1)?this.mergeCase(prev, prof):prof;
+      localStorage.setItem("redact-cases", JSON.stringify(m)); }catch(_){}
+  }
+  /* התיק הוא איחוד של כל המסמכים שלו, לא צילום של האחרון (C2 בביקורת השנייה):
+     מסמך שבו אבנר לא מוזכר מחק אותו מהתיק, והמסמך הבא נתן לו שם חדש. מה שהוחלט
+     במסמך הנוכחי גובר; מי שלא מופיע בו נשאר מהקודם. ערך שהותר עכשיו ("אל
+     תחליף", מחיקה מהרשימה) אינו חוזר ככלל, וערך שהוא כלל עכשיו אינו נשאר מותר. */
+  mergeCase(prev, cur){
+    const E=this.state.E, n=v=>E.norm(String(v||"")).trim();
+    const curAllow=new Set((cur.allow||[]).map(n)), curRules=new Set((cur.rules||[]).map(r=>n(r&&r.value)));
+    const rules=(cur.rules||[]).slice();
+    for(const r of prev.rules||[]) if(r&&r.value&&!curRules.has(n(r.value))&&!curAllow.has(n(r.value))) rules.push(r);
+    const allow=(cur.allow||[]).slice();
+    for(const a of prev.allow||[]) if(a&&!curRules.has(n(a))&&!curAllow.has(n(a))) allow.push(a);
+    const map={...(prev.map||{})};
+    for(const k of Object.keys(map)) if(curAllow.has(n(k))) delete map[k];
+    Object.assign(map, cur.map||{});
+    return {...cur, created:prev.created||cur.created, rules, allow, map};
   }
   deleteCase = name => {
     try{ const m=JSON.parse(localStorage.getItem("redact-cases")||"{}"); delete m[name]; localStorage.setItem("redact-cases", JSON.stringify(m)); }catch(_){}
@@ -2210,7 +2340,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(cur.screen==="people"){
       const S=this.state;
       if(S.scanning||S.screen!=="people") return;
-      await this.toPlaces(S.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined})));
+      await this.toPlaces(this.rulesFromPeo(S.peo));
       // הלוח מתקדם רק כשהמסך הבא באמת על המסך. בלי מסך יישובים (אין שני
       // יישובים למפה) מחכים למסך הבדיקה ומדלגים ישר אליו.
       if(this.state.screen==="places"){ this.setState({tour:{...this.state.tour, i:2, hadPlaces:true}}); return; }
@@ -2454,11 +2584,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       step3:stepStyle(S.screen==="places", !!S.buf),
       step4:stepStyle(S.screen==="work", false),
       goStep1:()=>this.setState({screen:"entry", pending:!!S.buf, err:""}),
-      goStep2:()=>{ if(S.buf) this.setState({screen:"people", err:""}); },
+      goStep2:()=>this.showList(),
       goStep3:()=>{ if(S.buf) this.toPlaces(S.rules); },
       showBack:S.screen!=="entry",
       backLabel:backOf(S.screen, S.returnTo).label,
-      onBack:()=>{ const b=backOf(S.screen, S.returnTo); this.setState({screen:b.to, pending:b.to==="entry"?!!S.buf:false, err:""}); },
+      onBack:()=>{ const b=backOf(S.screen, S.returnTo); if(b.to==="people"){ this.showList(); return; } this.setState({screen:b.to, pending:b.to==="entry"?!!S.buf:false, err:""}); },
       pasteText:S.pasteText||"", hasPaste:(S.pasteText||"").trim().length>0,
       pasteLabel:"שימוש בטקסט הזה", onPasteGo:this.usePastedText,
       onPasteText:e=>this.setState({pasteText:e.target.value}),
@@ -2586,7 +2716,9 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       peoSugItems:S.peoSug.filter(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))).map(x=>({
         value:x.value, why:x.why,
         onAdd:()=>this.peoAdd(x.value,"מההקשר",true,x.kind),
-        onDrop:()=>this.setState({peoSug:S.peoSug.filter(y=>y!==x), allow:S.allow.includes(x.value)?S.allow:[...S.allow, x.value]})})),
+        // "לא אדם" הוא החלטה, ולכן נראית (H3): השם נכנס ל"נשארים כמו שהם" עם ↩, כמו מחיקת שבב
+        onDrop:()=>{ this.log.add("sug-drop",{}); this.setState({peoSug:S.peoSug.filter(y=>y!==x), allow:S.allow.includes(x.value)?S.allow:[...S.allow, x.value],
+          peoKept:(S.peoKept||[]).some(k=>k.value===x.value)?S.peoKept:[...(S.peoKept||[]), {value:x.value, kind:x.kind||"NAME", auto:true, note:x.why||""}]}); }})),
       nerFailed:!!S.nerFailed, nerOk:!S.nerFailed,
       onRetryScan:()=>{ const L=this._lastScan; if(!L)return; this.setState({nerFailed:false, peoNote:""}); this.showPeople(L.blocks, L.cands); },
       // הורדה שנעצרה (UX #6): טעינה חדשה במקום לחכות להבטחה התקועה
@@ -2695,10 +2827,19 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         /* מסמך חדש מתחיל נקי (UX #22, ביקורת QA 005): חיפוש, הוספה ידנית, טקסט
            מודבק ושם הקובץ הקודמים נשארו — והמסמך הבא נפתח עם מסילה ריקה, או עם
            שני מסמכים מודבקים יחד. הגלילה חוזרת לראש העמוד. */
+        /* והתיק נשאר במקומו (C3 בביקורת השנייה): שם התיק, הפרופיל, הכללים ורשימת
+           ההיתר עברו למסמך הבא, שם התיק חיכה ממולא בשדה שבמסך הרשימה, ומסמך של
+           לקוח אחר נכתב לתוך התיק של הקודם. מסמך חדש מתחיל בלי תיק; התיק השמור
+           מוצע ברצועת "תיקים אחרונים", ופרופיל בלי שם — בכרטיס "להמשיך עם
+           הפרופיל", כמו אחרי טעינה מחדש. */
+        let lastProfile=null;
+        try{ const j=localStorage.getItem("redact-profile-last"); const p=j&&JSON.parse(j); if(p&&p.v===1&&!p.name&&(p.rules||[]).length) lastProfile=p; }catch(_){}
         this.setState({screen:"entry", res:null, err:"", fileErr:"", name:"", buf:null, pending:false,
           pasteText:"", query:"", cat:"", filter:"all", addV:"", addR:"", sel:null, inline:null, popup:null,
-          notice:"", copied:false, copyLabel:"העתקה ל-AI", sugAsk:false, casesHidden:false, peo:[], peoSug:[], peoKept:[]},
+          notice:"", copied:false, copyLabel:"העתקה ל-AI", sugAsk:false, casesHidden:false, peo:[], peoSug:[], peoKept:[],
+          caseName:"", profile:null, rules:[], allow:[], profileDirty:false, approved:[], undoN:0, redoN:0, lastProfile, cases:this.readCases()},
           ()=>{ try{ scrollTo(0,0); }catch(_){} });
+        this._undo=[]; this._redo=[];
         this.log.add("new-doc",{}); },
       tip:!!S.tip, tipLabel:S.tip?S.tip.label:"", tipItems:S.tip?S.tip.items:[],
       tipMore:S.tip&&S.tip.items.length>=3?"שלוש הראשונות":"",

@@ -87,6 +87,16 @@ class Engine{
     const nd=docText?norm(docText):"";
     // היסט התאריכים: אחד לכל המסמך, נגזר ממנו ולכן זהה בכל ריצה חוזרת
     this.dateOff=30+(typeof hash32==="function"?hash32(nd):0)%371;
+    // כינוי שהוצמד לכלל אחרי ריצה (pinned, ראו pinReps בממשק) תקף רק כשהסגנון הוא
+    // "שם"; בתווית, ███ או ריק הוא נופל, כדי שהחלפת מצב במסך הבדיקה עדיין תעבוד.
+    for(const s of subs) if(s.pinned&&s.replacement&&this.styleFor({type:s.kind,style:s.style})!=="name") s.replacement="";
+    // תחליף שכבר נקבע — ביד או שהוצמד — שמור: הבחירה האוטומטית לאחרים מדלגת
+    // עליו ועל כל מילה בו, אחרת "מרים" שהוקלדה למישהי יכולה להיבחר גם למישהו אחר.
+    for(const s of subs){
+      if(!s.replacement)continue;
+      const nr=norm(s.replacement).trim();
+      this.used.add(nr); for(const w of nr.split(/\s+/)) if(w) this.used.add(w);
+    }
     for(const s of subs){
       if(!s.replacement||!nd)continue;
       if(new RegExp(NW+flex(s.replacement)+NWE,"u").test(nd)){
