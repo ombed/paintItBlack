@@ -62,3 +62,36 @@ test("ISSUE-001: restore finds the current document's pseudonyms after a saved c
   await expect(page.getByText(/לא נמצא אף שם חלופי/)).toHaveCount(0);
   await expect(page.locator("main")).toContainText("להערכתי, עמוס ברק צריך להגיש את התצהיר.");
 });
+
+const DOC3 = [
+  "סיכום פגישה",
+  "מר יואב ברקוביץ׳ הגיע לפגישה. יואב ברקוביץ׳ אמר שלום.",
+  "גם דני כהן היה שם. דני כהן חייך.",
+  "העד ג׳ורג׳ אבוטבול שתק.",
+].join("\n");
+
+test("ISSUE-002: a name ending in geresh keeps its ׳, matches the document, and its chip is consumed", async ({ page }) => {
+  await boot(page);
+  await H.upload(page, "geresh.docx", DOC3);
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  const input = page.getByPlaceholder(/שם מלא/);
+  for (const n of ["יואב ברקוביץ׳", "דני כהן", "ג׳ורג׳ אבוטבול"]) { await input.fill(n); await input.press("Enter"); }
+  // the row keeps the geresh, and there is no stripped duplicate
+  const names = await H.listedNames(page);
+  expect(names).toContain("יואב ברקוביץ׳");
+  expect(names).not.toContain("יואב ברקוביץ");
+  // a chip offering the same name is consumed by adding it
+  await expect(page.getByRole("button", { name: "+ יואב ברקוביץ׳" })).toHaveCount(0);
+
+  await H.goButton(page).click();
+  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לעיבוד|המשך|עיבוד/ }).first();
+  if (await run.isVisible({ timeout: 3000 }).catch(() => false)) await run.click();
+  await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
+  const text = await sheet(page).innerText();
+  // what the user gets: every occurrence replaced, none of the real names left, archive verification clean
+  expect(text).not.toContain("ברקוביץ");
+  expect(text).not.toContain("דני כהן");
+  expect(text).not.toContain("אבוטבול");
+  await expect(page.getByText(/האימות נכשל/)).toHaveCount(0);
+});
