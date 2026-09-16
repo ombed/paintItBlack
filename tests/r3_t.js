@@ -113,6 +113,14 @@ const DOPT = { ...OPT, on: new Set(["DATE"]) };
     ok(an("העובדת הסוציאלית שלה אמרה.").length === 0, "a possessive followed by a verb: nothing");
   }
 
+  console.log("\n— a trailing geresh is part of the name (QA ISSUE-002) —");
+  ok(C.trimEdges("יואב ברקוביץ׳") === "יואב ברקוביץ׳", "ברקוביץ׳ keeps its geresh");
+  ok(C.trimEdges("יואב ברקוביץ׳.") === "יואב ברקוביץ׳", "punctuation after the geresh is removed, the geresh stays");
+  ok(C.trimEdges("ג׳ורג׳ אבוטבול,") === "ג׳ורג׳ אבוטבול", "geresh inside a word is untouched");
+  ok(C.trimEdges("\"רונית לוי\"") === "רונית לוי" && C.trimEdges("(דנה כהן)") === "דנה כהן", "wrapping quotes and brackets still go");
+  ok(C.trimEdges("רונית לוי'") === "רונית לוי'", "a plain apostrophe after a Hebrew letter is kept too (ברקוביץ')");
+  ok(C.trimEdges("שלום ׳") === "שלום", "a geresh after a space is punctuation");
+
   console.log("\n— a prefixed adjective is not a name —");
   {
     const TEXT = "היא שדוברת רוסית. דנה כהן באה.";
