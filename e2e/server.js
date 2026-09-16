@@ -5,7 +5,9 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 
-const ROOT = path.resolve(__dirname, "..");
+// SITE_ROOT serves the built site (scripts/build-site.js) instead of the repo,
+// so the deploy workflow checks exactly what it is about to publish
+const ROOT = path.resolve(process.env.SITE_ROOT || path.join(__dirname, ".."));
 const PORT = 4173;
 
 const TYPES = {
