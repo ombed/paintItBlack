@@ -41,7 +41,7 @@ test("each screen renders its controls, with no page errors", async ({ page }) =
 
   // Reverse: paste box and its action.
   await page.getByRole("button", { name: /החזרת שמות מתשובת AI/ }).click();
-  await expect(page.getByRole("heading", { name: /החזרת שמות לתשובה/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /החזרת שמות מתשובת AI/ })).toBeVisible();
   await expect(page.getByPlaceholder("הדבקת תשובת ה-AI…")).toBeVisible();
   await expect(page.getByRole("button", { name: "החזרת שמות", exact: true })).toBeVisible();
 

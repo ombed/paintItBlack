@@ -54,7 +54,7 @@ test("a neighbourhood keeps its kind in the document", async ({ page }) => {
   await kind.selectOption("PLACE");
   await expect(kind).toHaveValue("PLACE");
   await H.goOn(page);
-  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לעיבוד|המשך|עיבוד/ }).first();
+  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה|המשך לעיבוד|המשך|עיבוד/ }).first();
   if (await run.isVisible({ timeout: 3000 }).catch(() => false)) await run.click();
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   const mark = page.locator('[data-mark][data-val="הפרדס"]').first();

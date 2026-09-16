@@ -16,12 +16,12 @@ test("copying unlocks step three, and the restore screen puts the real name back
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   await H.goOn(page);
-  await page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לעיבוד/ }).first().click();
+  await page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first().click();
   await expect(page.locator("[data-mark]").first()).toBeVisible({ timeout: 15000 });
   await page.evaluate(() => { navigator.clipboard.writeText = (t) => { window.__copied = t; return Promise.resolve(); }; });
 
   const bar = page.locator("[data-bar]");
-  await expect(bar.locator("[data-steps]")).toContainText("2 העתקה ל-AI");
+  await expect(bar.locator("[data-steps]")).toContainText("2 העתקה או הורדה");
   await expect(bar.getByRole("button", { name: "הדבקת תשובת ה-AI" })).toHaveCount(0);
 
   await bar.getByRole("button", { name: /העתקה ל-AI|הועתק/ }).click();
@@ -30,7 +30,7 @@ test("copying unlocks step three, and the restore screen puts the real name back
   const fake = copied.match(/[֐-׿]+ [֐-׿]+ הגישה/); // "<fake first> <fake last> הגישה"
   expect(fake).toBeTruthy();
   const fakeName = fake[0].replace(" הגישה", "");
-  await expect(bar.locator("[data-steps]")).toContainText("2 העתקה ל-AI ✓");
+  await expect(bar.locator("[data-steps]")).toContainText("2 העתקה או הורדה ✓");
   /* Putting the answer back used to be reachable from three places: a button
      here in the bar, an identical one in the header, and a rail section that
      ran a different code path. That third one built its pairs from a list

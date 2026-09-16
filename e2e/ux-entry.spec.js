@@ -23,7 +23,7 @@ async function toPeople(page) {
 }
 // the places screen always follows the people screen; its button leads to the check screen
 async function toWork(page) {
-  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לעיבוד/ }).first();
+  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה|המשך לעיבוד/ }).first();
   await expect(run).toBeVisible({ timeout: 15000 });
   await run.click();
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
