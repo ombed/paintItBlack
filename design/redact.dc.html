@@ -1484,24 +1484,34 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.log.add("add-all",{n:open.length});
     // רשימה אחת, בקריאה אחת: peoAdd קורא את הרשימה מה-state, ולולאה הייתה משאירה רק את האחרון
     const E=this.state.E, list=[...this.state.peo];
+    const added=[];
     for(const x of open){
       const {v, kind} = E.cleanEntry(x.value);
       if(v.length<2||list.some(p=>E.norm(p.value)===E.norm(v))) continue;
-      list.push({value:v, kind:x.kind||kind, g:null, auto:true, note:"מההקשר"});
+      list.push({value:v, kind:x.kind||kind, g:null, auto:true, note:"מההקשר"}); added.push(v);
     }
-    this.setState({peo:list, sugAsk:false});
+    this.setState({peo:list, sugAsk:false, ...this.unkeep(added)});
+  }
+  /* שם שנוסף לרשימה הוא ההחלטה החדשה (H3 בביקורת השנייה): "לא אדם" על הצעה שם
+     אותו ב"אל תחליף", והקלדה של אותו שם אחר כך הוסיפה שבב שנראה רגיל, אבל רשימת
+     ההיתר עדיין חסמה אותו, והשם יצא בטקסט עם "האימות נכשל". ההוספה מסירה אותו
+     מרשימת ההיתר ומרצועת "נשארים כמו שהם". */
+  unkeep(values){
+    const E=this.state.E, n=v=>E.norm(String(v||"")).trim(), set=new Set(values.map(n));
+    if(!set.size) return {};
+    return {allow:(this.state.allow||[]).filter(a=>!set.has(n(a))), peoKept:(this.state.peoKept||[]).filter(k=>!set.has(n(k.value)))};
   }
   peoAdd = (txt, note, auto, kindAs) => {
-    const E=this.state.E; const list=[...this.state.peo]; let tooLong=0;
+    const E=this.state.E; const list=[...this.state.peo]; let tooLong=0; const added=[];
     for(const raw of String(txt||"").split(/[\n,;]+/)){
       const {v, note:n2, kind} = E.cleanEntry(raw);
       if(v.length<2) continue;
       // פסקה שהודבקה לשדה השם אינה שם (ביקורת QA 007): לא נכנסת, ונאמר למה
       if(v.length>80||v.split(/\s+/).length>8){ tooLong++; continue; }
       if(list.some(p=>E.norm(p.value)===E.norm(v))) continue;
-      list.push({value:v, kind:kindAs||kind, g:null, auto:!!auto, note:note||n2});
+      list.push({value:v, kind:kindAs||kind, g:null, auto:!!auto, note:note||n2}); added.push(v);
     }
-    this.setState(tooLong?{peo:list, peoNote:"קטע ארוך לא נוסף: שם או גוף הם עד שמונה מילים. אפשר להדביק כמה שמות, שורה לכל אחד."}:{peo:list});
+    this.setState({...(tooLong?{peo:list, peoNote:"קטע ארוך לא נוסף: שם או גוף הם עד שמונה מילים. אפשר להדביק כמה שמות, שורה לכל אחד."}:{peo:list}), ...this.unkeep(added)});
   };
   setKind = (i, kind) => { const list=[...this.state.peo]; list[i]={...list[i], kind, note:""}; this.setState({peo:list}); };
   cycleKind = i => { const list=[...this.state.peo]; const ks=["NAME","ORG","PLACE"];
@@ -2677,7 +2687,9 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       peoSugItems:S.peoSug.filter(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))).map(x=>({
         value:x.value, why:x.why,
         onAdd:()=>this.peoAdd(x.value,"מההקשר",true,x.kind),
-        onDrop:()=>this.setState({peoSug:S.peoSug.filter(y=>y!==x), allow:S.allow.includes(x.value)?S.allow:[...S.allow, x.value]})})),
+        // "לא אדם" הוא החלטה, ולכן נראית (H3): השם נכנס ל"נשארים כמו שהם" עם ↩, כמו מחיקת שבב
+        onDrop:()=>{ this.log.add("sug-drop",{}); this.setState({peoSug:S.peoSug.filter(y=>y!==x), allow:S.allow.includes(x.value)?S.allow:[...S.allow, x.value],
+          peoKept:(S.peoKept||[]).some(k=>k.value===x.value)?S.peoKept:[...(S.peoKept||[]), {value:x.value, kind:x.kind||"NAME", auto:true, note:x.why||""}]}); }})),
       nerFailed:!!S.nerFailed, nerOk:!S.nerFailed,
       onRetryScan:()=>{ const L=this._lastScan; if(!L)return; this.setState({nerFailed:false, peoNote:""}); this.showPeople(L.blocks, L.cands); },
       // הורדה שנעצרה (UX #6): טעינה חדשה במקום לחכות להבטחה התקועה

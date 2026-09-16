@@ -164,7 +164,8 @@ test("H1: '‹ רשימת השמות' and 'המשך' keep every decision made on
   // decision 2: a name the list missed, added from the work screen
   await page.getByPlaceholder("ערך שפוספס").fill("דנה ברקוביץ׳");
   await page.getByRole("button", { name: "הוספה והחלפה" }).click();
-  await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).not.toContain("דנה ברקוביץ׳");
+  // her own mark, not the bare-surname match that the שירה rule already made
+  await expect(page.locator('[data-mark][data-val="דנה ברקוביץ׳"]').first()).toBeVisible({ timeout: 15000 });
   // the toolbar counter ("2 / 8") is part of the pane and moves with the cursor; the text is what matters
   const text = async () => (await sheet(page).innerText()).replace(/\d+ \/ \d+/g, "");
   const before = await text();
@@ -211,4 +212,31 @@ test("H2: back to 'קובץ' and the main button again returns to the same list,
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   expect(await H.listedNames(page)).toEqual(before);
   await expect(page.getByRole("button", { name: "+ " + dismissed })).toHaveCount(0);
+});
+
+test("H3: a name dismissed with 'לא אדם' and then typed by hand is replaced", async ({ page }) => {
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "case.docx", DOC + "\nהקטינה דנה ברקוביץ׳ נכחה בדיון.");
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  const plus = page.getByRole("button", { name: "+ דנה ברקוביץ׳" });
+  await expect(plus).toBeVisible();
+  // dismissed: it shows in the kept strip, so the decision is visible
+  await plus.locator("xpath=..").getByRole("button", { name: "לא אדם" }).click();
+  await expect(plus).toHaveCount(0);
+  await expect(page.getByText("נשארים כמו שהם:")).toBeVisible();
+  await expect(page.getByRole("button", { name: /דנה ברקוביץ׳/ })).toBeVisible();
+  // then typed back in: the newer decision wins, and the strip lets it go
+  const input = page.getByPlaceholder(/שם מלא/);
+  await input.fill("דנה ברקוביץ׳");
+  await input.press("Enter");
+  expect(await H.listedNames(page)).toContain("דנה ברקוביץ׳");
+  await expect(page.getByText("נשארים כמו שהם:")).toHaveCount(0);
+  await onward(page);
+  const text = await sheet(page).innerText();
+  expect(text).not.toContain("דנה ברקוביץ׳");
+  await expect(page.locator("[data-bar]")).not.toContainText("האימות נכשל");
+  await expect(page.locator('[data-mark][data-val="דנה ברקוביץ׳"]').first()).toBeVisible();
 });
