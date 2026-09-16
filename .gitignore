@@ -39,3 +39,9 @@ bench/.dbg.cjs
 # Raw output of the two one-off studies; bench/spans.md and bench/sweep.md are the reports
 bench/spans.json
 bench/sweep.json
+
+# QA audit output, local only
+qa-audit/
+
+# Built site, see scripts/build-site.js
+_site/

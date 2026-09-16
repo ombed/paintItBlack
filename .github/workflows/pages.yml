@@ -1,0 +1,58 @@
+name: pages
+
+# Publishes only the tool's runtime files (scripts/build-site.js), not the
+# whole repository. Before this, Pages served every file on main, including
+# design/redact.dc.html and docs/archive/standalone-original.html, which
+# render as broken copies of the tool (QA run-1 ISSUE-011).
+#
+# The browser checks below run against the built folder itself, so a runtime
+# file missing from the list fails here instead of on the live site. The
+# fixture pages the checks load (e2e helpers import ./text-to-docx.js) are
+# part of the site already.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Build the site folder
+        run: node scripts/build-site.js _site
+      - name: Browser checks against the built folder
+        run: npx playwright test e2e/flow.spec.js e2e/tour.spec.js e2e/ui.spec.js
+        env:
+          SITE_ROOT: _site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

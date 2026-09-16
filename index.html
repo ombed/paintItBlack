@@ -115,7 +115,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v36");
+  console.log("השחרת מסמכים — גרסה v37");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -153,9 +153,9 @@ button:disabled{opacity:.55;cursor:not-allowed}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v36") return;
+        if(served==="v37") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v36 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v37 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -306,6 +306,13 @@ button:disabled{opacity:.55;cursor:not-allowed}
           </div>
           <button onClick="{{ onPick }}" style="margin-inline-start:auto;font-size:13px;color:var(--ink2);padding:9px 12px;border-radius:9px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel)">החלפת קובץ</button>
           <button onClick="{{ onStart }}" style="{{ primaryBtn }}">{{ startLabel }}</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ nerAsk }}">
+        <div data-ner-ask role="group" aria-label="הורדת מודל הזיהוי" style="grid-column:1/-1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-size:13.5px;line-height:1.5">
+          <span style="flex:1 1 240px">להוריד את מודל הזיהוי? כ-180MB, פעם אחת, ואחר כך הוא נשמר בטלפון. הוא מוצא יותר שמות; על חבילת גלישה עדיף Wi-Fi.</span>
+          <button onClick="{{ onNerAskYes }}" style="padding:9px 14px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500">להוריד את המודל</button>
+          <button onClick="{{ onNerAskNo }}" style="padding:9px 14px;border-radius:9px;border:1px solid var(--line);font-size:13px">בלי המודל</button>
         </div>
       </sc-if>
     </div>
@@ -1068,7 +1075,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
 </div>
 </x-dc>
-<div id="ver">גרסה v36</div>
+<div id="ver">גרסה v37</div>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
@@ -1234,7 +1241,7 @@ class Component extends DCLogic {
       return;
     }
     const has = await E.nerCached();
-    this.setState({nerOff:false, nerHint: has
+    this.setState({nerOff:false, nerHave:!!has, nerHint: has
       ? "המודל שמור במחשב. אין הורדה נוספת, וזה עובד גם בלי אינטרנט."
       : "בהפעלה הראשונה יורדים כ-180MB. אחר כך המודל נשאר במחשב."});
   }
@@ -1262,7 +1269,7 @@ class Component extends DCLogic {
     if(!chars) return bad("במסמך אין טקסט לקריאה. אם זה סריקה או תמונה, צריך קודם להמיר אותו לטקסט.");
     const size = chars>=1000 ? `כ-${(chars/1000).toFixed(1)} אלף תווים` : `${chars} תווים`;
     const meta=`${blocks.length===1?"פסקה אחת":blocks.length+" פסקאות"} · ${size} · ${Math.round(f.size/1024)} KB`;
-    this.setState({origBlocks:blocks.map(b=>({part:b.part, text:b.text})), err:"", fileErr:"", name:f.name, buf, pending:true, pendMeta:meta});
+    this.setState({origBlocks:blocks.map(b=>({part:b.part, text:b.text})), err:"", fileErr:"", nerAsk:false, name:f.name, buf, pending:true, pendMeta:meta});
   }
 
   async loadPdf(raw, f){
@@ -1277,7 +1284,7 @@ class Component extends DCLogic {
       const {textToDocx} = await import((window.__resources && window.__resources.todocx) || "./text-to-docx.js");
       const buf = await textToDocx(text);
       const blocks = await this.blocksOf(buf);
-      this.setState({screen:"entry", buf, name:f.name, pending:true,
+      this.setState({screen:"entry", buf, name:f.name, pending:true, nerAsk:false,
         origBlocks:blocks.map(b=>({part:b.part, text:b.text})),
         pendMeta:`${pages===1?"עמוד אחד":pages+" עמודים"} · ${blocks.length} פסקאות · טקסט חולץ מ-PDF`});
     }catch(e){
@@ -1349,15 +1356,33 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const buf = await textToDocx(txt);
       const blocks = await this.blocksOf(buf);
       const chars = txt.length;
-      this.setState({err:"", buf, name:"טקסט שהודבק", pending:true,
+      this.setState({err:"", buf, name:"טקסט שהודבק", pending:true, nerAsk:false,
         origBlocks:blocks.map(b=>({part:b.part, text:b.text})),
         pendMeta:`${blocks.length===1?"פסקה אחת":blocks.length+" פסקאות"} · ${chars>=1000?`כ-${(chars/1000).toFixed(1)} אלף תווים`:chars+" תווים"} · טקסט מודבק`});
     }catch(e){ this.setState({err:"הכנת הטקסט נכשלה: "+(e.message||e)}); }
   };
 
+  /* UX #2: טלפון או "חיסכון בנתונים" — לא מורידים 180MB בלי שאלה.
+     במחשב נשאר כמו שהיה: המשתמשת עובדת במחשב, והתלונה העיקרית שלה היא שמות
+     שלא נמצאו, והמודל הוא מה שמוצא אותם. לכן גם בטלפון אין ברירת מחדל שקטה
+     של "בלי מודל" — שואלים, עם שתי תשובות שוות. */
+  phoneLike(){
+    try{
+      const c=navigator.connection;
+      if(c && c.saveData) return true;
+      return !!(window.matchMedia && matchMedia("(pointer:coarse)").matches) && innerWidth<768;
+    }catch(_){ return false; }
+  }
+  onNerAskYes = () => { this._nerOk=true; this.log.add("model-ask",{yes:1}); this.setState({nerAsk:false}); this.start(); };
+  onNerAskNo = () => { this._nerOk=true; this.log.add("model-ask",{yes:0}); this.setState({nerAsk:false, o:{...this.state.o, ner:false}}, () => this.start()); };
+
   start = async () => {
     if(!this.state.buf) return;
-    this.setState({pending:false});
+    const S=this.state;
+    if(S.o.auto && S.o.ner && !S.nerOff && S.nerHave===false && !this._nerOk && this.phoneLike()){
+      this.setState({nerAsk:true}); return;
+    }
+    this.setState({pending:false, nerAsk:false});
     if(!this.state.o.auto){ this.setState({peo:[], cands:[]}); this.toPlaces([]); return; }
     return this.scanNames();
   };
@@ -2526,6 +2551,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       pasteLabel:"שימוש בטקסט הזה", onPasteGo:this.usePastedText,
       onPasteText:e=>this.setState({pasteText:e.target.value}),
       hasPending:!!S.pending, pendName:bdi(S.name), pendMeta:S.pendMeta||"", onStart:this.start,
+      nerAsk:!!S.nerAsk&&!!S.pending, onNerAskYes:this.onNerAskYes, onNerAskNo:this.onNerAskNo,
       startLabel:S.o.auto?"המשך — איתור שמות במסמך":"המשך לעיבוד",
       rvBackLabel:S.returnTo==="work"?"חזרה למסמך":"חזרה",
       rvCtxStyle:"padding:12px 15px;border-radius:11px;font-size:13px;margin-bottom:16px;border:1px solid var(--line);background:"+(S.res||S.profile?"var(--accent-soft)":"var(--panel2)"),
