@@ -146,3 +146,38 @@ test("C3: 'מסמך חדש' drops the case, so the next client's document does n
   expect(c.map["אבנר שטרן"]).toBeUndefined();
   expect(c.rules.map((r) => r.value)).not.toContain("אבנר שטרן");
 });
+
+test("H1: '‹ רשימת השמות' and 'המשך' keep every decision made on the work screen", async ({ page }) => {
+  const DOC2 = [
+    "פרוטוקול דיון בעניין הקטינה דנה ברקוביץ׳",
+    "שירה ברקוביץ׳: אני מבקשת לפתוח. אנחנו גרים בחיפה.",
+    "רחל פרידמן: דנה ברקוביץ׳ מסתדרת בכיתה, ונוסעת לנשר.",
+    "שירה ברקוביץ׳: תודה.",
+    "רחל פרידמן: בבקשה.",
+  ].join("\n");
+  await toWork(page, DOC2);
+  // decision 1: a pseudonym of her own
+  await page.locator('[data-mark][data-val="שירה ברקוביץ׳"]').first().click();
+  await page.locator("[data-inline]").getByPlaceholder("תחליף אחר").fill("גלית ורד");
+  await page.locator("[data-inline]").getByPlaceholder("תחליף אחר").press("Enter");
+  await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("גלית ורד");
+  // decision 2: a name the list missed, added from the work screen
+  await page.getByPlaceholder("ערך שפוספס").fill("דנה ברקוביץ׳");
+  await page.getByRole("button", { name: "הוספה והחלפה" }).click();
+  await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).not.toContain("דנה ברקוביץ׳");
+  // the toolbar counter ("2 / 8") is part of the pane and moves with the cursor; the text is what matters
+  const text = async () => (await sheet(page).innerText()).replace(/\d+ \/ \d+/g, "");
+  const before = await text();
+  expect(before).not.toContain("חיפה");
+
+  // back to the list: it shows the added name, and continuing changes nothing
+  await page.getByRole("button", { name: /רשימת השמות/ }).click();
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  expect(await H.listedNames(page)).toContain("דנה ברקוביץ׳");
+  await onward(page);
+  const after = await text();
+  expect(after).toContain("גלית ורד");
+  expect(after).not.toContain("דנה ברקוביץ׳");
+  expect(after).not.toContain("חיפה");
+  expect(after).toBe(before);
+});

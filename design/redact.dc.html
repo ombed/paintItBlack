@@ -1440,7 +1440,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const E=this.state.E, n=v=>E.norm(String(v||"")).trim();
     const known=[...(this.state.rules||[]), ...this.profileRules()];
     const pm=(this.state.profile&&this.state.profile.map)||{};
-    return list.map(p=>{
+    const out=list.map(p=>{
       const r={value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined};
       const old=known.find(x=>x&&n(x.value)===n(p.value)&&(x.kind||"NAME")===r.kind);
       const rep=(old&&old.replacement)||pm[p.value]||"";
@@ -1449,6 +1449,29 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       if(old&&old.style) r.style=old.style;
       return r;
     });
+    // מה שאינו ברשימה — יישובים ממסך היישובים, מספרים וערכים שסומנו במסך הבדיקה —
+    // אינו נבנה ממנה, ולכן נשאר כמו שהוא (H1 בביקורת השנייה: "קריית אתא" שנוספה
+    // כמקום חזרה לטקסט הגלוי אחרי סיבוב דרך הרשימה).
+    for(const r of this.state.rules||[]) if(r&&r.value&&r.kind!=="NAME"&&r.kind!=="ORG"&&!out.some(x=>n(x.value)===n(r.value))) out.push(r);
+    return out;
+  }
+  /* חזרה לרשימה ממסך הבדיקה (H1): הרשימה מראה את המצב הנוכחי. אדם שנוסף שם —
+     דרך "הוספה ידנית" או סימון בטקסט — מופיע כשבב; מי שהוסר שם ("אל תחליף",
+     "לא שם") יורד מהרשימה ונראה ב"נשארים כמו שהם". אחרת "המשך" בנה את הכללים
+     מרשימה ישנה ומחק בשקט את ההחלטות שנעשו אחריה. */
+  showList(){
+    const S=this.state; if(!S.buf) return;
+    const E=S.E, n=v=>E.norm(String(v||"")).trim();
+    const rules=S.rules||[], has=v=>rules.some(r=>r&&n(r.value)===n(v));
+    const kept=[...(S.peoKept||[])], list=[];
+    const decided=S.res&&rules.length; // הכללים קיימים רק אחרי שהרשימה כבר עברה למסך הבדיקה
+    for(const p of S.peo||[]){
+      if(!decided||has(p.value)) list.push(p);
+      else if(!kept.some(k=>n(k.value)===n(p.value))) kept.push({...p});
+    }
+    if(decided) for(const r of rules) if((r.kind==="NAME"||r.kind==="ORG")&&r.value&&!list.some(p=>n(p.value)===n(r.value)))
+      list.push({value:r.value, kind:r.kind, note:"נוסף במסך הבדיקה", auto:!!r.auto, g:r.g||null, sameAs:r.sameAs||undefined});
+    this.setState({screen:"people", err:"", peo:list, peoKept:kept});
   }
   peoAddAll(){
     const open=this.openSugs(); if(!open.length) return;
@@ -2516,11 +2539,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       step3:stepStyle(S.screen==="places", !!S.buf),
       step4:stepStyle(S.screen==="work", false),
       goStep1:()=>this.setState({screen:"entry", pending:!!S.buf, err:""}),
-      goStep2:()=>{ if(S.buf) this.setState({screen:"people", err:""}); },
+      goStep2:()=>this.showList(),
       goStep3:()=>{ if(S.buf) this.toPlaces(S.rules); },
       showBack:S.screen!=="entry",
       backLabel:backOf(S.screen, S.returnTo).label,
-      onBack:()=>{ const b=backOf(S.screen, S.returnTo); this.setState({screen:b.to, pending:b.to==="entry"?!!S.buf:false, err:""}); },
+      onBack:()=>{ const b=backOf(S.screen, S.returnTo); if(b.to==="people"){ this.showList(); return; } this.setState({screen:b.to, pending:b.to==="entry"?!!S.buf:false, err:""}); },
       pasteText:S.pasteText||"", hasPaste:(S.pasteText||"").trim().length>0,
       pasteLabel:"שימוש בטקסט הזה", onPasteGo:this.usePastedText,
       onPasteText:e=>this.setState({pasteText:e.target.value}),
