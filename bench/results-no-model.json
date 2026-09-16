@@ -5196,23 +5196,13 @@
    ],
    "why": "",
    "applied": true
-  },
-  {
-   "doc": "v1",
-   "genre": "interview",
-   "value": "עכשיו",
-   "sources": [
-    "discover"
-   ],
-   "why": "מופיע אחרי מילת תפקיד טיפולית או חינוכית",
-   "applied": true
   }
  ],
  "perDoc": [
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 57,
+   "ms": 67,
    "rules": 4,
    "unlisted": 1
   },
@@ -5226,28 +5216,28 @@
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 13,
+   "ms": 17,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 14,
+   "ms": 17,
    "rules": 3,
    "unlisted": 1
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 28,
+   "ms": 36,
    "rules": 10,
    "unlisted": 1
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 40,
+   "ms": 42,
    "rules": 13,
    "unlisted": 1
   },
@@ -5268,28 +5258,28 @@
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 30,
+   "ms": 22,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "t2",
    "genre": "transcript",
-   "ms": 16,
+   "ms": 18,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 16,
+   "ms": 19,
    "rules": 6,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 30,
+   "ms": 22,
    "rules": 9,
    "unlisted": 1
   },
@@ -5303,7 +5293,7 @@
   {
    "id": "w2",
    "genre": "welfare",
-   "ms": 12,
+   "ms": 13,
    "rules": 3,
    "unlisted": 0
   },
@@ -5317,7 +5307,7 @@
   {
    "id": "w4",
    "genre": "welfare",
-   "ms": 16,
+   "ms": 12,
    "rules": 5,
    "unlisted": 1
   },
@@ -5331,7 +5321,7 @@
   {
    "id": "h2",
    "genre": "medical",
-   "ms": 13,
+   "ms": 11,
    "rules": 2,
    "unlisted": 0
   },
@@ -5345,7 +5335,7 @@
   {
    "id": "p1",
    "genre": "police",
-   "ms": 17,
+   "ms": 11,
    "rules": 2,
    "unlisted": 1
   },
@@ -5359,7 +5349,7 @@
   {
    "id": "p3",
    "genre": "police",
-   "ms": 7,
+   "ms": 8,
    "rules": 1,
    "unlisted": 0
   },
@@ -5380,14 +5370,14 @@
   {
    "id": "b2",
    "genre": "bank",
-   "ms": 5,
+   "ms": 8,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "b3",
    "genre": "bank",
-   "ms": 8,
+   "ms": 7,
    "rules": 2,
    "unlisted": 0
   },
@@ -5401,7 +5391,7 @@
   {
    "id": "c2",
    "genre": "chat",
-   "ms": 10,
+   "ms": 8,
    "rules": 2,
    "unlisted": 1
   },
@@ -5415,7 +5405,7 @@
   {
    "id": "c4",
    "genre": "chat",
-   "ms": 8,
+   "ms": 9,
    "rules": 3,
    "unlisted": 0
   },
@@ -5443,42 +5433,42 @@
   {
    "id": "a1",
    "genre": "audio",
-   "ms": 10,
+   "ms": 9,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "a2",
    "genre": "audio",
-   "ms": 12,
+   "ms": 11,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "a3",
    "genre": "audio",
-   "ms": 15,
+   "ms": 18,
    "rules": 7,
    "unlisted": 1
   },
   {
    "id": "a4",
    "genre": "audio",
-   "ms": 12,
+   "ms": 10,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "v1",
    "genre": "interview",
-   "ms": 11,
-   "rules": 3,
-   "unlisted": 1
+   "ms": 10,
+   "rules": 2,
+   "unlisted": 0
   },
   {
    "id": "v2",
    "genre": "interview",
-   "ms": 12,
+   "ms": 13,
    "rules": 3,
    "unlisted": 0
   },
