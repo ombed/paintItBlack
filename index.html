@@ -1834,7 +1834,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const toReview=(res.verification.near||[]).length+(res.verification.suggest||[]).length+(this.state.allow||[]).length+
         res.flagged.filter(f=>f.src!=="near"&&f.src!=="nohit"&&f.src!=="collide").length;
       this.log.add("run",{applied:res.applied.length, flagged:res.flagged.length, near:(res.verification.near||[]).length, suggest:(res.verification.suggest||[]).length, passed:!!res.verification.passed});
-      this.setState({res, screen:"work", open:toReview?["review","findings","send"]:["findings","send"], pane:"doc", docView:"red", markIdx:0, copied:false}, ()=>this.persistProfile());
+      this.setState({res, rules:this.pinReps(rules,res), screen:"work", open:toReview?["review","findings","send"]:["findings","send"], pane:"doc", docView:"red", markIdx:0, copied:false}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה בעיבוד: "+(e.message||e), screen:"entry", res:null}); }
   }
   async rerun(){
@@ -1842,8 +1842,27 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     try{
       const res = this.guardModel(await E.redactDocx(this.state.buf.slice(0), this.state.rules, this.state.allow, this.opts()), this.state.rules, this.state.allow);
       this.log.add("rerun",{ms:Date.now()-t0, applied:res.applied.length, flagged:res.flagged.length});
-      this.setState({res, sel:null, err:"", inline:null}, ()=>this.persistProfile());
+      this.setState({res, rules:this.pinReps(this.state.rules,res), sel:null, err:"", inline:null}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה: "+(e.message||e)}); }
+  }
+  /* C1 בביקורת השנייה: כינוי אוטומטי נבחר מתוך מאגר תוך דילוג על שמות שכבר
+     נלקחו, ולכן היה תלוי בכל מה שהוקצה לפניו. שינוי כינוי של אדם אחד פינה שם
+     במאגר, ובריצה הבאה אדם אחר קיבל אותו: "יהודית אשכנזי" הפכה ל"מרים אשכנזי"
+     בלי שאיש נגע בה, והתשובה שכבר הועתקה ל-AI חזרה עם אנשים לא נכונים. אחרי כל
+     ריצה הכינוי שנבחר לאדם או לגוף נכתב על הכלל עצמו (pinned), ומכאן הוא קבוע:
+     המאגר יכול להשתנות, הוא לא. המנוע מתעלם מכינוי מוצמד כשהסגנון אינו "שם". */
+  pinReps(rules,res){
+    if(!res||this.state.mode!=="real") return rules;
+    const got={};
+    for(const r of res.applied){ const v=r.base||r.value, rp=r.baseRep||r.rep; if(v&&rp&&!(v in got)) got[v]=rp; }
+    let changed=false;
+    const out=rules.map(r=>{
+      if(r.replacement||r.style||r.sameAs||(r.kind!=="NAME"&&r.kind!=="ORG")) return r;
+      const rp=got[r.value];
+      if(!rp||/^\[|^פלוני\b|███|^\s*$/.test(rp)) return r;
+      changed=true; return {...r, replacement:rp, pinned:true};
+    });
+    return changed?out:rules;
   }
   /* ביטול.
 
@@ -1952,7 +1971,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       r=rules.find(x=>x.kind==="NAME"&&n(x.value).split(/\s+/).includes(n(v)));
     }
     const before=this.state.res?this.state.res.applied.length:-1, prev=r?r.replacement:null;
-    if(r) r.replacement=rep.trim(); else rules.push({value:v, kind:"NAME", replacement:rep.trim()});
+    if(r){ r.replacement=rep.trim(); delete r.pinned; } else rules.push({value:v, kind:"NAME", replacement:rep.trim()});
     this.setState({rules}, ()=>this.rerun().then(()=>{
       const after=this.state.res?this.state.res.applied.length:-1;
       this.log.add("set-rep",{matched:!!r, changed:prev!==rep.trim(), appliedBefore:before, appliedAfter:after});
