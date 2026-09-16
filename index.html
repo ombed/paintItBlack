@@ -434,10 +434,16 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
     <sc-if value="{{ nerBox }}">
       <div style="padding:13px 15px;border-radius:12px;border:1px solid var(--line);background:var(--panel);margin-bottom:16px;font-size:13px;color:var(--ink2)">
-        <div>{{ nerMsg }}</div>
+        <div data-ner-msg>{{ nerMsg }}</div>
         <div style="height:4px;border-radius:2px;background:var(--line);margin-top:9px;overflow:hidden">
           <div style="{{ nerBarStyle }}"></div>
         </div>
+        <sc-if value="{{ nerStall }}">
+          <div data-ner-stall role="alert" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;color:var(--warn)">
+            <span style="flex:1 1 220px">ההורדה נעצרה. אפשר לנסות שוב, או ללחוץ «לא לחכות למודל» ולהמשיך עם הרשימה שכאן.</span>
+            <button onClick="{{ onRetryDownload }}" style="padding:6px 12px;border-radius:9px;background:var(--warn);color:var(--panel);font-size:12.5px;font-weight:500">לנסות שוב</button>
+          </div>
+        </sc-if>
       </div>
     </sc-if>
 
@@ -516,7 +522,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
     </sc-if>
     <div style="display:flex;gap:10px;margin-top:24px;align-items:center;flex-wrap:wrap">
       <button onClick="{{ onPeoGo }}" disabled="{{ scanning }}" style="{{ primaryBtn }}">{{ peoGoLabel }}</button>
-      <button onClick="{{ onLoadProf }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">טעינת פרופיל תיק</button>
+      <button onClick="{{ onLoadProf }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">ייבוא פרופיל תיק מקובץ</button>
       <sc-if value="{{ scanning }}">
         <button onClick="{{ onGoNow }}" title="הרשימה נשארת כאן לבדיקה; המודל ממשיך לרדת ברקע, ושמות שימצא יוצעו במסך הבדיקה" style="font-size:13px;color:var(--ink2);padding:12px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel)" style-hover="background:var(--panel2)">לא לחכות למודל</button>
       </sc-if>
@@ -528,8 +534,14 @@ button:disabled{opacity:.55;cursor:not-allowed}
   <!-- ═════ מקומות ═════ -->
   <sc-if value="{{ isPlaces }}">
   <main style="max-width:900px;margin:0 auto;padding:38px 22px 70px;animation:rise .3s ease">
-    <h1 style="font-size:26px;font-weight:500;letter-spacing:-.02em;margin:0 0 6px">יישובים — החלפה ששומרת על המרחקים</h1>
-    <p style="margin:0 0 22px;color:var(--ink2);font-size:14px;max-width:68ch">החלפת יישוב בשם אקראי הורסת את הגיאוגרפיה של התיק: נסיעה של עשר דקות הופכת לנסיעה של שעתיים. הקבוצה החלופית שלמטה שומרת על אותם מרחקים וכיוונים יחסיים בין היישובים שנמצאו במסמך.</p>
+    <!-- בלי מפה, הכותרת לא מבטיחה מפה, והמשפט שאומר שאין מפה בא ראשון (UX #9) -->
+    <h1 style="font-size:26px;font-weight:500;letter-spacing:-.02em;margin:0 0 6px">{{ placesTitle }}</h1>
+    <sc-if value="{{ noGeo }}"><p data-places-lead style="margin:0 0 10px;color:var(--ink);font-size:14px;max-width:68ch">{{ noGeoText }}</p></sc-if>
+    <sc-if value="{{ hasGeo }}"><p style="margin:0 0 10px;color:var(--ink2);font-size:14px;max-width:68ch">כל יישוב מקבל יישוב דומה לו, והמרחקים והכיוונים ביניהם נשמרים.</p></sc-if>
+    <details style="margin:0 0 20px;font-size:13px;color:var(--ink2);max-width:68ch">
+      <summary style="cursor:pointer;color:var(--ink2)">למה?</summary>
+      <p style="margin:6px 0 0;line-height:1.6">החלפת יישוב בשם אקראי הורסת את הגיאוגרפיה של התיק: נסיעה של עשר דקות הופכת לנסיעה של שעתיים. לכן כשיש במסמך שני יישובים או יותר שהמיקום שלהם ידוע, הם מוחלפים כקבוצה ששומרת על המרחקים. יישוב שמיקומו לא ידוע, או ששמו גם מילה רגילה, מוחלף בפני עצמו ביישוב מאותו סוג.</p>
+    </details>
 
     <sc-if value="{{ hasGeo }}">
       <div data-tour-target="places" style="background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden">
@@ -609,14 +621,19 @@ button:disabled{opacity:.55;cursor:not-allowed}
             <sc-if value="{{ x.note }}"><small style="color:var(--warn);font-size:11.5px;white-space:nowrap">{{ x.note }}</small></sc-if>
             <span style="color:var(--ink3)">←</span>
             <input value="{{ x.to }}" aria-label="היישוב שיבוא במקום {{ x.name }}" onChange="{{ x.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
-            <button onClick="{{ x.onToggle }}" style="{{ x.toggleStyle }}" style-hover="background:var(--panel2)">{{ x.toggleLabel }}</button>
+            <!-- מצב אמיתי, בפקד אחד (UX #10): מסומן = יוחלף. "אושר ברשימה" כשהמקום כבר אושר במסך השמות -->
+            <label data-extra-toggle style="display:flex;align-items:center;gap:6px;font-size:12.5px;white-space:nowrap;cursor:pointer">
+              <input type="checkbox" checked="{{ x.isOn }}" onChange="{{ x.onToggle }}" style="width:16px;height:16px;accent-color:var(--accent)">
+              להחליף
+            </label>
+            <sc-if value="{{ x.listed }}"><small style="color:var(--accent-ink);font-size:11.5px;white-space:nowrap">אושר ברשימה</small></sc-if>
           </div>
         </sc-for>
       </div>
     </sc-if>
     <sc-if value="{{ noGeo }}">
       <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;text-align:center;color:var(--ink2);font-size:14px">
-        {{ noGeoText }}
+
         <sc-if value="{{ hasExcluded }}">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px;font-size:12.5px">
             <span>נשארים כמו שהם:</span>
@@ -648,15 +665,17 @@ button:disabled{opacity:.55;cursor:not-allowed}
       <b style="display:block;font-weight:500;margin-bottom:2px">{{ rvCtxTitle }}</b>
       <span style="color:var(--ink2)">{{ rvCtxText }}</span>
     </div>
-    <textarea value="{{ rvIn }}" onChange="{{ onRvIn }}" rows="8" placeholder="הדבקת תשובת ה-AI…" style="width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;font:14px/1.7 Rubik,sans-serif;resize:vertical"></textarea>
-    <div style="display:flex;gap:9px;margin-top:12px">
-      <button onClick="{{ onRvGo }}" style="{{ primaryBtn }}">החזרת שמות</button>
-      <button onClick="{{ onLoadProf }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">טעינת פרופיל תיק</button>
+    <textarea value="{{ rvIn }}" onChange="{{ onRvIn }}" rows="8" placeholder="הדבקת תשובת ה-AI…" aria-describedby="rv-help" style="width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;font:14px/1.7 Rubik,sans-serif;resize:vertical"></textarea>
+    <small id="rv-help" style="display:block;margin-top:5px;font-size:12px;color:var(--ink3)">מדביקים כאן את מה שה-AI החזיר (Ctrl+V), ולוחצים «החזרת שמות».</small>
+    <div style="display:flex;gap:9px;margin-top:12px;flex-wrap:wrap">
+      <button onClick="{{ onRvGo }}" disabled="{{ rvEmpty }}" style="{{ rvGoStyle }}">החזרת שמות</button>
+      <button onClick="{{ onLoadProf }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">ייבוא פרופיל תיק מקובץ</button>
     </div>
     <sc-if value="{{ rvErr }}"><div style="margin-top:10px;padding:10px 13px;border-radius:10px;background:var(--bad-soft);color:var(--bad);font-size:13.5px">{{ rvErr }}</div></sc-if>
     <sc-if value="{{ rvOut }}">
-      <div style="margin-top:20px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;font:15px/1.9 'Noto Serif Hebrew',serif;white-space:pre-wrap">{{ rvOut }}</div>
-      <button onClick="{{ onRvCopy }}" style="margin-top:11px;padding:11px 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-size:14px;font-weight:500" style-hover="background:var(--panel2)">{{ rvCopyLabel }}</button>
+      <h2 data-rv-result style="margin:24px 0 8px;font-size:16px;font-weight:500">{{ rvHead }}</h2>
+      <div data-rv-out style="background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;font:15px/1.9 'Noto Serif Hebrew',serif;white-space:pre-wrap">{{ rvOut }}</div>
+      <button onClick="{{ onRvCopy }}" style="{{ rvCopyStyle }};margin-top:11px">{{ rvCopyLabel }}</button>
     </sc-if>
   </main>
   </sc-if>
@@ -906,8 +925,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
               <p style="margin:0 0 10px;font-size:12.5px;color:var(--ink2);line-height:1.55">שמירת רשימת הצדדים והשמות החלופיים, כדי שאותו אדם יקבל את אותו שם בכל מסמכי התיק.</p>
               <input value="{{ caseName }}" onChange="{{ onCaseName }}" placeholder="שם התיק (למשל: לוי נ׳ לוי)" style="width:100%;margin-bottom:8px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px">
               <div style="display:flex;gap:7px">
-                <button onClick="{{ onSaveProf }}" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500" style-hover="background:var(--panel2)">שמירת פרופיל</button>
-                <button onClick="{{ onLoadProf }}" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500" style-hover="background:var(--panel2)">טעינת פרופיל</button>
+                <button onClick="{{ onSaveProf }}" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500" style-hover="background:var(--panel2)">ייצוא לקובץ</button>
+                <button onClick="{{ onLoadProf }}" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500" style-hover="background:var(--panel2)">ייבוא מקובץ</button>
               </div>
               <p style="margin:8px 0 0;font-size:12px;color:var(--ink3);line-height:1.6">{{ profileNote }}</p>
               <sc-if value="{{ hasMine }}">
@@ -1075,7 +1094,23 @@ class Component extends DCLogic {
     try{
       const E = await import((window.__resources && window.__resources.engine) || "./redact-engine.js");
       window.__RE = E;
-      E.setNerSay((t,p)=>this.setState({nerMsg:t||"", nerPct:p}));
+      /* הורדת המודל (UX #6): זמן משוער לפי הקצב, והודעה כשהמונה לא זז 20 שניות —
+         "סטלה" נראתה כמו תקיעה, והדרך החוצה לא הוצעה. */
+      E.setNerSay((t,p)=>{
+        const now=Date.now(), dl=/^מוריד/.test(t||"");
+        if(dl){
+          if(this._dlT0==null||p<(this._dlLastP||0)){ this._dlT0=now; this._dlP0=p||0; }
+          if(p!==this._dlLastP){ this._dlLastP=p; this._dlLastAt=now; }
+          const done=(p||0)-(this._dlP0||0), el=(now-this._dlT0)/1000;
+          let eta="";
+          if(done>3&&el>3){ const left=el*(100-p)/done; eta=left<45?" · פחות מדקה":left<90?" · כדקה נוספת":" · כ-"+Math.round(left/60)+" דקות נוספות"; }
+          this.setState({nerMsg:(t||"")+eta, nerPct:p, nerStall:false});
+          if(!this._dlTick) this._dlTick=setInterval(()=>{
+            if(!this.state.scanning){ clearInterval(this._dlTick); this._dlTick=null; this._dlT0=null; this._dlLastP=null; if(this.state.nerStall) this.setState({nerStall:false}); return; }
+            if(this._dlLastAt&&Date.now()-this._dlLastAt>20000&&!this.state.nerStall){ this.log.add("model-stall",{pct:Math.round(this._dlLastP||0)}); this.setState({nerStall:true}); }
+          }, 2000);
+        } else this.setState({nerMsg:t||"", nerPct:p, nerStall:false});
+      });
       this.setState({E, ready:true});
       this.nerStatus(E);
     }catch(e){ this.setState({err:"טעינת המנוע נכשלה: "+(e.message||e)}); }
@@ -1591,12 +1626,16 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const used = new Set((geo?geo.map:[]).map(m=>m.to));
       const forbidden = new Set(E.norm(text).match(/[א-ת][א-ת'"׳״]*/g)||[]);
       const extra=[];
+      // מקום שכבר אושר במסך השמות יוחלף בכל מקרה; המסך מראה את זה (UX #10) —
+      // "נשר" הופיע כבוי ו"להחליף", והוחלף בכל זאת
+      const listedAs=new Set(rules.filter(r=>(r.kind||"")==="PLACE").map(r=>E.norm(r.value).trim()));
       for(const p of (every||[])){
         const k=E.norm(p.name).trim();
         if(on.has(k)||inMap.has(k))continue;
         const to=(E.fakePlace&&E.fakePlace(p.name, used, forbidden))||"";
         if(to)used.add(to);
-        extra.push({name:p.name, ambiguous:!!p.ambiguous, to, on:!p.ambiguous&&!!to});
+        const listed=listedAs.has(k);
+        extra.push({name:p.name, ambiguous:!!p.ambiguous, to, on:listed||(!p.ambiguous&&!!to), listed});
       }
       this.setState({screen:"places", geo, geoNames:found, geoExcluded:excluded,
         geoExtra:extra, geoEdits:{}, geoV:0});
@@ -1702,12 +1741,20 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const to = (this.state.geoEdits[i] ?? m.to).trim();
       if(to && !rules.some(r=>r.value===m.from)) rules.push({value:m.from, kind:"PLACE", replacement:to, auto:false});
     });
-    // היישובים שמחוץ למפה: רק מה שסומן להחלפה
+    // היישובים שמחוץ למפה: רק מה שסומן להחלפה. מקום מהרשימה שהסימון שלו הוסר
+    // כאן — ההחלטה החדשה מנצחת: הכלל יוצא, והמקום נשאר כמו שהוא (UX #10)
+    let allow=this.state.allow;
     for(const x of (this.state.geoExtra||[])){
       const to=String(x.to||"").trim();
-      if(x.on && to && !rules.some(r=>r.value===x.name)) rules.push({value:x.name, kind:"PLACE", replacement:to, auto:false});
+      const ex=rules.find(r=>r.value===x.name);
+      if(x.on && to && ex && !ex.replacement) ex.replacement=to;
+      else if(x.on && to && !ex) rules.push({value:x.name, kind:"PLACE", replacement:to, auto:false});
+      else if(!x.on && x.listed){
+        for(let i=rules.length-1;i>=0;i--) if(rules[i].value===x.name) rules.splice(i,1);
+        if(!allow.includes(x.name)) allow=[...allow, x.name];
+      }
     }
-    this.setState({rules}); this.run(rules);
+    this.setState({rules, allow}); this.run(rules);
   };
   geoExtraSet = (name, patch) => {
     this.setState({geoExtra:(this.state.geoExtra||[]).map(x=>x.name===name?{...x,...patch}:x)});
@@ -2290,10 +2337,13 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const prof=this.profileObj();
     const blob=new Blob([JSON.stringify(prof,null,1)],{type:"application/json"});
     const u=URL.createObjectURL(blob), a=document.createElement("a");
-    a.href=u; a.download=(this.state.caseName?"פרופיל-"+this.state.caseName.replace(/[\\/:*?"<>|]+/g," ").trim():"פרופיל-תיק")+".json";
+    const name=(this.state.caseName?"פרופיל-"+this.state.caseName.replace(/[\\/:*?"<>|]+/g," ").trim():"פרופיל-תיק")+".json";
+    a.href=u; a.download=name;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(u), 4000);
-    this.setState({profileDirty:false});
+    // "שמירה" רמזה שהתיק לא נשמר עד הלחיצה; זה ייצוא, והוא אומר לאן (UX #17)
+    this.log.add("profile-export",{});
+    this.setState({profileDirty:false, notice:`הקובץ «${name}» ירד לתיקיית ההורדות. התיק עצמו נשמר בדפדפן גם בלי זה.`, noticeUndo:false});
   };
   loadProfileClick = () => this.profEl && this.profEl.click();
   resumeLast = () => { const p=this.state.lastProfile; if(!p) return; this.setState({lastProfile:null, caseName:p.name||""}); this.applyProfile(p); };
@@ -2601,6 +2651,10 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         onDrop:()=>this.setState({peoSug:S.peoSug.filter(y=>y!==x), allow:S.allow.includes(x.value)?S.allow:[...S.allow, x.value]})})),
       nerFailed:!!S.nerFailed, nerOk:!S.nerFailed,
       onRetryScan:()=>{ const L=this._lastScan; if(!L)return; this.setState({nerFailed:false, peoNote:""}); this.showPeople(L.blocks, L.cands); },
+      // הורדה שנעצרה (UX #6): טעינה חדשה במקום לחכות להבטחה התקועה
+      nerStall:!!S.nerStall&&!!S.scanning,
+      onRetryDownload:()=>{ const L=this._lastScan; if(!L) return; this.log.add("model-retry",{}); if(E.nerReset) E.nerReset();
+        this._dlT0=null; this._dlLastP=null; this._dlLastAt=Date.now(); this.setState({nerStall:false, peoNote:""}); this.showPeople(L.blocks, L.cands); },
       // הרשימה מקובצת: אנשים, גופים, מקומות. הסדר לתצוגה בלבד; המחיקה והחלפת הסוג
       // עובדות על האינדקס המקורי.
       // הרשימה נשארת בסדר ההוספה: מיון לפי סוג הזיז שבב מתחת לאצבע כשהסוג שונה
@@ -2627,26 +2681,43 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       // השגיאה של המסך הזה מוצגת ליד השדה, לא בראש העמוד מעל לכותרת
       rvErr:S.screen==="reverse"?S.err:"", errTop:(S.screen==="reverse"||(S.screen==="work"&&S.res))?"":S.err,
       rvIn:S.rvIn, rvOut:S.rvOut, rvCopyLabel:S.rvCopyLabel,
-      onRvIn:e=>this.setState({rvIn:e.target.value}),
+      onRvIn:e=>this.setState({rvIn:e.target.value, err:""}),
       onRvGo:()=>{
         /* ביקורת QA (ISSUE-001): אחרי הצמדת תיק שמור מ"תיקים אחרונים" ההחזרה קראה
            רק את המפה של התיק השמור, ולא את זו של המסמך שבעבודה — הכינוי שהכלי
            עצמו כתב רגע קודם לא נמצא. המסמך הנוכחי קודם; הפרופיל משלים שמות
            ממסמכים קודמים באותו תיק. */
         const map={...((S.profile&&S.profile.map)||{}), ...this.currentMap()};
-        if(!S.rvIn.trim()){ this.setState({err:"אין טקסט להחזרה."}); return; }
+        if(!S.rvIn.trim()){ this.setState({err:"אין טקסט להחזרה. מדביקים כאן את התשובה שה-AI החזיר (Ctrl+V)."}); return; }
         if(!Object.keys(map).length){ this.setState({err:"אין מיפוי זמין. יש לטעון פרופיל תיק, או להשחיר מסמך קודם בחלון הזה."}); return; }
-        const r=E.restoreNames(S.rvIn, Object.entries(map));
-        this.setState({rvOut:r.text, err: r.count?"":"לא נמצא אף שם חלופי בטקסט. כדאי לבדוק שהפרופיל תואם למסמך."});
+        /* הכתיב שחוזר הוא הכתיב שבמסמך (UX #19): "ברקוביץ׳" ו"ברקוביץ'" התערבבו,
+           כי הערך ברשימה הוקלד בגרש אחר מזה שבמסמך */
+        const orig=(S.origBlocks||[]).map(b=>b.text).join("\n");
+        const surface=real=>{
+          if(!orig||!/['׳’"״”]/.test(real)) return real;
+          const pat=[...real].map(c=>/['׳’]/.test(c)?"['׳’]":/["״”]/.test(c)?'["״”]':c.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("");
+          const m=new RegExp(pat,"u").exec(orig); return m?m[0]:real;
+        };
+        const pairs=Object.entries(map).map(([real,fake])=>[surface(real),fake]);
+        const r=E.restoreNames(S.rvIn, pairs);
+        this.log.add("restore",{count:r.count});
+        this.setState({rvOut:r.text, rvCount:r.count, err: r.count?"":"לא נמצא אף שם חלופי בטקסט. כדאי לבדוק שהפרופיל תואם למסמך."},
+          ()=>{ const el=document.querySelector("[data-rv-result]"); if(el&&el.scrollIntoView) el.scrollIntoView({block:"start", behavior:"smooth"}); });
       },
+      // אחרי החזרה, ההעתקה היא הפעולה הראשית; לפני — ההחזרה (UX #19). ריק — אין מה להחזיר (UX #20).
+      rvEmpty:!(S.rvIn||"").trim(),
+      rvGoStyle:S.rvOut?"padding:12px 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap":primaryBtn,
+      rvCopyStyle:S.rvOut?primaryBtn:"",
+      rvHead:S.rvOut?("התשובה עם השמות האמיתיים"+(S.rvCount?` · ${S.rvCount===1?"שם אחד הוחזר":S.rvCount+" שמות הוחזרו"}`:"")):"",
       onRvCopy:()=>this.copyTo(S.rvOut, "rvCopyLabel", "העתקת הטקסט המשוחזר"),
       hasGeo:!!S.geo, noGeo:S.screen==="places" && !S.geo,
       // ההודעה הזאת אמרה "לא נמצאו יישובים" גם כשהזיהוי מצא אותם, רק לא כאלה
       // שאפשר למפות. עכשיו היא מבחינה בין השניים.
+      placesTitle:S.geo?"יישובים — החלפה ששומרת על המרחקים":"יישובים שנמצאו",
       noGeoText:(S.geoExtra||[]).length
-        ? "אין שני יישובים עם קואורדינטות במסמך, ולכן אין מפת מרחקים לשמור עליה. היישובים שנמצאו מוצעים למטה, כל אחד בפני עצמו."
+        ? "אין מפת מרחקים למסמך הזה: כל יישוב שנמצא מוחלף בפני עצמו, ביישוב מאותו סוג."
         : (S.geoExcluded||[]).length
-          ? "נשארו פחות משני יישובים למיפוי, ולכן אין מה לשמור עליו. אפשר להחזיר יישוב לרשימה או להמשיך."
+          ? "נשאר יישוב אחד או אף אחד, ולכן אין מפת מרחקים. אפשר להחזיר יישוב או להמשיך."
           : "לא נמצאו יישובים במסמך.",
       geoCount:S.geo?S.geo.map.length:0,
       geoErr:S.geo?S.geo.err.toFixed(1):"",
@@ -2670,7 +2741,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       mapFrom:MV?MV.from:[], mapTo:MV?MV.to:[],
       hasExtra:(S.geoExtra||[]).length>0,
       extraRows:(S.geoExtra||[]).map(x=>({
-        name:x.name, to:x.to, isOn:x.on,
+        name:x.name, to:x.to, isOn:x.on, listed:!!x.listed,
         note:x.ambiguous?"לא רק שם יישוב":"",
         toggleLabel:x.on?"אל תחליף":"להחליף",
         toggleStyle:"font-size:12.5px;padding:7px 11px;border-radius:8px;white-space:nowrap;border:1px solid "+
