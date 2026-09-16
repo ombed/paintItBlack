@@ -2412,7 +2412,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       rvIn:S.rvIn, rvOut:S.rvOut, rvCopyLabel:S.rvCopyLabel,
       onRvIn:e=>this.setState({rvIn:e.target.value}),
       onRvGo:()=>{
-        const map=(S.profile&&S.profile.map)||this.currentMap();
+        /* ביקורת QA (ISSUE-001): אחרי הצמדת תיק שמור מ"תיקים אחרונים" ההחזרה קראה
+           רק את המפה של התיק השמור, ולא את זו של המסמך שבעבודה — הכינוי שהכלי
+           עצמו כתב רגע קודם לא נמצא. המסמך הנוכחי קודם; הפרופיל משלים שמות
+           ממסמכים קודמים באותו תיק. */
+        const map={...((S.profile&&S.profile.map)||{}), ...this.currentMap()};
         if(!S.rvIn.trim()){ this.setState({err:"אין טקסט להחזרה."}); return; }
         if(!Object.keys(map).length){ this.setState({err:"אין מיפוי זמין. יש לטעון פרופיל תיק, או להשחיר מסמך קודם בחלון הזה."}); return; }
         const r=E.restoreNames(S.rvIn, Object.entries(map));
