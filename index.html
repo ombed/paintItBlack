@@ -2845,10 +2845,19 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         /* מסמך חדש מתחיל נקי (UX #22, ביקורת QA 005): חיפוש, הוספה ידנית, טקסט
            מודבק ושם הקובץ הקודמים נשארו — והמסמך הבא נפתח עם מסילה ריקה, או עם
            שני מסמכים מודבקים יחד. הגלילה חוזרת לראש העמוד. */
+        /* והתיק נשאר במקומו (C3 בביקורת השנייה): שם התיק, הפרופיל, הכללים ורשימת
+           ההיתר עברו למסמך הבא, שם התיק חיכה ממולא בשדה שבמסך הרשימה, ומסמך של
+           לקוח אחר נכתב לתוך התיק של הקודם. מסמך חדש מתחיל בלי תיק; התיק השמור
+           מוצע ברצועת "תיקים אחרונים", ופרופיל בלי שם — בכרטיס "להמשיך עם
+           הפרופיל", כמו אחרי טעינה מחדש. */
+        let lastProfile=null;
+        try{ const j=localStorage.getItem("redact-profile-last"); const p=j&&JSON.parse(j); if(p&&p.v===1&&!p.name&&(p.rules||[]).length) lastProfile=p; }catch(_){}
         this.setState({screen:"entry", res:null, err:"", fileErr:"", name:"", buf:null, pending:false,
           pasteText:"", query:"", cat:"", filter:"all", addV:"", addR:"", sel:null, inline:null, popup:null,
-          notice:"", copied:false, copyLabel:"העתקה ל-AI", sugAsk:false, casesHidden:false, peo:[], peoSug:[], peoKept:[]},
+          notice:"", copied:false, copyLabel:"העתקה ל-AI", sugAsk:false, casesHidden:false, peo:[], peoSug:[], peoKept:[],
+          caseName:"", profile:null, rules:[], allow:[], profileDirty:false, approved:[], undoN:0, redoN:0, lastProfile, cases:this.readCases()},
           ()=>{ try{ scrollTo(0,0); }catch(_){} });
+        this._undo=[]; this._redo=[];
         this.log.add("new-doc",{}); },
       tip:!!S.tip, tipLabel:S.tip?S.tip.label:"", tipItems:S.tip?S.tip.items:[],
       tipMore:S.tip&&S.tip.items.length>=3?"שלוש הראשונות":"",

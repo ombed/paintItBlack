@@ -118,3 +118,31 @@ test("C2: a saved case keeps its people and their pseudonyms across documents", 
   expect(map["אבנר שטרן"]).toBe("יוני כהן");
   expect(map["שושנה ברקאי"]).toBe(shoshana);
 });
+
+test("C3: 'מסמך חדש' drops the case, so the next client's document does not write into it", async ({ page }) => {
+  const FIRST = ["פרוטוקול לקוחה א", "אלון בר: הגעתי.", "אלון בר: חתמתי."].join("\n");
+  const OTHER = ["פרוטוקול לקוח ב", "אבנר שטרן: הגעתי.", "אבנר שטרן: חתמתי."].join("\n");
+  await toWork(page, FIRST);
+  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  await page.getByPlaceholder(/שם התיק/).fill("לוי נ׳ לוי");
+  await expect.poll(() => cases(page).then((c) => Object.keys(c))).toContain("לוי נ׳ לוי");
+  const alon = (await cases(page))["לוי נ׳ לוי"].map["אלון בר"];
+  expect(alon).toBeTruthy();
+
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "מסמך חדש" }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("מה יוצא מהמסמך");
+  // the case is offered, not assumed
+  await expect(page.getByRole("button", { name: "שימוש בתיק הזה", exact: true }).first()).toBeVisible();
+  await expect(page.locator("[data-case-chip]")).toHaveCount(0);
+
+  await H.upload(page, "other.docx", OTHER);
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  await expect(page.locator("[data-case-field] input")).toHaveValue("");
+  await onward(page);
+  const c = (await cases(page))["לוי נ׳ לוי"];
+  expect(c.map["אלון בר"]).toBe(alon);
+  expect(c.map["אבנר שטרן"]).toBeUndefined();
+  expect(c.rules.map((r) => r.value)).not.toContain("אבנר שטרן");
+});
