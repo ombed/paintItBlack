@@ -1384,12 +1384,18 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     }
     this.setState({pending:false, nerAsk:false});
     if(!this.state.o.auto){ this.setState({peo:[], cands:[]}); this.toPlaces([]); return; }
+    /* אותו מסמך, אותן הגדרות, והרשימה כבר קיימת (H2 בביקורת השנייה): "‹ קובץ" ואז
+       הכפתור הראשי בנו את הרשימה מחדש ומחקו בשקט שמות שהוקלדו, הצעה שנוספה
+       ו"לא אדם" שנדחה, בזמן שפירור הלחם "מי בתיק" שמר עליה. הכפתור חוזר לרשימה
+       הקיימת; סריקה חדשה רק למסמך אחר, או כשהמודל הודלק אחרי הסריקה. */
+    if(this._scannedBuf===S.buf && (S.peo||[]).length && this._scanNer===!!S.o.ner){ this.log.add("list-again",{}); this.showList(); return; }
     return this.scanNames();
   };
 
   async scanNames(){
     const E=this.state.E, buf=this.state.buf;
-    this.setState({screen:"busy", busyT:"מאתר שמות…"});
+    this._scannedBuf=buf; this._scanNer=!!this.state.o.ner;
+    this.setState({screen:"busy", busyT:"מאתר שמות…", peoKept:[]});
     try{
       const blocks = (await this.blocksOf(buf)).concat(this.nameBlock());
       const cands = E.discover(blocks);

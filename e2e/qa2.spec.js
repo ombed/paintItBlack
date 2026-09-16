@@ -175,9 +175,40 @@ test("H1: '‹ רשימת השמות' and 'המשך' keep every decision made on
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   expect(await H.listedNames(page)).toContain("דנה ברקוביץ׳");
   await onward(page);
+  await expect.poll(text, { timeout: 15000 }).toBe(before);
   const after = await text();
   expect(after).toContain("גלית ורד");
   expect(after).not.toContain("דנה ברקוביץ׳");
   expect(after).not.toContain("חיפה");
   expect(after).toBe(before);
+});
+
+test("H2: back to 'קובץ' and the main button again returns to the same list, not a fresh scan", async ({ page }) => {
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "case.docx", DOC + "\nהקטינה דנה ברקוביץ׳ נכחה. עו\"ד רונן אלמליח ייצג.");
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  // one suggestion dismissed, one added, two names typed
+  const sug = page.locator("[data-sug]").or(page.getByRole("button", { name: /^\+ / }));
+  await expect(sug.first()).toBeVisible();
+  const dismissed = (await page.getByRole("button", { name: /^\+ / }).first().innerText()).replace(/^\+\s*/, "").trim();
+  await page.getByRole("button", { name: "לא אדם" }).first().click();
+  const addBtn = page.getByRole("button", { name: /^\+ / }).first();
+  const added = (await addBtn.innerText()).replace(/^\+\s*/, "").trim();
+  await addBtn.click();
+  const input = page.getByPlaceholder(/שם מלא/);
+  for (const n of ["עמוס ברק", "תמר גולן"]) { await input.fill(n); await input.press("Enter"); }
+  const before = await H.listedNames(page);
+  expect(before).toContain(added);
+  expect(before).toContain("תמר גולן");
+  expect(before).not.toContain(dismissed);
+
+  await page.getByRole("button", { name: /‹ קובץ/ }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("מה יוצא מהמסמך");
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  expect(await H.listedNames(page)).toEqual(before);
+  await expect(page.getByRole("button", { name: "+ " + dismissed })).toHaveCount(0);
 });
