@@ -1,6 +1,6 @@
 # Benchmark results (no model)
 
-40 documents, 314 keyed entities, model off. Generated 2026-09-15.
+40 documents, 314 keyed entities, model off. Generated 2026-09-16.
 
 ## Per category
 
@@ -69,7 +69,7 @@
 | audio | 17 | 3 | 8 | 0 |
 | interview | 8 | 3 | 3 | 0 |
 
-## Unlisted suggestions (match nothing in the key; one tap each) — 23 in total
+## Unlisted suggestions (match nothing in the key; one tap each) — 24 in total
 
 Counted, not optimised for: the list is read, accept-all is not how the tool is used.
 
@@ -83,6 +83,7 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 - **chat** (1, 1 applied): בגן [discover; מופיע אחרי מילת תפקיד טיפולית או חינוכית] **applied**
 - **position** (1, 1 applied): הבהרה [discover; פותח תור דיבור בתמלול] **applied**
 - **audio** (1, 1 applied): ושניהם [suggest] **applied**
+- **interview** (1, 1 applied): עכשיו [discover; מופיע אחרי מילת תפקיד טיפולית או חינוכית] **applied**
 
 ## Missed and leaked, by document
 
@@ -170,43 +171,43 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 200 | 4 | 1 |
-| m2 | meeting | 101 | 6 | 0 |
-| m3 | meeting | 60 | 3 | 0 |
-| m4 | meeting | 54 | 3 | 1 |
-| f1 | filing | 90 | 10 | 1 |
-| f2 | filing | 134 | 13 | 1 |
-| f3 | filing | 50 | 5 | 0 |
-| f4 | filing | 96 | 8 | 3 |
-| t1 | transcript | 65 | 6 | 0 |
-| t2 | transcript | 61 | 5 | 1 |
-| t3 | transcript | 57 | 6 | 1 |
-| t4 | transcript | 57 | 9 | 1 |
-| w1 | welfare | 34 | 1 | 0 |
-| w2 | welfare | 43 | 3 | 0 |
-| w3 | welfare | 42 | 2 | 0 |
-| w4 | welfare | 56 | 5 | 1 |
-| h1 | medical | 52 | 6 | 2 |
-| h2 | medical | 66 | 2 | 0 |
-| h3 | medical | 50 | 3 | 3 |
-| p1 | police | 45 | 2 | 1 |
-| p2 | police | 50 | 3 | 1 |
-| p3 | police | 30 | 1 | 0 |
-| p4 | police | 52 | 3 | 0 |
-| b1 | bank | 72 | 5 | 2 |
-| b2 | bank | 22 | 1 | 0 |
-| b3 | bank | 24 | 2 | 0 |
-| c1 | chat | 30 | 1 | 0 |
-| c2 | chat | 28 | 2 | 1 |
-| c3 | chat | 25 | 2 | 0 |
-| c4 | chat | 32 | 3 | 0 |
-| x1 | position | 63 | 5 | 1 |
-| x2 | position | 39 | 4 | 0 |
-| x3 | position | 45 | 4 | 0 |
-| a1 | audio | 42 | 3 | 0 |
-| a2 | audio | 49 | 5 | 0 |
-| a3 | audio | 69 | 7 | 1 |
-| a4 | audio | 41 | 4 | 0 |
-| v1 | interview | 47 | 2 | 0 |
-| v2 | interview | 58 | 3 | 0 |
-| v3 | interview | 32 | 2 | 0 |
+| m1 | meeting | 57 | 4 | 1 |
+| m2 | meeting | 21 | 6 | 0 |
+| m3 | meeting | 13 | 3 | 0 |
+| m4 | meeting | 14 | 3 | 1 |
+| f1 | filing | 28 | 10 | 1 |
+| f2 | filing | 40 | 13 | 1 |
+| f3 | filing | 17 | 5 | 0 |
+| f4 | filing | 23 | 8 | 3 |
+| t1 | transcript | 30 | 6 | 0 |
+| t2 | transcript | 16 | 5 | 1 |
+| t3 | transcript | 16 | 6 | 1 |
+| t4 | transcript | 30 | 9 | 1 |
+| w1 | welfare | 9 | 1 | 0 |
+| w2 | welfare | 12 | 3 | 0 |
+| w3 | welfare | 10 | 2 | 0 |
+| w4 | welfare | 16 | 5 | 1 |
+| h1 | medical | 17 | 6 | 2 |
+| h2 | medical | 13 | 2 | 0 |
+| h3 | medical | 11 | 3 | 3 |
+| p1 | police | 17 | 2 | 1 |
+| p2 | police | 11 | 3 | 1 |
+| p3 | police | 7 | 1 | 0 |
+| p4 | police | 11 | 3 | 0 |
+| b1 | bank | 13 | 5 | 2 |
+| b2 | bank | 5 | 1 | 0 |
+| b3 | bank | 8 | 2 | 0 |
+| c1 | chat | 6 | 1 | 0 |
+| c2 | chat | 10 | 2 | 1 |
+| c3 | chat | 7 | 2 | 0 |
+| c4 | chat | 8 | 3 | 0 |
+| x1 | position | 16 | 5 | 1 |
+| x2 | position | 11 | 4 | 0 |
+| x3 | position | 13 | 4 | 0 |
+| a1 | audio | 10 | 3 | 0 |
+| a2 | audio | 12 | 5 | 0 |
+| a3 | audio | 15 | 7 | 1 |
+| a4 | audio | 12 | 4 | 0 |
+| v1 | interview | 11 | 3 | 1 |
+| v2 | interview | 12 | 3 | 0 |
+| v3 | interview | 7 | 2 | 0 |
