@@ -15,7 +15,7 @@ test("marking a missed name records a shape with no text, and the copy carries n
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   await H.goOn(page);
-  await page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לעיבוד/ }).first().click();
+  await page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first().click();
   await expect(page.locator("[data-mark]").first()).toBeVisible({ timeout: 15000 });
   await page.evaluate(() => { navigator.clipboard.writeText = (t) => { window.__copied = t; return Promise.resolve(); }; });
 
@@ -32,7 +32,7 @@ test("marking a missed name records a shape with no text, and the copy carries n
   });
   const popup = page.locator("[data-popup]");
   await expect(popup).toBeVisible();
-  await popup.getByRole("button", { name: "שם", exact: true }).click();
+  await popup.getByRole("button", { name: "אדם", exact: true }).click();
   await expect(sheet).not.toContainText("קרבוטינסקי");
 
   // the clean section shows the count and copies the report

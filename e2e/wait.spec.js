@@ -30,7 +30,7 @@ test("continuing without the model keeps the header names, and a late model resu
   // on to the places screen; the late model result still lands (below)
   await expect(page.getByRole("heading", { name: /יישובים/ })).toBeVisible({ timeout: 10000 });
   await page.waitForTimeout(9000);
-  await page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לעיבוד/ }).first().click();
+  await page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first().click();
   await expect(page.locator("[data-mark]").first()).toBeVisible({ timeout: 15000 });
   await expect(page.locator("[data-work] section").first()).not.toContainText("רונית לוי");
   // the late result landed: the name it found is replaced in the document,

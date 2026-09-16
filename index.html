@@ -21,7 +21,7 @@ x-dc{display:none!important}
 <style>
 :root{
   --bg:#F4F2ED; --panel:#FFFFFF; --panel2:#F7F6F1; --line:rgba(22,33,28,.13);
-  --line2:rgba(22,33,28,.07); --ink:#16211C; --ink2:#5D6A63; --ink3:#98A29B;
+  --line2:rgba(22,33,28,.07); --ink:#16211C; --ink2:#5D6A63; --ink3:#66706A;
   --accent:#1F5B44; --accent-soft:#E6EFE9; --accent-ink:#1F5B44;
   --warn:#9C5511; --warn-soft:#FAF0E2; --bad:#9E2A20; --bad-soft:#FBEAE7;
   --paper:#FFFDF8; --shadow:0 1px 2px rgba(22,33,28,.05),0 8px 24px -16px rgba(22,33,28,.18);
@@ -29,7 +29,7 @@ x-dc{display:none!important}
 }
 html.dark{
   --bg:#111412; --panel:#1A1F1C; --panel2:#212824; --line:rgba(236,240,236,.13);
-  --line2:rgba(236,240,236,.07); --ink:#ECF0EC; --ink2:#9DA9A2; --ink3:#6D7973;
+  --line2:rgba(236,240,236,.07); --ink:#ECF0EC; --ink2:#9DA9A2; --ink3:#8A958F;
   --accent:#79D3A8; --accent-soft:rgba(121,211,168,.13); --accent-ink:#8FE0B8;
   --warn:#E3A458; --warn-soft:rgba(227,164,88,.12); --bad:#EE8177; --bad-soft:rgba(238,129,119,.13);
   --paper:#191E1B; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -16px rgba(0,0,0,.6);
@@ -64,6 +64,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
 /* טלפון: הרשתות נערמות, הבר עוטף, השורות מתקפלות, החותמת יורדת לתחתית */
 @media (max-width:1119px){
   [data-stack]{grid-template-columns:1fr!important}
+  /* הסטטוס נקרא במלואו במסך צר, במקום להיחתך בשלוש נקודות (ביקורת QA 006) */
+  [data-bar-text]{white-space:normal!important}
   [data-bar]>div{flex-wrap:wrap;gap:10px}
   [data-bar-text]{flex:1 1 200px!important}
   [data-bar] button{flex:1 1 auto;padding:8px 10px!important;font-size:12.5px!important}
@@ -230,9 +232,9 @@ button:disabled{opacity:.55;cursor:not-allowed}
   </sc-if>
 
   <sc-if value="{{ showIntro }}">
-    <div style="position:fixed;inset:0;z-index:70;background:rgba(10,14,12,.5);display:grid;place-items:center;padding:16px;overflow:auto">
-      <div data-intro style="max-width:560px;max-height:calc(100vh - 32px);overflow:auto;box-sizing:border-box;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 24px;box-shadow:0 24px 60px rgba(0,0,0,.35)">
-        <h2 style="margin:0 0 6px;font-size:21px;font-weight:500;letter-spacing:-.02em">לפני שמתחילים</h2>
+    <div data-intro-backdrop onClick="{{ onIntroBackdrop }}" style="position:fixed;inset:0;z-index:70;background:rgba(10,14,12,.5);display:grid;place-items:center;padding:16px;overflow:auto">
+      <div data-intro role="dialog" aria-modal="true" aria-labelledby="intro-title" onClick="{{ introStop }}" style="max-width:560px;max-height:calc(100vh - 32px);overflow:auto;box-sizing:border-box;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 24px;box-shadow:0 24px 60px rgba(0,0,0,.35)">
+        <h2 id="intro-title" style="margin:0 0 6px;font-size:21px;font-weight:500;letter-spacing:-.02em">לפני שמתחילים</h2>
         <p style="margin:0 0 18px;color:var(--ink2);font-size:14px;line-height:1.6">הכלי מכין מסמך משפטי לשליחה לכלי AI: הוא מחליף פרטים מזהים בשמות חלופיים, בודק מה נשאר, ומאפשר להחזיר את השמות האמיתיים לתשובה שחוזרת. הכול רץ בדפדפן — שום קובץ לא נשלח לשרת.</p>
         <sc-for list="{{ introSteps }}" as="s" hint-placeholder-count="4">
           <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line2)">
@@ -256,7 +258,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
   <sc-if value="{{ notice }}">
     <div data-notice style="position:fixed;bottom:calc(var(--bar-h, 64px) + 14px);inset-inline-start:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;color:var(--ink)">
       <span>{{ notice }}</span>
-      <button onClick="{{ onNoticeUndo }}" style="padding:4px 10px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">ביטול ↶</button>
+      <sc-if value="{{ noticeUndo }}"><button onClick="{{ onNoticeUndo }}" style="padding:4px 10px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">ביטול ↶</button></sc-if>
       <button onClick="{{ onNoticeClose }}" aria-label="סגירה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center">✕</button>
     </div>
   </sc-if>
@@ -454,7 +456,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0 2px;font-size:12.5px;color:var(--ink2)">
           <span>נשארים כמו שהם:</span>
           <sc-for list="{{ keptItems }}" as="x" hint-placeholder-count="2">
-            <button onClick="{{ x.onUndo }}" title="להחזיר לרשימה" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:12.5px">{{ x.name }} <span style="color:var(--ink3)">↩</span></button>
+            <button onClick="{{ x.onUndo }}" title="להחזיר לרשימה" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:12.5px;max-width:100%;min-width:0;overflow-wrap:anywhere;text-align:start">{{ x.name }} <span style="color:var(--ink3)">↩</span></button>
           </sc-for>
         </div>
       </sc-if>
@@ -576,7 +578,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
           <div data-wrap style="display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--line2)">
             <span data-tip="1" onMouseEnter="{{ g.onTipIn }}" onMouseLeave="{{ g.onTipOut }}" onClick="{{ g.onTipTap }}" title="{{ g.tipHint }}" style="min-width:130px;font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ g.from }}</span>
             <span style="color:var(--ink3)">←</span>
-            <input value="{{ g.to }}" onChange="{{ g.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
+            <input value="{{ g.to }}" aria-label="היישוב שיבוא במקום {{ g.from }}" onChange="{{ g.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
             <button onClick="{{ g.onRemove }}" title="להשאיר את שם היישוב כמו שהוא" style="font-size:12.5px;color:var(--ink2);padding:7px 11px;border-radius:8px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)">אל תחליף</button>
           </div>
           <sc-if value="{{ g.tagNote }}"><div data-tags style="padding:0 18px 9px 160px;margin-top:-6px;font-size:11.5px;color:var(--ink3);border-bottom:1px solid var(--line2)">{{ g.tagNote }}</div></sc-if>
@@ -585,7 +587,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--line2);font-size:12.5px;color:var(--ink2)">
             <span>נשארים כמו שהם:</span>
             <sc-for list="{{ excluded }}" as="x" hint-placeholder-count="2">
-              <button onClick="{{ x.onUndo }}" title="להחזיר להחלפה" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:12.5px">{{ x.name }} <span style="color:var(--ink3)">↩</span></button>
+              <button onClick="{{ x.onUndo }}" title="להחזיר להחלפה" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:12.5px;max-width:100%;min-width:0;overflow-wrap:anywhere;text-align:start">{{ x.name }} <span style="color:var(--ink3)">↩</span></button>
             </sc-for>
           </div>
         </sc-if>
@@ -606,7 +608,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
             <span data-tip="1" onMouseEnter="{{ x.onTipIn }}" onMouseLeave="{{ x.onTipOut }}" onClick="{{ x.onTipTap }}" title="{{ x.tipHint }}" style="min-width:130px;font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ x.name }}</span>
             <sc-if value="{{ x.note }}"><small style="color:var(--warn);font-size:11.5px;white-space:nowrap">{{ x.note }}</small></sc-if>
             <span style="color:var(--ink3)">←</span>
-            <input value="{{ x.to }}" onChange="{{ x.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
+            <input value="{{ x.to }}" aria-label="היישוב שיבוא במקום {{ x.name }}" onChange="{{ x.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
             <button onClick="{{ x.onToggle }}" style="{{ x.toggleStyle }}" style-hover="background:var(--panel2)">{{ x.toggleLabel }}</button>
           </div>
         </sc-for>
@@ -619,11 +621,11 @@ button:disabled{opacity:.55;cursor:not-allowed}
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px;font-size:12.5px">
             <span>נשארים כמו שהם:</span>
             <sc-for list="{{ excluded }}" as="x" hint-placeholder-count="2">
-              <button onClick="{{ x.onUndo }}" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:12.5px">{{ x.name }} <span style="color:var(--ink3)">↩</span></button>
+              <button onClick="{{ x.onUndo }}" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:12.5px;max-width:100%;min-width:0;overflow-wrap:anywhere;text-align:start">{{ x.name }} <span style="color:var(--ink3)">↩</span></button>
             </sc-for>
           </div>
         </sc-if>
-        <div style="margin-top:16px"><button onClick="{{ onGeoApply }}" style="{{ primaryBtn }}">המשך לעיבוד</button></div>
+        <div style="margin-top:16px"><button onClick="{{ onGeoApply }}" style="{{ primaryBtn }}">המשך לבדיקה</button></div>
       </div>
     </sc-if>
   </main>
@@ -640,7 +642,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
   <!-- ═════ החזרת שמות ═════ -->
   <sc-if value="{{ isReverse }}">
   <main style="max-width:760px;margin:0 auto;padding:38px 22px 70px;animation:rise .3s ease">
-    <h1 style="font-size:26px;font-weight:500;letter-spacing:-.02em;margin:0 0 6px">החזרת שמות לתשובה מ-AI</h1>
+    <h1 style="font-size:26px;font-weight:500;letter-spacing:-.02em;margin:0 0 6px">החזרת שמות מתשובת AI</h1>
     <p style="margin:0 0 14px;color:var(--ink2);font-size:14px;max-width:68ch">השלב האחרון במסלול: אחרי שהטקסט המושחר נשלח לכלי AI, מדביקים כאן את התשובה שחזרה והשמות החלופיים מוחלפים בשמות האמיתיים. הכול על המחשב הזה.</p>
     <div style="{{ rvCtxStyle }}">
       <b style="display:block;font-weight:500;margin-bottom:2px">{{ rvCtxTitle }}</b>
@@ -671,11 +673,11 @@ button:disabled{opacity:.55;cursor:not-allowed}
     </sc-if>
 
     <section style="{{ docPaneStyle }}">
-      <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line2);background:var(--panel)">
-        <b style="font-weight:500;font-size:13.5px">{{ docTitle }}</b>
+      <div data-doc-bar style="display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--line2);background:var(--panel)">
+        <h1 style="font-weight:500;font-size:13.5px;margin:0">{{ docTitle }}</h1>
         <span style="font-size:12.5px;color:var(--ink3)">{{ docSub }}</span>
         <span style="font-size:12px;color:var(--ink3);display:inline-flex;align-items:center;gap:5px;white-space:nowrap"><b style="background:var(--accent-soft);color:var(--accent-ink);font-weight:500;border-radius:3px;padding:0 4px">הוחלף</b><sc-if value="{{ hasFlagMarks }}"><b style="background:var(--warn-soft);color:var(--warn);font-weight:500;border-radius:3px;padding:0 4px;border-bottom:1px dashed var(--warn)">לא הוחלף</b></sc-if></span>
-        <div style="margin-inline-start:auto;display:flex;align-items:center;gap:10px">
+        <div style="margin-inline-start:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <div style="display:flex;align-items:center;gap:2px">
             <button onClick="{{ onHistUndo }}" aria-label="ביטול הפעולה האחרונה" title="ביטול — Ctrl+Z" style="{{ undoStyle }}" style-hover="background:var(--panel2)">↶</button>
             <button onClick="{{ onHistRedo }}" aria-label="ביצוע חוזר" title="ביצוע חוזר — Ctrl+Shift+Z" style="{{ redoStyle }}" style-hover="background:var(--panel2)">↷</button>
@@ -707,7 +709,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
             </sc-if>
             <div style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:14px;margin-bottom:11px;align-items:baseline">
               <span style="font:400 10.5px/2 Rubik,sans-serif;color:var(--ink3);text-align:end">{{ blk.n }}</span>
-              <p style="margin:0;text-wrap:pretty"><sc-for list="{{ blk.segs }}" as="sg" hint-placeholder-count="3"><sc-if value="{{ sg.plain }}"><span>{{ sg.t }}</span></sc-if><sc-if value="{{ sg.mark }}"><span data-mark="{{ sg.id }}" data-val="{{ sg.val }}" data-badge="{{ sg.badge }}" onClick="{{ sg.onClick }}" title="{{ sg.title }}" style="{{ sg.style }}">{{ sg.t }}</span></sc-if></sc-for></p>
+              <p style="margin:0;text-wrap:pretty"><sc-for list="{{ blk.segs }}" as="sg" hint-placeholder-count="3"><sc-if value="{{ sg.plain }}"><span>{{ sg.t }}</span></sc-if><sc-if value="{{ sg.mark }}"><span data-mark="{{ sg.id }}" data-val="{{ sg.val }}" data-badge="{{ sg.badge }}" tabindex="0" role="button" onClick="{{ sg.onClick }}" title="{{ sg.title }}" style="{{ sg.style }}">{{ sg.t }}</span></sc-if></sc-for></p>
             </div>
           </sc-for>
         </div>
@@ -746,12 +748,25 @@ button:disabled{opacity:.55;cursor:not-allowed}
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 0 8px;font-size:12.5px;color:var(--ink2);border-bottom:1px solid var(--line2);margin-bottom:8px">
                   <span title="שמות שביקשת להשאיר כמו שהם. הם יגיעו ל-AI כפי שהם כתובים.">נשארים כמו שהם:</span>
                   <sc-for list="{{ allowedItems }}" as="x" hint-placeholder-count="2">
-                    <button onClick="{{ x.onUndo }}" title="לחזור ולהחליף" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:12.5px">{{ x.name }} <span style="color:var(--ink3)">↩</span></button>
+                    <button onClick="{{ x.onUndo }}" title="לחזור ולהחליף" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:12.5px;max-width:100%;min-width:0;overflow-wrap:anywhere;text-align:start">{{ x.name }} <span style="color:var(--ink3)">↩</span></button>
                   </sc-for>
                 </div>
               </sc-if>
+              <sc-for list="{{ pendItems }}" as="x" hint-placeholder-count="1">
+                <div data-pend-item data-review-item style="border-top:1px solid var(--line2);padding:12px 0">
+                  <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+                    <span style="font-weight:500;color:var(--warn)">{{ x.value }}</span>
+                    <span style="font-size:12px;color:var(--ink2)">{{ x.tag }}</span>
+                  </div>
+                  <div style="font:13px/1.7 var(--doc-font);color:var(--ink2);margin-top:5px;padding-inline-start:9px;border-inline-start:2px solid var(--line)">{{ x.ctx.pre }}<b style="background:var(--warn-soft);color:var(--warn);font-weight:500">{{ x.ctx.hit }}</b>{{ x.ctx.post }}</div>
+                  <div style="display:flex;gap:6px;margin-top:8px">
+                    <button onClick="{{ x.onAdd }}" style="padding:6px 12px;border-radius:15px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:500">להחליף</button>
+                    <button onClick="{{ x.onKeep }}" style="padding:6px 12px;border-radius:15px;border:1px solid var(--line);font-size:12.5px;color:var(--ink2)">להשאיר</button>
+                  </div>
+                </div>
+              </sc-for>
               <sc-for list="{{ nearItems }}" as="x" hint-placeholder-count="1">
-                <div style="border-top:1px solid var(--line2);padding:12px 0">
+                <div data-review-item style="border-top:1px solid var(--line2);padding:12px 0">
                   <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
                     <span style="font-weight:500;color:var(--warn)">{{ x.value }}</span>
                     <span style="font-size:12px;color:var(--ink2)">{{ x.tag }}</span>
@@ -764,7 +779,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
                 </div>
               </sc-for>
               <sc-for list="{{ sugItems }}" as="x" hint-placeholder-count="1">
-                <div style="border-top:1px solid var(--line2);padding:12px 0">
+                <div data-review-item style="border-top:1px solid var(--line2);padding:12px 0">
                   <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
                     <span style="font-weight:500">{{ x.value }}</span>
                     <span style="font-size:12px;color:var(--ink2)">{{ x.tag }}</span>
@@ -792,7 +807,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
               <div style="padding:0 15px 10px">
                 <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="חיפוש בממצאים" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:13px">
               </div>
-              <div style="display:flex;gap:5px;padding:0 15px 10px;overflow-x:auto;scrollbar-width:none">
+              <!-- השבבים עוטפים לשורות, במקום לגלול הצידה בלי שום סימן (ביקורת QA 008) -->
+              <div data-cats style="display:flex;gap:5px;padding:0 15px 10px;flex-wrap:wrap">
                 <sc-for list="{{ cats }}" as="c" hint-placeholder-count="4">
                   <button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button>
                 </sc-for>
@@ -812,12 +828,14 @@ button:disabled{opacity:.55;cursor:not-allowed}
                     <div style="font-size:11.5px;color:var(--ink3);margin-top:2px">{{ g.meta }}</div>
                     <sc-if value="{{ g.isFlagged }}">
                       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center">
+                        <button onClick="{{ g.onReplaceFlag }}" title="להחליף בכל המסמך, בתור {{ g.kindShown }}" style="padding:4px 12px;border-radius:12px;background:var(--accent);color:var(--panel);font-size:12px;font-weight:500">להחליף</button>
                         <button onClick="{{ g.onQuickAllow }}" title="לא פרט מזהה — להסיר מהרשימה הזאת" style="padding:4px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px;color:var(--ink2)" style-hover="background:var(--panel2)">לא רלוונטי — הסרה</button>
-                        <span style="font-size:11.5px;color:var(--ink3)">לחיצה על הכרטיס: מה זה</span>
+                        <span style="font-size:11.5px;color:var(--ink3)">לחיצה על הכרטיס: סוג אחר</span>
                       </div>
                     </sc-if>
                     <sc-if value="{{ g.isApplied }}">
                       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center">
+                        <sc-if value="{{ g.review }}"><button onClick="{{ g.onApprove }}" title="ההחלפה נכונה — להסיר את התג «לאישור»" style="padding:4px 12px;border-radius:12px;background:var(--accent-soft);color:var(--accent-ink);font-size:12px;font-weight:500">אישור</button></sc-if>
                         <button onClick="{{ g.onQuickAllow }}" title="להשאיר את הטקסט המקורי" style="padding:4px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px;color:var(--ink2)" style-hover="background:var(--panel2)">אל תחליף</button>
                         <sc-if value="{{ g.fromList }}"><button onClick="{{ g.onDropRule }}" title="זה לא שם — להסיר מהרשימה ולהחזיר את הטקסט" style="padding:4px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px;color:var(--bad)" style-hover="background:var(--bad-soft)">לא שם — הסרה מהרשימה</button></sc-if>
                         <span style="font-size:11.5px;color:var(--ink3)">לחיצה על הכרטיס: תחליף אחר</span>
@@ -926,6 +944,14 @@ button:disabled{opacity:.55;cursor:not-allowed}
   </main>
 
   <div data-bar style="position:fixed;inset-inline:0;bottom:0;z-index:35;background:var(--panel);border-top:1px solid var(--line);padding:7px 22px">
+    <sc-if value="{{ exportAsk }}">
+      <div data-export-ask role="alert" style="max-width:1520px;margin:0 auto 7px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 12px;border-radius:10px;background:var(--bad-soft);color:var(--bad);font-size:13px">
+        <span style="flex:1 1 240px">{{ exportAskText }}</span>
+        <button onClick="{{ onExportShow }}" style="padding:6px 12px;border-radius:9px;background:var(--bad);color:var(--panel);font-size:12.5px;font-weight:500">להציג אותם</button>
+        <button onClick="{{ onExportAnyway }}" style="padding:6px 12px;border-radius:9px;border:1px solid var(--bad);color:var(--bad);font-size:12.5px">{{ exportAnyLabel }}</button>
+        <button onClick="{{ onExportCancel }}" aria-label="ביטול" style="width:24px;height:24px;border-radius:50%;color:var(--bad);display:grid;place-items:center">✕</button>
+      </div>
+    </sc-if>
     <div style="max-width:1520px;margin:0 auto;display:flex;align-items:center;gap:12px">
       <sc-if value="{{ barErr }}">
         <span style="width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;font-weight:600;color:var(--bad);background:var(--bad-soft)">!</span>
@@ -936,10 +962,10 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <span style="{{ statusDot }}">{{ statusIcon }}</span>
         <div data-bar-text style="flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{ statusText }}"><b style="font-weight:500">{{ statusTitle }}</b><span style="color:var(--ink3)"> · {{ statusText }}</span></div>
       </sc-if>
-      <div data-steps style="display:flex;gap:6px;align-items:center;font-size:11.5px;white-space:nowrap" title="שלושת השלבים: השחרה, העתקה ל-AI, החזרת השמות לתשובה">
+      <div data-steps style="display:flex;gap:6px;align-items:center;font-size:11.5px;white-space:nowrap" title="שלושת השלבים: השחרה, העתקה או הורדה, החזרת שמות לתשובה">
         <span style="{{ step1Style }}">1 השחרה ✓</span><span style="color:var(--ink3)">›</span>
-        <span style="{{ step2Style }}">2 העתקה ל-AI{{ step2Mark }}</span><span style="color:var(--ink3)">›</span>
-        <span style="{{ step3Style }}">3 החזרת השמות</span>
+        <span style="{{ step2Style }}">2 העתקה או הורדה{{ step2Mark }}</span><span style="color:var(--ink3)">›</span>
+        <span style="{{ step3Style }}">3 החזרת שמות</span>
       </div>
       <button data-tour-target="copy" onClick="{{ onCopyAi }}" title="מעתיק את הטקסט המושחר ללוח. מדביקים ב-AI; כשהתשובה חוזרת, «החזרת שמות מתשובת AI» בכותרת מחזיר את השמות האמיתיים" style="{{ copyBtnStyle }}">{{ copyLabel }}</button>
       <button onClick="{{ onDownload }}" title="קובץ Word מושחר, בשם ניטרלי עם תאריך — לא בשם הקובץ המקורי" style="padding:11px 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">הורדת Word</button>
@@ -1086,6 +1112,30 @@ class Component extends DCLogic {
     document.addEventListener("mousedown", this._docClick);
     // Ctrl+Z, Ctrl+Shift+Z ו-Ctrl+Y, ורק כשלא מקלידים בשדה
     this._keys = e => {
+      const S=this.state;
+      /* מקלדת (ביקורת QA 003, 004): Escape סוגר את מה שפתוח מעל המסך — "לפני שמתחילים",
+         עריכה במקום, חלונית הסימון, רמז — בסדר הזה. Tab לא יוצא מ"לפני שמתחילים".
+         Enter או רווח על סימון במסמך פותחים אותו כמו לחיצה. */
+      if(e.key==="Escape"){
+        if(S.intro&&!S.tour){ e.preventDefault(); this.tourMarkSeen(); this.setState({intro:false}); return; }
+        if(S.inline){ e.preventDefault(); this.setState({inline:null}); return; }
+        if(S.popup){ e.preventDefault(); this.setState({popup:null}); return; }
+        if(S.tip){ this.setState({tip:null}); return; }
+        if(S.exportAsk){ this.setState({exportAsk:""}); return; }
+      }
+      if(e.key==="Tab"&&S.intro&&!S.tour){
+        const box=document.querySelector("[data-intro]");
+        const f=box?[...box.querySelectorAll("button,[href],input,select,textarea,[tabindex]:not([tabindex='-1'])")].filter(x=>!x.disabled):[];
+        if(f.length){
+          const i=f.indexOf(document.activeElement);
+          if(e.shiftKey&&(i<=0)){ e.preventDefault(); f[f.length-1].focus(); }
+          else if(!e.shiftKey&&(i===-1||i===f.length-1)){ e.preventDefault(); f[0].focus(); }
+        }
+        return;
+      }
+      if((e.key==="Enter"||e.key===" ")&&e.target&&e.target.matches&&e.target.matches("[data-mark]")){
+        e.preventDefault(); e.target.click(); return;
+      }
       if(!(e.ctrlKey||e.metaKey)) return;
       const t=e.target, tag=t&&t.tagName;
       if(tag==="INPUT"||tag==="TEXTAREA"||(t&&t.isContentEditable)) return;
@@ -1102,6 +1152,11 @@ class Component extends DCLogic {
      prev.screen היה undefined תמיד, ההשוואה תמיד "השתנה", ושדה from נעלם מהיומן.
      המסך האחרון נשמר על המופע ולא נלקח מההוק. */
   componentDidUpdate(){ this.applyProps(); if(this._barSize) this._barSize();
+    // "לפני שמתחילים" מקבל פוקוס כשהוא נפתח, כך שהמקלדת מתחילה בתוכו (ביקורת QA 003)
+    if(this.state.intro&&!this.state.tour&&!this._introFocused){
+      const b=document.querySelector("[data-intro] button"); if(b){ b.focus(); this._introFocused=true; }
+    }
+    if(!this.state.intro) this._introFocused=false;
     // הזרקור של הסיור נמדד אחרי שהמסך צויר, פעם אחת לכל צעד+מסך+מקטע פתוח
     if(this.state.tour){
       const key=this.state.tour.i+"|"+this.state.screen+"|"+(this.state.open||[]).join(",");
@@ -1412,14 +1467,16 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.setState({peo:list, sugAsk:false});
   }
   peoAdd = (txt, note, auto, kindAs) => {
-    const E=this.state.E; const list=[...this.state.peo];
+    const E=this.state.E; const list=[...this.state.peo]; let tooLong=0;
     for(const raw of String(txt||"").split(/[\n,;]+/)){
       const {v, note:n2, kind} = E.cleanEntry(raw);
       if(v.length<2) continue;
+      // פסקה שהודבקה לשדה השם אינה שם (ביקורת QA 007): לא נכנסת, ונאמר למה
+      if(v.length>80||v.split(/\s+/).length>8){ tooLong++; continue; }
       if(list.some(p=>E.norm(p.value)===E.norm(v))) continue;
       list.push({value:v, kind:kindAs||kind, g:null, auto:!!auto, note:note||n2});
     }
-    this.setState({peo:list});
+    this.setState(tooLong?{peo:list, peoNote:"קטע ארוך לא נוסף: שם או גוף הם עד שמונה מילים. אפשר להדביק כמה שמות, שורה לכל אחד."}:{peo:list});
   };
   setKind = (i, kind) => { const list=[...this.state.peo]; list[i]={...list[i], kind, note:""}; this.setState({peo:list}); };
   cycleKind = i => { const list=[...this.state.peo]; const ks=["NAME","ORG","PLACE"];
@@ -1701,7 +1758,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     try{
       const res = this.guardModel(await E.redactDocx(this.state.buf.slice(0), rules, this.state.allow, this.opts()), rules, this.state.allow);
       // מגיעים למסמך עצמו קודם: הפאנלים מקופלים, פס הסטטוס אומר מה מחכה
-      const toReview=(res.verification.near||[]).length+(res.verification.suggest||[]).length+(this.state.allow||[]).length;
+      // "לבדיקה" נפתח כשיש מה להחליט — כולל שמות שמחכים כ"לאישור" (UX #13) — או כשיש שם שהושאר
+      const toReview=(res.verification.near||[]).length+(res.verification.suggest||[]).length+(this.state.allow||[]).length+
+        res.flagged.filter(f=>f.src!=="near"&&f.src!=="nohit"&&f.src!=="collide").length;
       this.log.add("run",{applied:res.applied.length, flagged:res.flagged.length, near:(res.verification.near||[]).length, suggest:(res.verification.suggest||[]).length, passed:!!res.verification.passed});
       this.setState({res, screen:"work", open:toReview?["review","findings","send"]:["findings","send"], pane:"doc", docView:"red", markIdx:0, copied:false}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה בעיבוד: "+(e.message||e), screen:"entry", res:null}); }
@@ -1731,7 +1790,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this._undo=(this._undo||[]).concat([this.snapshot()]).slice(-40);
     this._redo=[];
     // הודעת סתירה חיה עד ההחלטה הבאה
-    this.setState({undoN:this._undo.length, redoN:0, notice:""});
+    this.setState({undoN:this._undo.length, redoN:0, notice:"", noticeUndo:true});
   }
   stepHistory(back){
     const from=back?(this._undo=this._undo||[]):(this._redo=this._redo||[]);
@@ -1838,12 +1897,13 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const k=(r.ap?"a":"f")+"|"+E.norm(r.value).trim();
       let g=m.get(k);
       if(!g){ g={key:k, value:r.value, label:r.label, why:r.why, rep:r.rep, ap:r.ap, src:r.src, base:r.base||r.value,
-        review:r.review, count:0, ctxs:[], parts:new Set(), ids:[]}; m.set(k,g); }
+        review:r.review&&!(this.state.approved||[]).includes(k), count:0, ctxs:[], parts:new Set(), ids:[]}; m.set(k,g); }
       g.count++;
       if(g.ctxs.length<50) g.ctxs.push(r.ctx);
       g.parts.add(r.part);
       if(r.i>=0) g.ids.push(r.i);
-      if(r.review) g.review=true;
+      // "אישור" על הכרטיס מסיר את התג (UX #14); אינו משנה את ההחלפה עצמה
+      if(r.review&&!(this.state.approved||[]).includes(k)) g.review=true;
     }
     // התנגשות פרופיל נרשמת גם על הכרטיס של הערך שהתחליף שלו מתנגש, לא רק בבדיקה
     for(const r of src) if(r.src==="collide"&&r.collideOf){
@@ -1864,6 +1924,38 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     return (RES.verification.near||[]).filter(x=>!this.state.allow.some(a=>n(a)===n(x.value)) &&
       !this.state.rules.some(r=>n(r.value)===n(x.value)));
   }
+  /* מה עוד מחכה להחלטה, במקום אחד (UX #13). עד כאן שלושה מקומות ספרו שלושה דברים:
+     הפאנל "לבדיקה" ספר כמעט-התאמות, הצעות ושמות שהושארו (החלטה שכבר נעשתה), הסרגל
+     התחתון בחר קודם את ההצעות — "רכב" — והשמות האמיתיים שחיכו כ"לאישור" הופיעו רק
+     בתוך "מה נמצא והוחלף". עכשיו רשימה אחת: אנשים שמחכים (אחרי תואר, לפי הקשר)
+     קודם, אחריהם שמות מגוף הטקסט, שיבושי כתיב, מספרים, ובסוף מקומות וגופים. */
+  static BLOCK_LBL=/^(?:שם|אדם|ת"ז|ת״ז|תעודת זהות|טלפון|טלפון נייד|טלפון קווי|פקס|דוא"ל|כתובת דוא"ל|כתובת|חשבון בנק|מספר רכב|תאריך לידה|כרטיס אשראי|IBAN|דרכון|התנגשות פרופיל|התנגשות תחליף)/;
+  pendingReview(){
+    const S=this.state, E=S.E, RES=S.res;
+    const out={people:[], numbers:[], soft:[], sug:[], near:[], count:0, blocking:0};
+    if(!RES||!E) return out;
+    const n=v=>E.norm(E.trimEdges(String(v||""))).trim();
+    const decided=v=>S.allow.some(a=>n(a)===n(v))||S.rules.some(r=>n(r.value)===n(v));
+    const seen=new Set();
+    for(const f of RES.flagged){
+      if(f.src==="near"||f.src==="nohit"||f.src==="collide"||!f.value) continue;
+      const k=n(f.value); if(!k||seen.has(k)||decided(f.value)) continue; seen.add(k);
+      const lbl=f.label||"";
+      const item={value:f.value, label:lbl, why:f.why||"", ctx:f.ctx||{}};
+      if(/^(?:שם|אדם)/.test(lbl)) out.people.push(item);
+      else if(this.constructor.BLOCK_LBL.test(lbl)) out.numbers.push(item);
+      else out.soft.push(item);
+    }
+    out.sug=this.sugList().filter(x=>!seen.has(n(x.value)));
+    out.near=this.nearList().filter(x=>!seen.has(n(x.value)));
+    out.blocking=out.people.length+out.numbers.length+out.sug.length+out.near.length;
+    out.count=out.blocking+out.soft.length;
+    return out;
+  }
+  // "שם" הוא מפתח פנימי; על המסך אותו סוג נקרא "אדם" בכל מקום (UX #11)
+  kindLabel(l){ return String(l||"").replace(/^שם(?= \(|$)/,"אדם"); }
+  // מה נכנס לרשימה כשמאשרים ממצא מהפאנל, לפי התווית שלו
+  kindOfLabel(l){ return /^(?:שם|אדם)/.test(l||"")?"NAME":/^גוף/.test(l||"")?"ORG":/^(?:יישוב|מקום)/.test(l||"")?"PLACE":"OTHER"; }
   redactedText(){
     return this.state.res.preview.filter(b=>!b.part.includes("טקסט חלופי"))
       .map(b=>b.text).join("\n").replace(/\n{3,}/g,"\n\n").trim();
@@ -1920,24 +2012,32 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     let ok=false;
     try{ await navigator.clipboard.writeText(text); ok=true; }catch(_){ ok=false; }
     if(!ok) ok=this.legacyCopy(text);
-    if(!ok){ this.setState({err:"ההעתקה נחסמה בדפדפן. אפשר לסמן את הטקסט ולהעתיק ידנית."}); return; }
+    if(!ok){ this.setState({err:"ההעתקה נחסמה בדפדפן. אפשר לסמן את הטקסט ולהעתיק ידנית."}); return false; }
     this.setState({[key]:"הועתק ✓"});
     setTimeout(()=>this.setState({[key]:label}), 1700);
+    return true;
   }
-  copyAi = () => {
+  /* ייצוא כשהסטטוס אדום (UX #18, #23): לחיצה ראשונה שואלת בסרגל, עם "להציג אותם"
+     ו"בכל זאת". הצבע האדום היה ההגנה היחידה, וההורדה לא נשאה אפילו אותו. */
+  exportGuard(what){
+    const p=this.pendingReview();
+    if(!p.blocking||this.state.exportAsk===what) { if(this.state.exportAsk) this.setState({exportAsk:""}); return true; }
+    this.log.add("export-ask",{what, open:p.blocking});
+    this.setState({exportAsk:what});
+    return false;
+  }
+  copyAi = async () => {
     if(!this.state.res) return;
     if(this.tourBlocks("copy")) return;
-    this.log.add("copy",{applied:this.state.res.applied.length, open:this.state.res.flagged.length});
-    this.copyTo(this.redactedText(), "copyLabel", "העתקה ל-AI");
-    // שלב 2 מתוך 3 (Q12 ב-docs/PLAN-v18.md): אחרי ההעתקה הסרגל מציע את שלב 3 —
-    // הדבקת התשובה שחזרה מה-AI והחזרת השמות האמיתיים
+    if(!this.exportGuard("copy")) return;
+    this.log.add("copy",{applied:this.state.res.applied.length, open:this.pendingReview().blocking});
+    const ok=await this.copyTo(this.redactedText(), "copyLabel", "העתקה ל-AI");
+    this.log.add("copy-result",{ok});
+    // שלב 2 מתוך 3 מתקדם רק כשההעתקה באמת הצליחה (UX #18)
+    if(!ok) return;
     this.setState({copied:true});
-    const v=this.state.res.verification;
-    const bits=[]; const sg=this.sugList().length, nr=this.nearList().length;
-    if(sg) bits.push(`${sg} שמות שאינם ברשימה`);
-    if(nr) bits.push(`${nr} מילים בכתיב דומה לשם שהוחלף`);
-    if(v.remaining.length) bits.push(`${v.remaining.length} ממצאים שלא הוחלפו`);
-    if(bits.length) this.setState({err:`הועתק, אבל בטקסט יש ${bits.join(" ו-")} — הם יגיעו ל-AI כמו שהם.`});
+    const n=this.pendingReview().blocking;
+    if(n) this.setState({err:`הועתק, אבל ${n===1?"פריט אחד":n+" פריטים"} בלי החלטה — הם יגיעו ל-AI כמו שהם.`});
   };
   // חבילת בדיקה (Q9): המסמך הנקי, יומן הסשן ודוח הדליפה בקובץ zip אחד, ואז
   // מייל שנפתח אצלה עם הכתובת מלאה. בלי שרת: היא מצרפת את הקובץ ולוחצת שלח.
@@ -1963,11 +2063,16 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     }catch(e){ this.setState({err:"הכנת החבילה נכשלה: "+(e.message||e)}); }
   };
   download = () => {
-    const RES=this.state.res; if(!RES) return; if(this.tourBlocks("download")) return; this.log.add("download",{});
+    const RES=this.state.res; if(!RES) return; if(this.tourBlocks("download")) return;
+    if(!this.exportGuard("download")) return;
+    this.log.add("download",{open:this.pendingReview().blocking});
     const u=URL.createObjectURL(RES.blob), a=document.createElement("a");
-    a.href=u; a.download=this.safeBase()+".docx";
+    const name=this.safeBase()+".docx";
+    a.href=u; a.download=name;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(u), 4000);
+    // הורדה נחשבת צעד 2 כמו העתקה, ואומרת לאן הקובץ הלך (UX #23)
+    this.setState({copied:true, notice:`הקובץ «${name}» ירד לתיקיית ההורדות.`, noticeUndo:false});
   };
   /* הכרטיס בכניסה שאל "להמשיך עם הפרופיל מהפעם הקודמת?" והציג מספר ערכים
      ותאריך. אי אפשר לזהות תיק לפי "שבעה ערכים", והשמות היו בזיכרון בדיוק באותו
@@ -2004,9 +2109,15 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      לכן כל הורדה מקבלת שם ניטרלי עם תאריך, ומונה בתוך הסשן כדי שאפשר יהיה
      להבחין בין כמה מסמכים באותו יום. השם המקורי נשאר על המסך, אצלה, ולא נוסע
      על אף קובץ. */
+  /* שם אחד לכל תוצאה (ביקורת QA 009): המונה עלה בכל הורדה, ודוח ההשחרה קיבל
+     סיומת אחרת מהמסמך שהוא מתאר. עכשיו השם נקבע פעם אחת לכל עיבוד, ומסמך הבא מקבל חדש. */
   safeBase(){
+    const RES=this.state.res;
+    const doc=this.state.buf||RES;
+    if(doc&&this._dlDoc===doc&&this._dlName) return this._dlName;
     this._dlSeq=(this._dlSeq||0)+1;
-    return "מסמך-מושחר-"+new Date().toISOString().slice(0,10)+(this._dlSeq>1?"-"+this._dlSeq:"");
+    this._dlDoc=doc; this._dlName="מסמך-מושחר-"+new Date().toISOString().slice(0,10)+(this._dlSeq>1?"-"+this._dlSeq:"");
+    return this._dlName;
   }
   profileObj(){
     return {v:1, created:(this.state.profile&&this.state.profile.created)||new Date().toISOString(), updated:new Date().toISOString(),
@@ -2297,7 +2408,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       onInlineSame:e=>{ e.stopPropagation(); const to=e.target.value; if(!to) return; this.log.add("inline-act",{act:"same"}); this.setState({inline:null}); this.mergeInto(I.base, to); },
       onInlineAllow:act("allow",()=>this.addAllow(I.base||I.value)),
       inlineFromList:I.src==="list"||I.src==="sweep", onInlineNotName:act("not-a-name",()=>this.notAName(I.base, I.value)),
-      inlineKinds:KINDS.map(([k,label])=>({label, onClick:act("add",()=>this.addRule(I.value, k, "", "mark"))})),
+      inlineKinds:KINDS.map(([k,label])=>({label:this.kindLabel(label), onClick:act("add",()=>this.addRule(I.value, k, "", "mark"))})),
       onInlineClose:e=>{ e.stopPropagation(); this.setState({inline:null}); }};
   }
   inlineSave(){ const I=this.state.inline; if(!I) return; this.log.add("inline-act",{act:"rep"}); this.setState({inline:null}); this.setRep(I.value, this.state.inlineDraft, I.base); }
@@ -2349,7 +2460,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     const v = {
       isEntry:S.screen==="entry", isPeople:S.screen==="people", isPlaces:S.screen==="places",
       isBusy:S.screen==="busy", isWork:S.screen==="work" && !!S.res, isReverse:S.screen==="reverse",
-      showSteps:S.screen!=="reverse",
+      // במסך הבדיקה יש סרגל שלבים משלו למטה; שני מודלים של התקדמות על אותו מסך בלבלו (UX #12)
+      showSteps:S.screen!=="reverse"&&S.screen!=="work",
       step1:stepStyle(S.screen==="entry", true),
       step2:stepStyle(S.screen==="people", !!S.buf),
       step3:stepStyle(S.screen==="places", !!S.buf),
@@ -2378,6 +2490,9 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       showTagline:!S.narrow,
       showIntro:!!S.intro&&!S.tour,
       onCloseIntro:()=>{ this.tourMarkSeen(); this.setState({intro:false}); },
+      // לחיצה על הרקע סוגרת כמו "להתחיל ישר"; לחיצה בתוך החלון לא (ביקורת QA 003)
+      onIntroBackdrop:()=>{ this.tourMarkSeen(); this.setState({intro:false}); },
+      introStop:e=>e.stopPropagation(),
       onTourStart:()=>this.tourStart(),
       ...this.tourView(),
       introSteps:[
@@ -2400,6 +2515,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           : "color:var(--ink2)"),
       onHome:()=>this.setState({screen:"entry", pending:!!S.buf, err:""}),
       notice:S.notice||"", onNoticeClose:()=>this.setState({notice:""}),
+      noticeUndo:S.noticeUndo!==false,
       onNoticeUndo:()=>{ this.setState({notice:""}); this.undo(); },
       err:S.err, busyT:S.busyT, primaryBtn,
       fileRef:el=>{ if(el) this.fileEl=el; }, profRef:el=>{ if(el) this.profEl=el; },
@@ -2502,7 +2618,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       hasMergeSugs:false,
       peoItems:S.peo.map((p,i)=>({
         value:p.value, note:p.sameAs?"= "+p.sameAs:p.note, kindName:KIND_NAME[p.kind]||"אדם",
-        style:"display:flex;align-items:center;gap:8px;padding:7px 10px 7px 12px;border-radius:20px;font-size:14px;white-space:nowrap;"+
+        // ערך ארוך נשבר בתוך השבב ולא מרחיב את העמוד (ביקורת QA 007)
+        style:"display:flex;align-items:center;gap:8px;padding:7px 10px 7px 12px;border-radius:20px;font-size:14px;max-width:100%;min-width:0;overflow-wrap:anywhere;"+
           "border:1px solid "+(p.auto?"var(--accent-soft)":"var(--line)")+";background:"+(p.auto?"var(--accent-soft)":"var(--panel)"),
         kindOpts:KIND_ORDER.map(k=>({value:k, label:KIND_NAME[k]||k, sel:(p.kind||"NAME")===k})),
         onKindSel:e=>this.setKind(i, e.target.value), onDel:()=>this.delPeo(i),
@@ -2587,7 +2704,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
          לא הייתה שום אפשרות שמתאימה, והדרך היחידה הייתה למצוא את הכרטיס שלה
          במסילה. addAllow כבר קיים ומשמש את "אל תחליף" שעל הכרטיסים; כאן הוא
          נגיש מהמסמך עצמו. */
-      popupKinds:KINDS.map(([k,l])=>({label:l, wide:"",
+      popupKinds:KINDS.map(([k,l])=>({label:this.kindLabel(l), wide:"",
           onClick:()=>{ this.addRule(S.popup.text, k, "", "mark"); getSelection().removeAllRanges(); }}))
         .concat([{label:"מילה רגילה — לא להחליף", wide:"flex-basis:100%;justify-content:center;color:var(--ink2)",
           onClick:()=>{ this.addAllow(S.popup.hit||S.popup.text); this.setState({popup:null}); getSelection().removeAllRanges(); }}]),
@@ -2602,7 +2719,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onAddV:e=>this.setState({addV:e.target.value}), onAddR:e=>this.setState({addR:e.target.value}),
       onAddKey:e=>{ if(e.key==="Enter") this.addRule(this.state.addV, this.state.addK, this.state.addR); },
       onAdd:()=>this.addRule(S.addV, S.addK, S.addR),
-      kindChips:KINDS.map(([k,l])=>({label:l, style:chip(S.addK===k), onClick:()=>this.setState({addK:k})})),
+      kindChips:KINDS.map(([k,l])=>({label:this.kindLabel(l), style:chip(S.addK===k), onClick:()=>this.setState({addK:k})})),
       sheetRef:el=>{this.sheetEl=el}, listRef:el=>{this.listEl=el},
       onSheetSelect:this.onSheetSelect
     };
@@ -2743,7 +2860,9 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.onHistUndo=()=>this.undo(); v.onHistRedo=()=>this.redo();
     v.undoStyle=histBtn((S.undoN||0)>0); v.redoStyle=histBtn((S.redoN||0)>0);
 
-    v.nearItems = near.map(x=>({
+    // אותה רשימה בדיוק כמו המונה: ערך שכבר מחכה כאדם לא מופיע שוב כהצעה (UX #13)
+    const PRv=this.pendingReview();
+    v.nearItems = PRv.near.map(x=>({
       value:x.value, ctx:x.ctx||{},
       tag:"כמו «"+x.near.target+"»"+(x.near.rep?" ← "+x.near.rep:""),
       fixLabel: x.near.rep ? "החלפה ל«"+x.near.rep+"»" : "החלפה גם כאן",
@@ -2753,18 +2872,26 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         if(x.near.rep){ if(ex) this.setRep(ex.value, x.near.rep); else this.addRule(v, x.near.kind||"NAME", x.near.rep); }
         else this.mergeInto(v, x.near.target); },
       onSkip:()=>this.addAllow(E.trimEdges(x.value))}));
-    v.sugItems = sug.map(x=>({
+    v.sugItems = PRv.sug.map(x=>({
       value:x.value, ctx:x.ctx||{}, tag:x.count+"× · "+x.why,
       onAdd:()=>{ const v=E.trimEdges(x.value); const ex=S.rules.find(r=>E.norm(r.value).trim()===E.norm(v).trim());
         if(ex) this.setState({sel:"a|"+E.norm(ex.value).trim(), open:this.openWith("findings")}); else this.addRule(v,"NAME",""); },
       onNo:()=>this.addAllow(E.trimEdges(x.value))}));
-    v.reviewClean = !near.length && !sug.length;
 
+    v.reviewClean = PRv.count===0;
+    /* ממצאים שנמצאו ולא הוחלפו, בראש "לבדיקה" (UX #13, #14): אנשים קודם, אחר כך
+       מספרים, ובסוף מקומות וגופים. לכל אחד "להחליף" ישיר ו"להשאיר". */
+    v.pendItems=[...PRv.people, ...PRv.numbers, ...PRv.soft].map(x=>({
+      value:x.value, tag:this.kindLabel(x.label)+(x.why?" · "+x.why:""), ctx:x.ctx||{},
+      onAdd:()=>{ this.log.add("review-act",{act:"replace", kind:this.kindOfLabel(x.label)}); this.addRule(E.trimEdges(x.value), this.kindOfLabel(x.label), "", "review"); },
+      onKeep:()=>{ this.log.add("review-act",{act:"keep"}); this.addAllow(E.trimEdges(x.value)); }}));
+
+    // המסנן הזה מראה מה שלא הוחלף; "לבדיקה" הוא הפאנל, עם מספר משלו (UX #13)
     v.tabs=[["all","הכל",RES.applied.length+RES.flagged.length],["rep","הוחלף",RES.applied.length],
-      ["flag","לבדיקה",RES.flagged.length]].map(([k,l,c])=>({
+      ["flag","לא הוחלף",RES.flagged.length]].map(([k,l,c])=>({
       label:l+" "+c, style:chip(S.filter===k), onClick:()=>this.setState({filter:k, sel:null})}));
     const counts={}; groups.forEach(g=>counts[g.label]=(counts[g.label]||0)+g.count);
-    v.cats=[["","הכל"]].concat(Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([l,n])=>[l,l+" "+n]))
+    v.cats=[["","הכל"]].concat(Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([l,n])=>[l,this.kindLabel(l)+" "+n]))
       .map(([val,label])=>({label, style:chip(S.cat===val), onClick:()=>this.setState({cat:val, sel:null})}));
 
     const q=(S.query||"").trim();
@@ -2801,8 +2928,12 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         };
       })(),
       onDropRule:e=>{ e.stopPropagation(); this.notAName(g.base||g.value, g.value); },
+      // "להחליף" ישיר על ממצא שמחכה, ו"אישור" על החלפה שמחכה לאישור (UX #14)
+      kindShown:this.kindLabel(g.label),
+      onReplaceFlag:e=>{ e.stopPropagation(); this.log.add("review-act",{act:"replace", from:"card", kind:this.kindOfLabel(g.label)}); this.addRule(E.trimEdges(g.value), this.kindOfLabel(g.label), "", "review"); },
+      onApprove:e=>{ e.stopPropagation(); this.log.add("review-act",{act:"approve"}); this.setState({approved:[...(S.approved||[]), g.key]}); },
       repStyle:"font-weight:500;font-size:14px;color:"+(g.ap?"var(--accent-ink)":"var(--warn)"),
-      meta:g.label+" · "+[...g.parts].join(", "),
+      meta:this.kindLabel(g.label)+" · "+[...g.parts].join(", "),
       ctx:g.ctxs[0]||{}, selected:S.sel===g.key, applied:g.ap && S.sel===g.key, flagged:!g.ap && S.sel===g.key,
       repDraft:S.sel===g.key?S.repDraft:"",
       style:"padding:12px 15px;border-bottom:1px solid var(--line2);cursor:pointer;"+
@@ -2851,7 +2982,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
 
     v.onReport = this.downloadReport;
     v.hasMine = S.rules.length>0 || S.allow.length>0;
-    v.mineItems = S.rules.map(r=>({kind:(E.KINDLBL[r.kind]||r.kind), value:r.value, rep:r.replacement||"",
+    v.mineItems = S.rules.map(r=>({kind:this.kindLabel(E.KINDLBL[r.kind]||r.kind), value:r.value, rep:r.replacement||"",
       onDel:()=>this.dropRule(r.value)}))
       .concat(S.allow.map(a=>({kind:"אל תחליף", value:a, rep:"", onDel:()=>{
         this.setState({allow:S.allow.filter(x=>x!==a)}, ()=>this.rerun()); }})));
@@ -2860,31 +2991,28 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     // דליפה, כמעט-התאמה, שם שלא ברשימה, או ממצא פתוח מסוג מזהה (ת"ז, טלפון, דוא"ל,
     // חשבון, רכב, תאריך לידה, כתובת) — אדום. יישוב, שכונה, גוף ומספר תיק שנשארו
     // לבדיקה — כתום, לא חוסמים: זו ההחלטה שלה.
-    const BLOCK_LBL=/^(?:שם|ת"ז|ת״ז|תעודת זהות|טלפון|טלפון נייד|טלפון קווי|פקס|דוא"ל|כתובת דוא"ל|כתובת|חשבון בנק|מספר רכב|תאריך לידה|כרטיס אשראי|IBAN|דרכון|התנגשות פרופיל)/;
-    const openFlag=RES.flagged.filter(f=>f.src!=="near"&&f.src!=="nohit");
-    const blockOpen=openFlag.filter(f=>BLOCK_LBL.test(f.label||"")), softOpen=openFlag.filter(f=>!BLOCK_LBL.test(f.label||""));
+    // רשימת ההמתנה אחת לכל המסך (UX #13): אותו מספר בסרגל, בכותרת "לבדיקה" ובשאלה לפני ייצוא
+    const PR=this.pendingReview();
+    const listNames=a=>a.slice(0,3).join(" · ")+(a.length>3?" ועוד":"");
     let kind="ok", title="", text="";
     if(!ver.passed){ kind="bad";
       title="האימות נכשל — ערכים מזהים עדיין בקובץ";
       text=ver.leaks.slice(0,3).map(l=>l.value+" בתוך "+l.part).join(" · ")+(ver.leaks.length>3?" ועוד":"")+". אין לשלוח ואין להעתיק.";
-    } else if(sug.length){ kind="bad";
-      title=sug.length===1?"שם אחד בגוף המסמך שאינו ברשימה":sug.length+" שמות בגוף המסמך שאינם ברשימה";
-      text=sug.slice(0,3).map(x=>x.value).join(" · ")+(sug.length>3?" ועוד":"")+". הם לא הוחלפו ויגיעו ל-AI כמו שהם — יש לענות בפאנל «לבדיקה» לפני ההעתקה.";
-    } else if(near.length){ kind="bad";
-      title=(near.length===1?"מילה אחת נכתבה":near.length+" מילים נכתבו")+" כמעט כמו שם שהוחלף";
-      text=near.slice(0,3).map(x=>x.value).join(" · ")+(near.length>3?" ועוד":"")+". זה הדפוס של שיבוש תמלול — לטפל לפני ההעתקה.";
-    } else if(blockOpen.length){ kind="bad";
-      title=blockOpen.length===1?"פרט מזהה אחד ממתין להחלטה":blockOpen.length+" פרטים מזהים ממתינים להחלטה";
-      text=[...new Set(blockOpen.map(f=>f.label+": "+f.value))].slice(0,3).join(" · ")+(blockOpen.length>3?" ועוד":"")+". שם או מספר שנשאר לבדיקה יגיע ל-AI כמו שהוא.";
-    } else if(softOpen.length||ver.embedded.length){ kind="warn";
+    } else if(PR.blocking){ kind="bad";
+      title=(PR.count===1?"פריט אחד ממתין":PR.count+" פריטים ממתינים")+" להחלטה בפאנל «לבדיקה»";
+      // אנשים קודם, ספקות ברמת המילה בסוף
+      const ordered=[...PR.people.map(x=>x.value), ...PR.numbers.map(x=>x.value), ...PR.sug.map(x=>x.value), ...PR.near.map(x=>x.value), ...PR.soft.map(x=>x.value)];
+      text=listNames(ordered)+". מה שלא הוחלט יגיע ל-AI כמו שהוא.";
+    } else if(PR.soft.length||ver.embedded.length){ kind="warn";
       const bits=[];
-      if(softOpen.length) bits.push(softOpen.length+" מקומות או גופים שנשארו לבדיקה — ההחלטה שלך");
+      if(PR.soft.length) bits.push((PR.soft.length===1?"מקום או גוף אחד ממתין":PR.soft.length+" מקומות או גופים ממתינים")+" בפאנל «לבדיקה» — ההחלטה שלך");
       if(ver.embedded.length) bits.push(ver.embedded.length+" תמונות או קבצים מוטמעים שלא נסרקו");
       title="השמות והמספרים הוחלפו; נשאר מה שאינו חוסם";
       text=bits.join(" · ")+". טקסט בתוך תמונה או קובץ מוטמע אינו נסרק.";
     } else {
-      title="לא נמצאו שרידים, ולא נמצא כתיב דומה";
-      text="נסרקו "+ver.parts+" חלקים בערוצי הטקסט הנתמכים"+(ver.hadList?"":", אך בלי רשימת שמות הבדיקה חלשה")+". זיהוי אינו מבטיח כיסוי מלא — כדאי לקרוא את המסמך לפני שליחה.";
+      // בלי מונחי מנוע (UX #15)
+      title="לא נשארו בטקסט שמות או מספרים מהרשימה";
+      text=(ver.hadList?"נבדקו גם כותרות, הערות שוליים ותיבות טקסט":"בלי רשימת שמות הבדיקה חלשה")+". כדאי לקרוא את המסמך פעם אחת לפני שליחה.";
     }
     const cmap={ok:["var(--accent)","var(--accent-soft)","✓"], warn:["var(--warn)","var(--warn-soft)","!"], bad:["var(--bad)","var(--bad-soft)","!"]};
     v.statusDot="width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:13px;font-weight:600;color:"+cmap[kind][0]+";background:"+cmap[kind][1];
@@ -2897,7 +3025,14 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.copyLabel=S.copyLabel;
     v.copyBtnStyle="padding:11px 20px;border-radius:10px;font-weight:500;font-size:14px;white-space:nowrap;color:var(--panel);background:"+(kind==="ok"?"var(--accent)":kind==="warn"?"var(--warn)":"var(--bad)");
     v.onCopyAi=this.copyAi; v.onDownload=this.download;
-    v.hasReview = (near.length+sug.length)>0 && S.open!=="review";
+    // השאלה לפני ייצוא כשיש ממתינים (UX #18, #23)
+    v.exportAsk=!!S.exportAsk&&PR.blocking>0;
+    v.exportAskText=(PR.blocking===1?"פריט אחד עדיין בלי החלטה":PR.blocking+" פריטים עדיין בלי החלטה")+" — "+listNames([...PR.people.map(x=>x.value), ...PR.numbers.map(x=>x.value), ...PR.sug.map(x=>x.value), ...PR.near.map(x=>x.value)]);
+    v.exportAnyLabel=S.exportAsk==="download"?"להוריד בכל זאת":"להעתיק בכל זאת";
+    v.onExportShow=()=>{ this.log.add("export-ask",{act:"show"}); this.setState({exportAsk:"", open:this.openWith("review"), pane:"find"}); };
+    v.onExportAnyway=()=>{ const w=S.exportAsk; this.log.add("export-ask",{act:"anyway", what:w}); if(w==="download") this.download(); else this.copyAi(); };
+    v.onExportCancel=()=>this.setState({exportAsk:""});
+    v.hasReview = PR.count>0 && S.open!=="review";
     v.onOpenReview=()=>this.setState({open:this.openWith("review"), pane:"find"});
 
     // כמה מקטעים פתוחים יחד; "לבדיקה" נפתח מעצמו כשיש מה לבדוק. אקורדיון שסוגר
@@ -2905,12 +3040,13 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     const open=Array.isArray(S.open)?S.open:(S.open?[S.open]:[]);
     const isOpen=k=>open.includes(k);
     const secDef=[
-      // שם שהיא ביקשה להשאיר הוא החלטה שמחכה לאישור לפני השליחה, ולכן הוא נספר כאן
-      ["review","לבדיקה", near.length+sug.length+(S.allow||[]).length, near.length+sug.length+(S.allow||[]).length?"warn":"ok"],
+      // מספר אחד: מה שעוד מחכה להחלטה (UX #13). שם שהושאר הוא החלטה שכבר נעשתה, ולא נספר.
+      ["review","לבדיקה", PR.count, PR.count?"warn":"ok"],
       ["findings","מה נמצא והוחלף", RES.applied.length+RES.flagged.length, "ok"],
-      ["send","שליחת הסשן אלינו", 0, "plain"],
       ["profile","הרשימה ופרופיל התיק", S.rules.length, "plain"],
-      ["clean","מה נוקה מהקובץ", stats.length, "plain"]
+      ["clean","מה נוקה מהקובץ", stats.length, "plain"],
+      // כלי המשוב שלנו בסוף, מתחת לפרופיל — הוא אינו חלק מהעבודה על המסמך (UX #16)
+      ["send","שליחת הסשן אלינו", 0, "plain"]
     ];
     v.sections = secDef.map(([key,title,count,tone])=>({
       key, title, count:count?count:"", chev:isOpen(key)?"▲":"▼",

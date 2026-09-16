@@ -20,7 +20,7 @@ test("a found name removed on the people screen does not come back at the check 
   await H.peopleRows(page).filter({ hasText: "ברקוביץ" }).getByRole("button", { name: "הסרה" }).click();
   expect(await H.listedNames(page)).not.toContain("ברקוביץ");
   await H.goOn(page);
-  await page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לעיבוד/ }).first().click();
+  await page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first().click();
   await expect(page.locator("[data-mark]").first()).toBeVisible({ timeout: 15000 });
   // not replaced, and not offered again anywhere in the rail
   await expect(page.locator("[data-work] section").first()).toContainText("ברקוביץ");
@@ -39,7 +39,7 @@ test("the arrows say up and down, and next moves from the mark she clicked", asy
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   await H.goOn(page);
-  await page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לעיבוד/ }).first().click();
+  await page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first().click();
   const marks = page.locator("[data-mark]");
   await expect(marks.first()).toBeVisible({ timeout: 15000 });
   const n = await marks.count();
