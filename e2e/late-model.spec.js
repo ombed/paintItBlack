@@ -37,12 +37,15 @@ test("a name the model finds after she continued still gets replaced", async ({ 
   await H.startScan(page);
 
   // she does not wait
-  const goNow = page.getByRole("button", { name: /להמשיך בלי לחכות למודל/ });
+  const goNow = page.getByRole("button", { name: /לא לחכות למודל/ });
   await expect(goNow).toBeVisible({ timeout: 10000 });
   await goNow.click();
+  // v36 (UX #7): the button only stops the wait; she then presses "המשך"
+  await expect(H.goButton(page)).toBeEnabled();
+  await H.goOn(page);
 
   // through the places screen if it appears, on to the check screen
-  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לעיבוד|המשך|עיבוד/ }).first();
+  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה|המשך לעיבוד|המשך|עיבוד/ }).first();
   if (await run.isVisible({ timeout: 5000 }).catch(() => false)) await run.click();
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
 

@@ -75,9 +75,16 @@ const startScan = (page) => page.getByRole("button", { name: /איתור שמו�
 const scanning = (page) => page.getByRole("button", { name: "סורק את המסמך…", exact: true });
 const goButton = (page) => page.getByRole("button", { name: "המשך", exact: true });
 const skipButton = (page) => page.getByRole("button", { name: /המשך בלי שמות/ });
+// v36 (UX #8): "המשך" with open "נמצאו גם" suggestions asks first. This presses
+// "המשך" and, if asked, answers "להמשיך בלעדיהם" — the path every spec took before.
+async function goOn(page) {
+  await goButton(page).click();
+  const skip = page.getByRole("button", { name: "להמשיך בלעדיהם", exact: true });
+  if (await skip.isVisible({ timeout: 800 }).catch(() => false)) await skip.click();
+}
 
 // Each people row carries a delete button; the name is the row's own span.
 const peopleRows = (page) => page.locator('div:has(> button[aria-label="הסרה"])');
 const listedNames = (page) => peopleRows(page).locator("> span").allTextContents();
 
-module.exports = { DOCX, serveEngineWithStub, boot, upload, startScan, scanning, goButton, skipButton, peopleRows, listedNames };
+module.exports = { DOCX, serveEngineWithStub, boot, upload, startScan, scanning, goButton, goOn, skipButton, peopleRows, listedNames };

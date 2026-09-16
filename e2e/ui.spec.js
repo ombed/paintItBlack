@@ -34,14 +34,14 @@ test("each screen renders its controls, with no page errors", async ({ page }) =
   await expect(page.getByPlaceholder(/שם מלא/)).toBeVisible();
   await expect(page.getByRole("button", { name: "הוספה", exact: true })).toBeVisible();
   await expect(H.skipButton(page)).toBeVisible();
-  await expect(page.getByRole("button", { name: /טעינת פרופיל/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /ייבוא פרופיל/ })).toBeVisible();
   for (const step of ["קובץ", "מי בתיק", "מקומות"])
     await expect(page.getByRole("button", { name: step, exact: true })).toBeVisible();
   expect(await H.listedNames(page)).toContain("דנה לוי");
 
   // Reverse: paste box and its action.
   await page.getByRole("button", { name: /החזרת שמות מתשובת AI/ }).click();
-  await expect(page.getByRole("heading", { name: /החזרת שמות לתשובה/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /החזרת שמות מתשובת AI/ })).toBeVisible();
   await expect(page.getByPlaceholder("הדבקת תשובת ה-AI…")).toBeVisible();
   await expect(page.getByRole("button", { name: "החזרת שמות", exact: true })).toBeVisible();
 

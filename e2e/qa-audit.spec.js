@@ -24,8 +24,8 @@ async function scanAndList(page, name) {
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   const input = page.getByPlaceholder(/שם מלא/);
   await input.fill(name); await input.press("Enter");
-  await H.goButton(page).click();
-  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לעיבוד|המשך|עיבוד/ }).first();
+  await H.goOn(page);
+  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה|המשך לעיבוד|המשך|עיבוד/ }).first();
   if (await run.isVisible({ timeout: 3000 }).catch(() => false)) await run.click();
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
 }
@@ -44,7 +44,7 @@ test("ISSUE-001: restore finds the current document's pseudonyms after a saved c
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "מסמך חדש" }).click();
   await H.upload(page, "second.docx", DOC2);
-  const banner = page.locator("div").filter({ hasText: /תיקים אחרונים/ }).getByRole("button", { name: "המשך", exact: true }).first();
+  const banner = page.locator("div").filter({ hasText: /תיקים אחרונים/ }).getByRole("button", { name: "שימוש בתיק הזה", exact: true }).first();
   await expect(banner).toBeVisible({ timeout: 10000 });
   await banner.click();
   await scanAndList(page, "עמוס ברק");
@@ -84,8 +84,8 @@ test("ISSUE-002: a name ending in geresh keeps its ׳, matches the document, and
   // a chip offering the same name is consumed by adding it
   await expect(page.getByRole("button", { name: "+ יואב ברקוביץ׳" })).toHaveCount(0);
 
-  await H.goButton(page).click();
-  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לעיבוד|המשך|עיבוד/ }).first();
+  await H.goOn(page);
+  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה|המשך לעיבוד|המשך|עיבוד/ }).first();
   if (await run.isVisible({ timeout: 3000 }).catch(() => false)) await run.click();
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   const text = await sheet(page).innerText();

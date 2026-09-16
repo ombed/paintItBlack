@@ -21,13 +21,16 @@ test("continuing without the model keeps the header names, and a late model resu
   await H.startScan(page);
   await expect(H.scanning(page)).toBeVisible();
   expect(await H.listedNames(page)).toContain("רונית לוי");
-  const goNow = page.getByRole("button", { name: /להמשיך בלי לחכות למודל/ });
+  const goNow = page.getByRole("button", { name: /לא לחכות למודל/ });
   await expect(goNow).toBeVisible();
   await goNow.click();
-  // straight on to the places screen; the late model result must not land anywhere
+  // v36 (UX #7): the button only stops the wait; the list stays for review, and "המשך" goes on
+  await expect(H.goButton(page)).toBeEnabled();
+  await H.goOn(page);
+  // on to the places screen; the late model result still lands (below)
   await expect(page.getByRole("heading", { name: /יישובים/ })).toBeVisible({ timeout: 10000 });
   await page.waitForTimeout(9000);
-  await page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לעיבוד/ }).first().click();
+  await page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first().click();
   await expect(page.locator("[data-mark]").first()).toBeVisible({ timeout: 15000 });
   await expect(page.locator("[data-work] section").first()).not.toContainText("רונית לוי");
   // the late result landed: the name it found is replaced in the document,

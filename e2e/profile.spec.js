@@ -15,8 +15,8 @@ test.beforeEach(async ({ page }) => {
   await H.upload(page, "case.docx", DOC);
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
-  await H.goButton(page).click();
-  await page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לעיבוד/ }).first().click();
+  await H.goOn(page);
+  await page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first().click();
   await expect(page.locator("[data-mark]").first()).toBeVisible({ timeout: 15000 });
 });
 
@@ -37,7 +37,7 @@ test("the profile survives a reload and is offered on the entry screen as a name
   const row = page.locator("[data-case=\"לוי נ׳ לוי\"]");
   await expect(row).toBeVisible();
   await expect(row).toContainText("ערכים");
-  await row.getByRole("button", { name: "המשך", exact: true }).click();
+  await row.getByRole("button", { name: "שימוש בתיק הזה", exact: true }).click();
   await expect(page.locator("[data-case]")).toHaveCount(0);
   // the rules are back: uploading the same document pre-fills from the profile
   await page.getByRole("checkbox").first().uncheck();

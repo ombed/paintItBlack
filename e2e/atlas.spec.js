@@ -21,7 +21,7 @@ test("the places screen says what the substitute shares with the town", async ({
   await H.upload(page, "case.docx", DOC);
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
-  await H.goButton(page).click();
+  await H.goOn(page);
 
   const rows = page.locator('div:has(> button:text-is("אל תחליף"))');
   await expect(rows.first()).toBeVisible({ timeout: 10000 });
@@ -53,8 +53,8 @@ test("a neighbourhood keeps its kind in the document", async ({ page }) => {
   const kind = row.getByRole("combobox");
   await kind.selectOption("PLACE");
   await expect(kind).toHaveValue("PLACE");
-  await H.goButton(page).click();
-  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לעיבוד|המשך|עיבוד/ }).first();
+  await H.goOn(page);
+  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה|המשך לעיבוד|המשך|עיבוד/ }).first();
   if (await run.isVisible({ timeout: 3000 }).catch(() => false)) await run.click();
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   const mark = page.locator('[data-mark][data-val="הפרדס"]').first();

@@ -43,7 +43,7 @@ test("the redacted download is not named after the person in the file name", asy
   await H.upload(page, "תסקיר-רונית-לוי.docx", DOC);
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
-  await H.goButton(page).click();
+  await H.goOn(page);
 
   // straight through the places screen if it appears, then run
   const go = page.getByRole("button", { name: /החלת הקבוצה|המשך|עיבוד/ }).first();
@@ -51,6 +51,9 @@ test("the redacted download is not named after the person in the file name", asy
 
   const download = page.waitForEvent("download", { timeout: 30000 });
   await page.getByRole("button", { name: /הורדת Word/ }).click();
+  // v36 (UX #23): with items still pending the download asks first; this test is about the name
+  const anyway = page.getByRole("button", { name: "להוריד בכל זאת" });
+  if (await anyway.isVisible({ timeout: 1500 }).catch(() => false)) await anyway.click();
   const name = (await download).suggestedFilename();
 
   expect(name).not.toContain("רונית");

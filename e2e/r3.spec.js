@@ -27,7 +27,7 @@ async function toPeople(page) {
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
 }
 async function toCheck(page) {
-  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לעיבוד|המשך|עיבוד/ }).first();
+  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה|המשך לעיבוד|המשך|עיבוד/ }).first();
   if (await run.isVisible({ timeout: 3000 }).catch(() => false)) await run.click();
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
 }
@@ -35,7 +35,7 @@ const sheet = (page) => page.locator("[data-work] section").first();
 
 test("a full date is shifted, not deleted, and the same offset holds for the document", async ({ page }) => {
   await toPeople(page);
-  await H.goButton(page).click();
+  await H.goOn(page);
   await toCheck(page);
   const text = await sheet(page).innerText();
   expect(text).not.toContain("11.2.2026");
@@ -48,7 +48,7 @@ test("a full date is shifted, not deleted, and the same offset holds for the doc
 
 test("removing a town keeps the other approved pairs, and a dissolved map hands its name over", async ({ page }) => {
   await toPeople(page);
-  await H.goButton(page).click();
+  await H.goOn(page);
   const rows = page.locator('div:has(> button:text-is("אל תחליף"))');
   await expect(rows.first()).toBeVisible({ timeout: 10000 });
   const names = await rows.locator('span[data-tip="1"]').allTextContents();
@@ -67,7 +67,8 @@ test("removing a town keeps the other approved pairs, and a dissolved map hands 
   const last = names2[1], lastTo = tos2[1];
   const extra = page.locator("[data-wrap]").filter({ hasText: last }).first();
   await expect(extra).toBeVisible();
-  expect(await extra.locator("input").inputValue()).toBe(lastTo);
+  // v36 (UX #10): the row also carries a "להחליף" checkbox, so name the text box
+  expect(await extra.getByRole("textbox").inputValue()).toBe(lastTo);
 });
 
 test("'same person as' on the card links the names, and a conflicting decision replaces the old one with a notice", async ({ page }) => {
@@ -77,7 +78,7 @@ test("'same person as' on the card links the names, and a conflicting decision r
   // decline the merge suggestion on the people screen, so the two reach the check screen apart
   const sug = page.locator("[data-merge-sug]").first();
   if (await sug.isVisible({ timeout: 2000 }).catch(() => false)) await sug.getByRole("button", { name: /שני אנשים/ }).click();
-  await H.goButton(page).click();
+  await H.goOn(page);
   await toCheck(page);
   // link דנה ברקוביץ to רונית לוי from the card
   const mark = page.locator('[data-mark][data-val="דנה ברקוביץ"]').first();
