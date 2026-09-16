@@ -43,7 +43,7 @@ test("the redacted download is not named after the person in the file name", asy
   await H.upload(page, "תסקיר-רונית-לוי.docx", DOC);
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
-  await H.goButton(page).click();
+  await H.goOn(page);
 
   // straight through the places screen if it appears, then run
   const go = page.getByRole("button", { name: /החלת הקבוצה|המשך|עיבוד/ }).first();

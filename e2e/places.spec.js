@@ -26,7 +26,7 @@ test("a settlement name that is also an ordinary word is not offered for replace
   await H.upload(page, "case.docx", DOC);
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
-  await H.goButton(page).click();
+  await H.goOn(page);
 
   // the places screen: two real towns, and no row for the ordinary word
   const rows = page.locator('div:has(> button:text-is("אל תחליף"))');
@@ -46,7 +46,7 @@ test("a place row shows the sentences it appears in, on hover and on tap", async
   await H.upload(page, "case.docx", DOC);
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
-  await H.goButton(page).click();
+  await H.goOn(page);
 
   const haifa = page.locator('span[data-tip="1"]').filter({ hasText: "חיפה" }).first();
   await expect(haifa).toBeVisible({ timeout: 10000 });

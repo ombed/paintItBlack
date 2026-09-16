@@ -35,7 +35,7 @@ const sheet = (page) => page.locator("[data-work] section").first();
 
 test("a full date is shifted, not deleted, and the same offset holds for the document", async ({ page }) => {
   await toPeople(page);
-  await H.goButton(page).click();
+  await H.goOn(page);
   await toCheck(page);
   const text = await sheet(page).innerText();
   expect(text).not.toContain("11.2.2026");
@@ -48,7 +48,7 @@ test("a full date is shifted, not deleted, and the same offset holds for the doc
 
 test("removing a town keeps the other approved pairs, and a dissolved map hands its name over", async ({ page }) => {
   await toPeople(page);
-  await H.goButton(page).click();
+  await H.goOn(page);
   const rows = page.locator('div:has(> button:text-is("אל תחליף"))');
   await expect(rows.first()).toBeVisible({ timeout: 10000 });
   const names = await rows.locator('span[data-tip="1"]').allTextContents();
@@ -77,7 +77,7 @@ test("'same person as' on the card links the names, and a conflicting decision r
   // decline the merge suggestion on the people screen, so the two reach the check screen apart
   const sug = page.locator("[data-merge-sug]").first();
   if (await sug.isVisible({ timeout: 2000 }).catch(() => false)) await sug.getByRole("button", { name: /שני אנשים/ }).click();
-  await H.goButton(page).click();
+  await H.goOn(page);
   await toCheck(page);
   // link דנה ברקוביץ to רונית לוי from the card
   const mark = page.locator('[data-mark][data-val="דנה ברקוביץ"]').first();

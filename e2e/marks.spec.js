@@ -30,7 +30,7 @@ test("stepping to a replacement never makes it invisible", async ({ page }) => {
   await H.upload(page, "hearing.docx", DOC);
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
-  await H.goButton(page).click();
+  await H.goOn(page);
 
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך|עיבוד/ }).first();
   if (await run.isVisible().catch(() => false)) await run.click();
