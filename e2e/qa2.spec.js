@@ -27,9 +27,15 @@ async function toWork(page, doc = DOC) {
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   await H.goOn(page);
+  await afterList(page);
+}
+// the places screen comes when the document has towns; either way, end on the work screen
+async function afterList(page) {
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
-  if (await run.isVisible({ timeout: 3000 }).catch(() => false)) await run.click();
-  await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
+  const bar = page.locator("[data-bar]");
+  await expect(run.or(bar).first()).toBeVisible({ timeout: 20000 });
+  if (await run.isVisible()) await run.click();
+  await expect(bar).toBeVisible({ timeout: 20000 });
 }
 
 test("C1: changing one person's pseudonym leaves everyone else's alone, and the earlier AI answer still restores them", async ({ page }) => {
@@ -61,4 +67,54 @@ test("C1: changing one person's pseudonym leaves everyone else's alone, and the 
   await expect(out).toContainText("המורה רחל פרידמן");
   await expect(out).toContainText("הסבתא לאה ברקוביץ׳");
   await expect(out).not.toContainText("רחל נחום");
+});
+
+const A = ["פרוטוקול א", "אבנר שטרן: הגעתי לפגישה.", "אבנר שטרן: חתמתי על ההסכם."].join("\n");
+const B = ["פרוטוקול ב", "אבנר שטרן: שלחתי מכתב.", "שושנה ברקאי: הגבתי למכתב.", "אבנר שטרן: ביקשתי דחייה.", "שושנה ברקאי: הסכמתי."].join("\n");
+const C = ["פרוטוקול ג", "שושנה ברקאי: הגעתי לבדי.", "שושנה ברקאי: חתמתי."].join("\n");
+const cases = (page) => page.evaluate(() => JSON.parse(localStorage.getItem("redact-cases") || "{}"));
+
+// the case is chosen on the entry screen, then the next document is loaded
+async function nextDocWithCase(page, doc) {
+  await page.reload();
+  await page.getByRole("button", { name: "שימוש בתיק הזה", exact: true }).first().click();
+  await expect(page.locator("[data-case-chip]")).toContainText("שטרן נ׳ שטרן");
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "next.docx", doc);
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+}
+async function onward(page) {
+  await H.goOn(page);
+  await afterList(page);
+}
+
+test("C2: a saved case keeps its people and their pseudonyms across documents", async ({ page }) => {
+  await toWork(page, A);
+  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  await page.getByPlaceholder(/שם התיק/).fill("שטרן נ׳ שטרן");
+  // a pseudonym she chose herself
+  await page.locator('[data-mark][data-val="אבנר שטרן"]').first().click();
+  await page.locator("[data-inline]").getByPlaceholder("תחליף אחר").fill("יוני כהן");
+  await page.locator("[data-inline]").getByPlaceholder("תחליף אחר").press("Enter");
+  await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("יוני כהן");
+  expect((await cases(page))["שטרן נ׳ שטרן"].map["אבנר שטרן"]).toBe("יוני כהן");
+
+  // document B, same person plus a new one: he is on the list already, and keeps his name
+  await nextDocWithCase(page, B);
+  expect(await H.listedNames(page)).toContain("אבנר שטרן");
+  await onward(page);
+  expect((await repOf(page, "אבנר שטרן")).trim()).toBe("יוני כהן");
+  let map = (await cases(page))["שטרן נ׳ שטרן"].map;
+  expect(map["אבנר שטרן"]).toBe("יוני כהן");
+  expect(map["שושנה ברקאי"]).toBeTruthy();
+  const shoshana = map["שושנה ברקאי"];
+
+  // document C mentions only שושנה: the case still remembers אבנר, and she reads as before
+  await nextDocWithCase(page, C);
+  await onward(page);
+  expect((await repOf(page, "שושנה ברקאי")).trim()).toBe(shoshana);
+  map = (await cases(page))["שטרן נ׳ שטרן"].map;
+  expect(map["אבנר שטרן"]).toBe("יוני כהן");
+  expect(map["שושנה ברקאי"]).toBe(shoshana);
 });

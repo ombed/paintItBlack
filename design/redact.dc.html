@@ -1346,6 +1346,11 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       if(!c.speaker && (!w.every(x=>E.nameish(x,dt)) || w[0][0]==="ו" || w.some(x=>x[0]==="ה"))) continue;
       peo.push({value:c.value, note:c.speaker?"דובר בתמלול":"מהכותרת", auto:true, g:c.g, kind:"NAME"});
     }
+    // תיק שנבחר לפני המסמך (C2 בביקורת השנייה): האנשים שלו נכנסים לרשימה כאן,
+    // כמו שקורה כשהתיק נבחר כשהרשימה כבר על המסך — אחרת אדם מהתיק הופיע רק
+    // כהצעה, והכינוי שלו מהמסמך הקודם לא הגיע לכללים.
+    for(const r of this.profileRules()) if((r.kind==="NAME"||r.kind==="ORG")&&!peo.some(p=>E.norm(p.value)===E.norm(r.value)))
+      peo.push({value:r.value, kind:r.kind, note:"מהפרופיל", auto:true, g:null});
     // מה ש-discover מצא ולא מילא מעצמו לא נעלם: הוא מוצג לאישור בהקשה אחת.
     // ניחוש בינוני עולה הקשה; שם שהיא לא נשאלה עליו הוא הכשל שהכלי נועד למנוע.
     const inList=v=>peo.some(p=>E.norm(p.value)===E.norm(v));
@@ -1424,7 +1429,26 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
   peoGo(){
     this.setState({sugAsk:false});
-    this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined})));
+    this.toPlaces(this.rulesFromPeo(this.state.peo));
+  }
+  profileRules(){ const p=this.state.profile; return (p&&Array.isArray(p.rules)?p.rules:[]).filter(r=>r&&r.value); }
+  /* הרשימה הופכת לכללים. עד כאן כל כלל נולד ריק (replacement:""), גם כשהתיק
+     כבר ידע מה הכינוי של האדם הזה: "יוני כהן" שהוקלד במסמך הקודם נזרק, והוא קיבל
+     שם בדוי חדש (C2). עכשיו כלל של ערך שכבר הוחלט עליו — בכללים הנוכחיים או
+     בפרופיל התיק — יורש את התחליף, הסגנון וההצמדה. */
+  rulesFromPeo(list){
+    const E=this.state.E, n=v=>E.norm(String(v||"")).trim();
+    const known=[...(this.state.rules||[]), ...this.profileRules()];
+    const pm=(this.state.profile&&this.state.profile.map)||{};
+    return list.map(p=>{
+      const r={value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined};
+      const old=known.find(x=>x&&n(x.value)===n(p.value)&&(x.kind||"NAME")===r.kind);
+      const rep=(old&&old.replacement)||pm[p.value]||"";
+      if(rep) r.replacement=rep;
+      if(old&&old.pinned&&old.replacement) r.pinned=true;
+      if(old&&old.style) r.style=old.style;
+      return r;
+    });
   }
   peoAddAll(){
     const open=this.openSugs(); if(!open.length) return;
@@ -2136,7 +2160,26 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       return Object.values(m).filter(p=>p&&p.v===1&&p.name).sort((a,b)=>String(b.updated||"").localeCompare(String(a.updated||""))); }catch(_){ return []; }
   }
   writeCase(prof){
-    try{ const m=JSON.parse(localStorage.getItem("redact-cases")||"{}"); m[prof.name]=prof; localStorage.setItem("redact-cases", JSON.stringify(m)); }catch(_){}
+    try{ const m=JSON.parse(localStorage.getItem("redact-cases")||"{}");
+      const prev=m[prof.name];
+      m[prof.name]=(prev&&prev.v===1)?this.mergeCase(prev, prof):prof;
+      localStorage.setItem("redact-cases", JSON.stringify(m)); }catch(_){}
+  }
+  /* התיק הוא איחוד של כל המסמכים שלו, לא צילום של האחרון (C2 בביקורת השנייה):
+     מסמך שבו אבנר לא מוזכר מחק אותו מהתיק, והמסמך הבא נתן לו שם חדש. מה שהוחלט
+     במסמך הנוכחי גובר; מי שלא מופיע בו נשאר מהקודם. ערך שהותר עכשיו ("אל
+     תחליף", מחיקה מהרשימה) אינו חוזר ככלל, וערך שהוא כלל עכשיו אינו נשאר מותר. */
+  mergeCase(prev, cur){
+    const E=this.state.E, n=v=>E.norm(String(v||"")).trim();
+    const curAllow=new Set((cur.allow||[]).map(n)), curRules=new Set((cur.rules||[]).map(r=>n(r&&r.value)));
+    const rules=(cur.rules||[]).slice();
+    for(const r of prev.rules||[]) if(r&&r.value&&!curRules.has(n(r.value))&&!curAllow.has(n(r.value))) rules.push(r);
+    const allow=(cur.allow||[]).slice();
+    for(const a of prev.allow||[]) if(a&&!curRules.has(n(a))&&!curAllow.has(n(a))) allow.push(a);
+    const map={...(prev.map||{})};
+    for(const k of Object.keys(map)) if(curAllow.has(n(k))) delete map[k];
+    Object.assign(map, cur.map||{});
+    return {...cur, created:prev.created||cur.created, rules, allow, map};
   }
   deleteCase = name => {
     try{ const m=JSON.parse(localStorage.getItem("redact-cases")||"{}"); delete m[name]; localStorage.setItem("redact-cases", JSON.stringify(m)); }catch(_){}
@@ -2229,7 +2272,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(cur.screen==="people"){
       const S=this.state;
       if(S.scanning||S.screen!=="people") return;
-      await this.toPlaces(S.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined})));
+      await this.toPlaces(this.rulesFromPeo(S.peo));
       // הלוח מתקדם רק כשהמסך הבא באמת על המסך. בלי מסך יישובים (אין שני
       // יישובים למפה) מחכים למסך הבדיקה ומדלגים ישר אליו.
       if(this.state.screen==="places"){ this.setState({tour:{...this.state.tour, i:2, hadPlaces:true}}); return; }
