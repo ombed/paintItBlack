@@ -240,3 +240,39 @@ test("H3: a name dismissed with 'לא אדם' and then typed by hand is replaced
   await expect(page.locator("[data-bar]")).not.toContainText("האימות נכשל");
   await expect(page.locator('[data-mark][data-val="דנה ברקוביץ׳"]').first()).toBeVisible();
 });
+
+test("H4: no town in the document is offered as another town's pseudonym, so nothing chains", async ({ page }) => {
+  const TOWNS = ["חולון", "רמת גן", "נתניה", "רחובות"];
+  const DOC4 = [
+    "פרוטוקול",
+    "דוד מזרחי: אני גר בחולון ועובד ברמת גן. הוא נוסע לפעמים לנתניה.",
+    "דוד מזרחי: בקיץ הוא יעבור לרחובות, ליד רחובות יש גן.",
+  ].join("\n");
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "case.docx", DOC4);
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  await H.goOn(page);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("יישובים", { timeout: 20000 });
+  const boxes = page.locator('input[aria-label^="היישוב שיבוא במקום"]');
+  await expect(boxes).toHaveCount(4);
+  const offered = await boxes.evaluateAll((els) => els.map((e) => e.value));
+  for (const t of offered) expect(TOWNS).not.toContain(t);
+  // take the ambiguous town too, then run
+  const extra = page.locator("[data-wrap]").filter({ hasText: "רחובות" }).first();
+  await extra.getByRole("checkbox", { name: "להחליף" }).check();
+  await page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first().click();
+  await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
+  const text = await sheet(page).innerText();
+  for (const t of TOWNS) expect(text).not.toContain(t);
+  // four towns, four different pseudonyms, and the AI answer comes back to the right towns
+  const map = await page.evaluate(() => (JSON.parse(localStorage.getItem("redact-profile-last") || "{}").map || {}));
+  const tos = TOWNS.map((t) => map[t]);
+  expect(new Set(tos).size).toBe(4);
+  await page.getByRole("button", { name: "החזרת שמות מתשובת AI" }).click();
+  await page.getByPlaceholder("הדבקת תשובת ה-AI…").fill(`הוא נוסע ל${map["נתניה"]} ויעבור ל${map["רחובות"]}.`);
+  await page.getByRole("button", { name: "החזרת שמות", exact: true }).click();
+  await expect(page.locator("[data-rv-out]")).toContainText("נוסע לנתניה ויעבור לרחובות");
+});

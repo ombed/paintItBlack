@@ -1702,7 +1702,11 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const on = new Set((this.state.allow||[]).map(a=>E.norm(String(a||"")).trim()));
       const found = all.filter(n=>!on.has(E.norm(n).trim()));
       const excluded = all.filter(n=>on.has(E.norm(n).trim()));
-      const geo = found.length>=2 ? E.geoMap(found, 0) : null;
+      // יעד למפה אינו יישוב שמופיע במסמך, גם לא כזה שנשאר מחוץ למפה (H4), ולא
+      // שם שאחת ממילותיו בטקסט. אותם גבולות משמשים גם את "קבוצה אחרת" ואת ↩.
+      this._geoAvoid = new Set([...all, ...(every||[]).map(p=>p.name)]);
+      this._geoForbid = new Set(E.norm(text).match(/[א-ת][א-ת'"׳״]*/g)||[]);
+      const geo = found.length>=2 ? E.geoMap(found, 0, this._geoAvoid, this._geoForbid) : null;
 
       /* כל מה שלא נכנס למפת המרחקים, ועדיין נמצא במסמך: יישוב מהמאגר הגדול
          שאין לו קואורדינטות, ויישוב ששמו גם מילה רגילה. עד כאן הם לא הופיעו
@@ -1783,7 +1787,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
 
   geoAlt = () => { const E=this.state.E; const v=this.state.geoV+1;
-    this.setState({geoV:v, geo:E.geoMap(this.state.geoNames, v), geoEdits:{}}); };
+    this.setState({geoV:v, geo:E.geoMap(this.state.geoNames, v, this._geoAvoid, this._geoForbid), geoEdits:{}}); };
   /* "אל תחליף" על יישוב אחד (Q7 בגרסה 3): שאר הזוגות לא זזים. עד כאן המפה חושבה
      מחדש ומה שאישרה השתנה מאחורי גבה; עם פחות משני יישובים המפה התפרקה והשאר קיבלו
      שמות אקראיים מהמאגר הלא-מתויג ("אשדוד" הפכה ל"אמונים"). עכשיו הזוגות שאושרו
@@ -1814,10 +1818,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(kept.length){
       // היישוב שחזר מקבל תחליף משלו; מה שכבר אושר לא זז
       const used=new Set(kept.map(m=>m.to));
-      const to=(E.fakePlace&&E.fakePlace(name, used, new Set()))||name;
+      const to=(E.fakePlace&&E.fakePlace(name, new Set([...used, ...(this._geoAvoid||[])]), this._geoForbid||new Set()))||name;
       geo={...old, map:[...kept, {from:name, to}]};
     } else if(names.length>=2){
-      geo=E.geoMap(names,0);
+      geo=E.geoMap(names,0,this._geoAvoid,this._geoForbid);
       if(geo) extra=extra.filter(x=>!geo.map.some(m=>E.norm(m.from).trim()===E.norm(x.name).trim()));
     }
     this.setState({geoNames:names, allow:this.state.allow.filter(a=>a!==name),

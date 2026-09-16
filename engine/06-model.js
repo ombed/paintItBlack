@@ -661,7 +661,12 @@ function hav(a1,o1,a2,o2){
   const x=Math.sin(dA/2)**2+Math.cos(a1*R2)*Math.cos(a2*R2)*Math.sin(dO/2)**2;
   return 6371*2*Math.asin(Math.sqrt(x));
 }
-function geoMap(names,variant){
+/* H4 בביקורת השנייה: המפה חסמה כיעד רק את היישובים שנכנסו אליה. "רחובות" שנמצאה
+   במסמך אבל נשארה בחוץ (שם דו-משמעי, שורה נפרדת) הוצעה כשם הבדוי של נתניה, ואז
+   שני יישובים אמיתיים הפכו לאחד, וההחלפה של רחובות עצמה נשרשרה. avoid הוא כל
+   מה שנמצא במסמך; forbidden — מילות המסמך, כמו ב-fakePlace: יישוב שאחת ממילותיו
+   כבר בטקסט (גם עם אות שימוש) אינו יעד. */
+function geoMap(names,variant,avoid,forbidden){
   const orig=names.map(n=>PLACE_BY[n]).filter(Boolean);
   if(orig.length<2)return null;
   const cA=orig.reduce((s,p)=>s+p.a,0)/orig.length;
@@ -669,6 +674,16 @@ function geoMap(names,variant){
   const cosC=Math.cos(cA*R2);
   const offs=orig.map(p=>({x:(p.o-cO)*cosC,y:p.a-cA}));
   const block=new Set(names);
+  for(const n of avoid||[]) block.add(n);
+  if(forbidden&&forbidden.size) for(const p of PLACES){
+    if(block.has(p.n))continue;
+    for(const w of norm(p.n).split(/\s+/)){
+      if(!w)continue;
+      let hit=forbidden.has(w);
+      if(!hit) for(const pre of "בלמוהשכ") if(forbidden.has(pre+w)){hit=true;break}
+      if(hit){block.add(p.n);break}
+    }
+  }
   const res=[];
   for(const anc of PLACES){
     for(let ang=0;ang<360;ang+=30){
