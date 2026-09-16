@@ -53,6 +53,14 @@ a:hover{text-decoration:underline}
 [data-mark][data-badge="?"]::after{content:"?";font-size:10px;font-weight:700;vertical-align:super;margin-inline-start:2px;color:var(--warn)}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* כפתור מושבת נראה מושבת (ביקורת UX #5): עד כאן "סורק את המסמך…" נראה כמו כפתור ירוק שלא מגיב */
+button:disabled{opacity:.55;cursor:not-allowed}
+/* טלפון צר (UX #1): שורת הקובץ שנבחר עוטפת, והכפתור הראשי יורד לשורה משלו במקום לצאת מהמסך */
+@media (max-width:480px){
+  [data-pend]{flex-wrap:wrap}
+  [data-pend]>div{flex:1 1 100%}
+  [data-pend]>button{flex:1 1 auto;white-space:normal!important;margin-inline-start:0!important}
+}
 /* טלפון: הרשתות נערמות, הבר עוטף, השורות מתקפלות, החותמת יורדת לתחתית */
 @media (max-width:1119px){
   [data-stack]{grid-template-columns:1fr!important}
@@ -284,8 +292,11 @@ a:hover{text-decoration:underline}
         </div>
         <textarea value="{{ pasteText }}" onChange="{{ onPasteText }}" placeholder="הדבקת טקסט לבדיקה…" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font:13.5px/1.6 Rubik,sans-serif;min-height:64px;resize:vertical"></textarea>
       </div>
+      <sc-if value="{{ fileErr }}">
+        <div data-file-err role="alert" style="grid-column:1/-1;padding:11px 14px;border-radius:12px;background:var(--bad-soft);color:var(--bad);font-size:13.5px;line-height:1.5">{{ fileErr }}</div>
+      </sc-if>
       <sc-if value="{{ hasPending }}">
-        <div style="grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--line)">
+        <div data-pend style="grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--line)">
           <span style="width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--panel);display:grid;place-items:center;font-size:13px;flex:none">✓</span>
           <div style="min-width:0">
             <b style="display:block;font-weight:500;font-size:14px">{{ pendName }}</b>
@@ -299,7 +310,11 @@ a:hover{text-decoration:underline}
 
     <sc-if value="{{ hasCases }}">
       <div style="margin-top:12px;padding:12px 16px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow)">
-        <div style="font-size:12px;font-weight:500;color:var(--ink3);letter-spacing:.05em;margin-bottom:6px">תיקים אחרונים — אותם שמות חלופיים בכל מסמך של התיק</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <div style="font-size:12px;font-weight:500;color:var(--ink3);letter-spacing:.05em">תיקים אחרונים — אותם שמות חלופיים בכל מסמך של התיק</div>
+          <!-- ✕ כאן סוגר את הרצועה, כמו בכל מקום אחר בכלי (ביקורת QA 012); מחיקת תיק היא כפתור במילים בשורה שלו -->
+          <button onClick="{{ onHideCases }}" aria-label="הסתרת התיקים האחרונים" title="הסתרה — שום תיק לא נמחק" style="margin-inline-start:auto;width:24px;height:24px;border-radius:50%;color:var(--ink3);display:grid;place-items:center" style-hover="background:var(--panel2)">✕</button>
+        </div>
         <sc-for list="{{ caseItems }}" as="c" hint-placeholder-count="3">
           <div data-case="{{ c.name }}" style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line2);flex-wrap:wrap">
             <b style="font-weight:500;font-size:14px">{{ c.name }}</b>
@@ -312,8 +327,8 @@ a:hover{text-decoration:underline}
                 <sc-if value="{{ c.morePairs }}"><small style="color:var(--ink3);font-size:12px">{{ c.morePairs }}</small></sc-if>
               </div>
             </div>
-            <button onClick="{{ c.onResume }}" style="padding:7px 14px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500;white-space:nowrap">המשך</button>
-            <button onClick="{{ c.onDelete }}" aria-label="מחיקת התיק מהרשימה" title="מחיקה מהרשימה בדפדפן; קובץ שיוצא נשאר" style="width:26px;height:26px;border-radius:50%;color:var(--ink3);display:grid;place-items:center" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
+            <button onClick="{{ c.onResume }}" style="padding:7px 14px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500;white-space:nowrap">שימוש בתיק הזה</button>
+            <button onClick="{{ c.onDelete }}" title="מחיקה מרשימת התיקים בדפדפן; קובץ שיוצא נשאר" style="font-size:12px;color:var(--ink3);padding:6px 8px;border-radius:8px" style-hover="color:var(--bad)">מחיקה</button>
           </div>
         </sc-for>
       </div>
@@ -336,7 +351,13 @@ a:hover{text-decoration:underline}
       </div>
     </sc-if>
 
-    <div data-stack style="display:grid;grid-template-columns:1.15fr .85fr;gap:22px;margin-top:30px;align-items:start">
+    <!-- ההגדרות מאחורי כותרת שנפתחת (UX #3): ברירות המחדל טובות, והמסך נקרא כמו "להגדיר קודם".
+         במחשב פתוח — יש מקום; בטלפון סגור, שם העמוד היה באורך 1,744 פיקסלים. -->
+    <button data-settings-toggle onClick="{{ onToggleSettings }}" aria-expanded="{{ settingsShown }}" style="display:flex;align-items:center;gap:8px;margin-top:26px;font-size:13px;font-weight:500;color:var(--ink2);padding:6px 2px">
+      <span>הגדרות זיהוי והחלפה</span><small style="color:var(--ink3);font-weight:400">{{ settingsHint }}</small><span style="color:var(--ink3);font-size:11px">{{ settingsChev }}</span>
+    </button>
+    <sc-if value="{{ settingsShown }}">
+    <div data-stack style="display:grid;grid-template-columns:1.15fr .85fr;gap:22px;margin-top:10px;align-items:start">
       <section>
         <div style="font-size:12px;font-weight:500;color:var(--ink3);letter-spacing:.06em;margin-bottom:9px">זיהוי</div>
         <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden">
@@ -384,11 +405,23 @@ a:hover{text-decoration:underline}
         </div>
         <div style="margin-top:12px;padding:13px 15px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);font-size:12.5px;color:var(--ink2);line-height:1.55">
           <b style="display:block;color:var(--ink);font-weight:500;margin-bottom:3px">פרופיל תיק</b>
-          אותו אדם מקבל את אותו שם חלופי בכל מסמכי התיק. אפשר לטעון פרופיל קיים בשלב הבא.
+          אותו אדם מקבל את אותו שם חלופי בכל מסמכי התיק. תיק שנשמר בדפדפן מוצע כאן אחרי בחירת מסמך; קובץ פרופיל שיוצא נטען מכאן.
+          <!-- הכרטיס היה בלי שום פעולה (UX #3) -->
+          <button onClick="{{ onLoadProf }}" style="display:block;margin-top:9px;padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel);font-size:12.5px;font-weight:500;color:var(--ink)" style-hover="background:var(--panel2)">ייבוא פרופיל מקובץ</button>
         </div>
       </section>
     </div>
+    </sc-if>
   </main>
+  </sc-if>
+
+  <sc-if value="{{ hasCaseChip }}">
+    <div data-case-chip style="max-width:1120px;margin:14px auto 0;padding:0 22px">
+      <span style="display:inline-flex;align-items:center;gap:8px;padding:6px 8px 6px 12px;border-radius:16px;background:var(--accent-soft);color:var(--accent-ink);font-size:13px;font-weight:500">
+        תיק: {{ caseChipName }} ✓
+        <button onClick="{{ onCaseChipDrop }}" title="עבודה בלי התיק הזה" style="font-size:12px;font-weight:400;color:var(--ink2);padding:2px 8px;border-radius:10px;border:1px solid var(--line);background:var(--panel)">החלפה</button>
+      </span>
+    </div>
   </sc-if>
 
   <!-- ═════ מי בתיק ═════ -->
@@ -439,7 +472,10 @@ a:hover{text-decoration:underline}
 
     <sc-if value="{{ hasPeoSug }}">
       <div style="margin-top:12px;padding:10px 12px;border-radius:12px;border:1px dashed var(--line);background:var(--panel2)">
-        <div style="font-size:12px;color:var(--ink2);margin-bottom:8px">נמצאו גם, ולא בטוח שאלה אנשים. הקשה על השם מוסיפה לרשימה, הקשה על ✕ מסירה:</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+          <div style="font-size:12px;color:var(--ink2)">נמצאו גם, ולא בטוח שאלה אנשים. הקשה על השם מוסיפה לרשימה, הקשה על ✕ מסירה:</div>
+          <button data-add-all onClick="{{ onPeoAddAll }}" style="margin-inline-start:auto;padding:5px 12px;border-radius:14px;background:var(--accent-soft);color:var(--accent-ink);font-size:12.5px;font-weight:500">הוספת כולם</button>
+        </div>
         <div style="display:flex;flex-wrap:wrap;gap:6px">
           <sc-for list="{{ peoSugItems }}" as="x" hint-placeholder-count="3">
             <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 8px 5px 10px;border-radius:16px;border:1px solid var(--line);background:var(--panel);font-size:13px">
@@ -455,6 +491,12 @@ a:hover{text-decoration:underline}
       <input value="{{ peoIn }}" onChange="{{ onPeoIn }}" onKeyDown="{{ onPeoKey }}" onPaste="{{ onPeoPaste }}" placeholder="שם מלא — למשל רונית לוי. אפשר להדביק כמה שמות, שורה לכל אחד" style="flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:14px">
       <button onClick="{{ onPeoAdd }}" style="padding:0 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-size:14px;font-weight:500" style-hover="background:var(--panel2)">הוספה</button>
     </div>
+    <sc-if value="{{ hasCaseField }}">
+      <label data-case-field style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--ink2)">
+        <span>שם התיק <small style="color:var(--ink3)">(כדי שאותו אדם יקבל אותו שם בדוי גם במסמך הבא)</small></span>
+        <input value="{{ caseName }}" onChange="{{ onCaseName }}" placeholder="למשל: לוי נ׳ לוי" style="flex:1 1 180px;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:13.5px">
+      </label>
+    </sc-if>
     <sc-if value="{{ nerFailed }}">
       <div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <span style="flex:1;min-width:200px">{{ peoNote }}</span>
@@ -463,11 +505,18 @@ a:hover{text-decoration:underline}
     </sc-if>
     <sc-if value="{{ nerOk }}"><p style="margin:11px 0 0;font-size:13px;color:var(--ink2);line-height:1.55">{{ peoNote }}</p></sc-if>
 
+    <sc-if value="{{ sugPrompt }}">
+      <div data-sug-prompt style="margin-top:18px;padding:10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:13px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <span style="flex:1 1 220px">{{ sugPromptText }}</span>
+        <button onClick="{{ onPeoAddAllGo }}" style="padding:6px 12px;border-radius:9px;background:var(--warn);color:var(--panel);font-size:12.5px;font-weight:500">הוספת כולם והמשך</button>
+        <button onClick="{{ onPeoGoAnyway }}" style="padding:6px 12px;border-radius:9px;border:1px solid var(--warn);color:var(--warn);font-size:12.5px">להמשיך בלעדיהם</button>
+      </div>
+    </sc-if>
     <div style="display:flex;gap:10px;margin-top:24px;align-items:center;flex-wrap:wrap">
       <button onClick="{{ onPeoGo }}" disabled="{{ scanning }}" style="{{ primaryBtn }}">{{ peoGoLabel }}</button>
       <button onClick="{{ onLoadProf }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">טעינת פרופיל תיק</button>
       <sc-if value="{{ scanning }}">
-        <button onClick="{{ onGoNow }}" title="המודל ימשיך לרדת ברקע ויהיה מוכן למסמך הבא" style="font-size:13px;color:var(--warn);padding:12px 10px;border-radius:9px;border:1px solid var(--warn)" style-hover="background:var(--warn-soft)">להמשיך בלי לחכות למודל — עם השמות שנמצאו עד כה</button>
+        <button onClick="{{ onGoNow }}" title="הרשימה נשארת כאן לבדיקה; המודל ממשיך לרדת ברקע, ושמות שימצא יוצעו במסך הבדיקה" style="font-size:13px;color:var(--ink2);padding:12px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel)" style-hover="background:var(--panel2)">לא לחכות למודל</button>
       </sc-if>
       <button onClick="{{ onSkipNames }}" disabled="{{ scanning }}" style="font-size:13px;color:var(--ink2);padding:12px 8px" style-hover="color:var(--ink)">המשך בלי שמות — רק ת״ז, טלפונים וכתובות</button>
     </div>
@@ -1110,18 +1159,20 @@ class Component extends DCLogic {
 
   async load(f){
     const E=this.state.E; if(!E) return;
-    if(!/\.(docx|pdf)$/i.test(f.name)){ this.setState({err:"נדרש קובץ docx או PDF. קובץ doc ישן דורש המרה ב-Word."}); return; }
-    let buf; try{ buf = await f.arrayBuffer(); }catch(_){ this.setState({err:"קריאת הקובץ נכשלה."}); return; }
+    /* שגיאות קובץ ליד כרטיס הקובץ, עם מה לעשות (UX #4), ובזמן הבחירה ולא אחרי
+       "המשך" (ביקורת QA 010): קובץ שאינו docx תקין, או docx בלי טקסט, לא מקבל ✓. */
+    const bad=m=>{ this.log.add("file-reject",{why:m.slice(0,12)}); this.setState({fileErr:m, err:"", pending:false, name:"", buf:null}); };
+    if(!/\.(docx|pdf)$/i.test(f.name)) return bad("נדרש קובץ Word (docx) או PDF. קובץ doc ישן — לשמור מחדש ב-Word בתור docx.");
+    let buf; try{ buf = await f.arrayBuffer(); }catch(_){ return bad("לא הצלחנו לפתוח את הקובץ. אם הוא שמור בענן (OneDrive, Dropbox) — להוריד עותק למחשב; אם הוא פתוח ב-Word — לסגור אותו, ולבחור אותו שוב."); }
     if(/\.pdf$/i.test(f.name)) return this.loadPdf(buf, f);
-    let meta="";
-    try{
-      const blocks=await this.blocksOf(buf);
-      const chars=blocks.reduce((a,b)=>a+b.text.length,0);
-      const size = chars>=1000 ? `כ-${(chars/1000).toFixed(1)} אלף תווים` : `${chars} תווים`;
-      meta=`${blocks.length===1?"פסקה אחת":blocks.length+" פסקאות"} · ${size} · ${Math.round(f.size/1024)} KB`;
-      this.setState({origBlocks:blocks.map(b=>({part:b.part, text:b.text}))});
-    }catch(_){ meta=Math.round(f.size/1024)+" KB"; }
-    this.setState({err:"", name:f.name, buf, pending:true, pendMeta:meta});
+    let blocks;
+    try{ blocks=await this.blocksOf(buf); }
+    catch(_){ return bad("הקובץ לא נראה כמו מסמך Word תקין. אפשר לפתוח אותו ב-Word, לשמור בשם בתור docx, ולבחור שוב."); }
+    const chars=blocks.reduce((a,b)=>a+b.text.trim().length,0);
+    if(!chars) return bad("במסמך אין טקסט לקריאה. אם זה סריקה או תמונה, צריך קודם להמיר אותו לטקסט.");
+    const size = chars>=1000 ? `כ-${(chars/1000).toFixed(1)} אלף תווים` : `${chars} תווים`;
+    const meta=`${blocks.length===1?"פסקה אחת":blocks.length+" פסקאות"} · ${size} · ${Math.round(f.size/1024)} KB`;
+    this.setState({origBlocks:blocks.map(b=>({part:b.part, text:b.text})), err:"", fileErr:"", name:f.name, buf, pending:true, pendMeta:meta});
   }
 
   async loadPdf(raw, f){
@@ -1299,6 +1350,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       // מה שהמודל מצא נשמר בנפרד מהרשימה: זה מה שמאפשר לוודא, בכל ריצה, ששם
       // שנמצא פעמיים ומעלה לא יוצא בלי שהיא החליטה עליו (guardModel)
       this._modelFound=found;
+      // עדיין במסך הרשימה (UX #7): התוצאה נכנסת לרשימה כמו תמיד, לא לכללים — "המשך" בונה את הכללים מהרשימה
+      if(this._goneAhead===my&&this.state.screen==="people"){ this._goneAhead=null; this.log.add("model-late",{found:found.length, added:0, screen:"people"}); }
       if(this._goneAhead===my){
         // היא כבר המשיכה. הרשימה שבמסך השמות היא היסטוריה; מה שקובע הוא הכללים.
         const E2=this.state.E, rules=[...this.state.rules]; let late=0;
@@ -1337,6 +1390,27 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     }finally{ if(my===this._scan) this.setState({scanning:false}); }
   }
 
+  // הצעות "נמצאו גם" שעדיין לא נוספו ולא נדחו
+  openSugs(){
+    const S=this.state, E=S.E; if(!E) return [];
+    return (S.peoSug||[]).filter(x=>!S.peo.some(p=>E.norm(p.value)===E.norm(x.value)));
+  }
+  peoGo(){
+    this.setState({sugAsk:false});
+    this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined})));
+  }
+  peoAddAll(){
+    const open=this.openSugs(); if(!open.length) return;
+    this.log.add("add-all",{n:open.length});
+    // רשימה אחת, בקריאה אחת: peoAdd קורא את הרשימה מה-state, ולולאה הייתה משאירה רק את האחרון
+    const E=this.state.E, list=[...this.state.peo];
+    for(const x of open){
+      const {v, kind} = E.cleanEntry(x.value);
+      if(v.length<2||list.some(p=>E.norm(p.value)===E.norm(v))) continue;
+      list.push({value:v, kind:x.kind||kind, g:null, auto:true, note:"מההקשר"});
+    }
+    this.setState({peo:list, sugAsk:false});
+  }
   peoAdd = (txt, note, auto, kindAs) => {
     const E=this.state.E; const list=[...this.state.peo];
     for(const raw of String(txt||"").split(/[\n,;]+/)){
@@ -2293,9 +2367,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       startLabel:S.o.auto?"המשך — איתור שמות במסמך":"המשך לעיבוד",
       rvBackLabel:S.returnTo==="work"?"חזרה למסמך":"חזרה",
       rvCtxStyle:"padding:12px 15px;border-radius:11px;font-size:13px;margin-bottom:16px;border:1px solid var(--line);background:"+(S.res||S.profile?"var(--accent-soft)":"var(--panel2)"),
-      rvCtxTitle:S.res?"מחובר למסמך שבעבודה":(S.profile?"נטען פרופיל תיק":"אין מיפוי טעון"),
+      rvCtxTitle:(S.res?"מחובר למסמך שבעבודה":(S.profile?"נטען פרופיל תיק":"אין מיפוי טעון"))+
+        ((S.profile&&(S.profile.name||S.caseName))?" · תיק: "+(S.profile.name||S.caseName):""),
       rvCtxText:S.res
-        ? `המיפוי נלקח מהמסמך «${bdi(S.name)}» שנמצא כרגע במסך הבדיקה — ${Object.keys(this.currentMap()).length} שמות. היציאה מכאן מחזירה לאותו מסמך.`
+        ? `המיפוי נלקח מהמסמך «${bdi(S.name)}» שנמצא כרגע במסך הבדיקה — ${Object.keys(this.currentMap()).length} שמות`+
+          ((S.profile&&S.profile.map&&Object.keys(S.profile.map).length)?`, ועוד ${Object.keys(S.profile.map).length} מהתיק`:"")+`. היציאה מכאן מחזירה לאותו מסמך.`
         : (S.profile
           ? `המיפוי נלקח מפרופיל התיק שנטען — ${Object.keys((S.profile.map)||{}).length} שמות. אפשר להשתמש במסך הזה גם בלי להעלות מסמך.`
           : "המסך הזה עצמאי: הוא מחזיר שמות לפי מיפוי. אפשר לטעון פרופיל תיק שנשמר קודם, או להשחיר מסמך בחלון הזה ולחזור לכאן."),
@@ -2353,19 +2429,43 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onPeoPaste:e=>{ const t=(e.clipboardData||window.clipboardData).getData("text");
         if(t && /[\n,;]/.test(t)){ e.preventDefault(); this.peoAdd(t); } },
       onPeoAdd:()=>{ this.peoAdd(S.peoIn); this.setState({peoIn:""}); },
-      onPeoGo:()=>{ if(S.scanning) return; this.peoAdd(S.peoIn);
-        setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined}))), 0); },
+      /* "המשך" עם הצעות פתוחות (UX #8): בלי שאלה, שמות שהופיעו ב"נמצאו גם" ולא
+         נוספו הגיעו לפלט כמו שהם. עכשיו לחיצה ראשונה שואלת בשורה אחת, עם "הוספת
+         כולם" — ולחיצה שנייה על "להמשיך בלעדיהם" היא החלטה. */
+      sugPrompt:!!S.sugAsk&&this.openSugs().length>0,
+      sugPromptText:(n=>n===1?"שם אחד שנמצא עדיין בלי החלטה — הוא יגיע ל-AI כמו שהוא.":n+" שמות שנמצאו עדיין בלי החלטה — הם יגיעו ל-AI כמו שהם.")(this.openSugs().length),
+      onPeoGo:()=>{ if(S.scanning) return; this.peoAdd(S.peoIn); this.setState({peoIn:""});
+        if(this.openSugs().length&&!S.sugAsk){ this.log.add("sug-prompt",{open:this.openSugs().length}); this.setState({sugAsk:true}); return; }
+        this.peoGo(); },
+      onPeoGoAnyway:()=>{ this.log.add("sug-prompt",{act:"skip", open:this.openSugs().length}); this.peoGo(); },
+      onPeoAddAll:()=>this.peoAddAll(),
+      onPeoAddAllGo:()=>{ this.log.add("sug-prompt",{act:"add-all", open:this.openSugs().length}); this.peoAddAll(); setTimeout(()=>this.peoGo(), 0); },
       onSkipNames:()=>{ if(S.scanning) return; this.setState({peo:[]}); this.toPlaces([]); },
       // בקו איטי ההורדה הראשונה לוקחת דקות; השמות מהכותרת כבר על המסך. הסריקה
       // הזאת מבוטלת (כמו מסמך שהוחלף באמצע), המודל ממשיך לרדת ברקע למסמך הבא.
       /* "להמשיך בלי לחכות" קידם את מונה הסריקה, ולכן כשהמודל סיים — תוצאתו נזרקה
          כולה: שמות שנמצאו שבע פעמים בביטחון מלא לא הגיעו לשום מקום. עכשיו הסריקה
          ממשיכה ברקע; כשהיא נגמרת השמות נכנסים לכללים ולא לרשימה שכבר עזבה. */
+      /* "לא לחכות למודל" (UX #7): עד כאן הכפתור קפץ ישר למסך היישובים, ורשימת
+         "נמצאו גם" לא הוצגה לעולם — המקום היחיד שבו הוספת אדם חסר היא הקשה אחת.
+         עכשיו הוא רק מפסיק את ההמתנה: נשארים ברשימה, "המשך" נפתח. המודל ממשיך
+         ברקע; אם יסיים לפני "המשך" — השמות נכנסים לרשימה, אחרת לכללים. */
       onGoNow:()=>{ if(!S.scanning) return; this._goneAhead=this._scan; this.log.add("go-without-model",{names:S.peo.length});
-        this.setState({scanning:false, nerBox:false, nerUsed:false, peoNote:"המשכת בלי המודל. השמות שברשימה הם מהכותרת ומתורות הדיבור; שמות מגוף הטקסט יוצעו במסך הבדיקה."});
-        this.peoAdd(S.peoIn); setTimeout(()=>this.toPlaces(this.state.peo.map(p=>({value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined}))), 0); },
+        this.setState({scanning:false, nerBox:false, nerUsed:false, peoNote:"ממשיכים בלי לחכות. הרשימה כאן היא מהכותרת ומתורות הדיבור; שמות שהמודל ימצא בגוף הטקסט יוצעו גם הם."}); },
       onLoadProf:this.loadProfileClick, onSaveProf:this.saveProfile,
-      hasCases:S.cases.length>0&&S.screen==="entry"&&!S.profile,
+      fileErr:S.screen==="entry"?(S.fileErr||""):"",
+      settingsShown:S.settingsOpen===undefined?!S.narrow:!!S.settingsOpen,
+      settingsChev:(S.settingsOpen===undefined?!S.narrow:!!S.settingsOpen)?"▲":"▼",
+      settingsHint:(S.o.ner?"מודל מקומי":"בלי מודל")+" · "+(S.mode==="block"?"███":S.mode==="label"?"תוויות":"שמות חלופיים"),
+      onToggleSettings:()=>this.setState({settingsOpen:!(S.settingsOpen===undefined?!S.narrow:!!S.settingsOpen)}),
+      hasCases:S.cases.length>0&&S.screen==="entry"&&!S.profile&&!S.casesHidden,
+      onHideCases:()=>this.setState({casesHidden:true}),
+      // התיק שבשימוש, בכל מסך (UX #21): בלי זה אי אפשר לדעת שהלחיצה על התיק עשתה משהו
+      hasCaseChip:!!(S.profile&&(S.profile.name||S.caseName))&&S.screen!=="work",
+      caseChipName:(S.profile&&(S.profile.name||S.caseName))||"",
+      onCaseChipDrop:()=>{ this.log.add("case-detach",{}); this.setState({profile:null, caseName:"", rules:[], allow:[], casesHidden:false}); },
+      // שם התיק גם במסך "מי בתיק" (UX #16): המדריך קורא לזה צעד 1, והשדה היה בתחתית המסילה, סגור
+      hasCaseField:S.screen==="people"&&!(S.profile&&S.profile.name),
       caseItems:S.cases.map(c=>({name:c.name, meta:(c.rules||[]).length+" ערכים · עודכן "+new Date(c.updated||c.created).toLocaleString("he-IL",{dateStyle:"short",timeStyle:"short"}),
         pairs:this.profilePairs(c,3), morePairs:(n=>n>3?"ועוד "+(n-3):"")(this.profileCount(c)),
         onResume:()=>this.resumeCase(c.name), onDelete:()=>{ if(confirm("למחוק את «"+c.name+"» מרשימת התיקים בדפדפן? קובץ פרופיל שיוצא לא נמחק.")) this.deleteCase(c.name); }})),
@@ -2466,7 +2566,14 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onGeoAlt:this.geoAlt, onGeoApply:this.geoApply, onGeoSkip:()=>this.run(S.rules),
       // יציאה בלי ייצוא: הפרופיל נשאר בדפדפן הזה בלבד, וזו הבטחה חלשה מדי לתיק
       onBackHome:()=>{ if(S.profileDirty&&S.rules.length&&!confirm("הפרופיל של התיק נשמר בדפדפן הזה בלבד ולא יוצא לקובץ. אם הדפדפן ינוקה הוא יאבד. לצאת בכל זאת?")) return;
-        this.setState({screen:"entry", res:null, err:""}); },
+        /* מסמך חדש מתחיל נקי (UX #22, ביקורת QA 005): חיפוש, הוספה ידנית, טקסט
+           מודבק ושם הקובץ הקודמים נשארו — והמסמך הבא נפתח עם מסילה ריקה, או עם
+           שני מסמכים מודבקים יחד. הגלילה חוזרת לראש העמוד. */
+        this.setState({screen:"entry", res:null, err:"", fileErr:"", name:"", buf:null, pending:false,
+          pasteText:"", query:"", cat:"", filter:"all", addV:"", addR:"", sel:null, inline:null, popup:null,
+          notice:"", copied:false, copyLabel:"העתקה ל-AI", sugAsk:false, casesHidden:false, peo:[], peoSug:[], peoKept:[]},
+          ()=>{ try{ scrollTo(0,0); }catch(_){} });
+        this.log.add("new-doc",{}); },
       tip:!!S.tip, tipLabel:S.tip?S.tip.label:"", tipItems:S.tip?S.tip.items:[],
       tipMore:S.tip&&S.tip.items.length>=3?"שלוש הראשונות":"",
       tipStyle:S.tip?("position:fixed;z-index:60;left:"+S.tip.x+"px;top:"+S.tip.y+"px;width:300px;max-width:calc(100vw - 24px);"+

@@ -32,7 +32,7 @@ async function toPlaces(page, doc) {
   await H.upload(page, "case.docx", doc);
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
-  await H.goButton(page).click();
+  await H.goOn(page);
 }
 
 test("a place the map cannot use is still offered, not silently dropped", async ({ page }) => {

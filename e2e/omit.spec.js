@@ -20,7 +20,7 @@ async function toCheck(page) {
   await H.upload(page, "hearing.docx", DOC);
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
-  await H.goButton(page).click();
+  await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לעיבוד|המשך|עיבוד/ }).first();
   if (await run.isVisible({ timeout: 3000 }).catch(() => false)) await run.click();
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
@@ -63,7 +63,7 @@ test("the mode panel can turn numbers into labels instead", async ({ page }) => 
   await H.upload(page, "hearing.docx", DOC);
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
-  await H.goButton(page).click();
+  await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לעיבוד|המשך|עיבוד/ }).first();
   if (await run.isVisible({ timeout: 3000 }).catch(() => false)) await run.click();
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
