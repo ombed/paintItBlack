@@ -2608,7 +2608,9 @@ let nerLoad=async function(){
           const v=Object.values(seen), tot=v.reduce((a,b)=>a+b.total,0);
           const pct=tot?100*v.reduce((a,b)=>a+b.loaded,0)/tot:v.reduce((a,b)=>a+b.pct,0)/v.length;
           const mb=x=>(x/1048576).toFixed(0);
-          nerSay(tot?`מוריד את המודל, פעם אחת בלבד: ${mb(v.reduce((a,b)=>a+b.loaded,0))} מתוך ${mb(tot)} MB`:`מוריד את המודל, פעם אחת בלבד… ${Math.round(pct)}%`,pct);
+          // "פעם אחת בלבד" הבטיח יותר מדי (ביקורת UX #6): הורדה שנקטעה מתחילה מאפס. מה שנכון:
+          // אחרי הורדה שלמה המודל נשמר ולא יורד שוב.
+          nerSay(tot?`מוריד את מודל הזיהוי: ${mb(v.reduce((a,b)=>a+b.loaded,0))} מתוך ${mb(tot)} MB · אחרי שיסתיים הוא נשמר במחשב`:`מוריד את מודל הזיהוי… ${Math.round(pct)}%`,pct);
         } else if(p.status==="ready")nerSay("המודל מוכן.",null);
       }});
     NERSTATE="ready";
@@ -2616,6 +2618,12 @@ let nerLoad=async function(){
   })().catch(e=>{NERP=null;NERSTATE="error";throw e});
   return NERP;
 };
+// הורדה שנתקעה (UX #6): "לנסות שוב" צריך טעינה חדשה, לא את ההבטחה התקועה.
+// הבקשה הישנה ממשיכה ברקע עד שהדפדפן מוותר; אם היא תסתיים, המטמון שלה ישמש.
+function nerReset(){
+  if(NERSTATE==="ready")return false;
+  NERP=null; NERSTATE="off"; return true;
+}
 /* transformers.js לא בהכרח מחזיר היסטי מיקום ולא בהכרח מאחד תת-מילים,
    בניגוד לגרסה בפייתון. אם נסמוך על זה נקבל אפס תוצאות בלי שום שגיאה —
    וזה בדיוק סוג הכשל השקט שהכלי הזה לא יכול להרשות לעצמו.
@@ -2814,7 +2822,7 @@ function restoreNames(txt,pairs){
 
 export {nerLast, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
   variants, validID, ibanOK, luhn, hord, POOL, WORDLIKE, FEM, MASC, fakeName, near1, HOMO, WEAK,
-  findNear, mergeSignals, fakeDate, foldEvidence, tokPieces, namePosition, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
+  findNear, mergeSignals, fakeDate, foldEvidence, tokPieces, namePosition, nerReset, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,
   discover, PLACES, PLACE_BY, geoMap, geoNames, placesFound, examplesOf, findPlaces, fakePlace,
   atlasTags, atlasDiff, atlasPenalty, placeKind, nerEnv, nerCached, nerPersist, nerLoad, nerRun,

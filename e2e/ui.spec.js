@@ -34,7 +34,7 @@ test("each screen renders its controls, with no page errors", async ({ page }) =
   await expect(page.getByPlaceholder(/שם מלא/)).toBeVisible();
   await expect(page.getByRole("button", { name: "הוספה", exact: true })).toBeVisible();
   await expect(H.skipButton(page)).toBeVisible();
-  await expect(page.getByRole("button", { name: /טעינת פרופיל/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /ייבוא פרופיל/ })).toBeVisible();
   for (const step of ["קובץ", "מי בתיק", "מקומות"])
     await expect(page.getByRole("button", { name: step, exact: true })).toBeVisible();
   expect(await H.listedNames(page)).toContain("דנה לוי");

@@ -67,7 +67,8 @@ test("removing a town keeps the other approved pairs, and a dissolved map hands 
   const last = names2[1], lastTo = tos2[1];
   const extra = page.locator("[data-wrap]").filter({ hasText: last }).first();
   await expect(extra).toBeVisible();
-  expect(await extra.locator("input").inputValue()).toBe(lastTo);
+  // v36 (UX #10): the row also carries a "להחליף" checkbox, so name the text box
+  expect(await extra.getByRole("textbox").inputValue()).toBe(lastTo);
 });
 
 test("'same person as' on the card links the names, and a conflicting decision replaces the old one with a notice", async ({ page }) => {
