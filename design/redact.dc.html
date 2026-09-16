@@ -1098,14 +1098,39 @@ class Component extends DCLogic {
       else if((k==="z"&&e.shiftKey)||k==="y"){ e.preventDefault(); this.redo(); }
     };
     document.addEventListener("keydown", this._keys);
+    /* H5 בביקורת השנייה: רענון, "אחורה" בדפדפן וסגירת הלשונית מחקו את המסמך, את
+       ההחלטות ואת היומן בלי מילה, בזמן ש"מסמך חדש" לבדו שאל. כשיש מסמך (ולא
+       הסיור): הדפדפן שואל לפני רענון או סגירה, ו"אחורה" נתפס — בטעינת המסמך
+       נדחפת רשומת היסטוריה, כך ש"אחורה" חוזר אליה במקום לצאת מהאתר, ושאלה אחת
+       מכריעה. ביטול משאיר הכול; אישור יוצא באמת, ובלי שאלה שנייה. */
+    this._unload = e => {
+      if(!this.state.buf || this.state.tour || this._leaving) return;
+      e.preventDefault(); e.returnValue = "המסמך וההחלטות שנעשו עליו יאבדו.";
+      return e.returnValue;
+    };
+    this._pop = () => {
+      if(!(this._hist && this.state.buf && !this.state.tour)) return;
+      if(confirm("לצאת מהמסמך? המסמך, ההחלטות שנעשו עליו ויומן הסשן יאבדו. פרופיל התיק נשאר שמור בדפדפן.")){
+        this._hist=false; this._leaving=true; this.log.add("leave",{how:"back"});
+        try{ history.back(); }catch(_){}
+      } else {
+        try{ history.pushState({pib:1}, ""); }catch(_){}
+      }
+    };
+    addEventListener("beforeunload", this._unload);
+    addEventListener("popstate", this._pop);
   }
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); removeEventListener("resize", this._resize);
+    removeEventListener("beforeunload", this._unload); removeEventListener("popstate", this._pop);
     if(this._barObs) this._barObs.disconnect(); }
   /* ביומן של הסשן האמיתי 347 מתוך 375 האירועים היו "screen" — אותו מסך, שוב ושוב,
      בכל רינדור. הארגומנט הראשון של ההוק הוא ה-props הקודמים, לא ה-state הקודם, ולכן
      prev.screen היה undefined תמיד, ההשוואה תמיד "השתנה", ושדה from נעלם מהיומן.
      המסך האחרון נשמר על המופע ולא נלקח מההוק. */
   componentDidUpdate(){ this.applyProps(); if(this._barSize) this._barSize();
+    // רשומת היסטוריה אחת לכל מסמך (H5): "אחורה" חוזר אליה ולא יוצא מהאתר
+    if(this.state.buf&&!this.state.tour&&!this._hist){ this._hist=true; this._leaving=false; try{ history.pushState({pib:1}, ""); }catch(_){} }
+    else if(!this.state.buf&&this._hist) this._hist=false;
     // "לפני שמתחילים" מקבל פוקוס כשהוא נפתח, כך שהמקלדת מתחילה בתוכו (ביקורת QA 003)
     if(this.state.intro&&!this.state.tour&&!this._introFocused){
       const b=document.querySelector("[data-intro] button"); if(b){ b.focus(); this._introFocused=true; }

@@ -276,3 +276,28 @@ test("H4: no town in the document is offered as another town's pseudonym, so not
   await page.getByRole("button", { name: "החזרת שמות", exact: true }).click();
   await expect(page.locator("[data-rv-out]")).toContainText("נוסע לנתניה ויעבור לרחובות");
 });
+
+test("H5: with a document open, reload asks first and browser Back stays in the app", async ({ page }) => {
+  await toWork(page);
+  // the browser's own leave prompt is armed
+  const armed = await page.evaluate(() => { const e = new window.Event("beforeunload", { cancelable: true }); window.dispatchEvent(e); return e.defaultPrevented; });
+  expect(armed).toBe(true);
+  // Back does not leave the site: the app catches it and asks, and "cancel" keeps the review
+  page.once("dialog", (d) => d.dismiss());
+  await page.goBack();
+  await expect(page.locator("[data-bar]")).toBeVisible();
+  expect(page.url()).toContain("index.html");
+  // a real reload shows the browser prompt; accepting it is the only way out
+  const seen = [];
+  page.on("dialog", (d) => { seen.push(d.type()); d.accept(); });
+  await page.reload();
+  expect(seen).toContain("beforeunload");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("מה יוצא מהמסמך");
+});
+
+test("H5: nothing is armed before a document is loaded, and the tour is not a document", async ({ page }) => {
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  const armed = await page.evaluate(() => { const e = new window.Event("beforeunload", { cancelable: true }); window.dispatchEvent(e); return e.defaultPrevented; });
+  expect(armed).toBe(false);
+});
