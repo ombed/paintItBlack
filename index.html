@@ -1265,6 +1265,8 @@ class Component extends DCLogic {
      prev.screen היה undefined תמיד, ההשוואה תמיד "השתנה", ושדה from נעלם מהיומן.
      המסך האחרון נשמר על המופע ולא נלקח מההוק. */
   componentDidUpdate(){ this.applyProps(); if(this._barSize) this._barSize();
+    // חלונית המופעים אינה שורדת מעבר מסך: העכבר נשאר במקומו והחלונית של המסך הקודם כיסתה את הבא
+    if(this.state.screen!==this._lastScreen){ this._lastScreen=this.state.screen; if(this.state.tip) this.setState({tip:null}); }
     // רשומת היסטוריה אחת לכל מסמך (H5): "אחורה" חוזר אליה ולא יוצא מהאתר
     if(this.state.buf&&!this.state.tour&&!this._hist){ this._hist=true; this._leaving=false; try{ history.pushState({pib:1}, ""); }catch(_){} }
     else if(!this.state.buf&&this._hist) this._hist=false;
@@ -3041,7 +3043,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         this.log.add("new-doc",{}); },
       tip:!!S.tip, tipLabel:S.tip?S.tip.label:"", tipItems:S.tip?S.tip.items:[],
       tipMore:S.tip&&S.tip.items.length>=3?"שלוש הראשונות":"",
-      tipStyle:S.tip?("position:fixed;z-index:60;left:"+S.tip.x+"px;top:"+S.tip.y+"px;width:300px;max-width:calc(100vw - 24px);"+
+      // חלונית מידע בלבד: אינה תופסת לחיצות, אחרת היא חוסמת את הכפתור שמתחתיה כשהעכבר נשאר במקומו אחרי מעבר מסך
+      tipStyle:S.tip?("position:fixed;z-index:60;pointer-events:none;left:"+S.tip.x+"px;top:"+S.tip.y+"px;width:300px;max-width:calc(100vw - 24px);"+
         "background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;box-shadow:0 12px 34px rgba(0,0,0,.22)"):"",
       popup:!!S.popup, popupText:S.popup?S.popup.text:"",
       ...this.inlineView(),
