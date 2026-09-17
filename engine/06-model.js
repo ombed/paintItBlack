@@ -138,6 +138,9 @@ function nerClean(ents,text,opt){
     // "אפוטרופא לדין", "משה אפטרופא": מילת תפקיד בכל צורה אינה שם, לבדה או בקצה
     if(v&&v.split(/\s+/).every(w=>ROLEWORD.test(norm(w))))continue;
     if(v){let ws=v.split(/\s+/); while(ws.length>1&&ROLEWORD.test(norm(ws[ws.length-1])))ws.pop(); while(ws.length>1&&ROLEWORD.test(norm(ws[0])))ws.shift(); v=ws.join(" ");}
+    // המודל נדבק לימין: "מרים להידחות" חזר כישות אחת. שם פועל או פועל בקצה
+    // המקטע אינם חלק מהשם, כמו בשכבת גוף הטקסט (verbTail).
+    if(v&&typeof verbTail==="function"){let ws=v.split(/\s+/); while(ws.length>1&&verbTail(ws[ws.length-1]))ws.pop(); v=ws.join(" ");}
     if(!v||v.length<2||NER_DROP.has(v)||NER_DROP.has(norm(v)))continue;
     // "33" הוצע כשם גוף והוחלף. ערך בלי אות עברית אחת אינו שם של גוף או אדם.
     if(!/[֐-׿]/.test(v))continue;

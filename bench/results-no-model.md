@@ -1,6 +1,6 @@
 # Benchmark results (no model)
 
-40 documents, 314 keyed entities, model off. Generated 2026-09-16.
+40 documents, 314 keyed entities, model off. Generated 2026-09-17.
 
 ## Per category
 
@@ -22,7 +22,7 @@
 | person: role word directly before, no colon | 6 | 0 | 0 | 0 |
 | org: body whose name reads like a person's | 3 | 0 | 0 | 0 |
 | place: neighbourhood | 4 | 2 | 2 | 0 |
-| person: two people sharing a surname | 10 | 0 | 5 | 0 |
+| person: two people sharing a surname | 10 | 0 | 4 | 0 |
 | person: Russian name | 6 | 2 | 2 | 0 |
 | person: nikud on one occurrence | 0 | 3 | 3 | 0 |
 | person: once, only with a prefix letter (expected to fail) | 0 | 3 | 3 | 0 |
@@ -59,7 +59,7 @@
 |---|---|---|---|---|
 | meeting | 17 | 10 | 13 | 0 |
 | filing | 33 | 6 | 8 | 2 |
-| transcript | 23 | 10 | 13 | 0 |
+| transcript | 23 | 10 | 12 | 0 |
 | welfare | 22 | 5 | 7 | 0 |
 | medical | 14 | 5 | 5 | 0 |
 | police | 20 | 3 | 3 | 0 |
@@ -117,7 +117,6 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 - t3 · person: two people edit-distance 1 apart (must not merge) · ינון אביתן: missed, **leaked**: ינון אביתן, אביתן
 - t3 · person: only in corrupted form, never cleanly · טיטו וורקו: missed, **leaked**: טיטו ווארקו
 - t3 · person: nikud on one occurrence · מיקה: missed, **leaked**: מיקה
-- t4 · person: two people sharing a surname · נמרוד רוזנטל: found via discover+suggest+applied as «נמרוד רוזנטל», «מורן רוזנטל», «רוזנטל», **leaked**: רוזנטל
 - t4 · person: minor, first name only · עומרי: missed, **leaked**: עומרי
 - t4 · person: name that reads like a body's · עומרי גן: missed, **leaked**: עומרי גן
 - w1 · person: two-letter surname · ליעד כץ: missed, **leaked**: ליעד כץ
@@ -170,43 +169,43 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 67 | 4 | 1 |
-| m2 | meeting | 21 | 6 | 0 |
-| m3 | meeting | 17 | 3 | 0 |
-| m4 | meeting | 17 | 3 | 1 |
-| f1 | filing | 36 | 10 | 1 |
-| f2 | filing | 42 | 13 | 1 |
-| f3 | filing | 17 | 5 | 0 |
-| f4 | filing | 23 | 8 | 3 |
-| t1 | transcript | 22 | 6 | 0 |
-| t2 | transcript | 18 | 5 | 1 |
-| t3 | transcript | 19 | 6 | 1 |
-| t4 | transcript | 22 | 9 | 1 |
-| w1 | welfare | 9 | 1 | 0 |
-| w2 | welfare | 13 | 3 | 0 |
-| w3 | welfare | 10 | 2 | 0 |
-| w4 | welfare | 12 | 5 | 1 |
-| h1 | medical | 17 | 6 | 2 |
-| h2 | medical | 11 | 2 | 0 |
-| h3 | medical | 11 | 3 | 3 |
-| p1 | police | 11 | 2 | 1 |
-| p2 | police | 11 | 3 | 1 |
-| p3 | police | 8 | 1 | 0 |
-| p4 | police | 11 | 3 | 0 |
-| b1 | bank | 13 | 5 | 2 |
-| b2 | bank | 8 | 1 | 0 |
-| b3 | bank | 7 | 2 | 0 |
-| c1 | chat | 6 | 1 | 0 |
-| c2 | chat | 8 | 2 | 1 |
-| c3 | chat | 7 | 2 | 0 |
-| c4 | chat | 9 | 3 | 0 |
-| x1 | position | 16 | 5 | 1 |
-| x2 | position | 11 | 4 | 0 |
-| x3 | position | 13 | 4 | 0 |
-| a1 | audio | 9 | 3 | 0 |
-| a2 | audio | 11 | 5 | 0 |
-| a3 | audio | 18 | 7 | 1 |
-| a4 | audio | 10 | 4 | 0 |
-| v1 | interview | 10 | 2 | 0 |
-| v2 | interview | 13 | 3 | 0 |
-| v3 | interview | 7 | 2 | 0 |
+| m1 | meeting | 84 | 4 | 1 |
+| m2 | meeting | 28 | 6 | 0 |
+| m3 | meeting | 19 | 3 | 0 |
+| m4 | meeting | 22 | 3 | 1 |
+| f1 | filing | 45 | 10 | 1 |
+| f2 | filing | 52 | 13 | 1 |
+| f3 | filing | 26 | 5 | 0 |
+| f4 | filing | 28 | 8 | 3 |
+| t1 | transcript | 25 | 6 | 0 |
+| t2 | transcript | 19 | 5 | 1 |
+| t3 | transcript | 23 | 6 | 1 |
+| t4 | transcript | 24 | 8 | 1 |
+| w1 | welfare | 12 | 1 | 0 |
+| w2 | welfare | 15 | 3 | 0 |
+| w3 | welfare | 13 | 2 | 0 |
+| w4 | welfare | 18 | 5 | 1 |
+| h1 | medical | 21 | 6 | 2 |
+| h2 | medical | 17 | 2 | 0 |
+| h3 | medical | 15 | 3 | 3 |
+| p1 | police | 18 | 2 | 1 |
+| p2 | police | 20 | 3 | 1 |
+| p3 | police | 9 | 1 | 0 |
+| p4 | police | 15 | 3 | 0 |
+| b1 | bank | 17 | 5 | 2 |
+| b2 | bank | 10 | 1 | 0 |
+| b3 | bank | 9 | 2 | 0 |
+| c1 | chat | 9 | 1 | 0 |
+| c2 | chat | 11 | 2 | 1 |
+| c3 | chat | 10 | 2 | 0 |
+| c4 | chat | 12 | 3 | 0 |
+| x1 | position | 21 | 5 | 1 |
+| x2 | position | 17 | 4 | 0 |
+| x3 | position | 20 | 4 | 0 |
+| a1 | audio | 13 | 3 | 0 |
+| a2 | audio | 17 | 5 | 0 |
+| a3 | audio | 22 | 7 | 1 |
+| a4 | audio | 14 | 4 | 0 |
+| v1 | interview | 15 | 2 | 0 |
+| v2 | interview | 18 | 3 | 0 |
+| v3 | interview | 12 | 2 | 0 |
