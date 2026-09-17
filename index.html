@@ -1266,7 +1266,7 @@ class Component extends DCLogic {
      המסך האחרון נשמר על המופע ולא נלקח מההוק. */
   componentDidUpdate(){ this.applyProps(); if(this._barSize) this._barSize();
     // חלונית המופעים אינה שורדת מעבר מסך: העכבר נשאר במקומו והחלונית של המסך הקודם כיסתה את הבא
-    if(this.state.screen!==this._lastScreen){ this._lastScreen=this.state.screen; if(this.state.tip) this.setState({tip:null}); }
+    if(this.state.screen!==this._tipScreen){ this._tipScreen=this.state.screen; if(this.state.tip) this.setState({tip:null}); }
     // רשומת היסטוריה אחת לכל מסמך (H5): "אחורה" חוזר אליה ולא יוצא מהאתר
     if(this.state.buf&&!this.state.tour&&!this._hist){ this._hist=true; this._leaving=false; try{ history.pushState({pib:1}, ""); }catch(_){} }
     else if(!this.state.buf&&this._hist) this._hist=false;
