@@ -106,9 +106,21 @@ function nameish(w,docTok){
     if(r.length<4)return false}
   if(docTok.has("ה"+w))return false;
   return true}
+/* "מרים להידחות" (הסשן השלישי של המשתמשת): שם המשפחה של הלקוחה נשמט מהמסמך,
+   והמילה שאחרי השם הפרטי — שם פועל — נדבקה אליו כשם משפחה. היא לא יכלה להשאיר
+   את "מרים" ולוותר על "להידחות", ובהחלפה המילה הקריטית משפטית נבלעה בכינוי.
+   מילה שאחרי שם שהיא שם פועל בצורתה (להי־, להת־, לה־ + שורש) או פועל/מילה
+   נפוצה מהרשימות אינה מצטרפת לשם; שם משפחה שמתחיל ב-ל' (לביא, לוי, לנדאו)
+   מוגן דרך רשימות השמות וסיומות שם המשפחה. */
+function verbTail(w){
+  const x=norm(String(w||"")).trim(); if(!x)return false;
+  if(KNOWN_FIRST.has(x)||(typeof SUR_SUFFIX!=="undefined"&&SUR_SUFFIX.test(x)))return false;
+  if(VRB.has(x)||COMMON.has(x))return true;
+  return /^לה[א-ת]{3,}$/.test(x);
+}
 function bodyNames(blocks,known){
-  const kn=new Set(); for(const k of known){const n=norm(k).trim();
-    kn.add(n); for(const p of n.split(/\s+/))if(p.length>=3)kn.add(p)}
+  const kn=new Set(), knFull=new Set(); for(const k of known){const n=norm(k).trim();
+    kn.add(n); knFull.add(n); for(const p of n.split(/\s+/))if(p.length>=3)kn.add(p)}
   const docTok=new Set();
   const toks=[];
   for(const b of blocks){const n=norm(b.text),t=tokall(n);
@@ -142,6 +154,10 @@ function bodyNames(blocks,known){
           if(LEAD.has(raw[0].w))continue;
           const w2=raw[1].w.replace(/^ו/,"");
           if(/^אינ[והםן]$/.test(w2)||STOP.has(w2)||COMMON.has(w2)||VRB.has(w2)||TRAIL.has(w2))continue;
+          if(verbTail(w2))continue;
+          // צירוף שאחת ממילותיו היא ערך שכבר ברשימה אינו אדם חדש: "מרים" שברשימה
+          // אינה הופכת ל"מרים להידחות" בהצעות, אחרי שהיא כבר החליטה מה "מרים".
+          if(raw.some(x=>knFull.has(x.w)||knFull.has(x.w.replace(/^[בהולמכש]/,""))))continue;
         }
         // "מזרחי וכהן" — "וכהן" הוא אותו אדם כמו "כהן", לא מועמד נפרד
         const wds=raw.map(x=>

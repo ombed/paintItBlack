@@ -510,9 +510,21 @@ function nameish(w,docTok){
     if(r.length<4)return false}
   if(docTok.has("ה"+w))return false;
   return true}
+/* "מרים להידחות" (הסשן השלישי של המשתמשת): שם המשפחה של הלקוחה נשמט מהמסמך,
+   והמילה שאחרי השם הפרטי — שם פועל — נדבקה אליו כשם משפחה. היא לא יכלה להשאיר
+   את "מרים" ולוותר על "להידחות", ובהחלפה המילה הקריטית משפטית נבלעה בכינוי.
+   מילה שאחרי שם שהיא שם פועל בצורתה (להי־, להת־, לה־ + שורש) או פועל/מילה
+   נפוצה מהרשימות אינה מצטרפת לשם; שם משפחה שמתחיל ב-ל' (לביא, לוי, לנדאו)
+   מוגן דרך רשימות השמות וסיומות שם המשפחה. */
+function verbTail(w){
+  const x=norm(String(w||"")).trim(); if(!x)return false;
+  if(KNOWN_FIRST.has(x)||(typeof SUR_SUFFIX!=="undefined"&&SUR_SUFFIX.test(x)))return false;
+  if(VRB.has(x)||COMMON.has(x))return true;
+  return /^לה[א-ת]{3,}$/.test(x);
+}
 function bodyNames(blocks,known){
-  const kn=new Set(); for(const k of known){const n=norm(k).trim();
-    kn.add(n); for(const p of n.split(/\s+/))if(p.length>=3)kn.add(p)}
+  const kn=new Set(), knFull=new Set(); for(const k of known){const n=norm(k).trim();
+    kn.add(n); knFull.add(n); for(const p of n.split(/\s+/))if(p.length>=3)kn.add(p)}
   const docTok=new Set();
   const toks=[];
   for(const b of blocks){const n=norm(b.text),t=tokall(n);
@@ -546,6 +558,10 @@ function bodyNames(blocks,known){
           if(LEAD.has(raw[0].w))continue;
           const w2=raw[1].w.replace(/^ו/,"");
           if(/^אינ[והםן]$/.test(w2)||STOP.has(w2)||COMMON.has(w2)||VRB.has(w2)||TRAIL.has(w2))continue;
+          if(verbTail(w2))continue;
+          // צירוף שאחת ממילותיו היא ערך שכבר ברשימה אינו אדם חדש: "מרים" שברשימה
+          // אינה הופכת ל"מרים להידחות" בהצעות, אחרי שהיא כבר החליטה מה "מרים".
+          if(raw.some(x=>knFull.has(x.w)||knFull.has(x.w.replace(/^[בהולמכש]/,""))))continue;
         }
         // "מזרחי וכהן" — "וכהן" הוא אותו אדם כמו "כהן", לא מועמד נפרד
         const wds=raw.map(x=>
@@ -1055,6 +1071,9 @@ function nerClean(ents,text,opt){
     // "אפוטרופא לדין", "משה אפטרופא": מילת תפקיד בכל צורה אינה שם, לבדה או בקצה
     if(v&&v.split(/\s+/).every(w=>ROLEWORD.test(norm(w))))continue;
     if(v){let ws=v.split(/\s+/); while(ws.length>1&&ROLEWORD.test(norm(ws[ws.length-1])))ws.pop(); while(ws.length>1&&ROLEWORD.test(norm(ws[0])))ws.shift(); v=ws.join(" ");}
+    // המודל נדבק לימין: "מרים להידחות" חזר כישות אחת. שם פועל או פועל בקצה
+    // המקטע אינם חלק מהשם, כמו בשכבת גוף הטקסט (verbTail).
+    if(v&&typeof verbTail==="function"){let ws=v.split(/\s+/); while(ws.length>1&&verbTail(ws[ws.length-1]))ws.pop(); v=ws.join(" ");}
     if(!v||v.length<2||NER_DROP.has(v)||NER_DROP.has(norm(v)))continue;
     // "33" הוצע כשם גוף והוחלף. ערך בלי אות עברית אחת אינו שם של גוף או אדם.
     if(!/[֐-׿]/.test(v))continue;
@@ -1679,6 +1698,24 @@ function findPatterns(text,on,flag){
         src:"pattern",prio:p.p,review:bad||undefined,
         conf:bad?"medium":(p.on?"high":"medium")});
     }}
+  /* כתובת רחוב שנמחקה השאירה אחריה "מ," (מ"מרחוב") ואת המיקוד שאחרי העיר
+     (הסשן השלישי). אות שימוש שדבוקה לכתובת שייכת למשפט, לא לכתובת: במחיקה היא
+     הולכת איתה, בתווית היא נשארת לפניה. מספר של 5–7 ספרות בהמשך אותה שורה, אחרי
+     הכתובת ולכל היותר שלוש מילים (העיר), הוא מיקוד ונמחק איתה. */
+  for(const h of hits.slice()){
+    if(h.type!=="ADDRESS_STREET")continue;
+    if(h.s>0&&/[במלה]/.test(n[h.s-1])&&(h.s<2||!/[֐-׿]/.test(n[h.s-2]))){
+      h.base=h.text; h.pre=n[h.s-1]; h.s--; h.text=text.slice(h.s,h.e);
+    }
+    const tail=n.slice(h.e,h.e+60);
+    const z=/^[,\s]*(?:[א-ת][א-ת"'-]*\s+){0,3}(\d{5,7})(?![\d-])/.exec(tail);
+    if(z){
+      const zs=h.e+z.index+z[0].lastIndexOf(z[1]), ze=zs+z[1].length;
+      if(!hits.some(x=>x.s<ze&&zs<x.e))
+        hits.push({s:zs,e:ze,type:"ZIPCODE",label:"מיקוד",text:text.slice(zs,ze),apply:h.apply,
+          why:"מספר מיקוד בהמשך הכתובת",src:"pattern",prio:3,conf:"high"});
+    }
+  }
   return hits}
 
 const KINDS=[["NAME","שם"],["ORG","גוף"],["ID",'ת"ז'],["PHONE","טלפון"],["ADDRESS","כתובת"],["PLACE","מקום"],["OTHER","אחר"]];
@@ -1847,7 +1884,16 @@ class Engine{
     for(const r of this.rules){r.rx.lastIndex=0;let m;
       while((m=r.rx.exec(n))){
         const s=m.index,e=s+m[0].length;
-        if(this.blocked(s,e,zones))continue;
+        /* ערך שברשימה מוחלף גם בתוך קטע ארוך יותר שהותר (הסשן השלישי): "לא שם"
+           על "מרים אלון אסולין" שהמודל הדביק כתב את כל הקטע לרשימת ההיתר, ומאז
+           "מרים" שברשימה נשארה גלויה בתוכו — הדליפה שהיא תפסה בעין. אזור היתר
+           חוסם כלל מהרשימה רק כשהוא הערך המותר עצמו, או צורתו עם אות שימוש —
+           כלומר כשהאזור והפגיעה חופפים בדיוק. דפוסים (מספרים, כתובות) נשארים
+           חסומים בהכלה, כמו קודם. */
+        if(zones.some(([a,b])=>a===s&&b===e))continue;
+        // "טל:" בראש שורת פרטי קשר הוא תווית טלפון, לא האדם ששמו טל: "טל: 04-…",
+        // "טל: פקס:". תור דיבור ("טל: אני מסכימה") נשאר שם.
+        if(/^(?:טל|פקס|נייד|טלפון)$/.test(m[0].trim())&&/^\s*:\s*(?:$|[\d+*(]|פקס|נייד|טל)/.test(n.slice(e,e+8)))continue;
         // שם בן מילה אחת ("שר", "גיל") שאחריו מילה שעושה ממנו תואר ציבורי:
         // "שר הרווחה" הוא התפקיד, לא האדם ששמו שר. בודקים את ההתאמה עם המילה הבאה.
         if(r.base.trim().split(" ").length===1){const nx=n.slice(e,e+30).trim().split(" ")[0]||""; const t2=(m[0]+" "+nx).trim(); if(PUBLIC_ORG.test(t2)||PUBLIC_ORG.test(t2.replace(/^[בהולמכש]/,"")))continue;}
@@ -1864,7 +1910,7 @@ class Engine{
       // גיל אינו מזהה, וההבטחה הייתה "הכול חוץ מגילאים": "בת 9", "בן 12", "גיל 7",
       // "3 שנים" — מספר בהקשר של גיל נשאר גם כשמספרים מושמטים. צר ומבוסס הקשר בלבד.
       if(this.blocked(h.s,h.e,AGE))continue;
-      h.review=h.conf!=="high"; h.base=h.text; hits.push(h);
+      h.review=h.conf!=="high"; h.base=h.base||h.text; hits.push(h);
     }
     return resolve(hits)}
   /* מה נכנס במקום ערך: name (שם או יישוב בדוי), label (פלוני א׳ / [ת"ז א׳]),
@@ -1916,7 +1962,23 @@ class Engine{
       else base = fam==="NAME" ? "פלוני "+hord(n) : `[${lab} ${hord(n)}]`;
     }
     this.map[k]??=base;
-    return addPre(pre,base)}
+    /* "זה אותו אחד כמו" מצורה קצרה (הסשן השלישי): "שרן" שמוזג ל"רן אלון" קיבל את
+       הכינוי המלא "דניאל אשכנזי" בכל מופע, ובלי ה-ש'. כל המסמך "קיבל שמות משפחה"
+       והיא עצרה. צורה בת מילה אחת שממוזגת לשם מלא מקבלת את החלק המקביל בכינוי —
+       שם פרטי לשם פרטי, שם משפחה לשם משפחה — ואות שימוש שדבוקה לצורה נשארת. */
+    let out=base;
+    if(h.base&&this.alias[h.base]&&style==="name"&&(CANON[h.type]||[h.type])[0]==="NAME"){
+      const ct=norm(canonical).trim().split(/\s+/), rt=String(base||"").trim().split(/\s+/);
+      if(ct.length>1&&rt.length>1){
+        let bw=norm(h.base).trim(), xp="";
+        if(!/\s/.test(bw)&&bw!==ct[0]&&bw!==ct[ct.length-1]&&PFX.has(bw[0])&&(ct.includes(bw.slice(1)))){xp=bw[0];bw=bw.slice(1);}
+        if(!/\s/.test(bw)){
+          if(bw===ct[0])out=xp+rt[0];
+          else if(bw===ct[ct.length-1])out=xp+rt[rt.length-1];
+        }
+      }
+    }
+    return addPre(pre,out)}
 }
 
 /* ══════════ מאגר יישובים ══════════
@@ -2164,7 +2226,10 @@ async function redactDocx(buf,subs,allow,opt){
                 ?`חלק מהשם «${inf.of}» — אבל גם מילה. הוחלף רק כשעומד לבד; ודאי שזה האדם`
                 :`חלק מהשם «${inf.of}» שכבר הוחלף, ומופיע כאן לבד`)
                     :"אותו ערך זוהה במקום אחר במסמך, אז הוחלף גם כאן",
-          ctx:ctxHTML(blk.text,s,e),review:!!inf.of,rep:out,baseRep:nw,base:o,src:"sweep"})}}
+          // חלק חד-משמעי של שם מהרשימה (שלוש אותיות ומעלה, לא מילה) מוחלף בלי
+          // לבקש אישור (Q5 בגרסה 5): השם המלא ברשימה הוא ההחלטה שלה על האדם הזה.
+          // חלק קצר, או שהוא גם מילה, נשאר לבדיקה — שם גרות ההחלפות השגויות.
+          ctx:ctxHTML(blk.text,s,e),review:!!inf.of&&!!inf.wordy,rep:out,baseRep:nw,base:o,src:"sweep"})}}
     rep.sweep+=applyReps(blk,reps)}
   for(const c of eng.collided){
     flagged.push({value:c.rep,label:"התנגשות תחליף",part:"המסמך",review:true,src:"collide",collideOf:c.value,
