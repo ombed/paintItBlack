@@ -104,7 +104,7 @@ test("the dates choice is one setting, and it is kept with the case", async ({ p
   if (await run.isVisible()) await run.click();
   await expect(bar).toBeVisible({ timeout: 20000 });
   await expect(page.locator('[data-mark][data-kind="date"]')).toHaveCount(0);
-  expect(await sheet(page).innerText()).not.toMatch(/d{1,2}.d{1,2}.d{4}/);
+  expect(await sheet(page).innerText()).not.toMatch(/\d{1,2}\.\d{1,2}\.\d{4}/);
   await expect(page.locator("[data-legend-date]")).toHaveCount(0);
   await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
   await page.getByPlaceholder(/שם התיק/).fill("לוין נ׳ לוין");
@@ -151,4 +151,52 @@ test("'same person' from a prefixed short form takes the first name only and kee
   const [first, last] = full.split(" ");
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("ש" + first + " אמר");
   expect(await sheet(page).innerText()).not.toContain("ש" + first + " " + last);
+});
+
+// a name that took an extra word: "מרים להידחות". The engine no longer builds it,
+// so the tests add it by hand and trim it back, from each of the three places.
+const SPAN = ["פרוטוקול", "מרים לוין: פתחתי.", "מרים לוין: סיימתי.", "לדעתי דין הבקשה של מרים להידחות, ומרים תגיש ערעור."].join("\n");
+
+test("trim on the card: the extra word goes back to the text, the pseudonym keeps its first part", async ({ page }) => {
+  await toWork(page, SPAN, ["מרים להידחות"]);
+  const card = cardOf(page, "מרים להידחות");
+  await expect(card).toBeVisible();
+  const fake = (await page.locator('[data-mark][data-val="מרים להידחות"]').first().innerText()).trim();
+  expect(fake.split(" ").length).toBe(2);
+  await card.locator("[data-words] [data-word]", { hasText: "להידחות" }).click();
+  await expect.poll(() => titles(page), { timeout: 15000 }).not.toContain("מרים להידחות");
+  const text = await sheet(page).innerText();
+  expect(text).toContain(fake.split(" ")[0] + " להידחות");
+  expect(text).not.toContain(fake);
+  expect(text).not.toMatch(/(^|[^א-ת])מרים($|[^א-ת])/);
+});
+
+test("trim from the inline editor", async ({ page }) => {
+  await toWork(page, SPAN, ["מרים להידחות"]);
+  await page.locator('[data-mark][data-val="מרים להידחות"]').first().click();
+  const ed = page.locator("[data-inline]");
+  await ed.locator("[data-inline-words] [data-word]", { hasText: "להידחות" }).click();
+  await expect(ed).toHaveCount(0);
+  await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toMatch(/ להידחות/);
+  expect(await sheet(page).innerText()).not.toMatch(/(^|[^א-ת])מרים($|[^א-ת])/);
+});
+
+test("trim on the people screen chip", async ({ page }) => {
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "case.docx", SPAN);
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  const input = page.getByPlaceholder(/שם מלא/);
+  await input.fill("מרים להידחות");
+  await input.press("Enter");
+  expect(await H.listedNames(page)).toContain("מרים להידחות");
+  const row = H.peopleRows(page).filter({ hasText: "מרים להידחות" }).first();
+  await row.getByRole("button", { name: "קיצור השם" }).click();
+  await page.locator("[data-trim-row] [data-word]", { hasText: "להידחות" }).click();
+  const names = await H.listedNames(page);
+  expect(names).toContain("מרים");
+  expect(names).not.toContain("מרים להידחות");
+  await expect(page.locator("[data-trim-row]")).toHaveCount(0);
 });
