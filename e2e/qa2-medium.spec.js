@@ -266,3 +266,47 @@ test("L10: the page behind the intro does not scroll", async ({ page }) => {
   await page.keyboard.press("Escape");
   expect(await page.evaluate(() => document.documentElement.style.overflow)).toBe("");
 });
+
+const TOWNS = ["פרוטוקול", "דוד מזרחי: אני גר בחולון ועובד ברמת גן, ונוסע לבת ים ולראשון לציון.", "דוד מזרחי: אחי גר בנתניה."].join("\n");
+async function toPlaces(page) {
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "case.docx", TOWNS);
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  await H.goOn(page);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("יישובים", { timeout: 20000 });
+}
+
+test("L12: 'קבוצה אחרת' keeps what she typed and replaces the rest", async ({ page }) => {
+  await toPlaces(page);
+  const box = page.getByLabel("היישוב שיבוא במקום חולון");
+  await box.fill("ירוחם");
+  const other = page.getByLabel("היישוב שיבוא במקום נתניה");
+  const before = await other.inputValue();
+  await page.getByRole("button", { name: "קבוצה אחרת" }).click();
+  await expect(page.getByLabel("היישוב שיבוא במקום חולון")).toHaveValue("ירוחם");
+  await expect(page.locator("[data-notice]")).toContainText("התחליף שהקלדת נשאר");
+  expect(await page.getByLabel("היישוב שיבוא במקום נתניה").inputValue()).not.toBe(before);
+});
+
+test("L13: map labels of neighbouring towns do not overlap", async ({ page }) => {
+  await toPlaces(page);
+  const show = page.getByRole("button", { name: /הצגת המפה/ });
+  if (await show.isVisible().catch(() => false)) await show.click();
+  await expect(page.locator("text=חולון").first()).toBeVisible();
+  const overlaps = await page.evaluate(() => {
+    const r = [...document.querySelectorAll("[data-map-label] > span")].map((s) => s.getBoundingClientRect()).filter((b) => b.width > 0);
+    // two maps side by side: compare labels within the same map only
+    const groups = {}; for (const b of r) (groups[b.left < innerWidth / 2 ? "L" : "R"] = groups[b.left < innerWidth / 2 ? "L" : "R"] || []).push(b);
+    let n = 0;
+    for (const g of Object.values(groups)) for (let i = 0; i < g.length; i++) for (let j = i + 1; j < g.length; j++) {
+      const a = g[i], b = g[j];
+      if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1) n++;
+    }
+    return { n, count: r.length };
+  });
+  expect(overlaps.count).toBeGreaterThan(3);
+  expect(overlaps.n).toBe(0);
+});

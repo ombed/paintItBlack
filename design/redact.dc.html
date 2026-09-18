@@ -500,10 +500,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
                 <path data-d="{{ mapLand }}" fill="var(--panel2)" stroke="var(--line)" stroke-width="0.8"></path>
               </svg>
               <sc-for list="{{ mapFrom }}" as="p" hint-placeholder-count="3">
-                <div style="{{ p.style }}">
-                  <span style="width:7px;height:7px;border-radius:50%;background:var(--ink2);display:block;margin:0 auto;box-shadow:0 0 0 3px var(--panel)"></span>
-                  <span style="font-size:10.5px;color:var(--ink2);white-space:nowrap;background:var(--panel);padding:0 2px;border-radius:3px">{{ p.label }}</span>
-                </div>
+                <div style="{{ p.dot }}"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink2);display:block;box-shadow:0 0 0 3px var(--panel)"></span></div>
+                <div data-map-label style="{{ p.style }}"><span style="font-size:10.5px;color:var(--ink2);white-space:nowrap;background:var(--panel);padding:0 2px;border-radius:3px">{{ p.label }}</span></div>
               </sc-for>
             </div>
           </div>
@@ -514,10 +512,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
                 <path data-d="{{ mapLand }}" fill="var(--panel2)" stroke="var(--line)" stroke-width="0.8"></path>
               </svg>
               <sc-for list="{{ mapTo }}" as="p" hint-placeholder-count="3">
-                <div style="{{ p.style }}">
-                  <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:block;margin:0 auto;box-shadow:0 0 0 3px var(--panel)"></span>
-                  <span style="font-size:10.5px;color:var(--accent-ink);white-space:nowrap;background:var(--panel);padding:0 2px;border-radius:3px">{{ p.label }}</span>
-                </div>
+                <div style="{{ p.dot }}"><span style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:block;box-shadow:0 0 0 3px var(--panel)"></span></div>
+                <div data-map-label style="{{ p.style }}"><span style="font-size:10.5px;color:var(--accent-ink);white-space:nowrap;background:var(--panel);padding:0 2px;border-radius:3px">{{ p.label }}</span></div>
               </sc-for>
             </div>
           </div>
@@ -1792,14 +1788,35 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         return a.map((p,i)=>({label:labels[i], x:W/2+(p.x-cx)*sc, y:H/2+(p.y-cy)*sc})); };
       from=fit(F, rows.map(r=>r.fl)); to=fit(T, rows.map(r=>r.tl));
     }
-    const dot=p=>({label:p.label,
-      style:`position:absolute;left:${p.x.toFixed(1)}px;top:${p.y.toFixed(1)}px;`+
-        "transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none"});
-    return {land, hasLand:!!land, from:from.map(dot), to:to.map(dot)};
+    /* תוויות שנערמות (L13 בביקורת השנייה): יישובים סמוכים — חולון ורמת גן — כתבו את השם
+       זה על זה. תווית שהייתה נופלת על תווית קודמת עוברת אל מעל הנקודה, ואם גם שם תפוס —
+       מוסטת לצד. הנקודה עצמה נשארת במקומה. */
+    const place=list=>{
+      const boxes=[], h=15;
+      return list.map(p=>{
+        const w=Math.max(28, String(p.label||"").length*6.4);
+        // התווית מתחת לנקודה; אם תפוס — מעל, ואז בצעדים של 15 פיקסלים הלאה עד מקום פנוי
+        const slots=[11]; for(let k=1;k<=8;k++){ slots.push(-11-h*(k-1)); slots.push(11+h*k); }
+        const hit=dy=>boxes.some(q=>Math.abs(p.x-q.x)<(w+q.w)/2+2&&Math.abs((p.y+dy)-q.y)<h);
+        const dy=slots.find(d=>!hit(d)); const use=dy===undefined?11:dy;
+        boxes.push({x:p.x, y:p.y+use, w});
+        return {label:p.label,
+          dot:"position:absolute;left:"+p.x.toFixed(1)+"px;top:"+p.y.toFixed(1)+"px;transform:translate(-50%,-50%);pointer-events:none",
+          style:"position:absolute;left:"+p.x.toFixed(1)+"px;top:"+(p.y+use).toFixed(1)+"px;transform:translate(-50%,-50%);pointer-events:none"};
+      });
+    };
+    return {land, hasLand:!!land, from:place(from), to:place(to)};
   }
 
+  /* "קבוצה אחרת" (L12 בביקורת השנייה): תחליף שהקלידה ביד נזרק בלי מילה. המפה החדשה
+     מחליפה רק את מה שלא נגעה בו; מה שהקלידה נשאר, לפי שם היישוב ולא לפי המקום בשורה. */
   geoAlt = () => { const E=this.state.E; const v=this.state.geoV+1;
-    this.setState({geoV:v, geo:E.geoMap(this.state.geoNames, v, this._geoAvoid, this._geoForbid), geoEdits:{}}); };
+    const old=this.state.geo, edits=this.state.geoEdits||{}, byName={};
+    if(old) old.map.forEach((m,i)=>{ if(edits[i]!=null) byName[m.from]=edits[i]; });
+    const geo=E.geoMap(this.state.geoNames, v, this._geoAvoid, this._geoForbid);
+    const kept={}; if(geo) geo.map.forEach((m,i)=>{ if(byName[m.from]!=null) kept[i]=byName[m.from]; });
+    const n=Object.keys(kept).length;
+    this.setState({geoV:v, geo, geoEdits:kept, notice:n?`${n===1?"התחליף שהקלדת נשאר":n+" התחליפים שהקלדת נשארו"}; השאר הוחלפו בקבוצה חדשה.`:this.state.notice, noticeUndo:false}); };
   /* "אל תחליף" על יישוב אחד (Q7 בגרסה 3): שאר הזוגות לא זזים. עד כאן המפה חושבה
      מחדש ומה שאישרה השתנה מאחורי גבה; עם פחות משני יישובים המפה התפרקה והשאר קיבלו
      שמות אקראיים מהמאגר הלא-מתויג ("אשדוד" הפכה ל"אמונים"). עכשיו הזוגות שאושרו

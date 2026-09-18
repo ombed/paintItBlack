@@ -118,8 +118,17 @@ function variants(name,lvl,protect){
   return out;
 }
 const MERGE=new Set(["ב","ל","כ","ה"]);
+/* ב/ל/כ + ה' הידיעה מתמזגות ("ל+הבית" → "לבית"), אבל רק כשה-ה' היא ה' הידיעה. בשם
+   יישוב או בשם של אדם היא חלק מהשם: "ברמת גן" → "ב"+"הרצליה" נתן "ברצליה" (L14 בביקורת
+   השנייה), ו"להדס" היה נעשה "לדס". שם מוכר — יישוב, שם פרטי, שם מהמאגר — שומר את ה-ה'. */
+function nameWithHe(rep){
+  const r=norm(String(rep||"")).trim(), w=r.split(/\s+/)[0];
+  return (typeof PLACE_BY!=="undefined"&&!!(PLACE_BY[r]||PLACE_BY[w]))||
+    (typeof KNOWN_FIRST!=="undefined"&&KNOWN_FIRST.has(w))||
+    (typeof POOL!=="undefined"&&Object.values(POOL).some(a=>a.includes(w)));
+}
 function addPre(pre,rep){ if(!pre)return rep; if(!rep)return pre;
-  if(rep[0]==="ה"&&MERGE.has(pre[pre.length-1])) return pre+rep.slice(1);
+  if(rep[0]==="ה"&&MERGE.has(pre[pre.length-1])&&!nameWithHe(rep)) return pre+rep.slice(1);
   return pre+rep}
 /* תאריך מוזז (Q5 בגרסה 3). תאריך שנמחק הוציא מה-AI "חסר תאריך ההחלטה"; תווית לא
    נותנת לו לחשב פרקי זמן. לכן כל תאריך מלא במסמך זז באותו מספר ימים — ההיסט
@@ -1045,7 +1054,12 @@ function nerClean(ents,text,opt){
       // "בעמותת שביל הלב", "ברחוב הארזים": כשהגזע הוא ראש של גוף או של מקום,
       // האות הראשונה היא אות שימוש גם בלי שהגזע מופיע במקום אחר.
       // "בבית ספר אורט", "לחסידות ברסלב": גם ראש של מוסד או של קבוצה הוא עדות.
+      // "בקריית אתא" (L14 בביקורת השנייה): יישוב שמילתו הראשונה היא ראש של שם יישוב —
+      // קריית, כפר, גבעת, רמת, נווה… — מקבל את אות השימוש כאות שימוש גם כשהכתיב אינו
+      // במאגר; אחרת ה-ב' נכנסה לערך והוחלפה יחד עם השם ("מתגוררת תקוע")
+      const SETTLE=/^(?:קריית|קרית|כפר|גבעת|רמת|נווה|נוה|מעלה|מצפה|גני|שדה|שדות|תל|ראש|מגדל|עין|אבן|נחלת|בית)$/;
       const headPeel=NER_HEADS.has(stem)||
+        (NER_KIND[e.type]==="PLACE"&&w.length>1&&SETTLE.test(stem))||
         (typeof ORG_HEADS!=="undefined"&&ORG_HEADS.test(norm(bare)))||
         (typeof GROUP_HEADS!=="undefined"&&GROUP_HEADS.test(norm(bare)));
       if(wasCut||elsewhere||known||headPeel){
