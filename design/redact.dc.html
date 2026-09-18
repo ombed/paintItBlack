@@ -2417,7 +2417,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.tourMarkSeen();
     const o={...this.state.o, ner:this._tourNer===undefined?this.state.o.ner:this._tourNer};
     if(this._onSpot){ window.removeEventListener("resize", this._onSpot); window.removeEventListener("scroll", this._onSpot, true); this._onSpot=null; }
-    this.setState({tour:null, tourSpot:null, o, buf:null, res:null, rules:[], peo:[], peoSug:[], allow:[], geo:null, geoNames:[], geoExtra:[], pending:false, screen:"entry", err:"", copied:false});
+    // שם תיק שהוקלד בסיור הוא חלק מהמסמך הבדוי (M1 בביקורת השנייה): הוא לא עובר למסמך
+    // הבא, ולא נשמר כתיק — הסיור מבטיח ששום דבר ממנו לא נשמר
+    this.setState({tour:null, tourSpot:null, o, buf:null, res:null, rules:[], peo:[], peoSug:[], allow:[], geo:null, geoNames:[], geoExtra:[], pending:false, screen:"entry", err:"", copied:false,
+      caseName:"", profile:null, profileDirty:false});
   };
   tourNext = async () => {
     const t=this.state.tour; if(!t) return;
