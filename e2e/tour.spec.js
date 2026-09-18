@@ -67,7 +67,9 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   expect(text).toContain("מסמך לדוגמה");
 
   // copy is refused during the tour
-  await page.getByRole("button", { name: /העתקה ל-AI/ }).click();
+  // the copy button is outside the lit area, so a mouse click is stopped before it; activating it
+  // directly, as a keyboard press would, is still refused
+  await page.getByRole("button", { name: /העתקה ל-AI/ }).dispatchEvent("click");
   await expect(page.getByText(/בסיור אין העתקה/)).toBeVisible();
 
   // the remaining steps, then the end resets everything

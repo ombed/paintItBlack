@@ -129,6 +129,10 @@ button:disabled{opacity:.55;cursor:not-allowed}
   <sc-if value="{{ tourOn }}">
     <sc-if value="{{ tourSpot }}">
       <div data-spot style="{{ tourSpotStyle }}"></div>
+      <div data-tour-block="t" onClick="{{ onTourBlocked }}" style="{{ tourBlockT }}"></div>
+      <div data-tour-block="b" onClick="{{ onTourBlocked }}" style="{{ tourBlockB }}"></div>
+      <div data-tour-block="l" onClick="{{ onTourBlocked }}" style="{{ tourBlockL }}"></div>
+      <div data-tour-block="r" onClick="{{ onTourBlocked }}" style="{{ tourBlockR }}"></div>
     </sc-if>
     <div data-tour style="{{ tourCardStyle }}">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
@@ -138,6 +142,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
       </div>
       <b style="display:block;font-weight:500;font-size:15px;margin-bottom:4px">{{ tourTitle }}</b>
       <p style="margin:0 0 12px;font-size:13px;color:var(--ink2);line-height:1.6">{{ tourText }}</p>
+      <sc-if value="{{ tourNudge }}"><p data-tour-nudge role="status" style="margin:-4px 0 12px;font-size:12.5px;color:var(--warn);line-height:1.5">בסיור אפשר ללחוץ רק באזור המואר. כדי לצאת מהסיור — ✕ למעלה.</p></sc-if>
       <div style="display:flex;gap:7px;align-items:center">
         <button onClick="{{ onTourNext }}" style="padding:8px 16px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500">{{ tourNextLabel }}</button>
         <sc-if value="{{ tourHasBack }}"><button onClick="{{ onTourBack }}" style="padding:8px 12px;border-radius:9px;border:1px solid var(--line);font-size:13px">חזרה</button></sc-if>
@@ -1221,7 +1226,7 @@ class Component extends DCLogic {
     // הזרקור של הסיור נמדד אחרי שהמסך צויר, פעם אחת לכל צעד+מסך+מקטע פתוח
     if(this.state.tour){
       const key=this.state.tour.i+"|"+this.state.screen+"|"+(this.state.open||[]).join(",");
-      if(this._spotKey!==key){ this._spotKey=key; requestAnimationFrame(()=>this.tourMeasure()); }
+      if(this._spotKey!==key){ this._spotKey=key; requestAnimationFrame(()=>this.tourMeasure(true)); }
       // והזרקור נמדד שוב בכל עדכון (L1 בביקורת השנייה): פריסה שזזה אחרי המדידה — גופנים, מפה
       // שנפתחה — השאירה אותו במקום הישן. המדידה זולה ומעדכנת רק כשמשהו השתנה.
       else if(!this._spotRaf) this._spotRaf=requestAnimationFrame(()=>{ this._spotRaf=null; this.tourMeasure(); });
@@ -1962,7 +1967,11 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     try{
       const res = this.guardModel(await E.redactDocx(this.state.buf.slice(0), this.state.rules, this.state.allow, this.opts()), this.state.rules, this.state.allow);
       this.log.add("rerun",{ms:Date.now()-t0, applied:res.applied.length, flagged:res.flagged.length});
-      this.setState({res, rules:this.pinReps(this.state.rules,res), sel:null, err:"", inline:null}, ()=>this.persistProfile());
+      /* הכרטיס שנבחר נשאר פתוח אחרי ריצה חוזרת, כשהוא עדיין קיים: אחרי "ריק" הכרטיס נסגר,
+         והאזהרה שבו ("תשובת ה-AI לא תוכל להחזיר") נראתה רק למי שפתח אותו שוב. */
+      const n=v=>E.norm(String(v||"")).trim(), sel=this.state.sel;
+      const keep=sel&&(res.applied.some(r=>"a|"+n(r.of||r.base||r.value)===sel)||res.flagged.some(r=>"f|"+n(r.value)===sel));
+      this.setState({res, rules:this.pinReps(this.state.rules,res), sel:keep?sel:null, err:"", inline:null}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה: "+(e.message||e)}); }
   }
   /* C1 בביקורת השנייה: כינוי אוטומטי נבחר מתוך מאגר תוך דילוג על שמות שכבר
@@ -2487,16 +2496,39 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this._spotRO=typeof ResizeObserver==="function"?new ResizeObserver(this._onSpot):null;
   };
   // הזרקור: מלבן סביב מה שהצעד מדבר עליו, והשאר מוחשך. אינו חוסם לחיצות.
-  tourMeasure(){
+  /* הזרקור בגלילה (דיווח המשתמש, 18.9): הוא נע במעבר של רבע שנייה ועודכן דרך state, ולכן
+     נגרר אחרי כל גלילה ובטלפון ברח מהמסך; ומחוץ לאזור המואר אפשר היה ללחוץ ולשבור את
+     הסיור. עכשיו בגלילה הוא מוצב ישירות, בלי מעבר, באותו פריים; המעבר נשאר רק בין צעדים.
+     וארבעה חוסמים שקופים סביב האזור המואר מחזירים לחיצה בחוץ להודעה בכרטיס. */
+  spotCss(sp){
+    const tr=sp.slide?"transition:left .25s,top .25s,width .25s,height .25s;":"";
+    const b="position:fixed;z-index:76;background:transparent;";
+    return {spot:`position:fixed;left:${sp.x}px;top:${sp.y}px;width:${sp.w}px;height:${sp.h}px;border-radius:12px;box-shadow:0 0 0 9999px rgba(10,14,12,.45);pointer-events:none;z-index:75;${tr}`,
+      blocks:{tourBlockT:b+`left:0;top:0;width:100vw;height:${Math.max(0,sp.y)}px`,
+        tourBlockB:b+`left:0;top:${sp.y+sp.h}px;width:100vw;bottom:0`,
+        tourBlockL:b+`left:0;top:${sp.y}px;width:${Math.max(0,sp.x)}px;height:${sp.h}px`,
+        tourBlockR:b+`left:${sp.x+sp.w}px;top:${sp.y}px;right:0;height:${sp.h}px`}};
+  }
+  applySpot(sp){
+    const c=this.spotCss(sp), set=(sel,css)=>{ const el=document.querySelector(sel); if(el) el.setAttribute("style",css); };
+    set("[data-spot]", c.spot);
+    set('[data-tour-block="t"]', c.blocks.tourBlockT); set('[data-tour-block="b"]', c.blocks.tourBlockB);
+    set('[data-tour-block="l"]', c.blocks.tourBlockL); set('[data-tour-block="r"]', c.blocks.tourBlockR);
+  }
+  tourMeasure(onStep){
     const t=this.state.tour; if(!t) return;
     const cur=this.constructor.TOUR[t.i]; const el=cur&&cur.target?document.querySelector(cur.target):null;
     if(this._spotRO&&el!==this._spotEl){ this._spotRO.disconnect(); if(el) this._spotRO.observe(el); this._spotEl=el; }
     if(!el){ if(this.state.tourSpot) this.setState({tourSpot:null}); return; }
     const r=el.getBoundingClientRect();
-    if(r.bottom<0||r.top>innerHeight){ el.scrollIntoView({block:"center"}); return; }
-    const spot={x:Math.round(r.left)-6, y:Math.round(r.top)-6, w:Math.round(r.width)+12, h:Math.round(r.height)+12};
+    // גלילה אל היעד רק במעבר צעד; בגלילה של המשתמשת הזרקור הולך איתה, לא מושך אותה חזרה
+    if(onStep&&(r.bottom<0||r.top>innerHeight)){ el.scrollIntoView({block:"center"}); return; }
+    const spot={x:Math.round(r.left)-6, y:Math.round(r.top)-6, w:Math.round(r.width)+12, h:Math.round(r.height)+12, slide:!!onStep};
     const p=this.state.tourSpot;
-    if(!p||p.x!==spot.x||p.y!==spot.y||p.w!==spot.w||p.h!==spot.h) this.setState({tourSpot:spot});
+    if(!p||p.x!==spot.x||p.y!==spot.y||p.w!==spot.w||p.h!==spot.h){
+      if(!onStep) this.applySpot(spot);
+      this.setState({tourSpot:spot});
+    }
   }
   tourStep(i){ return this.constructor.TOUR[i]; }
   tourClose = () => {
@@ -2582,7 +2614,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       tourPos:`${pos} מתוך ${shown.length}`, tourHasBack:t.i>0,
       // כרטיס הסיור אינו מכסה את חלונית העריכה (L3): כשהיא פתוחה בחצי התחתון, הכרטיס עולה למעלה
       tourCardStyle:"position:fixed;inset-inline-start:18px;"+((this.state.inline&&this.state.inline.y>innerHeight/2-120)?"top:18px;":"bottom:18px;")+"z-index:80;max-width:400px;background:var(--panel);border:1px solid var(--accent);border-radius:14px;padding:16px 18px;box-shadow:0 18px 48px rgba(0,0,0,.28)",
-      tourSpot:!!sp, tourSpotStyle:sp?`position:fixed;left:${sp.x}px;top:${sp.y}px;width:${sp.w}px;height:${sp.h}px;border-radius:12px;box-shadow:0 0 0 9999px rgba(10,14,12,.45);pointer-events:none;z-index:75;transition:left .25s,top .25s,width .25s,height .25s`:"",
+      tourSpot:!!sp, tourSpotStyle:sp?this.spotCss(sp).spot:"", ...(sp?this.spotCss(sp).blocks:{}),
+      tourNudge:!!(this.state.tour&&this.state.tour.nudge===this.state.tour.i), onTourBlocked:e=>{ if(e&&e.preventDefault) e.preventDefault(); this.log.add("tour",{at:"blocked-click"}); this.setState({tour:{...this.state.tour, nudge:this.state.tour.i}}); },
       onTourNext:this.tourNext, onTourBack:this.tourBack, onTourClose:this.tourClose};
   }
   persistProfile(){
