@@ -1068,6 +1068,8 @@ class Component extends DCLogic {
   async componentDidMount(){
     try{
       const E = await import("./redact-engine.js");
+      // בדיקות הדפדפן קוראות לבדיקה העצמית אחרי כל בדיקה (docs/QUALITY-PLAN.md, שכבה 2)
+      if(window.__PIB_TEST) window.__pib={check:v=>this.selfCheck(v), state:()=>this.state};
       /* הורדת המודל (UX #6): זמן משוער לפי הקצב, והודעה כשהמונה לא זז 20 שניות —
          "סטלה" נראתה כמו תקיעה, והדרך החוצה לא הוצעה. */
       E.setNerSay((t,p)=>{
@@ -2735,6 +2737,68 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      של הכרטיס — תחליף עם תצוגה מקדימה של המשפט, שלוש הבחירות, "אותו אדם כמו",
      "אל תחליף", "לא שם". היא אמרה שהיא מעדיפה לעבוד מתוך הטקסט ולא מהצד. הפאנל
      נשאר כמו שהיה; כל פעולה כאן היא אותה פעולה, נרשמת ביומן עם origin:"inline". */
+  /* בדיקה עצמית (docs/QUALITY-PLAN.md, שכבה 2). ההבטחות של המוצר, נבדקות על המסך שבו
+     המשתמשת נמצאת עכשיו, בלי קשר למה שהבדיקה שהגיעה לכאן בדקה:
+     - כרטיס אינו מתחיל או נגמר בסימן פיסוק, ואין שני כרטיסים באותן אותיות;
+     - ערך ברשימה שמופיע במסמך נמצא — מוחלף או ממתין — ואינו "לא מופיע במסמך";
+     - הזרקור, חלונית העריכה והרמז צמודים למה שהם מצביעים עליו;
+     - אין גלילה אופקית, ואין {{ }} שלא נפתר.
+     זיהוי ההופעה במסמך בנוי כאן מחדש, מאותיות בלבד, ולא מהביטוי של המנוע — אחרת באג
+     בגבול המילה (כמו המירכאות) היה מסתתר גם מהבדיקה. verbose מחזיר ערכים (לבדיקות);
+     בלעדיו רק שמות הכללים ומספרים, כדי שאפשר יהיה לרשום אותם ביומן בלי טקסט. */
+  selfCheck(verbose){
+    const S=this.state, E=S.E, out=[], add=(rule,detail)=>out.push(verbose?{rule,detail}:{rule});
+    if(!E) return out;
+    const letters=v=>String(v||"").replace(/[\u0591-\u05c7\u200e\u200f]/g,"").replace(/[^\u05d0-\u05eaA-Za-z0-9]+/g," ").trim();
+    const n=v=>letters(v);
+    // כרטיסים
+    const titles=[...document.querySelectorAll("[data-group]")].map(g=>({key:g.getAttribute("data-group")||"", t:((g.querySelector("span")||{}).textContent||"").trim()}));
+    for(const c of titles) if(c.t&&/^[^\u05d0-\u05eaA-Za-z0-9]|[^\u05d0-\u05eaA-Za-z0-9'\u05f3]$/.test(c.t)) add("card-edge-punct", c.t);
+    const seen=new Map();
+    for(const c of titles.filter(x=>x.key.startsWith("a|"))){ const k=n(c.t); if(!k) continue; if(seen.has(k)&&seen.get(k)!==c.t) add("card-duplicate", seen.get(k)+" / "+c.t); else seen.set(k,c.t); }
+    // ערכים ברשימה שמופיעים במסמך
+    if(S.screen==="work"&&S.res&&!S.tour){
+      const docToks=letters((S.origBlocks||[]).map(b=>b.text).join("\n")).split(" ").filter(Boolean);
+      const PFX="בהולמכש";
+      const present=v=>{ const vt=letters(v).split(" ").filter(Boolean); if(!vt.length) return false;
+        for(let i=0;i+vt.length<=docToks.length;i++){ let ok=true;
+          for(let j=0;j<vt.length;j++){ const d=docToks[i+j], w=vt[j];
+            if(d===w) continue;
+            if(j===0&&d.length>w.length&&d.endsWith(w)&&[...d.slice(0,d.length-w.length)].every(c=>PFX.includes(c))&&d.length-w.length<=2) continue;
+            ok=false; break; }
+          if(ok) return true; }
+        return false; };
+      const allowed=new Set((S.allow||[]).map(n));
+      const handled=[...S.res.applied.map(r=>r.of||r.base||r.value), ...S.res.flagged.filter(r=>r.src!=="nohit").map(r=>r.value)].map(n);
+      const covers=(h,v)=>(" "+h+" ").includes(" "+v+" ");
+      for(const r of S.rules||[]){
+        const v=n(r.value); if(!v||v.length<2||allowed.has(v)) continue;
+        if(!present(r.value)) continue;
+        if(!handled.some(h=>covers(h,v)||h===v)) add("listed-not-handled", r.value);
+      }
+      for(const f of S.res.flagged.filter(r=>r.src==="nohit")) if(present(f.value)&&!allowed.has(n(f.value))) add("nohit-but-present", f.value);
+    }
+    // שכבות צמודות למה שהן מצביעות עליו
+    const near=(a,b)=>Math.abs(a-b)<=1.5;
+    if(S.tour&&S.tourSpot){
+      const cur=this.constructor.TOUR[S.tour.i], el=cur&&cur.target?document.querySelector(cur.target):null, sp=document.querySelector("[data-spot]");
+      if(el&&sp){ const a=el.getBoundingClientRect(), b=sp.getBoundingClientRect();
+        if(!(near(b.top,a.top-6)&&near(b.left,a.left-6)&&near(b.height,a.height+12)&&near(b.width,a.width+12))) add("spotlight-drift", Math.round(b.top-(a.top-6))+"px"); }
+    }
+    if(S.inline&&S.inline.anchor&&document.contains(S.inline.anchor)){
+      const ed=document.querySelector("[data-inline]"), r=S.inline.anchor.getBoundingClientRect();
+      if(ed&&r.bottom>=0&&r.top<=innerHeight){ const p=this.popPos(r), b=ed.getBoundingClientRect(); if(!near(b.top,p.y)||!near(b.left,p.x)) add("inline-drift", Math.round(b.top-p.y)+"px"); }
+    }
+    if(S.tip&&S.tip.anchor&&document.contains(S.tip.anchor)){
+      const tp=document.querySelector('[data-tip="panel"]'), r=S.tip.anchor.getBoundingClientRect();
+      if(tp&&r.bottom>=0&&r.top<=innerHeight){ const b=tp.getBoundingClientRect(); if(!near(b.top,r.bottom+8)) add("tip-drift", Math.round(b.top-r.bottom-8)+"px"); }
+    }
+    // פריסה
+    if(document.documentElement.scrollWidth>innerWidth+1) add("horizontal-overflow", document.documentElement.scrollWidth+">"+innerWidth);
+    const raw=[...document.querySelectorAll("#dc-root *")].filter(e=>e.childElementCount===0&&/\{\{\s*[\w.]+\s*\}\}/.test(e.textContent||""));
+    if(raw.length) add("unresolved-placeholder", raw.slice(0,3).map(e=>e.textContent.trim().slice(0,40)).join(" | "));
+    return out;
+  }
   popPos(r){ let x=Math.max(12, Math.min(r.left+r.width/2-170, innerWidth-352)), y=r.bottom+8; if(y>innerHeight-260) y=Math.max(12, r.top-250); return {x,y}; }
   inlineAt(e, info){
     let x=24, y=80, anchor=null;
