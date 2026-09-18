@@ -331,7 +331,8 @@ test("L7: a valid file clears the error of the previous one", async ({ page }) =
   await page.locator('input[type="file"][accept*=".docx"]').setInputFiles("e2e/fixtures/case-empty.docx");
   await expect(page.locator("[data-file-err]")).toBeVisible();
   await page.locator('input[type="file"][accept*=".docx"]').setInputFiles("e2e/fixtures/latin.pdf");
-  await expect(page.getByText("latin.pdf")).toBeVisible({ timeout: 30000 });
+  // the PDF library comes from the network; under a loaded test run it can take longer
+  await expect(page.getByText("latin.pdf")).toBeVisible({ timeout: 60000 });
   await expect(page.locator("[data-file-err]")).toHaveCount(0);
 });
 
