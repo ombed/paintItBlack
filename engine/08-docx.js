@@ -195,7 +195,8 @@ async function redactDocx(buf,subs,allow,opt){
     add(sur,rsur);
     if(vw.length>2)add(vw[vw.length-1],real?rw[rw.length-1]:rp);
   };
-  for(const r of applied) regPart(r.value,r.baseRep||r.rep,r.label);
+  // החלקים נגזרים מהערך שברשימה, לא מהצורה שנתפסה: "למרים לוין" תרם "למרים" כחלק
+  for(const r of applied) regPart(r.base||r.value,r.baseRep||r.rep,r.label);
   // גם שמות מהפרופיל שלא הופיעו במלואם במסמך הזה: סיכום פגישה מזכיר
   // "גולדשמיט" לבד, בלי "תמר גולדשמיט" בשום מקום, וזה עדיין אותה אישה.
   for(const s of subs) if(s.kind==="NAME")
@@ -237,7 +238,7 @@ async function redactDocx(buf,subs,allow,opt){
           // חלק חד-משמעי של שם מהרשימה (שלוש אותיות ומעלה, לא מילה) מוחלף בלי
           // לבקש אישור (Q5 בגרסה 5): השם המלא ברשימה הוא ההחלטה שלה על האדם הזה.
           // חלק קצר, או שהוא גם מילה, נשאר לבדיקה — שם גרות ההחלפות השגויות.
-          ctx:ctxHTML(blk.text,s,e),review:!!inf.of&&!!inf.wordy,rep:out,baseRep:nw,base:o,src:"sweep"})}}
+          ctx:ctxHTML(blk.text,s,e),review:!!inf.of&&!!inf.wordy,rep:out,baseRep:nw,base:o,of:inf.of||undefined,src:"sweep"})}}
     rep.sweep+=applyReps(blk,reps)}
   for(const c of eng.collided){
     flagged.push({value:c.rep,label:"התנגשות תחליף",part:"המסמך",review:true,src:"collide",collideOf:c.value,
