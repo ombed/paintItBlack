@@ -57,6 +57,8 @@ a:hover{text-decoration:underline}
 button:disabled{opacity:.55;cursor:not-allowed}
 /* טלפון צר (UX #1): שורת הקובץ שנבחר עוטפת, והכפתור הראשי יורד לשורה משלו במקום לצאת מהמסך */
 @media (max-width:480px){
+  /* הדף בטלפון (L20 בביקורת השנייה): שוליים של דף מודפס השאירו עמודה צרה של שתי פסקאות */
+  [data-paper]{padding:20px 16px!important;width:calc(100% - 12px)!important}
   [data-pend]{flex-wrap:wrap}
   [data-pend]>div{flex:1 1 100%}
   [data-pend]>button{flex:1 1 auto;white-space:normal!important;margin-inline-start:0!important}
@@ -256,7 +258,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
     <div style="margin:14px 22px 0;padding:11px 14px;border-radius:10px;background:var(--bad-soft);color:var(--bad);font-size:13.5px">{{ err }}</div>
   </sc-if>
   <sc-if value="{{ notice }}">
-    <div data-notice style="position:fixed;bottom:calc(var(--bar-h, 64px) + 14px);inset-inline-start:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;color:var(--ink)">
+    <div data-notice style="position:fixed;bottom:calc(var(--bar-h, 64px) + 14px);left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;color:var(--ink)">
       <span>{{ notice }}</span>
       <sc-if value="{{ noticeUndo }}"><button onClick="{{ onNoticeUndo }}" style="padding:4px 10px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">ביטול ↶</button></sc-if>
       <button onClick="{{ onNoticeClose }}" aria-label="סגירה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center">✕</button>
@@ -747,7 +749,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <span style="color:var(--ink3)">לחיצה על סימון פותחת עריכה במקום</span>
       </div>
       <div ref="{{ sheetRef }}" onMouseUp="{{ onSheetSelect }}" style="background:var(--panel2);max-height:calc(100vh - var(--bar-h, 64px) - 186px);overflow:auto;padding:22px 0 40px">
-        <div style="width:min(720px,calc(100% - 44px));margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 18px 40px -30px rgba(0,0,0,.5);padding:56px 60px;font-size:16px;line-height:1.95;font-family:var(--doc-font)">
+        <div data-paper style="width:min(720px,calc(100% - 44px));margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 18px 40px -30px rgba(0,0,0,.5);padding:56px 60px;font-size:16px;line-height:1.95;font-family:var(--doc-font)">
           <sc-for list="{{ sheet }}" as="blk" hint-placeholder-count="8">
             <sc-if value="{{ blk.head }}">
               <div style="font:500 10.5px/1 Rubik,sans-serif;letter-spacing:.09em;color:var(--ink3);border-bottom:1px solid var(--line2);padding-bottom:7px;margin:26px 0 14px">{{ blk.part }}</div>
@@ -1297,6 +1299,10 @@ class Component extends DCLogic {
     }
     const cur=this.state.screen;
     if(this._lastScreen!==undefined&&this._lastScreen!==cur&&this.log) this.log.add("screen",{to:cur, from:this._lastScreen});
+    // מסך חדש נפתח בראשו (L8): הגלילה של המסך הקודם השאירה את הכותרת והכפתורים מתחת לכותרת העליונה
+    if(this._lastScreen!==undefined&&this._lastScreen!==cur&&cur!=="busy"){ try{ scrollTo(0,0); }catch(_){} }
+    // הדף שמאחורי "לפני שמתחילים" אינו נגלל (L10)
+    { const lock=!!(this.state.intro&&!this.state.tour); if(this._scrollLock!==lock){ this._scrollLock=lock; document.documentElement.style.overflow=lock?"hidden":""; } }
     this._lastScreen=cur; }
   applyProps(){
     const r=document.documentElement.style;

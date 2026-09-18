@@ -220,3 +220,49 @@ test("L1, L2, L4: the spotlight sits exactly on its target, step 5 marks the cas
   await expect(page.getByText(/בסיור אין הורדת דוח/)).toBeVisible();
   expect(downloaded).toBe(false);
 });
+
+test("L5: the notice is centred on the screen in RTL", async ({ page }) => {
+  await toWork(page, DOC);
+  await page.locator('[data-mark][data-val="מרים לוין"]').first().click();
+  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליף" }).click();
+  const n = page.locator("[data-notice]");
+  await expect(n).toBeVisible();
+  const b = await n.boundingBox(), w = page.viewportSize().width;
+  expect(Math.abs(b.x + b.width / 2 - w / 2)).toBeLessThanOrEqual(2);
+});
+
+test("L8, L20: a phone opens each screen at the top, and the document has room", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 740 });
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  await page.locator("[data-settings-toggle]").click();
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "case.docx", DOC);
+  await page.evaluate(() => window.scrollTo(0, 400));
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  expect(await page.evaluate(() => window.scrollY)).toBe(0);
+  await page.evaluate(() => window.scrollTo(0, 300));
+  await H.goOn(page);
+  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
+  await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
+  if (await run.isVisible()) await run.click();
+  await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
+  expect(await page.evaluate(() => window.scrollY)).toBe(0);
+  const paper = await page.locator("[data-paper]").evaluate((el) => ({ w: el.getBoundingClientRect().width, pad: parseFloat(getComputedStyle(el).paddingLeft) }));
+  // the text column: before, 60 px of paper padding on each side left about 210 px
+  expect(paper.pad).toBeLessThanOrEqual(16);
+  expect(paper.w - 2 * paper.pad).toBeGreaterThan(290);
+});
+
+test("L10: the page behind the intro does not scroll", async ({ page }) => {
+  await H.serveEngineWithStub(page);
+  await page.goto("/index.html");
+  await expect(page.getByText("לפני שמתחילים")).toBeVisible({ timeout: 60000 });
+  await page.mouse.move(300, 300);
+  await page.mouse.wheel(0, 400);
+  await page.waitForTimeout(300);
+  expect(await page.evaluate(() => window.scrollY)).toBe(0);
+  await page.keyboard.press("Escape");
+  expect(await page.evaluate(() => document.documentElement.style.overflow)).toBe("");
+});
