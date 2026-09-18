@@ -26,6 +26,16 @@ const sw = read("sw.js");
 const swFiles = JSON.parse(sw.match(/const FILES=(\[[^\]]*\])/)[1].replace(/'/g, '"'))
   .map((f) => f.replace(/^\.\//, "")).filter(Boolean);
 for (const f of swFiles) ok("sw.js caches " + f + " but the site does not ship it", listed.has(f));
+// and it serves from that cache every file it caches (QA run-2 L21: page-logic.js was
+// precached but missing from the fetch pattern, so it failed offline)
+{
+  const m = sw.match(/const MINE=(\/.*\/);/);
+  ok("sw.js has a MINE fetch pattern", !!m);
+  if (m) {
+    const MINE = eval(m[1]);
+    for (const f of swFiles) ok("sw.js caches " + f + " but does not serve it from the cache", MINE.test("/paintItBlack/" + f));
+  }
+}
 
 // relative references in the page
 const html = read("index.html");

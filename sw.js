@@ -63,7 +63,8 @@ self.addEventListener("fetch",e=>{
   // הכלי עצמו: רשת קודם, מטמון כגיבוי כשאין רשת.
   // נוגעים במפורש רק בשמונת הקבצים שלנו. כל בקשה אחרת עוברת ישר לרשת:
   // עובד שירות שמושך אליו כל מה שבמקור שובר כל מה שיושב לידו.
-  const MINE=/(?:^|\/)(?:index\.html|support\.js|redact-engine\.js|pdf-text\.js|text-to-docx\.js|manifest\.webmanifest|icon(?:-\d+)?\.(?:svg|png))$|\/$/;
+  // L21 בביקורת השנייה: page-logic.js נשמר במטמון אבל לא הוגש ממנו, ובלי רשת נכשל
+  const MINE=/(?:^|\/)(?:index\.html|support\.js|page-logic\.js|redact-engine\.js|pdf-text\.js|text-to-docx\.js|manifest\.webmanifest|icon(?:-\d+)?\.(?:svg|png))$|\/$/;
   if(u.origin===location.origin&&MINE.test(u.pathname)){
     e.respondWith((async()=>{
       const c=await caches.open(V);

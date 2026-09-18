@@ -402,3 +402,39 @@ test("L22: a chip removed with ✕ is not offered again as a suggestion, and the
   if (!flagged) await expect(page.locator("[data-legend]")).not.toContainText("מחכה להחלטה");
   expect(errs).toEqual([]);
 });
+
+test("L16: if the engine fails to load, the message is plain Hebrew and offers a reload", async ({ page }) => {
+  await page.route("**/redact-engine.js", (r) => r.abort());
+  await page.addInitScript(() => { try { localStorage.setItem("redact-intro-seen", "1"); localStorage.setItem("redact-tour-seen", "*"); } catch (_) {} });
+  await page.goto("/index.html");
+  const box = page.getByRole("alert").filter({ hasText: "הכלי לא נטען" });
+  await expect(box).toBeVisible({ timeout: 30000 });
+  await expect(box).not.toContainText(/Failed|fetch|module/i);
+  await expect(page.locator("[data-engine-retry]")).toBeVisible();
+});
+
+test("L17: a broken profile file gives a Hebrew reason", async ({ page }) => {
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles("qa-audit/run-2/fixtures/profile-broken.json");
+  const err = page.getByText(/טעינת הפרופיל נכשלה/);
+  await expect(err).toBeVisible();
+  await expect(err).not.toContainText(/Expected|position|JSON/);
+  await expect(err).toContainText("ייצוא לקובץ");
+});
+
+test("L18: an empty search says it is the search, not the category", async ({ page }) => {
+  await toWork(page, DOC);
+  const search = page.getByPlaceholder("חיפוש בממצאים");
+  if (!(await search.isVisible().catch(() => false))) await page.locator('[data-section="findings"]').click();
+  await search.fill("אין-כזה");
+  await expect(page.locator("[data-empty-findings]")).toContainText("אין ממצאים שמתאימים ל«אין-כזה»");
+});
+
+test("L19: the restore box has a label, and the version chip sits in a landmark", async ({ page }) => {
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  expect(await page.locator("#ver").getAttribute("role")).toBe("contentinfo");
+  await page.getByRole("button", { name: "החזרת שמות מתשובת AI" }).click();
+  await expect(page.getByRole("textbox", { name: "תשובת ה-AI" })).toBeVisible();
+});
