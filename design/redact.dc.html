@@ -652,7 +652,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
       </div>
       <div data-legend style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:7px 18px;border-bottom:1px solid var(--line2);font-size:12px;color:var(--ink2);background:var(--panel)">
         <span><span style="background:var(--accent-soft);color:var(--accent-ink);border-bottom:2px solid var(--accent);padding:0 4px;border-radius:3px">שם בדוי</span> הוחלף</span>
-        <span><span style="background:var(--warn-soft);color:var(--warn);border-bottom:2px dashed var(--warn);padding:0 4px;border-radius:3px">מילה<sup style="font-size:9px;font-weight:700">?</sup></span> מחכה להחלטה שלך</span>
+        <sc-if value="{{ hasFlagMarks }}"><span><span style="background:var(--warn-soft);color:var(--warn);border-bottom:2px dashed var(--warn);padding:0 4px;border-radius:3px">מילה<sup style="font-size:9px;font-weight:700">?</sup></span> מחכה להחלטה שלך</span></sc-if>
         <span><span style="border:1px dashed var(--line);color:var(--ink3);padding:0 4px;border-radius:3px;font-size:11px">∅</span> נמחק</span>
         <sc-if value="{{ legendDate }}"><span data-legend-date><span style="background:var(--accent-soft);color:var(--accent-ink);border-bottom:2px dotted var(--accent);padding:0 4px;border-radius:3px">12.3.26</span> תאריך מוזז — המקורי חוזר בהחזרה</span></sc-if>
         <span style="color:var(--ink3)">לחיצה על סימון פותחת עריכה במקום</span>
@@ -1081,8 +1081,11 @@ class Component extends DCLogic {
       this.nerStatus(E);
     }catch(e){ this.setState({err:"טעינת המנוע נכשלה: "+(e.message||e)}); }
     let th="light";
-    try{ th = localStorage.getItem("redact-theme") || (matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"); }catch(_){}
+    let chosen=null;
+    try{ chosen = localStorage.getItem("redact-theme"); th = chosen || (matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"); }catch(_){}
     this.applyTheme(th);
+    if(!chosen){ try{ const mq=matchMedia("(prefers-color-scheme:dark)"); mq.addEventListener("change", e=>{ let c=null; try{ c=localStorage.getItem("redact-theme"); }catch(_){}
+      if(!c){ const t=e.matches?"dark":"light"; this.applyTheme(t); this.setState({theme:t}); } }); }catch(_){} }
     // הסיור מוצע פעם אחת לכל גרסה: המפתח נושא את מספר הגרסה, ו-"*" (מהבדיקות) מכסה את כולן
     let seen=false; try{ const t=localStorage.getItem("redact-tour-seen"); seen = localStorage.getItem("redact-intro-seen")==="1" && (t==="*"||t===this.ver()); }catch(_){}
     let lastProfile=null; try{ const j=localStorage.getItem("redact-profile-last"); const p=j&&JSON.parse(j); if(p&&p.v===1&&(p.rules||[]).length) lastProfile=p; }catch(_){}
@@ -1169,11 +1172,22 @@ class Component extends DCLogic {
     addEventListener("beforeunload", this._unload);
     addEventListener("popstate", this._pop);
     this._follow=()=>{ if(this.state.inline||this.state.tip) this.followAnchors(); };
+    /* שתי לשוניות (L15 בביקורת השנייה): תיק שנמחק בלשונית אחת נוצר מחדש מהשינוי הבא בשנייה,
+       והרצועות לא התעדכנו. שינוי ברשימת התיקים מלשונית אחרת מרענן את הרצועה; ואם התיק של
+       הלשונית הזאת נמחק שם, הלשונית הזאת מפסיקה לשמור אליו ואומרת את זה. */
+    this._storage=e=>{
+      if(e.key!=="redact-cases") return;
+      const cases=this.readCases(), cn=this.state.caseName;
+      let had=false; try{ had=!!(cn&&JSON.parse(e.oldValue||"{}")[cn]); }catch(_){}
+      if(had&&!cases.some(c=>c.name===cn)) this.setState({cases, caseName:"", profile:null, notice:`התיק «${cn}» נמחק בלשונית אחרת. המסמך הזה כבר לא נשמר אליו.`, noticeUndo:false});
+      else this.setState({cases});
+    };
+    addEventListener("storage", this._storage);
     addEventListener("scroll", this._follow, true); addEventListener("resize", this._follow);
   }
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); removeEventListener("resize", this._resize);
     removeEventListener("beforeunload", this._unload); removeEventListener("popstate", this._pop);
-    removeEventListener("scroll", this._follow, true); removeEventListener("resize", this._follow);
+    removeEventListener("scroll", this._follow, true); removeEventListener("resize", this._follow); removeEventListener("storage", this._storage);
     if(this._barObs) this._barObs.disconnect(); }
   /* ביומן של הסשן האמיתי 347 מתוך 375 האירועים היו "screen" — אותו מסך, שוב ושוב,
      בכל רינדור. הארגומנט הראשון של ההוק הוא ה-props הקודמים, לא ה-state הקודם, ולכן
@@ -1232,11 +1246,13 @@ class Component extends DCLogic {
     }
   }
 
-  applyTheme(t){
+  /* ערכת הצבעים נשמרת רק כשהיא בוחרת (L6 בביקורת השנייה): בביקור הראשון היא נכתבה לפי
+     מערכת ההפעלה, ומאז החלפה של מצב המערכת כבר לא השפיעה, אף שהיא מעולם לא בחרה. */
+  applyTheme(t, save){
     document.documentElement.classList.toggle("dark", t==="dark");
-    try{ localStorage.setItem("redact-theme", t); }catch(_){}
+    if(save){ try{ localStorage.setItem("redact-theme", t); }catch(_){} }
   }
-  toggleTheme = () => { const t = this.state.theme==="dark"?"light":"dark"; this.applyTheme(t); this.setState({theme:t}); };
+  toggleTheme = () => { const t = this.state.theme==="dark"?"light":"dark"; this.applyTheme(t, true); this.setState({theme:t}); };
 
   async nerStatus(E){
     const env = E.nerEnv();
@@ -1289,7 +1305,7 @@ class Component extends DCLogic {
       const {textToDocx} = await import("./text-to-docx.js");
       const buf = await textToDocx(text);
       const blocks = await this.blocksOf(buf);
-      this.setState({screen:"entry", buf, name:f.name, pending:true, nerAsk:false,
+      this.setState({screen:"entry", buf, name:f.name, pending:true, nerAsk:false, fileErr:"", err:"",
         origBlocks:blocks.map(b=>({part:b.part, text:b.text})),
         pendMeta:`${pages===1?"עמוד אחד":pages+" עמודים"} · ${blocks.length} פסקאות · טקסט חולץ מ-PDF`});
     }catch(e){
@@ -1527,7 +1543,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   // הצעות "נמצאו גם" שעדיין לא נוספו ולא נדחו
   openSugs(){
     const S=this.state, E=S.E; if(!E) return [];
-    return (S.peoSug||[]).filter(x=>!S.peo.some(p=>E.norm(p.value)===E.norm(x.value)));
+    return (S.peoSug||[]).filter(x=>!S.peo.some(p=>E.norm(p.value)===E.norm(x.value))&&!(S.peoKept||[]).some(k=>E.norm(k.value)===E.norm(x.value)));
   }
   peoGo(){
     this.setState({sugAsk:false});
@@ -1994,9 +2010,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   redo = () => this.stepHistory(false);
 
   addRule = (value, kind, rep, origin) => {
-    this.pushHistory();
     const E=this.state.E; value=E.trimEdges(value);
     if(value.length<2){ this.setState({err:"נדרשים לפחות שני תווים."}); return; }
+    // צעד ביטול רק כשמשהו משתנה (L11): הוספה שנדחתה השאירה צעד ריק, ושני "ביטול" לא עשו דבר
+    if(!this.state.rules.some(r=>E.norm(r.value).trim()===E.norm(value).trim())) this.pushHistory();
     const E2=this.state.E, ex=this.state.rules.find(r=>E2.norm(r.value).trim()===E2.norm(value).trim());
     if(ex){
       // כבר ברשימה: במקום שגיאה בראש העמוד, מסמנים את הכרטיס שלו ומספרים שם
@@ -2155,6 +2172,18 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   // "שם" הוא מפתח פנימי; על המסך אותו סוג נקרא "אדם" בכל מקום (UX #11)
   kindLabel(l){ return String(l||"").replace(/^שם(?= \(|$)/,"אדם"); }
   // מה נכנס לרשימה כשמאשרים ממצא מהפאנל, לפי התווית שלו
+  /* סוג המנוע של ממצא לפי התווית שלו (L9 בביקורת השנייה): ∅ של ת"ז שהפך ל"תווית" נוצר
+     ככלל מסוג "אחר", וקיבל "[פרט א׳]" במקום "[ת״ז א׳]". */
+  engineKindOf(l){
+    l=String(l||"");
+    if(/^(?:שם|אדם|גוף|יישוב|מקום)/.test(l)) return this.kindOfLabel(l);
+    if(/זהות|ת"ז|ת״ז/.test(l)) return "ID";
+    if(/טלפון|נייד|קווי|חיוג|פקס/.test(l)) return "PHONE";
+    if(/דוא"ל|דוא״ל|מייל/.test(l)) return "EMAIL";
+    if(/כתובת|רחוב|מיקוד/.test(l)) return "ADDRESS";
+    if(/תאריך/.test(l)) return "DATE";
+    return "OTHER";
+  }
   kindOfLabel(l){ return /^(?:שם|אדם)/.test(l||"")?"NAME":/^גוף/.test(l||"")?"ORG":/^(?:יישוב|מקום)/.test(l||"")?"PLACE":"OTHER"; }
   redactedText(){
     return this.state.res.preview.filter(b=>!b.part.includes("טקסט חלופי"))
@@ -2686,7 +2715,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const isDate=/^תאריך/.test(I.label||"")||!!(rule&&rule.kind==="DATE");
     const cur=(rule&&rule.style)||(nameish?(S.mode==="block"?"black":S.mode==="label"?"label":"name"):isDate?(S.o.dateStyle||"name"):(S.o.numStyle||"blank"));
     const btn=on=>"padding:5px 10px;border-radius:12px;font-size:12px;white-space:nowrap;border:1px solid var(--line);"+(on?"background:var(--accent-soft);color:var(--accent-ink);font-weight:500":"color:var(--ink2)");
-    const kind=rule?rule.kind:(nameish?"NAME":"OTHER");
+    const kind=rule?rule.kind:(nameish?"NAME":this.engineKindOf(I.label));
     const act=(what,fn)=>e=>{ if(e&&e.stopPropagation) e.stopPropagation(); this.log.add("inline-act",{act:what}); this.setState({inline:null}); fn(); };
     const KINDS=E.KINDS||[];
     return {inline:true,
@@ -2901,8 +2930,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onResumeLast:this.resumeLast, onDismissLast:this.dismissLast,
       caseName:S.caseName, onCaseName:e=>this.setState({caseName:e.target.value}, ()=>this.persistProfile()),
       profileNote:(S.caseName?"נשמר ברשימת התיקים בדפדפן הזה אחרי כל שינוי, ומוצע בכניסה הבאה. ":"בלי שם התיק נשמר רק כ«פרופיל אחרון». ")+(S.profileDirty?"הדפדפן אינו גיבוי — ייצוא לקובץ שומר את הפרופיל גם אם המטמון ינוקה.":"יוצא לקובץ."),
-      hasPeoSug:S.peoSug.some(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))),
-      peoSugItems:S.peoSug.filter(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))).map(x=>({
+      hasPeoSug:S.peoSug.some(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))&&!(S.peoKept||[]).some(k=>S.E.norm(k.value)===S.E.norm(x.value))),
+      peoSugItems:S.peoSug.filter(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))&&!(S.peoKept||[]).some(k=>S.E.norm(k.value)===S.E.norm(x.value))).map(x=>({
         value:x.value, why:x.why,
         onAdd:()=>this.peoAdd(x.value,"מההקשר",true,x.kind),
         // "לא אדם" הוא החלטה, ולכן נראית (H3): השם נכנס ל"נשארים כמו שהם" עם ↩, כמו מחיקת שבב
@@ -3124,11 +3153,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           if(m.s>last) segs.push({plain:true, mark:false, t:b.text.slice(last,m.s)});
           const drec=RES.applied.find(x=>x.value===m.val);
           const dkey="a|"+E.norm((drec&&(drec.of||drec.base))||m.val||"").trim();
-          segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:"∅", badge:"",
+          segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:"∅", badge:"", pre:"", kind:"del",
             title:"הושמט: "+(m.val||"")+" — לחיצה פותחת עריכה במקום",
             style:"cursor:pointer;border-radius:3px;padding:0 3px;font-size:11px;color:var(--ink3);border:1px dashed var(--line);",
             onClick:e=>this.setState({sel:dkey, filter:"all", cat:"", open:this.openWith("findings"), pane:this.state.pane,
-              inline:this.inlineAt(e,{mode:"del", value:m.val||"", base:m.val||"", kind:"", label:"נמחק", text:b.text, s:m.s, e:m.s, pre:""}), inlineDraft:""}, ()=>{
+              inline:this.inlineAt(e,{mode:"del", value:m.val||"", base:m.val||"", kind:"", label:(drec&&drec.label)||"נמחק", text:b.text, s:m.s, e:m.s, pre:""}), inlineDraft:""}, ()=>{
               const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape(dkey)+'"]');
               if(node && this.listEl){ const nr=node.getBoundingClientRect(), lr=this.listEl.getBoundingClientRect(); this.listEl.scrollTop += (nr.top-lr.top) - 40; }
             })});
@@ -3143,7 +3172,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
              אליו, בדיוק כמו הקשה על החלפה. */
           const fkey="f|"+E.norm(m.val||"").trim();
           const fl=RES.flagged.find(x=>x.value===m.val)||{};
-          segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:b.text.slice(m.s,m.e), badge:"?",
+          segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:b.text.slice(m.s,m.e), badge:"?", pre:"", kind:"flag",
             title:"נמצא ומחכה להחלטה שלך — לחיצה פותחת עריכה במקום",
             // צורה ולא רק צבע (Q2): קו מקווקו עבה ותג "?" — נראה גם על מסך חיוור
             style:"cursor:pointer;border-radius:3px;box-decoration-break:clone;padding:1px 2px;"+
@@ -3218,7 +3247,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     // אותה רשימה בדיוק כמו המונה: ערך שכבר מחכה כאדם לא מופיע שוב כהצעה (UX #13)
     const PRv=this.pendingReview();
     v.nearItems = PRv.near.map(x=>({
-      value:x.value, ctx:x.ctx||{},
+      value:x.value, ctx:x.ctx||{pre:"",hit:"",post:""},
       tag:"כמו «"+x.near.target+"»"+(x.near.rep?" ← "+x.near.rep:""),
       fixLabel: x.near.rep ? "החלפה ל«"+x.near.rep+"»" : "החלפה גם כאן",
       // הערך שנתפס עשוי לשאת גרש או מקף בקצה; מנקים אותו כמו ש-addRule היה מנקה,
@@ -3228,7 +3257,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         else this.mergeInto(v, x.near.target); },
       onSkip:()=>this.addAllow(E.trimEdges(x.value))}));
     v.sugItems = PRv.sug.map(x=>({
-      value:x.value, ctx:x.ctx||{}, tag:x.count+"× · "+x.why,
+      value:x.value, ctx:x.ctx||{pre:"",hit:"",post:""}, tag:x.count+"× · "+x.why,
       onAdd:()=>{ const v=E.trimEdges(x.value); const ex=S.rules.find(r=>E.norm(r.value).trim()===E.norm(v).trim());
         if(ex) this.setState({sel:"a|"+E.norm(ex.value).trim(), open:this.openWith("findings")}); else this.addRule(v,"NAME",""); },
       onNo:()=>this.addAllow(E.trimEdges(x.value))}));
@@ -3237,7 +3266,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     /* ממצאים שנמצאו ולא הוחלפו, בראש "לבדיקה" (UX #13, #14): אנשים קודם, אחר כך
        מספרים, ובסוף מקומות וגופים. לכל אחד "להחליף" ישיר ו"להשאיר". */
     v.pendItems=[...PRv.people, ...PRv.numbers, ...PRv.soft].map(x=>({
-      value:x.value, tag:this.kindLabel(x.label)+(x.why?" · "+x.why:""), ctx:x.ctx||{},
+      value:x.value, tag:this.kindLabel(x.label)+(x.why?" · "+x.why:""), ctx:x.ctx||{pre:"",hit:"",post:""},
       onAdd:()=>{ this.log.add("review-act",{act:"replace", kind:this.kindOfLabel(x.label)}); this.addRule(E.trimEdges(x.value), this.kindOfLabel(x.label), "", "review"); },
       onKeep:()=>{ this.log.add("review-act",{act:"keep"}); this.addAllow(E.trimEdges(x.value)); }}));
 
@@ -3290,7 +3319,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         const isDate=/^תאריך/.test(g.label||"");
         const cur=(rule&&rule.style)||(nameish?(S.mode==="block"?"black":S.mode==="label"?"label":"name"):isDate?(S.o.dateStyle||"name"):(S.o.numStyle||"blank"));
         const btn=on=>"padding:5px 10px;border-radius:12px;font-size:12px;white-space:nowrap;"+(on?"background:var(--panel);box-shadow:var(--shadow);color:var(--ink);font-weight:500":"color:var(--ink2)");
-        const set=st=>e=>{ e.stopPropagation(); this.setStyle(g.value, rule?rule.kind:(nameish?"NAME":"OTHER"), st, g.base); };
+        const set=st=>e=>{ e.stopPropagation(); this.setStyle(g.value, rule?rule.kind:(nameish?"NAME":this.engineKindOf(g.label)), st, g.base); };
         return {
           styleNameLabel: nameish?"שם":isDate?"תאריך מוזז":"תווית",
           onStyleName:set(nameish||isDate?"name":"label"), onStyleBlank:set("blank"), onStyleBlack:set("black"),
@@ -3307,7 +3336,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onApprove:e=>{ e.stopPropagation(); this.log.add("review-act",{act:"approve"}); this.setState({approved:[...(S.approved||[]), g.key]}); },
       repStyle:"font-weight:500;font-size:14px;color:"+(g.ap?"var(--accent-ink)":"var(--warn)"),
       meta:this.kindLabel(g.label)+" · "+[...g.parts].join(", "),
-      ctx:g.ctxs[0]||{}, selected:S.sel===g.key, applied:g.ap && S.sel===g.key, flagged:!g.ap && S.sel===g.key,
+      ctx:g.ctxs[0]||{pre:"",hit:"",post:""}, selected:S.sel===g.key, applied:g.ap && S.sel===g.key, flagged:!g.ap && S.sel===g.key,
       repDraft:S.sel===g.key?S.repDraft:"",
       style:"padding:12px 15px;border-bottom:1px solid var(--line2);cursor:pointer;"+
         (S.sel===g.key?"background:var(--panel2);":""),

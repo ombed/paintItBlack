@@ -310,3 +310,95 @@ test("L13: map labels of neighbouring towns do not overlap", async ({ page }) =>
   expect(overlaps.count).toBeGreaterThan(3);
   expect(overlaps.n).toBe(0);
 });
+
+test("L6: the theme follows the OS until she chooses one", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "dark" });
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  expect(await page.evaluate(() => localStorage.getItem("redact-theme"))).toBeNull();
+  expect(await page.evaluate(() => document.documentElement.classList.contains("dark"))).toBe(true);
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.reload();
+  expect(await page.evaluate(() => document.documentElement.classList.contains("dark"))).toBe(false);
+  // her own choice is kept
+  await page.getByRole("button", { name: "מצב יום או לילה" }).click();
+  expect(await page.evaluate(() => localStorage.getItem("redact-theme"))).toBe("dark");
+});
+
+test("L7: a valid file clears the error of the previous one", async ({ page }) => {
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  await page.locator('input[type="file"][accept*=".docx"]').setInputFiles("qa-audit/run-2/fixtures/case-empty.docx");
+  await expect(page.locator("[data-file-err]")).toBeVisible();
+  await page.locator('input[type="file"][accept*=".docx"]').setInputFiles("qa-audit/run-2/fixtures/latin.pdf");
+  await expect(page.getByText("latin.pdf")).toBeVisible({ timeout: 30000 });
+  await expect(page.locator("[data-file-err]")).toHaveCount(0);
+});
+
+test("L9: a deleted ID changed to a label keeps its type", async ({ page }) => {
+  await toWork(page, DOC);
+  const del = page.locator('[data-mark][data-val="034567891"]').first();
+  await expect(del).toHaveText("∅");
+  await del.click();
+  await page.locator("[data-inline]").getByRole("button", { name: "תווית" }).click();
+  await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toMatch(/\[ת[״"]ז א׳\]/);
+  expect(await sheet(page).innerText()).not.toContain("[פרט");
+});
+
+test("L11: a rejected manual add leaves no undo step", async ({ page }) => {
+  await toWork(page, DOC);
+  // one real change
+  await page.locator('[data-mark][data-val="מרים לוין"]').first().click();
+  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליף" }).click();
+  await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("מרים לוין");
+  // two adds that are refused
+  for (let k = 0; k < 2; k++) {
+    await page.getByPlaceholder("ערך שפוספס").fill("א");
+    await page.getByRole("button", { name: "הוספה והחלפה" }).click();
+  }
+  // one undo undoes the real change
+  await page.getByRole("button", { name: "ביטול הפעולה האחרונה" }).click();
+  await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).not.toContain("מרים לוין");
+});
+
+test("L15: a case deleted in another tab is not re-created by this one", async ({ page, context }) => {
+  await toWork(page, DOC);
+  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  await page.getByPlaceholder(/שם התיק/).fill("לוין נ׳ לוין");
+  await expect.poll(() => page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem("redact-cases") || "{}")))).toContain("לוין נ׳ לוין");
+  const other = await context.newPage();
+  await other.goto("/index.html");
+  await expect(other.locator("#dc-root")).toBeAttached({ timeout: 60000 });
+  await other.evaluate(() => { const m = JSON.parse(localStorage.getItem("redact-cases") || "{}"); delete m["לוין נ׳ לוין"]; localStorage.setItem("redact-cases", JSON.stringify(m)); });
+  await expect(page.locator("[data-notice]")).toContainText("נמחק בלשונית אחרת");
+  // the next change here does not bring it back
+  await page.locator('[data-mark][data-val="מרים לוין"]').first().click();
+  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליף" }).click();
+  await page.waitForTimeout(800);
+  expect(await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem("redact-cases") || "{}")))).not.toContain("לוין נ׳ לוין");
+});
+
+test("L22: a chip removed with ✕ is not offered again as a suggestion, and the flagged legend line shows only when something waits", async ({ page }) => {
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "case.docx", DOC);
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  const row = H.peopleRows(page).filter({ hasText: "מרים לוין" }).first();
+  await row.getByRole("button", { name: "הסרה" }).click();
+  await expect(page.getByText("נשארים כמו שהם:")).toBeVisible();
+  await expect(page.getByRole("button", { name: "+ מרים לוין" })).toHaveCount(0);
+  const errs = [];
+  page.on("console", (m) => { if (/never resolved/.test(m.text())) errs.push(m.text()); });
+  await page.getByRole("button", { name: /^↩|מרים לוין/ }).first().click();
+  await H.goOn(page);
+  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
+  await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
+  if (await run.isVisible()) await run.click();
+  await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
+  const flagged = await page.locator('[data-mark][data-badge="?"]').count();
+  await expect(page.locator("[data-legend]")).toContainText(flagged ? "מחכה להחלטה" : "נמחק");
+  if (!flagged) await expect(page.locator("[data-legend]")).not.toContainText("מחכה להחלטה");
+  expect(errs).toEqual([]);
+});
