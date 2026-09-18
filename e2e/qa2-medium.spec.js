@@ -434,7 +434,7 @@ test("L18: an empty search says it is the search, not the category", async ({ pa
 test("L19: the restore box has a label, and the version chip sits in a landmark", async ({ page }) => {
   await H.serveEngineWithStub(page);
   await H.boot(page);
-  expect(await page.locator("#ver").getAttribute("role")).toBe("contentinfo");
+  expect(await page.locator("#ver").evaluate((el) => !!el.closest("footer,[role=contentinfo]"))).toBe(true);
   await page.getByRole("button", { name: "החזרת שמות מתשובת AI" }).click();
   await expect(page.getByRole("textbox", { name: "תשובת ה-AI" })).toBeVisible();
 });
