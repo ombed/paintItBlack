@@ -88,5 +88,18 @@ console.log("\n— a deleted address takes its prefix letter and the postal code
   ok(plain.includes("15000"), "a five-digit amount without an address is untouched");
 }
 
+console.log("\n— a place or a name that starts with ה keeps it after a prefix; a model place keeps its prefix (QA run-2 L14) —");
+{
+  const O = { on: new Set(["PLACES", "NAME"]), flag: new Set(), mode: "real", near: false, body: false, prefixes: "normal" };
+  const t = "היא מתגוררת בקריית אתא ועובדת ברמת גן. הלכה להדס.";
+  const s0 = t.indexOf("בקריית");
+  const ner = C.nerClean([{ type: "LOC", score: 0.99, s: s0, e: s0 + "בקריית אתא".length }], t, {}).map((x) => x.value);
+  ok(ner[0] === "קריית אתא", "the model place is peeled: " + JSON.stringify(ner));
+  const out = apply(t, [{ value: ner[0], kind: "PLACE", replacement: "תקוע" }, { value: "רמת גן", kind: "PLACE", replacement: "הרצליה" }, { value: "הדס", kind: "NAME", replacement: "הילה" }], [], O);
+  ok(out.includes("בתקוע"), "prefix kept: " + out);
+  ok(out.includes("בהרצליה"), "a place keeps its ה: " + out);
+  ok(out.includes("להילה"), "a first name keeps its ה: " + out);
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exitCode = 1;

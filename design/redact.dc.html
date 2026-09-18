@@ -53,6 +53,8 @@ a:hover{text-decoration:underline}
 button:disabled{opacity:.55;cursor:not-allowed}
 /* טלפון צר (UX #1): שורת הקובץ שנבחר עוטפת, והכפתור הראשי יורד לשורה משלו במקום לצאת מהמסך */
 @media (max-width:480px){
+  /* הדף בטלפון (L20 בביקורת השנייה): שוליים של דף מודפס השאירו עמודה צרה של שתי פסקאות */
+  [data-paper]{padding:20px 16px!important;width:calc(100% - 12px)!important}
   [data-pend]{flex-wrap:wrap}
   [data-pend]>div{flex:1 1 100%}
   [data-pend]>button{flex:1 1 auto;white-space:normal!important;margin-inline-start:0!important}
@@ -128,7 +130,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
     <sc-if value="{{ tourSpot }}">
       <div data-spot style="{{ tourSpotStyle }}"></div>
     </sc-if>
-    <div data-tour style="position:fixed;bottom:18px;inset-inline-start:18px;z-index:80;max-width:400px;background:var(--panel);border:1px solid var(--accent);border-radius:14px;padding:16px 18px;box-shadow:0 18px 48px rgba(0,0,0,.28)">
+    <div data-tour style="{{ tourCardStyle }}">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
         <span style="font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;background:var(--accent-soft);color:var(--accent-ink)">סיור · מסמך לדוגמה</span>
         <span style="font-size:11.5px;color:var(--ink3)">{{ tourPos }}</span>
@@ -166,10 +168,13 @@ button:disabled{opacity:.55;cursor:not-allowed}
   </sc-if>
 
   <sc-if value="{{ errTop }}">
-    <div style="margin:14px 22px 0;padding:11px 14px;border-radius:10px;background:var(--bad-soft);color:var(--bad);font-size:13.5px">{{ err }}</div>
+    <div role="alert" style="margin:14px 22px 0;padding:11px 14px;border-radius:10px;background:var(--bad-soft);color:var(--bad);font-size:13.5px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <span style="flex:1 1 240px">{{ err }}</span>
+      <sc-if value="{{ engineFailed }}"><button data-engine-retry onClick="{{ onEngineRetry }}" style="padding:6px 12px;border-radius:9px;background:var(--bad);color:var(--panel);font-size:12.5px;font-weight:500">טעינה מחדש</button></sc-if>
+    </div>
   </sc-if>
   <sc-if value="{{ notice }}">
-    <div data-notice style="position:fixed;bottom:calc(var(--bar-h, 64px) + 14px);inset-inline-start:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;color:var(--ink)">
+    <div data-notice style="position:fixed;bottom:calc(var(--bar-h, 64px) + 14px);left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;color:var(--ink)">
       <span>{{ notice }}</span>
       <sc-if value="{{ noticeUndo }}"><button onClick="{{ onNoticeUndo }}" style="padding:4px 10px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">ביטול ↶</button></sc-if>
       <button onClick="{{ onNoticeClose }}" aria-label="סגירה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center">✕</button>
@@ -382,7 +387,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
             <sc-for list="{{ p.kindOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.value }}" selected="{{ o.sel }}">{{ o.label }}</option></sc-for>
           </select>
           <span data-tip="1" onMouseEnter="{{ p.onTipIn }}" onMouseLeave="{{ p.onTipOut }}" onClick="{{ p.onTipTap }}" title="{{ p.tipHint }}" style="font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ p.value }}</span>
-          <sc-if value="{{ p.note }}"><small style="color:var(--ink3);font-size:11.5px">{{ p.note }}</small></sc-if>
+          <sc-if value="{{ p.note }}"><small style="color:var(--ink2);font-size:11.5px">{{ p.note }}</small></sc-if>
           <sc-if value="{{ p.canTrim }}"><button onClick="{{ p.onTrim }}" aria-label="קיצור השם" title="השם תפס מילה מיותרת? כאן מסירים אותה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:12px" style-hover="background:var(--panel2);color:var(--ink)">✂</button></sc-if>
           <button onClick="{{ p.onDel }}" aria-label="הסרה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:13px" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
         </div>
@@ -498,10 +503,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
                 <path data-d="{{ mapLand }}" fill="var(--panel2)" stroke="var(--line)" stroke-width="0.8"></path>
               </svg>
               <sc-for list="{{ mapFrom }}" as="p" hint-placeholder-count="3">
-                <div style="{{ p.style }}">
-                  <span style="width:7px;height:7px;border-radius:50%;background:var(--ink2);display:block;margin:0 auto;box-shadow:0 0 0 3px var(--panel)"></span>
-                  <span style="font-size:10.5px;color:var(--ink2);white-space:nowrap;background:var(--panel);padding:0 2px;border-radius:3px">{{ p.label }}</span>
-                </div>
+                <div style="{{ p.dot }}"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink2);display:block;box-shadow:0 0 0 3px var(--panel)"></span></div>
+                <div data-map-label style="{{ p.style }}"><span style="font-size:10.5px;color:var(--ink2);white-space:nowrap;background:var(--panel);padding:0 2px;border-radius:3px">{{ p.label }}</span></div>
               </sc-for>
             </div>
           </div>
@@ -512,10 +515,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
                 <path data-d="{{ mapLand }}" fill="var(--panel2)" stroke="var(--line)" stroke-width="0.8"></path>
               </svg>
               <sc-for list="{{ mapTo }}" as="p" hint-placeholder-count="3">
-                <div style="{{ p.style }}">
-                  <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:block;margin:0 auto;box-shadow:0 0 0 3px var(--panel)"></span>
-                  <span style="font-size:10.5px;color:var(--accent-ink);white-space:nowrap;background:var(--panel);padding:0 2px;border-radius:3px">{{ p.label }}</span>
-                </div>
+                <div style="{{ p.dot }}"><span style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:block;box-shadow:0 0 0 3px var(--panel)"></span></div>
+                <div data-map-label style="{{ p.style }}"><span style="font-size:10.5px;color:var(--accent-ink);white-space:nowrap;background:var(--panel);padding:0 2px;border-radius:3px">{{ p.label }}</span></div>
               </sc-for>
             </div>
           </div>
@@ -603,7 +604,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
       <b style="display:block;font-weight:500;margin-bottom:2px">{{ rvCtxTitle }}</b>
       <span style="color:var(--ink2)">{{ rvCtxText }}</span>
     </div>
-    <textarea value="{{ rvIn }}" onChange="{{ onRvIn }}" rows="8" placeholder="הדבקת תשובת ה-AI…" aria-describedby="rv-help" style="width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;font:14px/1.7 Rubik,sans-serif;resize:vertical"></textarea>
+    <textarea value="{{ rvIn }}" onChange="{{ onRvIn }}" rows="8" aria-label="תשובת ה-AI" placeholder="הדבקת תשובת ה-AI…" aria-describedby="rv-help" style="width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;font:14px/1.7 Rubik,sans-serif;resize:vertical"></textarea>
     <small id="rv-help" style="display:block;margin-top:5px;font-size:12px;color:var(--ink3)">מדביקים כאן את מה שה-AI החזיר (Ctrl+V), ולוחצים «החזרת שמות».</small>
     <div style="display:flex;gap:9px;margin-top:12px;flex-wrap:wrap">
       <button onClick="{{ onRvGo }}" disabled="{{ rvEmpty }}" style="{{ rvGoStyle }}">החזרת שמות</button>
@@ -654,13 +655,13 @@ button:disabled{opacity:.55;cursor:not-allowed}
       </div>
       <div data-legend style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:7px 18px;border-bottom:1px solid var(--line2);font-size:12px;color:var(--ink2);background:var(--panel)">
         <span><span style="background:var(--accent-soft);color:var(--accent-ink);border-bottom:2px solid var(--accent);padding:0 4px;border-radius:3px">שם בדוי</span> הוחלף</span>
-        <span><span style="background:var(--warn-soft);color:var(--warn);border-bottom:2px dashed var(--warn);padding:0 4px;border-radius:3px">מילה<sup style="font-size:9px;font-weight:700">?</sup></span> מחכה להחלטה שלך</span>
+        <sc-if value="{{ hasFlagMarks }}"><span><span style="background:var(--warn-soft);color:var(--warn);border-bottom:2px dashed var(--warn);padding:0 4px;border-radius:3px">מילה<sup style="font-size:9px;font-weight:700">?</sup></span> מחכה להחלטה שלך</span></sc-if>
         <span><span style="border:1px dashed var(--line);color:var(--ink3);padding:0 4px;border-radius:3px;font-size:11px">∅</span> נמחק</span>
         <sc-if value="{{ legendDate }}"><span data-legend-date><span style="background:var(--accent-soft);color:var(--accent-ink);border-bottom:2px dotted var(--accent);padding:0 4px;border-radius:3px">12.3.26</span> תאריך מוזז — המקורי חוזר בהחזרה</span></sc-if>
         <span style="color:var(--ink3)">לחיצה על סימון פותחת עריכה במקום</span>
       </div>
       <div ref="{{ sheetRef }}" onMouseUp="{{ onSheetSelect }}" style="background:var(--panel2);max-height:calc(100vh - var(--bar-h, 64px) - 186px);overflow:auto;padding:22px 0 40px">
-        <div style="width:min(720px,calc(100% - 44px));margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 18px 40px -30px rgba(0,0,0,.5);padding:56px 60px;font-size:16px;line-height:1.95;font-family:var(--doc-font)">
+        <div data-paper style="width:min(720px,calc(100% - 44px));margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 18px 40px -30px rgba(0,0,0,.5);padding:56px 60px;font-size:16px;line-height:1.95;font-family:var(--doc-font)">
           <sc-for list="{{ sheet }}" as="blk" hint-placeholder-count="8">
             <sc-if value="{{ blk.head }}">
               <div style="font:500 10.5px/1 Rubik,sans-serif;letter-spacing:.09em;color:var(--ink3);border-bottom:1px solid var(--line2);padding-bottom:7px;margin:26px 0 14px">{{ blk.part }}</div>
@@ -852,7 +853,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
                   </div>
                 </sc-for>
                 <sc-if value="{{ groupsEmpty }}">
-                  <div style="padding:16px;color:var(--ink3);font-size:13px">אין ממצאים בקטגוריה הזאת.</div>
+                  <div data-empty-findings style="padding:16px;color:var(--ink3);font-size:13px">{{ emptyFindings }}</div>
                 </sc-if>
               </div>
             </div>
@@ -883,20 +884,20 @@ button:disabled{opacity:.55;cursor:not-allowed}
           <sc-if value="{{ s.openProfile }}">
             <div style="padding:0 15px 15px">
               <p style="margin:0 0 10px;font-size:12.5px;color:var(--ink2);line-height:1.55">שמירת רשימת הצדדים והשמות החלופיים, כדי שאותו אדם יקבל את אותו שם בכל מסמכי התיק.</p>
-              <input value="{{ caseName }}" onChange="{{ onCaseName }}" placeholder="שם התיק (למשל: לוי נ׳ לוי)" style="width:100%;margin-bottom:8px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px">
+              <input data-tour-target="case" value="{{ caseName }}" onChange="{{ onCaseName }}" placeholder="שם התיק (למשל: לוי נ׳ לוי)" style="width:100%;margin-bottom:8px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px">
               <div style="display:flex;gap:7px">
                 <button onClick="{{ onSaveProf }}" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500" style-hover="background:var(--panel2)">ייצוא לקובץ</button>
                 <button onClick="{{ onLoadProf }}" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-weight:500" style-hover="background:var(--panel2)">ייבוא מקובץ</button>
               </div>
               <p style="margin:8px 0 0;font-size:12px;color:var(--ink3);line-height:1.6">{{ profileNote }}</p>
               <sc-if value="{{ hasMine }}">
-                <div style="margin-top:13px;border-top:1px solid var(--line2)">
+                <div data-mine style="margin-top:13px;border-top:1px solid var(--line2)">
                   <sc-for list="{{ mineItems }}" as="m" hint-placeholder-count="2">
                     <div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line2);font-size:13px">
                       <span style="font-size:11px;font-weight:500;color:var(--ink2);background:var(--panel2);border-radius:10px;padding:2px 8px">{{ m.kind }}</span>
                       <span>{{ m.value }}</span>
                       <sc-if value="{{ m.rep }}"><span style="color:var(--accent-ink);font-size:12.5px">← {{ m.rep }}</span></sc-if>
-                      <button onClick="{{ m.onDel }}" style="margin-inline-start:auto;color:var(--ink3);width:24px;height:24px;border-radius:50%" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
+                      <button onClick="{{ m.onDel }}" aria-label="הסרה מהרשימה" title="הסרה מהרשימה — הטקסט המקורי חוזר; אפשר לבטל" style="margin-inline-start:auto;color:var(--ink3);width:24px;height:24px;border-radius:50%" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
                     </div>
                   </sc-for>
                 </div>
@@ -1081,10 +1082,17 @@ class Component extends DCLogic {
       });
       this.setState({E, ready:true});
       this.nerStatus(E);
-    }catch(e){ this.setState({err:"טעינת המנוע נכשלה: "+(e.message||e)}); }
+    }catch(e){
+      // L16 בביקורת השנייה: הודעה טכנית באנגלית, בלי דרך לנסות שוב, ובחירת קובץ שלא עשתה דבר
+      console.warn("engine load failed", e);
+      this.setState({engineFailed:true, err:"הכלי לא נטען עד הסוף — כנראה החיבור לאינטרנט נקטע באמצע. טעינה מחדש של הדף בדרך כלל פותרת את זה; שום מסמך לא נשלח לשום מקום."});
+    }
     let th="light";
-    try{ th = localStorage.getItem("redact-theme") || (matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"); }catch(_){}
+    let chosen=null;
+    try{ chosen = localStorage.getItem("redact-theme"); th = chosen || (matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"); }catch(_){}
     this.applyTheme(th);
+    if(!chosen){ try{ const mq=matchMedia("(prefers-color-scheme:dark)"); mq.addEventListener("change", e=>{ let c=null; try{ c=localStorage.getItem("redact-theme"); }catch(_){}
+      if(!c){ const t=e.matches?"dark":"light"; this.applyTheme(t); this.setState({theme:t}); } }); }catch(_){} }
     // הסיור מוצע פעם אחת לכל גרסה: המפתח נושא את מספר הגרסה, ו-"*" (מהבדיקות) מכסה את כולן
     let seen=false; try{ const t=localStorage.getItem("redact-tour-seen"); seen = localStorage.getItem("redact-intro-seen")==="1" && (t==="*"||t===this.ver()); }catch(_){}
     let lastProfile=null; try{ const j=localStorage.getItem("redact-profile-last"); const p=j&&JSON.parse(j); if(p&&p.v===1&&(p.rules||[]).length) lastProfile=p; }catch(_){}
@@ -1137,6 +1145,8 @@ class Component extends DCLogic {
         return;
       }
       if((e.key==="Enter"||e.key===" ")&&e.target&&e.target.matches&&e.target.matches("[data-mark]")){
+        // פתיחה מהמקלדת (M5): הפוקוס עובר לחלונית, ו-Escape מחזיר אותו לסימון
+        this._inlineByKey=e.target; this._inlineFocused=false;
         e.preventDefault(); e.target.click(); return;
       }
       if(!(e.ctrlKey||e.metaKey)) return;
@@ -1168,9 +1178,23 @@ class Component extends DCLogic {
     };
     addEventListener("beforeunload", this._unload);
     addEventListener("popstate", this._pop);
+    this._follow=()=>{ if(this.state.inline||this.state.tip) this.followAnchors(); };
+    /* שתי לשוניות (L15 בביקורת השנייה): תיק שנמחק בלשונית אחת נוצר מחדש מהשינוי הבא בשנייה,
+       והרצועות לא התעדכנו. שינוי ברשימת התיקים מלשונית אחרת מרענן את הרצועה; ואם התיק של
+       הלשונית הזאת נמחק שם, הלשונית הזאת מפסיקה לשמור אליו ואומרת את זה. */
+    this._storage=e=>{
+      if(e.key!=="redact-cases") return;
+      const cases=this.readCases(), cn=this.state.caseName;
+      let had=false; try{ had=!!(cn&&JSON.parse(e.oldValue||"{}")[cn]); }catch(_){}
+      if(had&&!cases.some(c=>c.name===cn)) this.setState({cases, caseName:"", profile:null, notice:`התיק «${cn}» נמחק בלשונית אחרת. המסמך הזה כבר לא נשמר אליו.`, noticeUndo:false});
+      else this.setState({cases});
+    };
+    addEventListener("storage", this._storage);
+    addEventListener("scroll", this._follow, true); addEventListener("resize", this._follow);
   }
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); removeEventListener("resize", this._resize);
     removeEventListener("beforeunload", this._unload); removeEventListener("popstate", this._pop);
+    removeEventListener("scroll", this._follow, true); removeEventListener("resize", this._follow); removeEventListener("storage", this._storage);
     if(this._barObs) this._barObs.disconnect(); }
   /* ביומן של הסשן האמיתי 347 מתוך 375 האירועים היו "screen" — אותו מסך, שוב ושוב,
      בכל רינדור. הארגומנט הראשון של ההוק הוא ה-props הקודמים, לא ה-state הקודם, ולכן
@@ -1187,13 +1211,27 @@ class Component extends DCLogic {
       const b=document.querySelector("[data-intro] button"); if(b){ b.focus(); this._introFocused=true; }
     }
     if(!this.state.intro) this._introFocused=false;
+    // עריכה במקום שנפתחה מהמקלדת: הפוקוס נכנס אליה; כשהיא נסגרת הוא חוזר לסימון שפתח אותה (M5)
+    if(this.state.inline&&this._inlineByKey&&!this._inlineFocused){
+      const f=document.querySelector("[data-inline] input, [data-inline] button, [data-inline] select"); if(f){ f.focus(); this._inlineFocused=true; }
+    } else if(!this.state.inline&&this._inlineByKey){
+      const m=this._inlineByKey; this._inlineByKey=null; this._inlineFocused=false;
+      if(m&&document.contains(m)) m.focus();
+    }
     // הזרקור של הסיור נמדד אחרי שהמסך צויר, פעם אחת לכל צעד+מסך+מקטע פתוח
     if(this.state.tour){
       const key=this.state.tour.i+"|"+this.state.screen+"|"+(this.state.open||[]).join(",");
       if(this._spotKey!==key){ this._spotKey=key; requestAnimationFrame(()=>this.tourMeasure()); }
+      // והזרקור נמדד שוב בכל עדכון (L1 בביקורת השנייה): פריסה שזזה אחרי המדידה — גופנים, מפה
+      // שנפתחה — השאירה אותו במקום הישן. המדידה זולה ומעדכנת רק כשמשהו השתנה.
+      else if(!this._spotRaf) this._spotRaf=requestAnimationFrame(()=>{ this._spotRaf=null; this.tourMeasure(); });
     }
     const cur=this.state.screen;
     if(this._lastScreen!==undefined&&this._lastScreen!==cur&&this.log) this.log.add("screen",{to:cur, from:this._lastScreen});
+    // מסך חדש נפתח בראשו (L8): הגלילה של המסך הקודם השאירה את הכותרת והכפתורים מתחת לכותרת העליונה
+    if(this._lastScreen!==undefined&&this._lastScreen!==cur&&cur!=="busy"){ try{ scrollTo(0,0); }catch(_){} }
+    // הדף שמאחורי "לפני שמתחילים" אינו נגלל (L10)
+    { const lock=!!(this.state.intro&&!this.state.tour); if(this._scrollLock!==lock){ this._scrollLock=lock; document.documentElement.style.overflow=lock?"hidden":""; } }
     this._lastScreen=cur; }
   applyProps(){
     const r=document.documentElement.style;
@@ -1215,11 +1253,13 @@ class Component extends DCLogic {
     }
   }
 
-  applyTheme(t){
+  /* ערכת הצבעים נשמרת רק כשהיא בוחרת (L6 בביקורת השנייה): בביקור הראשון היא נכתבה לפי
+     מערכת ההפעלה, ומאז החלפה של מצב המערכת כבר לא השפיעה, אף שהיא מעולם לא בחרה. */
+  applyTheme(t, save){
     document.documentElement.classList.toggle("dark", t==="dark");
-    try{ localStorage.setItem("redact-theme", t); }catch(_){}
+    if(save){ try{ localStorage.setItem("redact-theme", t); }catch(_){} }
   }
-  toggleTheme = () => { const t = this.state.theme==="dark"?"light":"dark"; this.applyTheme(t); this.setState({theme:t}); };
+  toggleTheme = () => { const t = this.state.theme==="dark"?"light":"dark"; this.applyTheme(t, true); this.setState({theme:t}); };
 
   async nerStatus(E){
     const env = E.nerEnv();
@@ -1235,7 +1275,7 @@ class Component extends DCLogic {
   }
 
   /* ── קליטת קובץ ── */
-  pickFile = () => this.fileEl && this.fileEl.click();
+  pickFile = () => { if(this.state.engineFailed){ this.setState({err:this.state.err}); return; } if(this.fileEl) this.fileEl.click(); };
   onDragOver = e => { e.preventDefault(); this.setState({drag:true}); };
   onDragLeave = () => this.setState({drag:false});
   onDropFile = e => { e.preventDefault(); this.setState({drag:false});
@@ -1272,7 +1312,7 @@ class Component extends DCLogic {
       const {textToDocx} = await import("./text-to-docx.js");
       const buf = await textToDocx(text);
       const blocks = await this.blocksOf(buf);
-      this.setState({screen:"entry", buf, name:f.name, pending:true, nerAsk:false,
+      this.setState({screen:"entry", buf, name:f.name, pending:true, nerAsk:false, fileErr:"", err:"",
         origBlocks:blocks.map(b=>({part:b.part, text:b.text})),
         pendMeta:`${pages===1?"עמוד אחד":pages+" עמודים"} · ${blocks.length} פסקאות · טקסט חולץ מ-PDF`});
     }catch(e){
@@ -1328,7 +1368,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
 </body></html>`;
   }
   downloadReport = () => {
-    if(!this.state.res) return;
+    if(!this.state.res) return; if(this.tourBlocks("report")) return;
     const blob=new Blob([this.buildReport()],{type:"text/html;charset=utf-8"});
     const u=URL.createObjectURL(blob), a=document.createElement("a");
     a.href=u; a.download=this.safeBase()+"_דוח-השחרה.html";
@@ -1383,6 +1423,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   async scanNames(){
     const E=this.state.E, buf=this.state.buf;
     this._scannedBuf=buf; this._scanNer=!!this.state.o.ner;
+    // מה שהמודל מצא שייך למסמך שנסרק (M2 בביקורת השנייה): מסמך חדש מתחיל בלי זיכרון
+    // מהקודם, אחרת שם של לקוח אחר הופיע ב"לבדיקה" וחסם את הייצוא
+    this._modelFound=null;
     this.setState({screen:"busy", busyT:"מאתר שמות…", peoKept:[]});
     try{
       const blocks = (await this.blocksOf(buf)).concat(this.nameBlock());
@@ -1507,7 +1550,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   // הצעות "נמצאו גם" שעדיין לא נוספו ולא נדחו
   openSugs(){
     const S=this.state, E=S.E; if(!E) return [];
-    return (S.peoSug||[]).filter(x=>!S.peo.some(p=>E.norm(p.value)===E.norm(x.value)));
+    return (S.peoSug||[]).filter(x=>!S.peo.some(p=>E.norm(p.value)===E.norm(x.value))&&!(S.peoKept||[]).some(k=>E.norm(k.value)===E.norm(x.value)));
   }
   peoGo(){
     this.setState({sugAsk:false});
@@ -1657,7 +1700,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(t && t.pin && !pin) return;
     const r=e&&e.currentTarget&&e.currentTarget.getBoundingClientRect
       ? e.currentTarget.getBoundingClientRect() : {left:20, width:0, bottom:80};
-    this.setState({tip:{label, items, pin:!!pin,
+    this.setState({tip:{label, items, pin:!!pin, anchor:(e&&e.currentTarget)||null,
       x:Math.max(12, Math.min(r.left+r.width/2-150, innerWidth-312)), y:r.bottom+8}});
   }
   hideTip(){ const t=this.state.tip; if(t&&!t.pin) this.setState({tip:null}); }
@@ -1768,14 +1811,35 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         return a.map((p,i)=>({label:labels[i], x:W/2+(p.x-cx)*sc, y:H/2+(p.y-cy)*sc})); };
       from=fit(F, rows.map(r=>r.fl)); to=fit(T, rows.map(r=>r.tl));
     }
-    const dot=p=>({label:p.label,
-      style:`position:absolute;left:${p.x.toFixed(1)}px;top:${p.y.toFixed(1)}px;`+
-        "transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none"});
-    return {land, hasLand:!!land, from:from.map(dot), to:to.map(dot)};
+    /* תוויות שנערמות (L13 בביקורת השנייה): יישובים סמוכים — חולון ורמת גן — כתבו את השם
+       זה על זה. תווית שהייתה נופלת על תווית קודמת עוברת אל מעל הנקודה, ואם גם שם תפוס —
+       מוסטת לצד. הנקודה עצמה נשארת במקומה. */
+    const place=list=>{
+      const boxes=[], h=15;
+      return list.map(p=>{
+        const w=Math.max(28, String(p.label||"").length*6.4);
+        // התווית מתחת לנקודה; אם תפוס — מעל, ואז בצעדים של 15 פיקסלים הלאה עד מקום פנוי
+        const slots=[11]; for(let k=1;k<=8;k++){ slots.push(-11-h*(k-1)); slots.push(11+h*k); }
+        const hit=dy=>boxes.some(q=>Math.abs(p.x-q.x)<(w+q.w)/2+2&&Math.abs((p.y+dy)-q.y)<h);
+        const dy=slots.find(d=>!hit(d)); const use=dy===undefined?11:dy;
+        boxes.push({x:p.x, y:p.y+use, w});
+        return {label:p.label,
+          dot:"position:absolute;left:"+p.x.toFixed(1)+"px;top:"+p.y.toFixed(1)+"px;transform:translate(-50%,-50%);pointer-events:none",
+          style:"position:absolute;left:"+p.x.toFixed(1)+"px;top:"+(p.y+use).toFixed(1)+"px;transform:translate(-50%,-50%);pointer-events:none"};
+      });
+    };
+    return {land, hasLand:!!land, from:place(from), to:place(to)};
   }
 
+  /* "קבוצה אחרת" (L12 בביקורת השנייה): תחליף שהקלידה ביד נזרק בלי מילה. המפה החדשה
+     מחליפה רק את מה שלא נגעה בו; מה שהקלידה נשאר, לפי שם היישוב ולא לפי המקום בשורה. */
   geoAlt = () => { const E=this.state.E; const v=this.state.geoV+1;
-    this.setState({geoV:v, geo:E.geoMap(this.state.geoNames, v, this._geoAvoid, this._geoForbid), geoEdits:{}}); };
+    const old=this.state.geo, edits=this.state.geoEdits||{}, byName={};
+    if(old) old.map.forEach((m,i)=>{ if(edits[i]!=null) byName[m.from]=edits[i]; });
+    const geo=E.geoMap(this.state.geoNames, v, this._geoAvoid, this._geoForbid);
+    const kept={}; if(geo) geo.map.forEach((m,i)=>{ if(byName[m.from]!=null) kept[i]=byName[m.from]; });
+    const n=Object.keys(kept).length;
+    this.setState({geoV:v, geo, geoEdits:kept, notice:n?`${n===1?"התחליף שהקלדת נשאר":n+" התחליפים שהקלדת נשארו"}; השאר הוחלפו בקבוצה חדשה.`:this.state.notice, noticeUndo:false}); };
   /* "אל תחליף" על יישוב אחד (Q7 בגרסה 3): שאר הזוגות לא זזים. עד כאן המפה חושבה
      מחדש ומה שאישרה השתנה מאחורי גבה; עם פחות משני יישובים המפה התפרקה והשאר קיבלו
      שמות אקראיים מהמאגר הלא-מתויג ("אשדוד" הפכה ל"אמונים"). עכשיו הזוגות שאושרו
@@ -1953,9 +2017,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   redo = () => this.stepHistory(false);
 
   addRule = (value, kind, rep, origin) => {
-    this.pushHistory();
     const E=this.state.E; value=E.trimEdges(value);
     if(value.length<2){ this.setState({err:"נדרשים לפחות שני תווים."}); return; }
+    // צעד ביטול רק כשמשהו משתנה (L11): הוספה שנדחתה השאירה צעד ריק, ושני "ביטול" לא עשו דבר
+    if(!this.state.rules.some(r=>E.norm(r.value).trim()===E.norm(value).trim())) this.pushHistory();
     const E2=this.state.E, ex=this.state.rules.find(r=>E2.norm(r.value).trim()===E2.norm(value).trim());
     if(ex){
       // כבר ברשימה: במקום שגיאה בראש העמוד, מסמנים את הכרטיס שלו ומספרים שם
@@ -1987,7 +2052,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
   // מוסיף מקטע לפתוחים בלי לסגור אחרים
   openWith = k => { const o=Array.isArray(this.state.open)?this.state.open:[]; return o.includes(k)?o:[...o,k]; };
-  dropRule = v => { this.log.add("drop-rule",{}); this.setState({rules:this.state.rules.filter(r=>r.value!==v)}, ()=>this.rerun()); };
+  // מחיקה מרשימת הפרופיל היא החלטה כמו כל אחרת (M7 בביקורת השנייה): צעד ביטול משלה, ושורה שאומרת מה קרה
+  dropRule = v => { this.pushHistory(); this.log.add("drop-rule",{}); this.setState({rules:this.state.rules.filter(r=>r.value!==v), notice:`«${v}» הוסר מהרשימה, והטקסט המקורי חזר.`}, ()=>this.rerun()); };
   // "לא שם": הכלל יורד מהרשימה על כל צורותיו, והטקסט הזה לא יוצע שוב
   notAName = (base, v) => { this.pushHistory(); this.log.add("not-a-name",{}); return this.setState({allow:this.state.allow.includes(v)?this.state.allow:[...this.state.allow, v],
     rules:this.state.rules.filter(r=>r.value!==base && r.value!==v)}, ()=>this.rerun()); };
@@ -2113,6 +2179,18 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   // "שם" הוא מפתח פנימי; על המסך אותו סוג נקרא "אדם" בכל מקום (UX #11)
   kindLabel(l){ return String(l||"").replace(/^שם(?= \(|$)/,"אדם"); }
   // מה נכנס לרשימה כשמאשרים ממצא מהפאנל, לפי התווית שלו
+  /* סוג המנוע של ממצא לפי התווית שלו (L9 בביקורת השנייה): ∅ של ת"ז שהפך ל"תווית" נוצר
+     ככלל מסוג "אחר", וקיבל "[פרט א׳]" במקום "[ת״ז א׳]". */
+  engineKindOf(l){
+    l=String(l||"");
+    if(/^(?:שם|אדם|גוף|יישוב|מקום)/.test(l)) return this.kindOfLabel(l);
+    if(/זהות|ת"ז|ת״ז/.test(l)) return "ID";
+    if(/טלפון|נייד|קווי|חיוג|פקס/.test(l)) return "PHONE";
+    if(/דוא"ל|דוא״ל|מייל/.test(l)) return "EMAIL";
+    if(/כתובת|רחוב|מיקוד/.test(l)) return "ADDRESS";
+    if(/תאריך/.test(l)) return "DATE";
+    return "OTHER";
+  }
   kindOfLabel(l){ return /^(?:שם|אדם)/.test(l||"")?"NAME":/^גוף/.test(l||"")?"ORG":/^(?:יישוב|מקום)/.test(l||"")?"PLACE":"OTHER"; }
   redactedText(){
     return this.state.res.preview.filter(b=>!b.part.includes("טקסט חלופי"))
@@ -2125,12 +2203,17 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     return p;
   }
   currentMap(){
-    const m={}, RES=this.state.res;
+    const m={}, RES=this.state.res, E=this.state.E, n=v=>E?E.norm(String(v||"")).trim():String(v||"");
+    // "זה אותו אחד כמו" (M3 בביקורת השנייה): המקור שמוזג חולק כינוי עם היעד. זוג
+    // משלו במפה הפך את הכינוי ל"משותף לשניים", וההחזרה ויתרה עליו. היא אמרה שזה
+    // אותו אדם — הכינוי חוזר ליעד, והמקור אינו זוג נפרד.
+    const merged=new Set((this.state.rules||[]).filter(r=>r.sameAs&&r.sameAs!==r.value).map(r=>n(r.value)));
     if(RES) for(const r of RES.applied){
       const v=r.base||r.value, rp=r.baseRep||r.rep;
+      if(merged.has(n(v))) continue;
       if(v&&rp&&rp!=="███"&&!(v in m)) m[v]=rp;
     }
-    for(const r of this.state.rules) if(r.replacement) m[r.value]=r.replacement;
+    for(const r of this.state.rules) if(r.replacement&&!merged.has(n(r.value))) m[r.value]=r.replacement;
     return m;
   }
   /* "זה אותו אחד כמו" (גרסה 3): עד כאן הכרטיס העתיק את השם הבדוי של היעד לכלל
@@ -2383,7 +2466,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      text:"כל יישוב מקבל יישוב דומה לו: עיר בעיר, מושב במושב. עכשיו: לחצי «החלת הקבוצה»."},
     {screen:"work", title:"מסך הבדיקה", next:"המשך", target:"[data-work] section",
      text:"קו מלא — הוחלף. קו מקווקו עם ? — מחכה לך. ∅ — נמחק. עכשיו: לחצי על מילה מסומנת, ותיפתח עריכה במקום."},
-    {screen:"work", title:"שמירה", next:"המשך", open:"profile", target:'[data-section="profile"]',
+    {screen:"work", title:"שמירה", next:"המשך", open:"profile", target:"[data-tour-target=case]",
      text:"עם שם תיק, אותו אדם מקבל אותו שם בדוי גם במסמך הבא. עכשיו: הקלידי שם תיק בשדה המסומן."},
     {screen:"work", title:"העתקה ל-AI, ובחזרה", next:"המשך", target:"[data-tour-target=copy]",
      text:"הכפתור המסומן מעתיק את הטקסט המושחר ל-AI. כשהתשובה חוזרת: «החזרת שמות מתשובת AI» למעלה מחזיר את השמות."},
@@ -2398,11 +2481,16 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this._spotKey=null;
     this._onSpot=()=>{ if(this.state.tour) this.tourMeasure(); };
     window.addEventListener("resize", this._onSpot); window.addEventListener("scroll", this._onSpot, true);
+    // מסך שנכנס מחליק 6 פיקסלים (rise); מדידה באמצע התנועה השאירה את הזרקור נמוך מהיעד עד שינוי
+    // גודל (L1). סוף אנימציה ושינוי גודל של היעד עצמו (מפה שנפתחה) מודדים שוב.
+    document.addEventListener("animationend", this._onSpot, true);
+    this._spotRO=typeof ResizeObserver==="function"?new ResizeObserver(this._onSpot):null;
   };
   // הזרקור: מלבן סביב מה שהצעד מדבר עליו, והשאר מוחשך. אינו חוסם לחיצות.
   tourMeasure(){
     const t=this.state.tour; if(!t) return;
     const cur=this.constructor.TOUR[t.i]; const el=cur&&cur.target?document.querySelector(cur.target):null;
+    if(this._spotRO&&el!==this._spotEl){ this._spotRO.disconnect(); if(el) this._spotRO.observe(el); this._spotEl=el; }
     if(!el){ if(this.state.tourSpot) this.setState({tourSpot:null}); return; }
     const r=el.getBoundingClientRect();
     if(r.bottom<0||r.top>innerHeight){ el.scrollIntoView({block:"center"}); return; }
@@ -2416,8 +2504,12 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.log.add("tour",{at:"close", step:t.i, done:t.i>=this.constructor.TOUR.length-1});
     this.tourMarkSeen();
     const o={...this.state.o, ner:this._tourNer===undefined?this.state.o.ner:this._tourNer};
-    if(this._onSpot){ window.removeEventListener("resize", this._onSpot); window.removeEventListener("scroll", this._onSpot, true); this._onSpot=null; }
-    this.setState({tour:null, tourSpot:null, o, buf:null, res:null, rules:[], peo:[], peoSug:[], allow:[], geo:null, geoNames:[], geoExtra:[], pending:false, screen:"entry", err:"", copied:false});
+    if(this._onSpot){ window.removeEventListener("resize", this._onSpot); window.removeEventListener("scroll", this._onSpot, true); document.removeEventListener("animationend", this._onSpot, true); this._onSpot=null; }
+    if(this._spotRO){ this._spotRO.disconnect(); this._spotRO=null; this._spotEl=null; }
+    // שם תיק שהוקלד בסיור הוא חלק מהמסמך הבדוי (M1 בביקורת השנייה): הוא לא עובר למסמך
+    // הבא, ולא נשמר כתיק — הסיור מבטיח ששום דבר ממנו לא נשמר
+    this.setState({tour:null, tourSpot:null, o, buf:null, res:null, rules:[], peo:[], peoSug:[], allow:[], geo:null, geoNames:[], geoExtra:[], pending:false, screen:"entry", err:"", copied:false,
+      caseName:"", profile:null, profileDirty:false});
   };
   tourNext = async () => {
     const t=this.state.tour; if(!t) return;
@@ -2476,7 +2568,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   tourBlocks(what){
     if(!this.state.tour) return false;
     this.log.add("tour",{at:"blocked", what});
-    this.setState({err:"בסיור אין "+(what==="copy"?"העתקה":what==="download"?"הורדה":"שליחת חבילה")+" — זה מסמך בדוי. בתיק אמיתי הכפתור הזה עובד."});
+    this.setState({err:"בסיור אין "+(what==="copy"?"העתקה":what==="download"?"הורדה":what==="report"?"הורדת דוח":"שליחת חבילה")+" — זה מסמך בדוי. בתיק אמיתי הכפתור הזה עובד."});
     return true;
   }
   tourView(){
@@ -2488,6 +2580,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const sp=this.state.tourSpot;
     return {tourOn:true, tourTitle:cur.title, tourText:cur.text, tourNextLabel:cur.next,
       tourPos:`${pos} מתוך ${shown.length}`, tourHasBack:t.i>0,
+      // כרטיס הסיור אינו מכסה את חלונית העריכה (L3): כשהיא פתוחה בחצי התחתון, הכרטיס עולה למעלה
+      tourCardStyle:"position:fixed;inset-inline-start:18px;"+((this.state.inline&&this.state.inline.y>innerHeight/2-120)?"top:18px;":"bottom:18px;")+"z-index:80;max-width:400px;background:var(--panel);border:1px solid var(--accent);border-radius:14px;padding:16px 18px;box-shadow:0 18px 48px rgba(0,0,0,.28)",
       tourSpot:!!sp, tourSpotStyle:sp?`position:fixed;left:${sp.x}px;top:${sp.y}px;width:${sp.w}px;height:${sp.h}px;border-radius:12px;box-shadow:0 0 0 9999px rgba(10,14,12,.45);pointer-events:none;z-index:75;transition:left .25s,top .25s,width .25s,height .25s`:"",
       onTourNext:this.tourNext, onTourBack:this.tourBack, onTourClose:this.tourClose};
   }
@@ -2522,7 +2616,12 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       if(!prof || prof.v!==1) throw new Error("קובץ פרופיל לא מזוהה");
       this.setState({caseName:prof.name||this.state.caseName});
       this.applyProfile(prof);
-    }catch(err){ this.setState({err:"טעינת הפרופיל נכשלה: "+(err.message||err)}); }
+    }catch(err){
+      // L17: שגיאת JSON גולמית באנגלית לא אמרה לה כלום
+      const m=String((err&&err.message)||err||"");
+      const why=/JSON|Unexpected|Expected|position/i.test(m)?"הקובץ אינו קובץ פרופיל תקין, או שהוא נפגם":m;
+      this.setState({err:"טעינת הפרופיל נכשלה: "+why+". קובץ פרופיל הוא הקובץ שירד מ«ייצוא לקובץ» (סיומת ‎.json)."});
+    }
   };
   applyProfile(prof){
     try{
@@ -2546,7 +2645,12 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
           this.setState({peo:list, peoNote:`נטענו ${list.length} שמות מהפרופיל. אותם שמות חלופיים כמו במסמכים הקודמים בתיק.`});
         } else if(this.state.res) this.rerun();
       });
-    }catch(err){ this.setState({err:"טעינת הפרופיל נכשלה: "+(err.message||err)}); }
+    }catch(err){
+      // L17: שגיאת JSON גולמית באנגלית לא אמרה לה כלום
+      const m=String((err&&err.message)||err||"");
+      const why=/JSON|Unexpected|Expected|position/i.test(m)?"הקובץ אינו קובץ פרופיל תקין, או שהוא נפגם":m;
+      this.setState({err:"טעינת הפרופיל נכשלה: "+why+". קובץ פרופיל הוא הקובץ שירד מ«ייצוא לקובץ» (סיומת ‎.json)."});
+    }
   }
 
   /* ── סימון בטקסט ── */
@@ -2583,11 +2687,34 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      של הכרטיס — תחליף עם תצוגה מקדימה של המשפט, שלוש הבחירות, "אותו אדם כמו",
      "אל תחליף", "לא שם". היא אמרה שהיא מעדיפה לעבוד מתוך הטקסט ולא מהצד. הפאנל
      נשאר כמו שהיה; כל פעולה כאן היא אותה פעולה, נרשמת ביומן עם origin:"inline". */
+  popPos(r){ let x=Math.max(12, Math.min(r.left+r.width/2-170, innerWidth-352)), y=r.bottom+8; if(y>innerHeight-260) y=Math.max(12, r.top-250); return {x,y}; }
   inlineAt(e, info){
-    let x=24, y=80;
-    try{ const r=e.currentTarget.getBoundingClientRect(); x=Math.max(12, Math.min(r.left+r.width/2-170, innerWidth-352)); y=r.bottom+8; if(y>innerHeight-260) y=Math.max(12, r.top-250); }catch(_){}
+    let x=24, y=80, anchor=null;
+    try{ anchor=e.currentTarget; const p=this.popPos(anchor.getBoundingClientRect()); x=p.x; y=p.y; }catch(_){}
     this.log.add("inline-open",{mode:info.mode, kind:info.label||""});
-    return {...info, x, y};
+    return {...info, x, y, anchor};
+  }
+  /* החלונית והרמז נעים עם הסימון שלהם (M4 בביקורת השנייה): הם קבועים על המסך, ובגלילה
+     של העמוד או של המסמך נשארו במקום וכיסו שורה אחרת. בגלילה הם ממוקמים מחדש לפי
+     הסימון, ונסגרים כשהוא יוצא מהמסך או נעלם. */
+  followAnchors(){
+    if(this._followRaf) return;
+    this._followRaf=requestAnimationFrame(()=>{
+      this._followRaf=null;
+      const S=this.state, up={};
+      const gone=a=>!a||!document.contains(a);
+      if(S.inline&&S.inline.anchor){
+        const a=S.inline.anchor;
+        if(gone(a)) up.inline=null;
+        else{ const r=a.getBoundingClientRect(); if(r.bottom<0||r.top>innerHeight) up.inline=null; else{ const p=this.popPos(r); if(p.x!==S.inline.x||p.y!==S.inline.y) up.inline={...S.inline, x:p.x, y:p.y}; } }
+      }
+      if(S.tip&&S.tip.anchor){
+        const a=S.tip.anchor;
+        if(gone(a)) up.tip=null;
+        else{ const r=a.getBoundingClientRect(); if(r.bottom<0||r.top>innerHeight) up.tip=null; else{ const x=Math.max(12, Math.min(r.left+r.width/2-150, innerWidth-312)), y=r.bottom+8; if(x!==S.tip.x||y!==S.tip.y) up.tip={...S.tip, x, y}; } }
+      }
+      if(Object.keys(up).length) this.setState(up);
+    });
   }
   inlinePreview(info, draft){
     if(!info||!info.text) return "";
@@ -2605,7 +2732,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const isDate=/^תאריך/.test(I.label||"")||!!(rule&&rule.kind==="DATE");
     const cur=(rule&&rule.style)||(nameish?(S.mode==="block"?"black":S.mode==="label"?"label":"name"):isDate?(S.o.dateStyle||"name"):(S.o.numStyle||"blank"));
     const btn=on=>"padding:5px 10px;border-radius:12px;font-size:12px;white-space:nowrap;border:1px solid var(--line);"+(on?"background:var(--accent-soft);color:var(--accent-ink);font-weight:500":"color:var(--ink2)");
-    const kind=rule?rule.kind:(nameish?"NAME":"OTHER");
+    const kind=rule?rule.kind:(nameish?"NAME":this.engineKindOf(I.label));
     const act=(what,fn)=>e=>{ if(e&&e.stopPropagation) e.stopPropagation(); this.log.add("inline-act",{act:what}); this.setState({inline:null}); fn(); };
     const KINDS=E.KINDS||[];
     return {inline:true,
@@ -2814,14 +2941,15 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       // הפרופיל האחרון בלי שם מוצע רק כשאין תיק בשם שמכסה אותו
       hasLast:!!S.lastProfile&&!S.lastProfile.name&&S.screen==="entry"&&!S.profile,
       lastTitle:S.lastProfile?(S.lastProfile.name?"להמשיך את התיק «"+S.lastProfile.name+"»?":"להמשיך עם הפרופיל מהפעם הקודמת?"):"",
-      lastMeta:S.lastProfile?((S.lastProfile.rules||[]).length+" ערכים ברשימה · עודכן "+new Date(S.lastProfile.updated||S.lastProfile.created).toLocaleString("he-IL",{dateStyle:"short",timeStyle:"short"})+" · אותם שמות חלופיים כמו במסמך הקודם"):"",
+      lastMeta:S.lastProfile?(this.profileCount(S.lastProfile)+" ערכים ברשימה · עודכן "+new Date(S.lastProfile.updated||S.lastProfile.created).toLocaleString("he-IL",{dateStyle:"short",timeStyle:"short"})+" · אותם שמות חלופיים כמו במסמך הקודם"):"",
       lastPairs:S.lastProfile?this.profilePairs(S.lastProfile,3):[],
       lastMorePairs:S.lastProfile?(n=>n>3?"ועוד "+(n-3):"")(this.profileCount(S.lastProfile)):"",
       onResumeLast:this.resumeLast, onDismissLast:this.dismissLast,
+      engineFailed:!!S.engineFailed, onEngineRetry:()=>{ try{ location.reload(); }catch(_){} },
       caseName:S.caseName, onCaseName:e=>this.setState({caseName:e.target.value}, ()=>this.persistProfile()),
       profileNote:(S.caseName?"נשמר ברשימת התיקים בדפדפן הזה אחרי כל שינוי, ומוצע בכניסה הבאה. ":"בלי שם התיק נשמר רק כ«פרופיל אחרון». ")+(S.profileDirty?"הדפדפן אינו גיבוי — ייצוא לקובץ שומר את הפרופיל גם אם המטמון ינוקה.":"יוצא לקובץ."),
-      hasPeoSug:S.peoSug.some(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))),
-      peoSugItems:S.peoSug.filter(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))).map(x=>({
+      hasPeoSug:S.peoSug.some(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))&&!(S.peoKept||[]).some(k=>S.E.norm(k.value)===S.E.norm(x.value))),
+      peoSugItems:S.peoSug.filter(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))&&!(S.peoKept||[]).some(k=>S.E.norm(k.value)===S.E.norm(x.value))).map(x=>({
         value:x.value, why:x.why,
         onAdd:()=>this.peoAdd(x.value,"מההקשר",true,x.kind),
         // "לא אדם" הוא החלטה, ולכן נראית (H3): השם נכנס ל"נשארים כמו שהם" עם ↩, כמו מחיקת שבב
@@ -2883,7 +3011,9 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         const pairs=Object.entries(map).map(([real,fake])=>[surface(real),fake]);
         const r=E.restoreNames(S.rvIn, pairs);
         this.log.add("restore",{count:r.count});
-        this.setState({rvOut:r.text, rvCount:r.count, err: r.count?"":"לא נמצא אף שם חלופי בטקסט. כדאי לבדוק שהפרופיל תואם למסמך."},
+        // כינוי שמשותף ליותר מאדם אחד אינו "לא נמצא" — הוא נמצא ולא הוחזר, וזה מה שנאמר (M3)
+        const conflictMsg=(r.conflict&&r.conflict.length)?`«${r.conflict.join("», «")}» ${r.conflict.length===1?"הוא כינוי":"הם כינויים"} של יותר מאדם אחד במסמך הזה, ולכן לא הוחזר${r.conflict.length===1?"":"ו"}. אפשר לתקן בכרטיס של אחד מהם.`:"";
+        this.setState({rvOut:r.text, rvCount:r.count, err: r.count?(conflictMsg?conflictMsg:""):(conflictMsg||"לא נמצא אף שם חלופי בטקסט. כדאי לבדוק שהפרופיל תואם למסמך.")},
           ()=>{ const el=document.querySelector("[data-rv-result]"); if(el&&el.scrollIntoView) el.scrollIntoView({block:"start", behavior:"smooth"}); });
       },
       // אחרי החזרה, ההעתקה היא הפעולה הראשית; לפני — ההחזרה (UX #19). ריק — אין מה להחזיר (UX #20).
@@ -2951,7 +3081,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           notice:"", copied:false, copyLabel:"העתקה ל-AI", sugAsk:false, casesHidden:false, peo:[], peoSug:[], peoKept:[],
           caseName:"", profile:null, rules:[], allow:[], profileDirty:false, approved:[], undoN:0, redoN:0, lastProfile, cases:this.readCases()},
           ()=>{ try{ scrollTo(0,0); }catch(_){} });
-        this._undo=[]; this._redo=[];
+        this._undo=[]; this._redo=[]; this._modelFound=null; this._lastScan=null;
         this.log.add("new-doc",{}); },
       tip:!!S.tip, tipLabel:S.tip?S.tip.label:"", tipItems:S.tip?S.tip.items:[],
       tipMore:S.tip&&S.tip.items.length>=3?"שלוש הראשונות":"",
@@ -3029,6 +3159,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       v.sheet = src.map((b,bi)=>({part:b.part, head:b.part!==(bi>0?src[bi-1].part:null), n:bi+1,
         segs:[{plain:true, mark:false, t:b.text||" "}]}));
     } else
+    v.emptyFindings = S.query&&S.query.trim() ? `אין ממצאים שמתאימים ל«${S.query.trim()}».` : (S.cat||(S.filter&&S.filter!=="all")) ? "אין ממצאים בסינון הזה." : "אין ממצאים.";
     v.legendDate = RES.applied.some(r=>/^תאריך/.test(r.label||"")&&r.rep&&r.rep!=="███");
     v.sheet = RES.preview.map((b,bi)=>{
       const segs=[]; let last=0;
@@ -3041,11 +3172,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           if(m.s>last) segs.push({plain:true, mark:false, t:b.text.slice(last,m.s)});
           const drec=RES.applied.find(x=>x.value===m.val);
           const dkey="a|"+E.norm((drec&&(drec.of||drec.base))||m.val||"").trim();
-          segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:"∅", badge:"",
+          segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:"∅", badge:"", pre:"", kind:"del",
             title:"הושמט: "+(m.val||"")+" — לחיצה פותחת עריכה במקום",
             style:"cursor:pointer;border-radius:3px;padding:0 3px;font-size:11px;color:var(--ink3);border:1px dashed var(--line);",
-            onClick:e=>this.setState({sel:dkey, filter:"all", cat:"", open:this.openWith("findings"), pane:this.state.narrow?"find":this.state.pane,
-              inline:this.inlineAt(e,{mode:"del", value:m.val||"", base:m.val||"", kind:"", label:"נמחק", text:b.text, s:m.s, e:m.s, pre:""}), inlineDraft:""}, ()=>{
+            onClick:e=>this.setState({sel:dkey, filter:"all", cat:"", open:this.openWith("findings"), pane:this.state.pane,
+              inline:this.inlineAt(e,{mode:"del", value:m.val||"", base:m.val||"", kind:"", label:(drec&&drec.label)||"נמחק", text:b.text, s:m.s, e:m.s, pre:""}), inlineDraft:""}, ()=>{
               const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape(dkey)+'"]');
               if(node && this.listEl){ const nr=node.getBoundingClientRect(), lr=this.listEl.getBoundingClientRect(); this.listEl.scrollTop += (nr.top-lr.top) - 40; }
             })});
@@ -3060,13 +3191,13 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
              אליו, בדיוק כמו הקשה על החלפה. */
           const fkey="f|"+E.norm(m.val||"").trim();
           const fl=RES.flagged.find(x=>x.value===m.val)||{};
-          segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:b.text.slice(m.s,m.e), badge:"?",
+          segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:b.text.slice(m.s,m.e), badge:"?", pre:"", kind:"flag",
             title:"נמצא ומחכה להחלטה שלך — לחיצה פותחת עריכה במקום",
             // צורה ולא רק צבע (Q2): קו מקווקו עבה ותג "?" — נראה גם על מסך חיוור
             style:"cursor:pointer;border-radius:3px;box-decoration-break:clone;padding:1px 2px;"+
               "background:var(--warn-soft);color:var(--warn);border-bottom:2px dashed var(--warn);font-weight:500;",
             onClick:e=>this.setState({sel:fkey, filter:"all", cat:"",
-              open:this.openWith("findings"), pane:this.state.narrow?"find":this.state.pane,
+              open:this.openWith("findings"), pane:this.state.pane,
               inline:this.inlineAt(e,{mode:"flag", value:m.val||"", base:m.val||"", kind:"", label:fl.label||"לבדיקה", text:b.text, s:m.s, e:m.e, pre:""}), inlineDraft:""}, ()=>{
                 const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape(fkey)+'"]');
                 if(node && this.listEl){ const nr=node.getBoundingClientRect(), lr=this.listEl.getBoundingClientRect();
@@ -3100,7 +3231,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
             const pre=(base&&sv.endsWith(base)&&sv.length>base.length)?sv.slice(0,sv.length-base.length):"";
             // הסמן של החיצים עוקב אחרי מה שנלחץ, אחרת "הבא" קופץ מהמקום הקודם
             this.setState({markIdx:pos, filter:"all", cat:"", open:this.openWith("findings"), sel:"a|"+E.norm(r.of||r.base||r.value).trim(),
-              pane:this.state.narrow?"find":this.state.pane, repDraft:r.rep||"",
+              pane:this.state.pane, repDraft:r.rep||"",
               inline:this.inlineAt(e,{mode:"applied", value:r.value, base, kind:r.label||"", label:r.label||"", rep:r.baseRep||r.rep||"", text:b.text, s:m.s, e:m.e, pre, src:r.src}), inlineDraft:r.baseRep||r.rep||""}, ()=>{
               const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape("a|"+E.norm(r.of||r.base||r.value).trim())+'"]');
               if(node && this.listEl){ const nr=node.getBoundingClientRect(), lr=this.listEl.getBoundingClientRect();
@@ -3135,7 +3266,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     // אותה רשימה בדיוק כמו המונה: ערך שכבר מחכה כאדם לא מופיע שוב כהצעה (UX #13)
     const PRv=this.pendingReview();
     v.nearItems = PRv.near.map(x=>({
-      value:x.value, ctx:x.ctx||{},
+      value:x.value, ctx:x.ctx||{pre:"",hit:"",post:""},
       tag:"כמו «"+x.near.target+"»"+(x.near.rep?" ← "+x.near.rep:""),
       fixLabel: x.near.rep ? "החלפה ל«"+x.near.rep+"»" : "החלפה גם כאן",
       // הערך שנתפס עשוי לשאת גרש או מקף בקצה; מנקים אותו כמו ש-addRule היה מנקה,
@@ -3145,7 +3276,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         else this.mergeInto(v, x.near.target); },
       onSkip:()=>this.addAllow(E.trimEdges(x.value))}));
     v.sugItems = PRv.sug.map(x=>({
-      value:x.value, ctx:x.ctx||{}, tag:x.count+"× · "+x.why,
+      value:x.value, ctx:x.ctx||{pre:"",hit:"",post:""}, tag:x.count+"× · "+x.why,
       onAdd:()=>{ const v=E.trimEdges(x.value); const ex=S.rules.find(r=>E.norm(r.value).trim()===E.norm(v).trim());
         if(ex) this.setState({sel:"a|"+E.norm(ex.value).trim(), open:this.openWith("findings")}); else this.addRule(v,"NAME",""); },
       onNo:()=>this.addAllow(E.trimEdges(x.value))}));
@@ -3154,7 +3285,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     /* ממצאים שנמצאו ולא הוחלפו, בראש "לבדיקה" (UX #13, #14): אנשים קודם, אחר כך
        מספרים, ובסוף מקומות וגופים. לכל אחד "להחליף" ישיר ו"להשאיר". */
     v.pendItems=[...PRv.people, ...PRv.numbers, ...PRv.soft].map(x=>({
-      value:x.value, tag:this.kindLabel(x.label)+(x.why?" · "+x.why:""), ctx:x.ctx||{},
+      value:x.value, tag:this.kindLabel(x.label)+(x.why?" · "+x.why:""), ctx:x.ctx||{pre:"",hit:"",post:""},
       onAdd:()=>{ this.log.add("review-act",{act:"replace", kind:this.kindOfLabel(x.label)}); this.addRule(E.trimEdges(x.value), this.kindOfLabel(x.label), "", "review"); },
       onKeep:()=>{ this.log.add("review-act",{act:"keep"}); this.addAllow(E.trimEdges(x.value)); }}));
 
@@ -3207,7 +3338,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         const isDate=/^תאריך/.test(g.label||"");
         const cur=(rule&&rule.style)||(nameish?(S.mode==="block"?"black":S.mode==="label"?"label":"name"):isDate?(S.o.dateStyle||"name"):(S.o.numStyle||"blank"));
         const btn=on=>"padding:5px 10px;border-radius:12px;font-size:12px;white-space:nowrap;"+(on?"background:var(--panel);box-shadow:var(--shadow);color:var(--ink);font-weight:500":"color:var(--ink2)");
-        const set=st=>e=>{ e.stopPropagation(); this.setStyle(g.value, rule?rule.kind:(nameish?"NAME":"OTHER"), st, g.base); };
+        const set=st=>e=>{ e.stopPropagation(); this.setStyle(g.value, rule?rule.kind:(nameish?"NAME":this.engineKindOf(g.label)), st, g.base); };
         return {
           styleNameLabel: nameish?"שם":isDate?"תאריך מוזז":"תווית",
           onStyleName:set(nameish||isDate?"name":"label"), onStyleBlank:set("blank"), onStyleBlack:set("black"),
@@ -3224,7 +3355,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onApprove:e=>{ e.stopPropagation(); this.log.add("review-act",{act:"approve"}); this.setState({approved:[...(S.approved||[]), g.key]}); },
       repStyle:"font-weight:500;font-size:14px;color:"+(g.ap?"var(--accent-ink)":"var(--warn)"),
       meta:this.kindLabel(g.label)+" · "+[...g.parts].join(", "),
-      ctx:g.ctxs[0]||{}, selected:S.sel===g.key, applied:g.ap && S.sel===g.key, flagged:!g.ap && S.sel===g.key,
+      ctx:g.ctxs[0]||{pre:"",hit:"",post:""}, selected:S.sel===g.key, applied:g.ap && S.sel===g.key, flagged:!g.ap && S.sel===g.key,
       repDraft:S.sel===g.key?S.repDraft:"",
       style:"padding:12px 15px;border-bottom:1px solid var(--line2);cursor:pointer;"+
         (S.sel===g.key?"background:var(--panel2);":""),
@@ -3275,7 +3406,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.mineItems = S.rules.map(r=>({kind:this.kindLabel(E.KINDLBL[r.kind]||r.kind), value:r.value, rep:r.replacement||"",
       onDel:()=>this.dropRule(r.value)}))
       .concat(S.allow.map(a=>({kind:"אל תחליף", value:a, rep:"", onDel:()=>{
-        this.setState({allow:S.allow.filter(x=>x!==a)}, ()=>this.rerun()); }})));
+        this.pushHistory(); this.log.add("drop-allow",{});
+        this.setState({allow:S.allow.filter(x=>x!==a), notice:`«${a}» כבר אינו מותר, ויוחלף אם יימצא.`}, ()=>this.rerun()); }})));
 
     // "בטוח לשליחה" (החלטה Q2/Q8 ב-docs/PLAN-v18.md): שמות ומספרים חייבים להיעלם —
     // דליפה, כמעט-התאמה, שם שלא ברשימה, או ממצא פתוח מסוג מזהה (ת"ז, טלפון, דוא"ל,

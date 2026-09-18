@@ -1,6 +1,6 @@
 # Benchmark results (no model)
 
-40 documents, 314 keyed entities, model off. Generated 2026-09-17.
+40 documents, 314 keyed entities, model off. Generated 2026-09-18.
 
 ## Per category
 
@@ -169,43 +169,43 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 84 | 4 | 1 |
-| m2 | meeting | 28 | 6 | 0 |
-| m3 | meeting | 19 | 3 | 0 |
+| m1 | meeting | 93 | 4 | 1 |
+| m2 | meeting | 34 | 6 | 0 |
+| m3 | meeting | 18 | 3 | 0 |
 | m4 | meeting | 22 | 3 | 1 |
-| f1 | filing | 45 | 10 | 1 |
-| f2 | filing | 52 | 13 | 1 |
-| f3 | filing | 26 | 5 | 0 |
-| f4 | filing | 28 | 8 | 3 |
-| t1 | transcript | 25 | 6 | 0 |
-| t2 | transcript | 19 | 5 | 1 |
+| f1 | filing | 37 | 10 | 1 |
+| f2 | filing | 56 | 13 | 1 |
+| f3 | filing | 22 | 5 | 0 |
+| f4 | filing | 31 | 8 | 3 |
+| t1 | transcript | 27 | 6 | 0 |
+| t2 | transcript | 20 | 5 | 1 |
 | t3 | transcript | 23 | 6 | 1 |
-| t4 | transcript | 24 | 8 | 1 |
-| w1 | welfare | 12 | 1 | 0 |
-| w2 | welfare | 15 | 3 | 0 |
-| w3 | welfare | 13 | 2 | 0 |
-| w4 | welfare | 18 | 5 | 1 |
-| h1 | medical | 21 | 6 | 2 |
-| h2 | medical | 17 | 2 | 0 |
-| h3 | medical | 15 | 3 | 3 |
-| p1 | police | 18 | 2 | 1 |
-| p2 | police | 20 | 3 | 1 |
-| p3 | police | 9 | 1 | 0 |
-| p4 | police | 15 | 3 | 0 |
-| b1 | bank | 17 | 5 | 2 |
-| b2 | bank | 10 | 1 | 0 |
-| b3 | bank | 9 | 2 | 0 |
+| t4 | transcript | 26 | 8 | 1 |
+| w1 | welfare | 15 | 1 | 0 |
+| w2 | welfare | 19 | 3 | 0 |
+| w3 | welfare | 15 | 2 | 0 |
+| w4 | welfare | 25 | 5 | 1 |
+| h1 | medical | 25 | 6 | 2 |
+| h2 | medical | 20 | 2 | 0 |
+| h3 | medical | 18 | 3 | 3 |
+| p1 | police | 21 | 2 | 1 |
+| p2 | police | 17 | 3 | 1 |
+| p3 | police | 11 | 1 | 0 |
+| p4 | police | 16 | 3 | 0 |
+| b1 | bank | 18 | 5 | 2 |
+| b2 | bank | 9 | 1 | 0 |
+| b3 | bank | 10 | 2 | 0 |
 | c1 | chat | 9 | 1 | 0 |
-| c2 | chat | 11 | 2 | 1 |
-| c3 | chat | 10 | 2 | 0 |
-| c4 | chat | 12 | 3 | 0 |
-| x1 | position | 21 | 5 | 1 |
-| x2 | position | 17 | 4 | 0 |
-| x3 | position | 20 | 4 | 0 |
-| a1 | audio | 13 | 3 | 0 |
-| a2 | audio | 17 | 5 | 0 |
-| a3 | audio | 22 | 7 | 1 |
-| a4 | audio | 14 | 4 | 0 |
-| v1 | interview | 15 | 2 | 0 |
-| v2 | interview | 18 | 3 | 0 |
-| v3 | interview | 12 | 2 | 0 |
+| c2 | chat | 13 | 2 | 1 |
+| c3 | chat | 9 | 2 | 0 |
+| c4 | chat | 14 | 3 | 0 |
+| x1 | position | 28 | 5 | 1 |
+| x2 | position | 16 | 4 | 0 |
+| x3 | position | 22 | 4 | 0 |
+| a1 | audio | 12 | 3 | 0 |
+| a2 | audio | 16 | 5 | 0 |
+| a3 | audio | 26 | 7 | 1 |
+| a4 | audio | 12 | 4 | 0 |
+| v1 | interview | 16 | 2 | 0 |
+| v2 | interview | 16 | 3 | 0 |
+| v3 | interview | 10 | 2 | 0 |

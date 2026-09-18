@@ -37,7 +37,7 @@ async function serveEngineWithStub(page) {
       "  if (onProgress) onProgress(5);",
       "  await new Promise((r) => setTimeout(r, cfg.delay ? cfg.delay(text) : 0));",
       "  if (cfg.error) throw new Error(cfg.error);",
-      "  return (cfg.names ? cfg.names(text) : []).map((v) => ({ value: v, kind: 'NAME', n: 1, score: 0.95 }));",
+      "  return (cfg.names ? cfg.names(text) : []).map((v) => ({ value: v, kind: 'NAME', n: cfg.n ? cfg.n(v) : 1, score: 0.95 }));",
       "};",
       "",
     ].join("\n");

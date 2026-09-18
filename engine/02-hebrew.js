@@ -33,8 +33,17 @@ function variants(name,lvl,protect){
   return out;
 }
 const MERGE=new Set(["ב","ל","כ","ה"]);
+/* ב/ל/כ + ה' הידיעה מתמזגות ("ל+הבית" → "לבית"), אבל רק כשה-ה' היא ה' הידיעה. בשם
+   יישוב או בשם של אדם היא חלק מהשם: "ברמת גן" → "ב"+"הרצליה" נתן "ברצליה" (L14 בביקורת
+   השנייה), ו"להדס" היה נעשה "לדס". שם מוכר — יישוב, שם פרטי, שם מהמאגר — שומר את ה-ה'. */
+function nameWithHe(rep){
+  const r=norm(String(rep||"")).trim(), w=r.split(/\s+/)[0];
+  return (typeof PLACE_BY!=="undefined"&&!!(PLACE_BY[r]||PLACE_BY[w]))||
+    (typeof KNOWN_FIRST!=="undefined"&&KNOWN_FIRST.has(w))||
+    (typeof POOL!=="undefined"&&Object.values(POOL).some(a=>a.includes(w)));
+}
 function addPre(pre,rep){ if(!pre)return rep; if(!rep)return pre;
-  if(rep[0]==="ה"&&MERGE.has(pre[pre.length-1])) return pre+rep.slice(1);
+  if(rep[0]==="ה"&&MERGE.has(pre[pre.length-1])&&!nameWithHe(rep)) return pre+rep.slice(1);
   return pre+rep}
 /* תאריך מוזז (Q5 בגרסה 3). תאריך שנמחק הוציא מה-AI "חסר תאריך ההחלטה"; תווית לא
    נותנת לו לחשב פרקי זמן. לכן כל תאריך מלא במסמך זז באותו מספר ימים — ההיסט
