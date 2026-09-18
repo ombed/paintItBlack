@@ -115,7 +115,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v38");
+  console.log("השחרת מסמכים — גרסה v39");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -153,9 +153,9 @@ button:disabled{opacity:.55;cursor:not-allowed}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v38") return;
+        if(served==="v39") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v38 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v39 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -404,11 +404,19 @@ button:disabled{opacity:.55;cursor:not-allowed}
           </div>
           <p style="margin:12px 0 0;font-size:12.5px;line-height:1.55;color:var(--ink2)">{{ modeNote }}</p>
           <label style="display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line2);font-size:13px">
-            <span style="flex:1"><b style="font-weight:500">מספרים, תאריכים וכתובות</b><br><small style="color:var(--ink2);font-size:12px">ת״ז, טלפון, חשבון, רכב, תאריכים. גיל נשאר תמיד.</small></span>
+            <span style="flex:1"><b style="font-weight:500">מספרים וכתובות</b><br><small style="color:var(--ink2);font-size:12px">ת״ז, טלפון, חשבון, רכב, כתובת. גיל נשאר תמיד.</small></span>
             <select value="{{ numStyle }}" onChange="{{ onNumStyle }}" style="background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:13px">
               <option value="blank" selected="{{ numBlank }}">נמחקים מהטקסט</option>
               <option value="label" selected="{{ numLabel }}">תווית: [ת״ז א׳]</option>
               <option value="black" selected="{{ numBlack }}">███</option>
+            </select>
+          </label>
+          <label data-date-style style="display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13px">
+            <span style="flex:1"><b style="font-weight:500">תאריכים</b><br><small style="color:var(--ink2);font-size:12px">תאריך מלא. מוזז: כל התאריכים זזים באותו מספר ימים, המרווחים נשמרים, וההחזרה מחזירה אותם. נשמר בפרופיל התיק.</small></span>
+            <select value="{{ dateStyle }}" onChange="{{ onDateStyle }}" aria-label="תאריכים" style="background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:13px">
+              <option value="name" selected="{{ dateName }}">מוזזים</option>
+              <option value="blank" selected="{{ dateBlank }}">נמחקים מהטקסט</option>
+              <option value="black" selected="{{ dateBlack }}">███</option>
             </select>
           </label>
         </div>
@@ -462,9 +470,19 @@ button:disabled{opacity:.55;cursor:not-allowed}
           </select>
           <span data-tip="1" onMouseEnter="{{ p.onTipIn }}" onMouseLeave="{{ p.onTipOut }}" onClick="{{ p.onTipTap }}" title="{{ p.tipHint }}" style="font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ p.value }}</span>
           <sc-if value="{{ p.note }}"><small style="color:var(--ink3);font-size:11.5px">{{ p.note }}</small></sc-if>
+          <sc-if value="{{ p.canTrim }}"><button onClick="{{ p.onTrim }}" aria-label="קיצור השם" title="השם תפס מילה מיותרת? כאן מסירים אותה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:12px" style-hover="background:var(--panel2);color:var(--ink)">✂</button></sc-if>
           <button onClick="{{ p.onDel }}" aria-label="הסרה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:13px" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
         </div>
       </sc-for>
+      <sc-if value="{{ trimRow }}">
+        <div data-trim-row style="flex-basis:100%;display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:6px 0 2px;font-size:12.5px;color:var(--ink2)">
+          <span>«{{ trimValue }}» — מילה שאינה חלק מהשם:</span>
+          <sc-for list="{{ trimWords }}" as="w" hint-placeholder-count="3">
+            <button data-word onClick="{{ w.onDrop }}" title="{{ w.title }}" style="padding:2px 9px;border-radius:12px;border:1px solid var(--line);font-size:12.5px" style-hover="background:var(--bad-soft);color:var(--bad)">{{ w.w }} ✕</button>
+          </sc-for>
+          <button onClick="{{ onTrimClose }}" aria-label="סגירה" style="width:20px;height:20px;border-radius:50%;color:var(--ink3)">✕</button>
+        </div>
+      </sc-if>
       <sc-if value="{{ hasKept }}">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0 2px;font-size:12.5px;color:var(--ink2)">
           <span>נשארים כמו שהם:</span>
@@ -725,6 +743,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <span><span style="background:var(--accent-soft);color:var(--accent-ink);border-bottom:2px solid var(--accent);padding:0 4px;border-radius:3px">שם בדוי</span> הוחלף</span>
         <span><span style="background:var(--warn-soft);color:var(--warn);border-bottom:2px dashed var(--warn);padding:0 4px;border-radius:3px">מילה<sup style="font-size:9px;font-weight:700">?</sup></span> מחכה להחלטה שלך</span>
         <span><span style="border:1px dashed var(--line);color:var(--ink3);padding:0 4px;border-radius:3px;font-size:11px">∅</span> נמחק</span>
+        <sc-if value="{{ legendDate }}"><span data-legend-date><span style="background:var(--accent-soft);color:var(--accent-ink);border-bottom:2px dotted var(--accent);padding:0 4px;border-radius:3px">12.3.26</span> תאריך מוזז — המקורי חוזר בהחזרה</span></sc-if>
         <span style="color:var(--ink3)">לחיצה על סימון פותחת עריכה במקום</span>
       </div>
       <div ref="{{ sheetRef }}" onMouseUp="{{ onSheetSelect }}" style="background:var(--panel2);max-height:calc(100vh - var(--bar-h, 64px) - 186px);overflow:auto;padding:22px 0 40px">
@@ -735,7 +754,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
             </sc-if>
             <div style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:14px;margin-bottom:11px;align-items:baseline">
               <span style="font:400 10.5px/2 Rubik,sans-serif;color:var(--ink3);text-align:end">{{ blk.n }}</span>
-              <p style="margin:0;text-wrap:pretty"><sc-for list="{{ blk.segs }}" as="sg" hint-placeholder-count="3"><sc-if value="{{ sg.plain }}"><span>{{ sg.t }}</span></sc-if><sc-if value="{{ sg.mark }}"><span data-mark="{{ sg.id }}" data-val="{{ sg.val }}" data-badge="{{ sg.badge }}" tabindex="0" role="button" onClick="{{ sg.onClick }}" title="{{ sg.title }}" style="{{ sg.style }}">{{ sg.t }}</span></sc-if></sc-for></p>
+              <p style="margin:0;text-wrap:pretty"><sc-for list="{{ blk.segs }}" as="sg" hint-placeholder-count="3"><sc-if value="{{ sg.plain }}"><span>{{ sg.t }}</span></sc-if><sc-if value="{{ sg.mark }}"><span data-mark="{{ sg.id }}" data-val="{{ sg.val }}" data-badge="{{ sg.badge }}" data-kind="{{ sg.kind }}" tabindex="0" role="button" onClick="{{ sg.onClick }}" title="{{ sg.title }}" style="{{ sg.style }}"><span data-pre style="opacity:.5;font-weight:400">{{ sg.pre }}</span>{{ sg.t }}</span></sc-if></sc-for></p>
             </div>
           </sc-for>
         </div>
@@ -849,6 +868,27 @@ button:disabled{opacity:.55;cursor:not-allowed}
                       <sc-if value="{{ g.review }}"><span style="font-size:10.5px;font-weight:500;padding:2px 7px;border-radius:12px;background:var(--warn-soft);color:var(--warn)">לאישור</span></sc-if>
                       <span style="margin-inline-start:auto;font-size:11.5px;font-weight:500;color:var(--ink3);background:var(--panel2);border-radius:10px;padding:1px 7px">{{ g.count }}×</span>
                     </div>
+                    <sc-if value="{{ g.hasForms }}">
+                      <div data-forms style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;align-items:center">
+                        <sc-for list="{{ g.forms }}" as="f" hint-placeholder-count="3">
+                          <button data-form onClick="{{ f.onClick }}" title="{{ f.title }}" style="{{ f.style }}"><span style="opacity:.55;font-weight:400">{{ f.pre }}</span>{{ f.rest }}<small style="opacity:.7"> ×{{ f.n }}</small></button>
+                        </sc-for>
+                      </div>
+                      <sc-if value="{{ g.formSel }}">
+                        <div data-form-act style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--ink2)">
+                          <span>הצורה «{{ g.formSelText }}» בלבד:</span>
+                          <button onClick="{{ g.onFormAllow }}" style="padding:4px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px">אל תחליף</button>
+                        </div>
+                      </sc-if>
+                    </sc-if>
+                    <sc-if value="{{ g.hasWords }}">
+                      <div data-words style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-top:5px;font-size:11.5px;color:var(--ink3)">
+                        <span>מילה שאינה חלק מהשם:</span>
+                        <sc-for list="{{ g.words }}" as="w" hint-placeholder-count="3">
+                          <button data-word onClick="{{ w.onDrop }}" title="{{ w.title }}" style="padding:1px 7px;border-radius:10px;border:1px solid var(--line);font-size:11.5px;color:var(--ink2)" style-hover="background:var(--bad-soft);color:var(--bad)">{{ w.w }} ✕</button>
+                        </sc-for>
+                      </div>
+                    </sc-if>
                     <div style="font-size:12.5px;color:var(--ink2);margin-top:3px;line-height:1.45">{{ g.why }}</div>
                     <sc-if value="{{ g.collideWarn }}"><div data-collide style="font-size:12px;color:var(--warn);margin-top:3px;line-height:1.5">{{ g.collideWarn }}</div></sc-if>
                     <div style="font-size:11.5px;color:var(--ink3);margin-top:2px">{{ g.meta }}</div>
@@ -1013,13 +1053,22 @@ button:disabled{opacity:.55;cursor:not-allowed}
   <sc-if value="{{ inline }}">
     <div data-inline onClick="{{ inlineStop }}" style="{{ inlineStyle }}">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <b style="font-weight:500;font-size:14px">{{ inlineValue }}</b>
-        <sc-if value="{{ inlineRep }}"><span style="color:var(--ink3)">←</span><span style="font-weight:500;color:var(--accent-ink)">{{ inlineRep }}</span></sc-if>
+        <b style="font-weight:500;font-size:14px"><span data-inline-pre style="opacity:.5;font-weight:400">{{ inlinePre }}</span>{{ inlineValue }}</b>
+        <sc-if value="{{ inlineRep }}"><span style="color:var(--ink3)">←</span><span style="font-weight:500;color:var(--accent-ink)"><span style="opacity:.5;font-weight:400">{{ inlinePre }}</span>{{ inlineRep }}</span></sc-if>
         <span style="font-size:11.5px;color:var(--ink3)">{{ inlineKind }}</span>
         <button onClick="{{ onInlineClose }}" aria-label="סגירה" style="margin-inline-start:auto;width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center">✕</button>
       </div>
+      <sc-if value="{{ inlineHasWords }}">
+        <div data-inline-words style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin:-2px 0 8px;font-size:11.5px;color:var(--ink3)">
+          <span>מילה שאינה חלק מהשם:</span>
+          <sc-for list="{{ inlineWords }}" as="w" hint-placeholder-count="3">
+            <button data-word onClick="{{ w.onDrop }}" title="{{ w.title }}" style="padding:1px 7px;border-radius:10px;border:1px solid var(--line);font-size:11.5px;color:var(--ink2)" style-hover="background:var(--bad-soft);color:var(--bad)">{{ w.w }} ✕</button>
+          </sc-for>
+        </div>
+      </sc-if>
       <sc-if value="{{ inlineApplied }}">
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <sc-if value="{{ inlinePre }}"><span data-pre-chip title="אות השימוש נשארת מהמסמך; בתיבה כותבים רק את השם" style="font-size:13px;color:var(--ink3);background:var(--panel2);border:1px dashed var(--line);border-radius:8px;padding:6px 8px">{{ inlinePre }}</span></sc-if>
           <input value="{{ inlineDraft }}" onChange="{{ onInlineDraft }}" onKeyDown="{{ onInlineKey }}" placeholder="תחליף אחר" style="flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:13px">
           <button onClick="{{ onInlineSave }}" style="padding:7px 12px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:500">שמירה</button>
         </div>
@@ -1075,7 +1124,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
 </div>
 </x-dc>
-<div id="ver">גרסה v38</div>
+<div id="ver">גרסה v39</div>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
@@ -1216,6 +1265,8 @@ class Component extends DCLogic {
      prev.screen היה undefined תמיד, ההשוואה תמיד "השתנה", ושדה from נעלם מהיומן.
      המסך האחרון נשמר על המופע ולא נלקח מההוק. */
   componentDidUpdate(){ this.applyProps(); if(this._barSize) this._barSize();
+    // חלונית המופעים אינה שורדת מעבר מסך: העכבר נשאר במקומו והחלונית של המסך הקודם כיסתה את הבא
+    if(this.state.screen!==this._tipScreen){ this._tipScreen=this.state.screen; if(this.state.tip) this.setState({tip:null}); }
     // רשומת היסטוריה אחת לכל מסמך (H5): "אחורה" חוזר אליה ולא יוצא מהאתר
     if(this.state.buf&&!this.state.tour&&!this._hist){ this._hist=true; this._leaving=false; try{ history.pushState({pib:1}, ""); }catch(_){} }
     else if(!this.state.buf&&this._hist) this._hist=false;
@@ -1890,7 +1941,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     // תאריכים, כתובות — לפי בחירתה, ומחיקה כברירת מחדל. כרטיס יכול לעקוף.
     return {on, flag, mode:this.state.mode, near:this.state.o.near, body:true, prefixes:"normal",
       // תאריך מלא מוזז כברירת מחדל (Q5 בגרסה 3), בלי קשר לבחירה על שאר המספרים; כרטיס יכול לעקוף
-      styles:{"*":this.state.o.numStyle||"blank", DATE:"name"}};
+      // תאריך: מוזז כברירת מחדל (Q5 בגרסה 3); בחירה אחרת (Q1 בגרסה 5) נשמרת בפרופיל התיק
+      styles:{"*":this.state.o.numStyle||"blank", DATE:this.state.o.dateStyle||"name"}};
   }
   /* ההבטחה שהתיק האמיתי הפר: שם שהמודל מצא פעמיים ומעלה אינו יוצא מהכלי בלי
      שהיא החליטה עליו. הזיהוי היה מושלם — שבע פעמים בביטחון מלא — והשם יצא, כי
@@ -2076,12 +2128,23 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(this.state.filter!=="flag") RES.applied.forEach((r,i)=>src.push({...r, ap:true, i}));
     if(this.state.filter!=="rep") RES.flagged.forEach(r=>src.push({...r, ap:false, i:-1}));
     const m=new Map();
+    /* כרטיס אחד לאדם (גרסה 5): עד כאן כל צורה שנתפסה — "מרים", "למרים", "ומרים" —
+       הייתה כרטיס נפרד, פזור בין אנשים אחרים לפי ספירה, וכרטיס של "למרים" נקרא
+       כאילו זה אדם אחר. ההחלפה מקובצת לפי הערך שברשימה; הצורות נשארות כשבבים
+       על הכרטיס, עם אות השימוש חיוורת, ואפשר להחליט על צורה אחת לבדה. */
     for(const r of src){
-      const k=(r.ap?"a":"f")+"|"+E.norm(r.value).trim();
+      // חלק של שם ("מרים" מתוך "מרים לוין") שייך לכרטיס של האדם, לא לכרטיס משלו
+      const baseV=r.ap?(r.of||r.base||r.value):r.value;
+      const k=(r.ap?"a":"f")+"|"+E.norm(baseV).trim();
       let g=m.get(k);
-      if(!g){ g={key:k, value:r.value, label:r.label, why:r.why, rep:r.rep, ap:r.ap, src:r.src, base:r.base||r.value,
-        review:r.review&&!(this.state.approved||[]).includes(k), count:0, ctxs:[], parts:new Set(), ids:[]}; m.set(k,g); }
+      if(!g){ g={key:k, value:baseV, label:r.label, why:r.why, rep:r.ap?(r.baseRep||r.rep):r.rep, ap:r.ap, src:r.src, base:r.base||r.value,
+        review:r.review&&!(this.state.approved||[]).includes(k), count:0, ctxs:[], parts:new Set(), ids:[], forms:new Map()}; m.set(k,g); }
       g.count++;
+      if(r.ap){
+        const sv=String(r.value||""), bs=String(baseV||"");
+        const pre=(sv.endsWith(bs)&&sv.length>bs.length)?sv.slice(0,sv.length-bs.length):"";
+        const f=g.forms.get(sv)||{text:sv, pre, n:0}; f.n++; g.forms.set(sv,f);
+      }
       if(g.ctxs.length<50) g.ctxs.push(r.ctx);
       g.parts.add(r.part);
       if(r.i>=0) g.ids.push(r.i);
@@ -2162,6 +2225,41 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      של המקור — ועל צורה עם אות שימוש ("לארסן") לא היה כלל כזה, אז נוסף כלל חדש
      לצורה עצמה ולא קרה כלום. עכשיו שני הכללים נשארים, והמקור מקבל sameAs ליעד:
      אותו מנגנון של הצעת המיזוג במסך השמות, ואותו כינוי לשניהם. */
+  /* קיצוץ שם למילים שנבחרו (Q2 בגרסה 5): "מרים להידחות" נתפס כשם של שתי מילים, והיא
+     לא יכלה להשאיר את "מרים" ולוותר על "להידחות" — הסרה הסירה את שתיהן, החלפה בלעה
+     את המילה הקריטית בכינוי. כל מילה בשם של שתי מילים ומעלה היא כפתור; הסרתה
+     כותבת את הכלל מחדש על המילים שנשארו. הכינוי הולך עם השם: "ליאת נחמיאס" של
+     "מרים להידחות" נעשה "ליאת" של "מרים", כדי שמה שכבר הועתק ל-AI עדיין יחזור. */
+  trimTo(value, keepIdx){
+    const E=this.state.E, n=v=>E.norm(String(v||"")).trim();
+    const words=String(value||"").trim().split(/\s+/);
+    keepIdx=[...new Set(keepIdx)].filter(i=>i>=0&&i<words.length).sort((a,b)=>a-b);
+    if(!keepIdx.length||keepIdx.length===words.length) return;
+    const newV=keepIdx.map(i=>words[i]).join(" ");
+    this.pushHistory();
+    const rules=[...this.state.rules];
+    const ri=rules.findIndex(r=>n(r.value)===n(value));
+    if(ri>=0){
+      const r=rules[ri]; let rep=r.replacement||"";
+      if(rep){
+        const rw=rep.trim().split(/\s+/);
+        if(rw.length===words.length) rep=keepIdx.map(i=>rw[i]).join(" ");
+        else if(rw.length>1&&keepIdx.length===1) rep=keepIdx[0]===0?rw[0]:keepIdx[0]===words.length-1?rw[rw.length-1]:"";
+        else if(rw.length>1) rep="";
+      }
+      const dup=rules.findIndex((x,j)=>j!==ri&&n(x.value)===n(newV));
+      if(dup>=0) rules.splice(ri,1); else rules[ri]={...r, value:newV, replacement:rep, pinned:!!(rep&&r.pinned)};
+    }
+    const peo=(this.state.peo||[]).map(p=>n(p.value)===n(value)?{...p, value:newV, note:p.note}:p);
+    this.log.add("trim",{from:words.length, to:keepIdx.length, rule:ri>=0});
+    this.setState({rules, peo, inline:null, sel:null, trimPeo:null, formSel:null}, ()=>{ if(this.state.res) this.rerun(); });
+  }
+  wordItems(value, when){
+    const words=String(value||"").trim().split(/\s+/);
+    if(words.length<2||words.length>6) return [];
+    return words.map((w,i)=>({w, title:`להסיר את «${w}» מהשם — נשאר: «${words.filter((_,j)=>j!==i).join(" ")}»`,
+      onDrop:e=>{ if(e&&e.stopPropagation) e.stopPropagation(); if(when) when(); this.trimTo(value, words.map((_,j)=>j).filter(j=>j!==i)); }}));
+  }
   mergeInto(from, to){
     const E=this.state.E, n=v=>E.norm(String(v||"")).trim();
     const rules=[...this.state.rules];
@@ -2304,7 +2402,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
   profileObj(){
     return {v:1, created:(this.state.profile&&this.state.profile.created)||new Date().toISOString(), updated:new Date().toISOString(),
-      name:this.state.caseName||"", mode:this.state.mode, rules:this.state.rules, allow:this.state.allow, map:this.currentMap()};
+      name:this.state.caseName||"", mode:this.state.mode, rules:this.state.rules, allow:this.state.allow, map:this.currentMap(),
+      // הבחירה על מספרים ועל תאריכים היא של התיק, לא של הלשונית (Q1 בגרסה 5)
+      styles:{num:this.state.o.numStyle||"blank", date:this.state.o.dateStyle||"name"}};
   }
   // הפרופיל הוא ההבטחה שאותו אדם מקבל את אותו שם בכל מסמך בתיק. עד עכשיו הוא
   // חי רק כקובץ שהיא זוכרת לשמור; עכשיו הוא נכתב לדפדפן אחרי כל שינוי, מוצע
@@ -2522,7 +2622,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         else rules.push({value, kind:/^\[|^[\d\s+()-]+$/.test(replacement)?"OTHER":"NAME", replacement, auto:true});
       }
       const mode = prof.mode || this.state.mode;
-      this.setState({profile:prof, rules, allow:(prof.allow||[]).slice(), mode, err:""}, ()=>{
+      const st=prof.styles||{};
+      const o={...this.state.o, ...(st.num?{numStyle:st.num}:{}), ...(st.date?{dateStyle:st.date}:{})};
+      this.setState({profile:prof, rules, allow:(prof.allow||[]).slice(), mode, o, err:""}, ()=>{
         if(this.state.screen==="people"){
           const list=[...this.state.peo]; const E=this.state.E;
           for(const r of rules) if(r.kind==="NAME"||r.kind==="ORG"){
@@ -2589,7 +2691,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     // סימון ∅ אינו יודע את הסוג; הכלל שלו יודע
     const nameish=/^(שם|גוף|יישוב|מקום)/.test(I.label||"")||!!(rule&&["NAME","ORG","PLACE"].includes(rule.kind));
     const isDate=/^תאריך/.test(I.label||"")||!!(rule&&rule.kind==="DATE");
-    const cur=(rule&&rule.style)||(nameish?(S.mode==="block"?"black":S.mode==="label"?"label":"name"):isDate?"name":(S.o.numStyle||"blank"));
+    const cur=(rule&&rule.style)||(nameish?(S.mode==="block"?"black":S.mode==="label"?"label":"name"):isDate?(S.o.dateStyle||"name"):(S.o.numStyle||"blank"));
     const btn=on=>"padding:5px 10px;border-radius:12px;font-size:12px;white-space:nowrap;border:1px solid var(--line);"+(on?"background:var(--accent-soft);color:var(--accent-ink);font-weight:500":"color:var(--ink2)");
     const kind=rule?rule.kind:(nameish?"NAME":"OTHER");
     const act=(what,fn)=>e=>{ if(e&&e.stopPropagation) e.stopPropagation(); this.log.add("inline-act",{act:what}); this.setState({inline:null}); fn(); };
@@ -2597,7 +2699,11 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     return {inline:true,
       inlineStyle:`position:fixed;z-index:65;left:${I.x}px;top:${I.y}px;width:340px;max-width:calc(100vw - 24px);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:0 14px 40px rgba(0,0,0,.22)`,
       inlineStop:e=>e.stopPropagation(),
-      inlineValue:I.base||I.value, inlineRep:I.mode==="applied"?(I.rep||""):"", inlineKind:I.label||"",
+      // אות השימוש מוצגת חיוורת לפני השם, וכשבב לפני התיבה: היא של המסמך, התיבה של השם (Q6 בגרסה 5)
+      inlineValue:I.base||I.value, inlinePre:I.pre||"", inlineRep:I.mode==="applied"?(I.rep||""):"", inlineKind:I.label||"",
+      // שם של שתי מילים ומעלה מהרשימה: כל מילה ניתנת להסרה מהשם (Q2 בגרסה 5)
+      inlineHasWords:!!rule&&I.mode==="applied"&&this.wordItems(rule.value).length>0,
+      inlineWords:rule?this.wordItems(rule.value, ()=>this.log.add("inline-act",{act:"trim"})):[],
       inlineApplied:I.mode==="applied", inlineFlag:I.mode==="flag", inlineDel:I.mode==="del",
       inlineDraft:S.inlineDraft||"", onInlineDraft:e=>this.setState({inlineDraft:e.target.value}),
       onInlineKey:e=>{ e.stopPropagation(); if(e.key==="Enter") this.inlineSave(); if(e.key==="Escape") this.setState({inline:null}); },
@@ -2742,6 +2848,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       modeNote:MNOTE[S.mode],
       numStyle:S.o.numStyle||"blank", numBlank:(S.o.numStyle||"blank")==="blank", numLabel:S.o.numStyle==="label", numBlack:S.o.numStyle==="black",
       onNumStyle:e=>{ const v=e.target.value; this.log.add("num-style",{}); this.setState({o:{...S.o, numStyle:v}}, ()=>{ if(this.state.res) this.rerun(); }); },
+      dateStyle:S.o.dateStyle||"name", dateName:(S.o.dateStyle||"name")==="name", dateBlank:S.o.dateStyle==="blank", dateBlack:S.o.dateStyle==="black",
+      onDateStyle:e=>{ const v=e.target.value; this.log.add("date-style",{style:v}); this.setState({o:{...S.o, dateStyle:v}}, ()=>{ if(this.state.res) this.rerun(); else this.persistProfile(); }); },
       nerBox:S.nerBox, nerMsg:S.nerMsg,
       nerBarStyle:"height:100%;border-radius:2px;background:var(--accent);transition:width .25s ease;width:"+Math.round(S.nerPct||0)+"%",
       peoIn:S.peoIn, peoNote:S.peoNote, peoEmpty:!S.peo.length,
@@ -2835,7 +2943,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           "border:1px solid "+(p.auto?"var(--accent-soft)":"var(--line)")+";background:"+(p.auto?"var(--accent-soft)":"var(--panel)"),
         kindOpts:KIND_ORDER.map(k=>({value:k, label:KIND_NAME[k]||k, sel:(p.kind||"NAME")===k})),
         onKindSel:e=>this.setKind(i, e.target.value), onDel:()=>this.delPeo(i),
+        canTrim:String(p.value||"").trim().split(/\s+/).length>1, onTrim:()=>this.setState({trimPeo:S.trimPeo===i?null:i}),
         ...this.tipProps(p.value)})),
+      trimRow:S.trimPeo!=null&&!!S.peo[S.trimPeo], trimValue:S.trimPeo!=null&&S.peo[S.trimPeo]?S.peo[S.trimPeo].value:"",
+      trimWords:S.trimPeo!=null&&S.peo[S.trimPeo]?this.wordItems(S.peo[S.trimPeo].value):[],
+      onTrimClose:()=>this.setState({trimPeo:null}),
       // השגיאה של המסך הזה מוצגת ליד השדה, לא בראש העמוד מעל לכותרת
       rvErr:S.screen==="reverse"?S.err:"", errTop:(S.screen==="reverse"||(S.screen==="work"&&S.res))?"":S.err,
       rvIn:S.rvIn, rvOut:S.rvOut, rvCopyLabel:S.rvCopyLabel,
@@ -2931,7 +3043,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         this.log.add("new-doc",{}); },
       tip:!!S.tip, tipLabel:S.tip?S.tip.label:"", tipItems:S.tip?S.tip.items:[],
       tipMore:S.tip&&S.tip.items.length>=3?"שלוש הראשונות":"",
-      tipStyle:S.tip?("position:fixed;z-index:60;left:"+S.tip.x+"px;top:"+S.tip.y+"px;width:300px;max-width:calc(100vw - 24px);"+
+      // חלונית מידע בלבד: אינה תופסת לחיצות, אחרת היא חוסמת את הכפתור שמתחתיה כשהעכבר נשאר במקומו אחרי מעבר מסך
+      tipStyle:S.tip?("position:fixed;z-index:60;pointer-events:none;left:"+S.tip.x+"px;top:"+S.tip.y+"px;width:300px;max-width:calc(100vw - 24px);"+
         "background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;box-shadow:0 12px 34px rgba(0,0,0,.22)"):"",
       popup:!!S.popup, popupText:S.popup?S.popup.text:"",
       ...this.inlineView(),
@@ -3004,6 +3117,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       v.sheet = src.map((b,bi)=>({part:b.part, head:b.part!==(bi>0?src[bi-1].part:null), n:bi+1,
         segs:[{plain:true, mark:false, t:b.text||" "}]}));
     } else
+    v.legendDate = RES.applied.some(r=>/^תאריך/.test(r.label||"")&&r.rep&&r.rep!=="███");
     v.sheet = RES.preview.map((b,bi)=>{
       const segs=[]; let last=0;
       for(const m of b.marks){
@@ -3013,7 +3127,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         // נמחק ותוכל לבטל. לחיצה בוחרת את הכרטיס, ושם אפשר לעבור לשם או ל-███.
         if(m.del){
           if(m.s>last) segs.push({plain:true, mark:false, t:b.text.slice(last,m.s)});
-          const dkey="a|"+E.norm(m.val||"").trim();
+          const drec=RES.applied.find(x=>x.value===m.val);
+          const dkey="a|"+E.norm((drec&&(drec.of||drec.base))||m.val||"").trim();
           segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:"∅", badge:"",
             title:"הושמט: "+(m.val||"")+" — לחיצה פותחת עריכה במקום",
             style:"cursor:pointer;border-radius:3px;padding:0 3px;font-size:11px;color:var(--ink3);border:1px dashed var(--line);",
@@ -3052,23 +3167,30 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         if(m.s>last) segs.push({plain:true, mark:false, t:b.text.slice(last,m.s)});
         const src=RES.applied[m.id];
         const orig=(!m.amb && src)?src.value:"";
-        const selected = S.sel && src && ("a|"+E.norm(src.value).trim())===S.sel;
-        segs.push({plain:false, mark:true, id:pos, val:orig||(src?src.value:""), t:b.text.slice(m.s,m.e), badge:"",
-          title: (orig ? orig+" ← במקור" : "הוחלף — המקור אינו חד-משמעי")+" · לחיצה פותחת עריכה במקום",
-          // צורה ולא רק צבע (Q2): קו תחתון מלא, וצבע חזק יותר
+        const srcKey=src?("a|"+E.norm(src.of||src.base||src.value).trim()):"";
+        const selected = S.sel && src && srcKey===S.sel;
+        // אות השימוש חיוורת (Q6 בגרסה 5): "לליאת" נקרא כ-ל + ליאת, לא כשגיאת הקלדה
+        const mt=b.text.slice(m.s,m.e);
+        const bRep=src&&src.baseRep?String(src.baseRep):"";
+        const pre=(bRep&&mt.endsWith(bRep)&&mt.length>bRep.length)?mt.slice(0,mt.length-bRep.length):"";
+        // תאריך מוזז נראה אחרת מהחלפה רגילה (Q1 בגרסה 5): הוא נראה כמו טקסט שלא נגעו בו
+        const isDateMark=!!(src&&/^תאריך/.test(src.label||"")&&src.rep&&src.rep!=="███");
+        segs.push({plain:false, mark:true, id:pos, val:orig||(src?src.value:""), pre, t:mt.slice(pre.length), badge:"", kind:isDateMark?"date":"",
+          title: (isDateMark ? "תאריך מוזז — המקורי «"+(orig||"")+"» חוזר בהחזרת השמות" : (orig ? orig+" ← במקור" : "הוחלף — המקור אינו חד-משמעי"))+" · לחיצה פותחת עריכה במקום",
+          // צורה ולא רק צבע (Q2): קו תחתון מלא, וצבע חזק יותר; תאריך מוזז — קו מנוקד
           style:"cursor:pointer;border-radius:3px;box-decoration-break:clone;padding:1px 2px;font-weight:500;"+
             ((selected||S.hot===m.id)
-              ? "background:var(--accent);color:var(--panel);border-bottom:2px solid var(--accent);"
-              : "background:var(--accent-soft);color:var(--accent-ink);border-bottom:2px solid var(--accent);"),
+              ? "background:var(--accent);color:var(--panel);border-bottom:2px "+(isDateMark?"dotted":"solid")+" var(--accent);"
+              : "background:var(--accent-soft);color:var(--accent-ink);border-bottom:2px "+(isDateMark?"dotted":"solid")+" var(--accent);"),
           onClick:e=>{
             const r=RES.applied[m.id]; if(!r) return;
             const base=r.base||r.value, sv=String(r.value||"");
             const pre=(base&&sv.endsWith(base)&&sv.length>base.length)?sv.slice(0,sv.length-base.length):"";
             // הסמן של החיצים עוקב אחרי מה שנלחץ, אחרת "הבא" קופץ מהמקום הקודם
-            this.setState({markIdx:pos, filter:"all", cat:"", open:this.openWith("findings"), sel:"a|"+E.norm(r.value).trim(),
+            this.setState({markIdx:pos, filter:"all", cat:"", open:this.openWith("findings"), sel:"a|"+E.norm(r.of||r.base||r.value).trim(),
               pane:this.state.narrow?"find":this.state.pane, repDraft:r.rep||"",
               inline:this.inlineAt(e,{mode:"applied", value:r.value, base, kind:r.label||"", label:r.label||"", rep:r.baseRep||r.rep||"", text:b.text, s:m.s, e:m.e, pre, src:r.src}), inlineDraft:r.baseRep||r.rep||""}, ()=>{
-              const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape("a|"+E.norm(r.value).trim())+'"]');
+              const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape("a|"+E.norm(r.of||r.base||r.value).trim())+'"]');
               if(node && this.listEl){ const nr=node.getBoundingClientRect(), lr=this.listEl.getBoundingClientRect();
                 this.listEl.scrollTop += (nr.top-lr.top) - 40; }
             });
@@ -3142,6 +3264,24 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.groups = shown.map(g=>({
       key:g.key, value:g.value, count:g.count, why:g.why||"", review:!!g.review,
       arrow:g.ap?"←":"", rep:g.ap?g.rep:"לא הוחלף",
+      // הצורות של האדם הזה כשבבים (גרסה 5): אות השימוש חיוורת, ספירה לכל צורה,
+      // ולחיצה על שבב פותחת החלטה על הצורה הזאת בלבד
+      ...(()=>{
+        const forms=g.forms?[...g.forms.values()]:[];
+        const hasForms=!!g.ap&&(forms.length>1||forms.some(f=>f.pre));
+        const selKey=S.formSel&&S.formSel.startsWith(g.key+"|")?S.formSel.slice(g.key.length+1):"";
+        return {
+          hasForms,
+          forms:forms.map(f=>({pre:f.pre, rest:f.text.slice(f.pre.length), n:f.n,
+            title:f.pre?`הצורה «${f.text}»: האות ${f.pre} מהמסמך, השם מוחלף`:`הצורה «${f.text}»`,
+            style:"padding:2px 8px;border-radius:12px;font-size:12px;border:1px solid var(--line);"+(selKey===f.text?"background:var(--accent-soft);color:var(--accent-ink)":"color:var(--ink2)"),
+            onClick:e=>{ e.stopPropagation(); this.setState({formSel:selKey===f.text?null:g.key+"|"+f.text}); }})),
+          formSel:!!selKey, formSelText:selKey,
+          hasWords:!!g.ap&&(g.src==="list"||g.src==="sweep")&&this.wordItems(g.value).length>0,
+          words:this.wordItems(g.value, ()=>this.log.add("review-act",{act:"trim", from:"card"})),
+          onFormAllow:e=>{ e.stopPropagation(); this.log.add("allow-form",{}); this.setState({formSel:null}); this.addAllow(selKey); },
+        };
+      })(),
       // הפעולות גלויות בלי לחיצה: "אל תחליף" משאיר את הטקסט, "הסרה מהרשימה" מוחקת
       // את השם שהמודל טעה בו. עד עכשיו הן הופיעו רק אחרי לחיצה על הכרטיס, בלי רמז.
       isApplied:!!g.ap, isFlagged:!g.ap, fromList:g.src==="list"||g.src==="sweep",
@@ -3153,7 +3293,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         const rule=S.rules.find(r=>n(r.value)===n(g.base||g.value)||n(r.value)===n(g.value));
         const nameish=/^(שם|גוף|יישוב|מקום)/.test(g.label||"");
         const isDate=/^תאריך/.test(g.label||"");
-        const cur=(rule&&rule.style)||(nameish?(S.mode==="block"?"black":S.mode==="label"?"label":"name"):isDate?"name":(S.o.numStyle||"blank"));
+        const cur=(rule&&rule.style)||(nameish?(S.mode==="block"?"black":S.mode==="label"?"label":"name"):isDate?(S.o.dateStyle||"name"):(S.o.numStyle||"blank"));
         const btn=on=>"padding:5px 10px;border-radius:12px;font-size:12px;white-space:nowrap;"+(on?"background:var(--panel);box-shadow:var(--shadow);color:var(--ink);font-weight:500":"color:var(--ink2)");
         const set=st=>e=>{ e.stopPropagation(); this.setStyle(g.value, rule?rule.kind:(nameish?"NAME":"OTHER"), st, g.base); };
         return {
