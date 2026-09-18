@@ -183,3 +183,40 @@ test("M6: on a phone, tapping a mark keeps the document on screen", async ({ pag
   await expect(mark).toBeVisible();
   expect(await mark.evaluate((el) => !!el.offsetParent)).toBe(true);
 });
+
+async function tourToWork(page) {
+  await H.serveEngineWithStub(page);
+  await page.goto("/index.html");
+  await expect(page.locator("#dc-root")).toBeAttached({ timeout: 60000 });
+  await page.getByRole("button", { name: /סיור קצר על מסמך לדוגמה/ }).click();
+  const tour = page.locator("[data-tour]");
+  await tour.getByRole("button", { name: /טעינת המסמך לדוגמה/ }).click();
+  await expect(tour).toContainText("מי בתיק", { timeout: 20000 });
+  return tour;
+}
+const spotMatches = (page, sel) => page.evaluate((sel) => {
+  const s = document.querySelector("[data-spot]"), t = document.querySelector(sel);
+  if (!s || !t) return false;
+  const a = s.getBoundingClientRect(), b = t.getBoundingClientRect();
+  return Math.abs(a.top - (b.top - 6)) <= 1 && Math.abs(a.height - (b.height + 12)) <= 1;
+}, sel);
+
+test("L1, L2, L4: the spotlight sits exactly on its target, step 5 marks the case field, and the report is blocked in the tour", async ({ page }) => {
+  const tour = await tourToWork(page);
+  await expect.poll(() => spotMatches(page, "[data-tour-target=people]"), { timeout: 5000 }).toBe(true);
+  await tour.getByRole("button", { name: "המשך", exact: true }).click();
+  await expect(tour).toContainText("יישובים", { timeout: 20000 });
+  await expect.poll(() => spotMatches(page, "[data-tour-target=places]"), { timeout: 5000 }).toBe(true);
+  await tour.getByRole("button", { name: /החלת הקבוצה/ }).click();
+  await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
+  await tour.getByRole("button", { name: "המשך", exact: true }).click();
+  await expect(tour).toContainText("שמירה");
+  await expect.poll(() => spotMatches(page, "[data-tour-target=case]"), { timeout: 5000 }).toBe(true);
+  // the report download is refused like copy and Word
+  let downloaded = false;
+  page.on("download", () => { downloaded = true; });
+  await page.getByRole("button", { name: /מה נוקה מהקובץ/ }).click();
+  await page.getByRole("button", { name: /הורדת דוח השחרה/ }).click();
+  await expect(page.getByText(/בסיור אין הורדת דוח/)).toBeVisible();
+  expect(downloaded).toBe(false);
+});
