@@ -215,8 +215,10 @@ test("L1, L2, L4: the spotlight sits exactly on its target, step 5 marks the cas
   // the report download is refused like copy and Word
   let downloaded = false;
   page.on("download", () => { downloaded = true; });
-  await page.getByRole("button", { name: /מה נוקה מהקובץ/ }).click();
-  await page.getByRole("button", { name: /הורדת דוח השחרה/ }).click();
+  // both buttons are outside the lit area, where a mouse click is held; activate them directly,
+  // as a keyboard press would — the report must still be refused
+  await page.getByRole("button", { name: /מה נוקה מהקובץ/ }).dispatchEvent("click");
+  await page.getByRole("button", { name: /הורדת דוח השחרה/ }).dispatchEvent("click");
   await expect(page.getByText(/בסיור אין הורדת דוח/)).toBeVisible();
   expect(downloaded).toBe(false);
 });
