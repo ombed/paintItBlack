@@ -1383,6 +1383,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   async scanNames(){
     const E=this.state.E, buf=this.state.buf;
     this._scannedBuf=buf; this._scanNer=!!this.state.o.ner;
+    // מה שהמודל מצא שייך למסמך שנסרק (M2 בביקורת השנייה): מסמך חדש מתחיל בלי זיכרון
+    // מהקודם, אחרת שם של לקוח אחר הופיע ב"לבדיקה" וחסם את הייצוא
+    this._modelFound=null;
     this.setState({screen:"busy", busyT:"מאתר שמות…", peoKept:[]});
     try{
       const blocks = (await this.blocksOf(buf)).concat(this.nameBlock());
@@ -2954,7 +2957,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           notice:"", copied:false, copyLabel:"העתקה ל-AI", sugAsk:false, casesHidden:false, peo:[], peoSug:[], peoKept:[],
           caseName:"", profile:null, rules:[], allow:[], profileDirty:false, approved:[], undoN:0, redoN:0, lastProfile, cases:this.readCases()},
           ()=>{ try{ scrollTo(0,0); }catch(_){} });
-        this._undo=[]; this._redo=[];
+        this._undo=[]; this._redo=[]; this._modelFound=null; this._lastScan=null;
         this.log.add("new-doc",{}); },
       tip:!!S.tip, tipLabel:S.tip?S.tip.label:"", tipItems:S.tip?S.tip.items:[],
       tipMore:S.tip&&S.tip.items.length>=3?"שלוש הראשונות":"",
