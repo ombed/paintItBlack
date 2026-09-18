@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./base");
 const H = require("./helpers");
 
 /* Two spellings of one woman on the people screen (Q12).

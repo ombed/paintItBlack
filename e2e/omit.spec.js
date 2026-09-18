@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./base");
 const H = require("./helpers");
 
 /* Omission, as she asked for it: numbers and dates gone by default, a

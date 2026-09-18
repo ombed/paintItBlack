@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./base");
 const H = require("./helpers");
 
 /* UX #2: the 180 MB model download started on "המשך" without a word, phones

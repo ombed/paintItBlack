@@ -339,8 +339,9 @@ const GM=new RegExp(BD+"(?:מר|השופט|הרשם|המצהיר|העד|התוב
   "המערער|המנוח|יליד|בעלה|גרושה|בנו|אביו)"+NWE,"u");
 function cleanName(raw){
   let w=raw.trim().split(/\s+/);
+  // "כהן" ו"שגב" הם שמות משפחה, לא כ+הן ו-ש+גב: בלי החריג "דוד כהן:" נחתך ל"דוד"
   const bad=x=>{const c=x.replace(/['"-]/g,"");
-    return STOP.has(c)||(c.length>2&&PFX.has(c[0])&&STOP.has(c.slice(1)))};
+    return STOP.has(c)||(c.length>2&&PFX.has(c[0])&&STOP.has(c.slice(1))&&!POOL.he_s.includes(c)&&!POOL.ar_s.includes(c))};
   while(w.length&&bad(w[w.length-1]))w.pop();
   while(w.length&&bad(w[0]))w.shift();
   if(!w.length||w.length>3)return null;
@@ -393,10 +394,14 @@ function anchored(text){
             if(!nameish(f,new Set()))continue;
           }}
         // תור דיבור: "מועד אחרון לתגובה:" ו"בעניין הקטין:" הם תוויות, לא דוברים
-        if(a.k==="speaker"&&c.split(/\s+/).some(w=>FORMLABEL.has(w)||STOP.has(w)||COMMON.has(w)||VRB.has(w)||ROLEWORD.test(w)))continue;
+        // מילה נפוצה שהיא גם שם פרטי מוכר ("דוד" — גם דוד של הילד) אינה פוסלת דובר בן שתיים-שלוש
+        // מילים: "דוד כהן:" פעמיים הוא אדם, ובלי המודל הוא נשמט מהרשימה. דובר של מילה אחת נשאר זהיר.
+        const csp=c.split(/\s+/), firstName=w=>POOL.he_m.includes(w)||POOL.he_f.includes(w)||POOL.ar_m.includes(w)||POOL.ar_f.includes(w)||FEM.has(w)||MASC.has(w);
+        if(a.k==="speaker"&&csp.some(w=>FORMLABEL.has(w)||STOP.has(w)||(COMMON.has(w)&&!(csp.length>1&&firstName(w)))||VRB.has(w)||ROLEWORD.test(w)))continue;
         // "סיכמנו:" ו"הבנתי:" הם פועל בגוף ראשון לפני נקודתיים, לא דובר. רק מילה
         // בודדת: "אברה ברהנו:" הוא דובר, ו"ברהנו" נגמר ב-נו כמו פועל.
-        if(a.k==="speaker"&&!/\s/.test(c)&&/(?:נו|תי)$/.test(norm(c))&&!KNOWN_FIRST.has(norm(c)))continue;
+        // המילה הראשונה נבדקת גם כשאחריה שם משפחה: "אמרנו כהן:" פותח בפועל.
+        if(a.k==="speaker"){const f0=norm(c.split(/\s+/)[0]); if(/(?:נו|תי)$/.test(f0)&&!KNOWN_FIRST.has(f0)&&(!/\s/.test(c)||f0.length>3))continue;}
         let s=m.index+m[0].indexOf(m[g]); const o=m[g].indexOf(c); if(o>0)s+=o;
         const e=s+c.length,k=s+":"+e; if(seen.has(k))continue; seen.add(k);
         let role=null;

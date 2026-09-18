@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./base");
 const H = require("./helpers");
 
 /* The round trip is her daily task: redact, send to the AI, put the real

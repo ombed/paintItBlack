@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./base");
 const H = require("./helpers");
 
 /* Release 4, wave 2: the work screen (qa-audit/ux-1, run-1). Each test

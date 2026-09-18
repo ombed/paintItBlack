@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./base");
 
 /* Replaces the old "grep the HTML for {{" check, which could not work.
    index.html holds the template and support.js renders it, so the markers

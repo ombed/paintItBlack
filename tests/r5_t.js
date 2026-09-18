@@ -101,5 +101,14 @@ console.log("\n— a place or a name that starts with ה keeps it after a prefix
   ok(out.includes("להילה"), "a first name keeps its ה: " + out);
 }
 
+console.log("\n— a speaker named כהן or שגב keeps the surname, and a first name that is also a word (דוד) still speaks —");
+{
+  const names = (t) => C.anchored(t).filter((h) => h.anchor === "speaker").map((h) => h.text);
+  ok(names("דוד כהן: הגעתי.")[0] === "דוד כהן", "the whole speaker, not כ+הן stripped: " + JSON.stringify(names("דוד כהן: הגעתי.")));
+  ok(names("רונית שגב: תודה.")[0] === "רונית שגב", "שגב is a surname: " + JSON.stringify(names("רונית שגב: תודה.")));
+  ok(names("דוד: הגעתי.").length === 0, "the bare common word alone is still not a speaker");
+  ok(names("אמרנו כהן: לא.").length === 0, "a verb in the speaker slot is still rejected");
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exitCode = 1;

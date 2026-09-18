@@ -25,12 +25,14 @@ Next: extend it to places, organisations, restore of AI answers, and the Word st
 
 ### 2. Invariants checked after every run, in every browser test
 
-A shared `afterEach` hook asserts the product's promises on whatever screen the test ended on, so the 170 existing browser tests become checks of rules they were never written for:
+A shared automatic fixture asserts the product's promises on whatever screen the test ended on, so the 170 existing browser tests become checks of rules they were never written for:
 
 - No card title starts or ends with punctuation, and no two cards are the same letters.
 - Every listed value whose letters appear in the document has at least one occurrence to show, and is not reported as "not in the document".
 - The spotlight, the inline editor and the tip sit within one pixel of what they point at.
 - No horizontal overflow, no page error, no runtime warning in the console.
+
+**Done.** The checks live in the app, in `selfCheck()` in index.html, so layer 5 can reuse them in real sessions. `e2e/base.js` runs them automatically after every passing browser test, once animations settle. All 166 browser tests pass under it. `e2e/selfcheck.spec.js` breaks each rule on purpose and expects it reported, so a check that never fires cannot pass for a clean app. Writing those tests found one real miss: a repeated speaker "דוד כהן" was never listed without the model, because "כהן" was read as כ plus the stop word "הן". A test opts out with the `no-self-check` annotation only when it leaves the page broken by design.
 
 ### 3. A misbehaving user
 
@@ -61,8 +63,8 @@ QA runs use documents with real typography, carry the layer-3 misbehaviour list,
 | Step | What | Effort | Status |
 |---|---|---|---|
 | 1 | Shape suite for names, organisations and numbers | — | done |
-| 2 | Invariants after every browser test | about a day | next |
-| 3 | Misbehaving-user helper on the main journeys | about a day | |
+| 2 | Invariants after every browser test | about a day | done |
+| 3 | Misbehaving-user helper on the main journeys | about a day | next |
 | 6 | Class-not-instance rule in the PR template | an hour | |
 | 5 | Self-check events in the session log | half a day | |
 | 1b | Shape suite extended to places, restore and Word structure | about a day | |

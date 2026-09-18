@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./base");
 
 /* The check the project could not run before: drive the real browser
    through the model path and read the console it prints. Every hard bug
