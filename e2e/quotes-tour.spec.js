@@ -103,3 +103,24 @@ test("a click outside the lit area does not reach the page, and the tour says wh
   await expect(tour).toContainText("יישובים", { timeout: 20000 });
   await expect(page.locator("[data-tour-nudge]")).toHaveCount(0);
 });
+
+test("on a phone, a header button inside the lit area does not take the tour away", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 700 });
+  const tour = await tourToWork(page);
+  await tour.getByRole("button", { name: "המשך", exact: true }).click();
+  await expect(tour).toContainText("יישובים", { timeout: 20000 });
+  await tour.getByRole("button", { name: /החלת הקבוצה/ }).click();
+  await expect(tour).toContainText("מסך הבדיקה", { timeout: 20000 });
+  await page.mouse.move(195, 350);
+  await page.mouse.wheel(0, 400);
+  await page.waitForTimeout(300);
+  const back = page.getByRole("button", { name: /רשימת השמות/ }).first();
+  const box = await back.boundingBox();
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+  await expect(page.locator("[data-bar]")).toBeVisible();
+  await expect(tour).toContainText("מסך הבדיקה");
+  await expect(page.locator("[data-tour-nudge]")).toBeVisible();
+  // a word in the document, inside the target, still opens its editor
+  await page.locator("[data-work] [data-mark]").first().click();
+  await expect(page.locator("[data-inline]")).toBeVisible();
+});

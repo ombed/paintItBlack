@@ -2493,6 +2493,21 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     // מסך שנכנס מחליק 6 פיקסלים (rise); מדידה באמצע התנועה השאירה את הזרקור נמוך מהיעד עד שינוי
     // גודל (L1). סוף אנימציה ושינוי גודל של היעד עצמו (מפה שנפתחה) מודדים שוב.
     document.addEventListener("animationend", this._onSpot, true);
+    /* לחיצה בעכבר מחוץ ליעד של הצעד נעצרת (דיווח המשתמש, 18.9): החוסמים סביב הזרקור לא הספיקו,
+       כי כשהמסמך נגלל אל מתחת לכותרת העליונה, האזור המואר כולל את הכותרת וכפתור "‹ רשימת השמות"
+       שבה שבר את הסיור. מותר: היעד עצמו, כרטיס הסיור, חלונית העריכה וחלוניות שנפתחו ממנו.
+       הפעלה מהמקלדת לא נעצרת כאן (detail 0); הכפתורים עצמם מסרבים בסיור כשצריך. */
+    this._tourGuard=e=>{
+      const t=this.state.tour; if(!t||!e.isTrusted||!e.detail) return;
+      const cur=this.constructor.TOUR[t.i], target=cur&&cur.target?document.querySelector(cur.target):null;
+      const el=e.target;
+      if(!target||!el||!el.closest) return;
+      if(target.contains(el)||el.closest("[data-tour],[data-inline],[data-notice],[data-intro],[data-tip]")) return;
+      e.preventDefault(); e.stopPropagation();
+      this.log.add("tour",{at:"blocked-click"});
+      if(t.nudge!==t.i) this.setState({tour:{...t, nudge:t.i}});
+    };
+    document.addEventListener("click", this._tourGuard, true);
     this._spotRO=typeof ResizeObserver==="function"?new ResizeObserver(this._onSpot):null;
   };
   // הזרקור: מלבן סביב מה שהצעד מדבר עליו, והשאר מוחשך. אינו חוסם לחיצות.
@@ -2536,7 +2551,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.log.add("tour",{at:"close", step:t.i, done:t.i>=this.constructor.TOUR.length-1});
     this.tourMarkSeen();
     const o={...this.state.o, ner:this._tourNer===undefined?this.state.o.ner:this._tourNer};
-    if(this._onSpot){ window.removeEventListener("resize", this._onSpot); window.removeEventListener("scroll", this._onSpot, true); document.removeEventListener("animationend", this._onSpot, true); this._onSpot=null; }
+    if(this._onSpot){ window.removeEventListener("resize", this._onSpot); window.removeEventListener("scroll", this._onSpot, true); document.removeEventListener("animationend", this._onSpot, true); document.removeEventListener("click", this._tourGuard, true); this._onSpot=null; }
     if(this._spotRO){ this._spotRO.disconnect(); this._spotRO=null; this._spotEl=null; }
     // שם תיק שהוקלד בסיור הוא חלק מהמסמך הבדוי (M1 בביקורת השנייה): הוא לא עובר למסמך
     // הבא, ולא נשמר כתיק — הסיור מבטיח ששום דבר ממנו לא נשמר
