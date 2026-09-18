@@ -977,13 +977,13 @@ button:disabled{opacity:.55;cursor:not-allowed}
               </div>
               <p style="margin:8px 0 0;font-size:12px;color:var(--ink3);line-height:1.6">{{ profileNote }}</p>
               <sc-if value="{{ hasMine }}">
-                <div style="margin-top:13px;border-top:1px solid var(--line2)">
+                <div data-mine style="margin-top:13px;border-top:1px solid var(--line2)">
                   <sc-for list="{{ mineItems }}" as="m" hint-placeholder-count="2">
                     <div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line2);font-size:13px">
                       <span style="font-size:11px;font-weight:500;color:var(--ink2);background:var(--panel2);border-radius:10px;padding:2px 8px">{{ m.kind }}</span>
                       <span>{{ m.value }}</span>
                       <sc-if value="{{ m.rep }}"><span style="color:var(--accent-ink);font-size:12.5px">← {{ m.rep }}</span></sc-if>
-                      <button onClick="{{ m.onDel }}" style="margin-inline-start:auto;color:var(--ink3);width:24px;height:24px;border-radius:50%" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
+                      <button onClick="{{ m.onDel }}" aria-label="הסרה מהרשימה" title="הסרה מהרשימה — הטקסט המקורי חוזר; אפשר לבטל" style="margin-inline-start:auto;color:var(--ink3);width:24px;height:24px;border-radius:50%" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
                     </div>
                   </sc-for>
                 </div>
@@ -1225,6 +1225,8 @@ class Component extends DCLogic {
         return;
       }
       if((e.key==="Enter"||e.key===" ")&&e.target&&e.target.matches&&e.target.matches("[data-mark]")){
+        // פתיחה מהמקלדת (M5): הפוקוס עובר לחלונית, ו-Escape מחזיר אותו לסימון
+        this._inlineByKey=e.target; this._inlineFocused=false;
         e.preventDefault(); e.target.click(); return;
       }
       if(!(e.ctrlKey||e.metaKey)) return;
@@ -1256,9 +1258,12 @@ class Component extends DCLogic {
     };
     addEventListener("beforeunload", this._unload);
     addEventListener("popstate", this._pop);
+    this._follow=()=>{ if(this.state.inline||this.state.tip) this.followAnchors(); };
+    addEventListener("scroll", this._follow, true); addEventListener("resize", this._follow);
   }
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); removeEventListener("resize", this._resize);
     removeEventListener("beforeunload", this._unload); removeEventListener("popstate", this._pop);
+    removeEventListener("scroll", this._follow, true); removeEventListener("resize", this._follow);
     if(this._barObs) this._barObs.disconnect(); }
   /* ביומן של הסשן האמיתי 347 מתוך 375 האירועים היו "screen" — אותו מסך, שוב ושוב,
      בכל רינדור. הארגומנט הראשון של ההוק הוא ה-props הקודמים, לא ה-state הקודם, ולכן
@@ -1275,6 +1280,13 @@ class Component extends DCLogic {
       const b=document.querySelector("[data-intro] button"); if(b){ b.focus(); this._introFocused=true; }
     }
     if(!this.state.intro) this._introFocused=false;
+    // עריכה במקום שנפתחה מהמקלדת: הפוקוס נכנס אליה; כשהיא נסגרת הוא חוזר לסימון שפתח אותה (M5)
+    if(this.state.inline&&this._inlineByKey&&!this._inlineFocused){
+      const f=document.querySelector("[data-inline] input, [data-inline] button, [data-inline] select"); if(f){ f.focus(); this._inlineFocused=true; }
+    } else if(!this.state.inline&&this._inlineByKey){
+      const m=this._inlineByKey; this._inlineByKey=null; this._inlineFocused=false;
+      if(m&&document.contains(m)) m.focus();
+    }
     // הזרקור של הסיור נמדד אחרי שהמסך צויר, פעם אחת לכל צעד+מסך+מקטע פתוח
     if(this.state.tour){
       const key=this.state.tour.i+"|"+this.state.screen+"|"+(this.state.open||[]).join(",");
@@ -1748,7 +1760,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(t && t.pin && !pin) return;
     const r=e&&e.currentTarget&&e.currentTarget.getBoundingClientRect
       ? e.currentTarget.getBoundingClientRect() : {left:20, width:0, bottom:80};
-    this.setState({tip:{label, items, pin:!!pin,
+    this.setState({tip:{label, items, pin:!!pin, anchor:(e&&e.currentTarget)||null,
       x:Math.max(12, Math.min(r.left+r.width/2-150, innerWidth-312)), y:r.bottom+8}});
   }
   hideTip(){ const t=this.state.tip; if(t&&!t.pin) this.setState({tip:null}); }
@@ -2078,7 +2090,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
   // מוסיף מקטע לפתוחים בלי לסגור אחרים
   openWith = k => { const o=Array.isArray(this.state.open)?this.state.open:[]; return o.includes(k)?o:[...o,k]; };
-  dropRule = v => { this.log.add("drop-rule",{}); this.setState({rules:this.state.rules.filter(r=>r.value!==v)}, ()=>this.rerun()); };
+  // מחיקה מרשימת הפרופיל היא החלטה כמו כל אחרת (M7 בביקורת השנייה): צעד ביטול משלה, ושורה שאומרת מה קרה
+  dropRule = v => { this.pushHistory(); this.log.add("drop-rule",{}); this.setState({rules:this.state.rules.filter(r=>r.value!==v), notice:`«${v}» הוסר מהרשימה, והטקסט המקורי חזר.`}, ()=>this.rerun()); };
   // "לא שם": הכלל יורד מהרשימה על כל צורותיו, והטקסט הזה לא יוצע שוב
   notAName = (base, v) => { this.pushHistory(); this.log.add("not-a-name",{}); return this.setState({allow:this.state.allow.includes(v)?this.state.allow:[...this.state.allow, v],
     rules:this.state.rules.filter(r=>r.value!==base && r.value!==v)}, ()=>this.rerun()); };
@@ -2216,12 +2229,17 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     return p;
   }
   currentMap(){
-    const m={}, RES=this.state.res;
+    const m={}, RES=this.state.res, E=this.state.E, n=v=>E?E.norm(String(v||"")).trim():String(v||"");
+    // "זה אותו אחד כמו" (M3 בביקורת השנייה): המקור שמוזג חולק כינוי עם היעד. זוג
+    // משלו במפה הפך את הכינוי ל"משותף לשניים", וההחזרה ויתרה עליו. היא אמרה שזה
+    // אותו אדם — הכינוי חוזר ליעד, והמקור אינו זוג נפרד.
+    const merged=new Set((this.state.rules||[]).filter(r=>r.sameAs&&r.sameAs!==r.value).map(r=>n(r.value)));
     if(RES) for(const r of RES.applied){
       const v=r.base||r.value, rp=r.baseRep||r.rep;
+      if(merged.has(n(v))) continue;
       if(v&&rp&&rp!=="███"&&!(v in m)) m[v]=rp;
     }
-    for(const r of this.state.rules) if(r.replacement) m[r.value]=r.replacement;
+    for(const r of this.state.rules) if(r.replacement&&!merged.has(n(r.value))) m[r.value]=r.replacement;
     return m;
   }
   /* "זה אותו אחד כמו" (גרסה 3): עד כאן הכרטיס העתיק את השם הבדוי של היעד לכלל
@@ -2677,11 +2695,34 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      של הכרטיס — תחליף עם תצוגה מקדימה של המשפט, שלוש הבחירות, "אותו אדם כמו",
      "אל תחליף", "לא שם". היא אמרה שהיא מעדיפה לעבוד מתוך הטקסט ולא מהצד. הפאנל
      נשאר כמו שהיה; כל פעולה כאן היא אותה פעולה, נרשמת ביומן עם origin:"inline". */
+  popPos(r){ let x=Math.max(12, Math.min(r.left+r.width/2-170, innerWidth-352)), y=r.bottom+8; if(y>innerHeight-260) y=Math.max(12, r.top-250); return {x,y}; }
   inlineAt(e, info){
-    let x=24, y=80;
-    try{ const r=e.currentTarget.getBoundingClientRect(); x=Math.max(12, Math.min(r.left+r.width/2-170, innerWidth-352)); y=r.bottom+8; if(y>innerHeight-260) y=Math.max(12, r.top-250); }catch(_){}
+    let x=24, y=80, anchor=null;
+    try{ anchor=e.currentTarget; const p=this.popPos(anchor.getBoundingClientRect()); x=p.x; y=p.y; }catch(_){}
     this.log.add("inline-open",{mode:info.mode, kind:info.label||""});
-    return {...info, x, y};
+    return {...info, x, y, anchor};
+  }
+  /* החלונית והרמז נעים עם הסימון שלהם (M4 בביקורת השנייה): הם קבועים על המסך, ובגלילה
+     של העמוד או של המסמך נשארו במקום וכיסו שורה אחרת. בגלילה הם ממוקמים מחדש לפי
+     הסימון, ונסגרים כשהוא יוצא מהמסך או נעלם. */
+  followAnchors(){
+    if(this._followRaf) return;
+    this._followRaf=requestAnimationFrame(()=>{
+      this._followRaf=null;
+      const S=this.state, up={};
+      const gone=a=>!a||!document.contains(a);
+      if(S.inline&&S.inline.anchor){
+        const a=S.inline.anchor;
+        if(gone(a)) up.inline=null;
+        else{ const r=a.getBoundingClientRect(); if(r.bottom<0||r.top>innerHeight) up.inline=null; else{ const p=this.popPos(r); if(p.x!==S.inline.x||p.y!==S.inline.y) up.inline={...S.inline, x:p.x, y:p.y}; } }
+      }
+      if(S.tip&&S.tip.anchor){
+        const a=S.tip.anchor;
+        if(gone(a)) up.tip=null;
+        else{ const r=a.getBoundingClientRect(); if(r.bottom<0||r.top>innerHeight) up.tip=null; else{ const x=Math.max(12, Math.min(r.left+r.width/2-150, innerWidth-312)), y=r.bottom+8; if(x!==S.tip.x||y!==S.tip.y) up.tip={...S.tip, x, y}; } }
+      }
+      if(Object.keys(up).length) this.setState(up);
+    });
   }
   inlinePreview(info, draft){
     if(!info||!info.text) return "";
@@ -2977,7 +3018,9 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         const pairs=Object.entries(map).map(([real,fake])=>[surface(real),fake]);
         const r=E.restoreNames(S.rvIn, pairs);
         this.log.add("restore",{count:r.count});
-        this.setState({rvOut:r.text, rvCount:r.count, err: r.count?"":"לא נמצא אף שם חלופי בטקסט. כדאי לבדוק שהפרופיל תואם למסמך."},
+        // כינוי שמשותף ליותר מאדם אחד אינו "לא נמצא" — הוא נמצא ולא הוחזר, וזה מה שנאמר (M3)
+        const conflictMsg=(r.conflict&&r.conflict.length)?`«${r.conflict.join("», «")}» ${r.conflict.length===1?"הוא כינוי":"הם כינויים"} של יותר מאדם אחד במסמך הזה, ולכן לא הוחזר${r.conflict.length===1?"":"ו"}. אפשר לתקן בכרטיס של אחד מהם.`:"";
+        this.setState({rvOut:r.text, rvCount:r.count, err: r.count?(conflictMsg?conflictMsg:""):(conflictMsg||"לא נמצא אף שם חלופי בטקסט. כדאי לבדוק שהפרופיל תואם למסמך.")},
           ()=>{ const el=document.querySelector("[data-rv-result]"); if(el&&el.scrollIntoView) el.scrollIntoView({block:"start", behavior:"smooth"}); });
       },
       // אחרי החזרה, ההעתקה היא הפעולה הראשית; לפני — ההחזרה (UX #19). ריק — אין מה להחזיר (UX #20).
@@ -3138,7 +3181,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:"∅", badge:"",
             title:"הושמט: "+(m.val||"")+" — לחיצה פותחת עריכה במקום",
             style:"cursor:pointer;border-radius:3px;padding:0 3px;font-size:11px;color:var(--ink3);border:1px dashed var(--line);",
-            onClick:e=>this.setState({sel:dkey, filter:"all", cat:"", open:this.openWith("findings"), pane:this.state.narrow?"find":this.state.pane,
+            onClick:e=>this.setState({sel:dkey, filter:"all", cat:"", open:this.openWith("findings"), pane:this.state.pane,
               inline:this.inlineAt(e,{mode:"del", value:m.val||"", base:m.val||"", kind:"", label:"נמחק", text:b.text, s:m.s, e:m.s, pre:""}), inlineDraft:""}, ()=>{
               const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape(dkey)+'"]');
               if(node && this.listEl){ const nr=node.getBoundingClientRect(), lr=this.listEl.getBoundingClientRect(); this.listEl.scrollTop += (nr.top-lr.top) - 40; }
@@ -3160,7 +3203,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
             style:"cursor:pointer;border-radius:3px;box-decoration-break:clone;padding:1px 2px;"+
               "background:var(--warn-soft);color:var(--warn);border-bottom:2px dashed var(--warn);font-weight:500;",
             onClick:e=>this.setState({sel:fkey, filter:"all", cat:"",
-              open:this.openWith("findings"), pane:this.state.narrow?"find":this.state.pane,
+              open:this.openWith("findings"), pane:this.state.pane,
               inline:this.inlineAt(e,{mode:"flag", value:m.val||"", base:m.val||"", kind:"", label:fl.label||"לבדיקה", text:b.text, s:m.s, e:m.e, pre:""}), inlineDraft:""}, ()=>{
                 const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape(fkey)+'"]');
                 if(node && this.listEl){ const nr=node.getBoundingClientRect(), lr=this.listEl.getBoundingClientRect();
@@ -3194,7 +3237,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
             const pre=(base&&sv.endsWith(base)&&sv.length>base.length)?sv.slice(0,sv.length-base.length):"";
             // הסמן של החיצים עוקב אחרי מה שנלחץ, אחרת "הבא" קופץ מהמקום הקודם
             this.setState({markIdx:pos, filter:"all", cat:"", open:this.openWith("findings"), sel:"a|"+E.norm(r.of||r.base||r.value).trim(),
-              pane:this.state.narrow?"find":this.state.pane, repDraft:r.rep||"",
+              pane:this.state.pane, repDraft:r.rep||"",
               inline:this.inlineAt(e,{mode:"applied", value:r.value, base, kind:r.label||"", label:r.label||"", rep:r.baseRep||r.rep||"", text:b.text, s:m.s, e:m.e, pre, src:r.src}), inlineDraft:r.baseRep||r.rep||""}, ()=>{
               const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape("a|"+E.norm(r.of||r.base||r.value).trim())+'"]');
               if(node && this.listEl){ const nr=node.getBoundingClientRect(), lr=this.listEl.getBoundingClientRect();
@@ -3369,7 +3412,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.mineItems = S.rules.map(r=>({kind:this.kindLabel(E.KINDLBL[r.kind]||r.kind), value:r.value, rep:r.replacement||"",
       onDel:()=>this.dropRule(r.value)}))
       .concat(S.allow.map(a=>({kind:"אל תחליף", value:a, rep:"", onDel:()=>{
-        this.setState({allow:S.allow.filter(x=>x!==a)}, ()=>this.rerun()); }})));
+        this.pushHistory(); this.log.add("drop-allow",{});
+        this.setState({allow:S.allow.filter(x=>x!==a), notice:`«${a}» כבר אינו מותר, ויוחלף אם יימצא.`}, ()=>this.rerun()); }})));
 
     // "בטוח לשליחה" (החלטה Q2/Q8 ב-docs/PLAN-v18.md): שמות ומספרים חייבים להיעלם —
     // דליפה, כמעט-התאמה, שם שלא ברשימה, או ממצא פתוח מסוג מזהה (ת"ז, טלפון, דוא"ל,

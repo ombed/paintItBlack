@@ -90,3 +90,96 @@ test("M2: model findings of the previous document are not pending on the next on
   await expect(page.locator("[data-bar]")).not.toContainText("גדי פרץ");
   await expect(page.locator("[data-work]")).not.toContainText("גדי פרץ");
 });
+
+test("M3: after 'same person as', the restore returns the person she merged into", async ({ page }) => {
+  const D = ["פרוטוקול", "שירה ברקוביץ: פתחתי.", "לאה ברקוביץ: אני הסבתא.", "שירה ברקוביץ: תודה.", "לאה ברקוביץ: בבקשה."].join("\n");
+  await toWork(page, D);
+  // decline nothing: the two reach the check screen apart, then merge לאה into שירה from the card
+  const leaBefore = (await page.locator('[data-mark][data-val="לאה ברקוביץ"]').first().innerText()).trim();
+  const fake = (await page.locator('[data-mark][data-val="שירה ברקוביץ"]').first().innerText()).trim();
+  const card = page.locator("[data-group]").filter({ has: page.locator("span:first-child", { hasText: /^לאה ברקוביץ$/ }) }).first();
+  await card.locator("span:first-child").first().click();
+  await card.getByRole("combobox").first().selectOption("שירה ברקוביץ");
+  await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).not.toContain(leaBefore);
+  expect((await sheet(page).innerText()).split(fake).length - 1).toBeGreaterThanOrEqual(4);
+  await page.getByRole("button", { name: "החזרת שמות מתשובת AI" }).click();
+  await page.getByPlaceholder("הדבקת תשובת ה-AI…").fill(`${fake} הגיעה לדיון.`);
+  await page.getByRole("button", { name: "החזרת שמות", exact: true }).click();
+  await expect(page.locator("[data-rv-out]")).toContainText("שירה ברקוביץ הגיעה לדיון.");
+  await expect(page.locator("[data-rv-result]")).toContainText("שם אחד הוחזר");
+  await expect(page.getByText(/לא נמצא אף שם חלופי/)).toHaveCount(0);
+});
+
+test("M7: deleting from the profile list is one undo step of its own, with a notice", async ({ page }) => {
+  await toWork(page, DOC);
+  // an earlier, unrelated change: the ID becomes a label
+  await page.locator('[data-mark][data-val="034567891"]').first().click();
+  await page.locator("[data-inline]").getByRole("button", { name: /תווית|שם/ }).first().click();
+  await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toMatch(/\[/);
+  const labelled = await sheet(page).innerText();
+  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  const row = page.locator("[data-mine] > div").filter({ hasText: "מרים לוין" }).first();
+  await row.getByRole("button", { name: "הסרה מהרשימה" }).click();
+  await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("מרים לוין");
+  const notice = page.locator("[data-notice]");
+  await expect(notice).toContainText("מרים לוין");
+  // one undo brings the rule back and leaves the label alone
+  await notice.getByRole("button", { name: /ביטול/ }).click();
+  await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).not.toContain("מרים לוין");
+  expect(await sheet(page).innerText()).toMatch(/\[/);
+});
+
+test("M5: Enter on a mark moves focus into the editor, and Escape brings it back to the mark", async ({ page }) => {
+  await toWork(page, DOC);
+  const mark = page.locator('[data-mark][data-val="מרים לוין"]').first();
+  await mark.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("[data-inline]")).toBeVisible();
+  const inside = await page.evaluate(() => !!(document.activeElement && document.activeElement.closest("[data-inline]")));
+  expect(inside).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(page.locator("[data-inline]")).toHaveCount(0);
+  const back = await page.evaluate(() => document.activeElement && document.activeElement.getAttribute("data-val"));
+  expect(back).toBe("מרים לוין");
+});
+
+test("M4: the editor follows its mark when the document pane scrolls, and closes when the mark leaves the screen", async ({ page }) => {
+  const LONG = ["פרוטוקול"].concat(Array.from({ length: 40 }, (_, i) => `דוד כהן: שורה ${i + 1} של הדיון, בלי שום דבר מיוחד.`)).concat(["מרים לוין: אני מבקשת לפתוח.", "מרים לוין: סיימתי."]).join("\n");
+  await toWork(page, LONG);
+  const mark = page.locator('[data-mark][data-val="מרים לוין"]').first();
+  await mark.scrollIntoViewIfNeeded();
+  await mark.click();
+  const ed = page.locator("[data-inline]");
+  await expect(ed).toBeVisible();
+  const top0 = (await ed.boundingBox()).y, m0 = (await mark.boundingBox()).y;
+  // the scrolling pane is the section's own scroll box (the document paper sits inside it)
+  const scrollPane = (by) => sheet(page).evaluate((el, by) => { const p = [el, ...el.querySelectorAll("div")].find((d) => getComputedStyle(d).overflowY === "auto" && d.scrollHeight > d.clientHeight); if (by === null) p.scrollTop = 0; else p.scrollTop += by; }, by);
+  await scrollPane(-120);
+  await page.waitForTimeout(300);
+  const top1 = (await ed.boundingBox()).y, m1 = (await mark.boundingBox()).y;
+  expect(Math.round(top1 - top0)).toBe(Math.round(m1 - m0));
+  await scrollPane(null);
+  await expect(ed).toHaveCount(0);
+});
+
+test("M6: on a phone, tapping a mark keeps the document on screen", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 740 });
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  // settings are folded on a phone
+  await page.locator("[data-settings-toggle]").click();
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "case.docx", DOC);
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  await H.goOn(page);
+  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
+  await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
+  if (await run.isVisible()) await run.click();
+  await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
+  const mark = page.locator('[data-mark][data-val="מרים לוין"]').first();
+  await mark.click();
+  await expect(page.locator("[data-inline]")).toBeVisible();
+  await expect(mark).toBeVisible();
+  expect(await mark.evaluate((el) => !!el.offsetParent)).toBe(true);
+});
