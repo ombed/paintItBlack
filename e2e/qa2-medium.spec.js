@@ -328,9 +328,9 @@ test("L6: the theme follows the OS until she chooses one", async ({ page }) => {
 test("L7: a valid file clears the error of the previous one", async ({ page }) => {
   await H.serveEngineWithStub(page);
   await H.boot(page);
-  await page.locator('input[type="file"][accept*=".docx"]').setInputFiles("qa-audit/run-2/fixtures/case-empty.docx");
+  await page.locator('input[type="file"][accept*=".docx"]').setInputFiles("e2e/fixtures/case-empty.docx");
   await expect(page.locator("[data-file-err]")).toBeVisible();
-  await page.locator('input[type="file"][accept*=".docx"]').setInputFiles("qa-audit/run-2/fixtures/latin.pdf");
+  await page.locator('input[type="file"][accept*=".docx"]').setInputFiles("e2e/fixtures/latin.pdf");
   await expect(page.getByText("latin.pdf")).toBeVisible({ timeout: 30000 });
   await expect(page.locator("[data-file-err]")).toHaveCount(0);
 });
@@ -416,7 +416,7 @@ test("L16: if the engine fails to load, the message is plain Hebrew and offers a
 test("L17: a broken profile file gives a Hebrew reason", async ({ page }) => {
   await H.serveEngineWithStub(page);
   await H.boot(page);
-  await page.locator('input[type="file"][accept*=".json"]').setInputFiles("qa-audit/run-2/fixtures/profile-broken.json");
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles("e2e/fixtures/profile-broken.json");
   const err = page.getByText(/טעינת הפרופיל נכשלה/);
   await expect(err).toBeVisible();
   await expect(err).not.toContainText(/Expected|position|JSON/);
