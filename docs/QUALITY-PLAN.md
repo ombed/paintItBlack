@@ -48,6 +48,8 @@ A script reads the private fixtures and records only the shapes around each enti
 
 The same invariants run inside the product and write a structural event to the session log when one breaks, with no text in it. Examples: "listed value not found although its letters are present", "card with edge punctuation", "overlay drift". They come back in her test package, so we see a break before she has to describe it.
 
+**Done.** The in-session check is `runSelfCheck()` in index.html. It runs a second after the last change of screen, tour step, overlay, result or list, and after scrolling or resizing. It waits for finite animations and for a re-run in flight, so it never measures something mid-move. Each broken rule becomes one `self-check` event per screen, with the rule, the screen, a count and the time taken. A check slower than 200 ms three times switches itself off and logs `self-check-off`. On a synthetic 60,000-word document with 40 listed names it takes about 33 ms. `e2e/selfcheck.spec.js` shows that a clean session logs nothing, and that a break is logged once, with no text.
+
 ### 6. Fix the class, not the instance
 
 Every reported bug closes with three things, written into the PR template:
@@ -70,8 +72,8 @@ QA runs use documents with real typography, carry the layer-3 misbehaviour list,
 | 2 | Invariants after every browser test | about a day | done |
 | 3 | Misbehaving-user helper on the main journeys | about a day | done |
 | 6 | Class-not-instance rule in the PR template | an hour | done |
-| 5 | Self-check events in the session log | half a day | next |
-| 1b | Shape suite extended to places, restore and Word structure | about a day | |
+| 5 | Self-check events in the session log | half a day | done |
+| 1b | Shape suite extended to places, restore and Word structure | about a day | next |
 | 4 | Shape harvesting from the private fixtures | one to two days | |
 | 7 | Next QA round with the new brief | one round | |
 
