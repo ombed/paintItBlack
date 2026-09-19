@@ -97,3 +97,39 @@ test("without detail, the report carries rule names only — safe for a session 
   expect(bare.length).toBeGreaterThan(0);
   expect(JSON.stringify(bare)).not.toMatch(/[א-ת]/);
 });
+
+/* Layer 5: the same check runs in a real session and writes what breaks to the
+   session log, which travels in her test package. Rule, screen and count only. */
+async function sessionLog(page) {
+  await page.evaluate(() => { navigator.clipboard.writeText = (t) => { window.__copied = t; return Promise.resolve(); }; });
+  const btn = page.getByRole("button", { name: "העתקת יומן הסשן" });
+  if (!(await btn.isVisible().catch(() => false))) await page.getByRole("button", { name: /מה נוקה מהקובץ/ }).click();
+  await btn.click();
+  return JSON.parse(await page.evaluate(() => window.__copied || "{}"));
+}
+const selfEvents = (log) => log.events.filter((e) => e.ev === "self-check");
+
+test("in a session, a clean work screen writes no self-check event", async ({ page }) => {
+  await toWork(page);
+  await page.mouse.wheel(0, 400);
+  await page.waitForTimeout(2500);
+  expect(selfEvents(await sessionLog(page))).toEqual([]);
+});
+
+test("in a session, a break is written to the log once, as a rule and a screen, with no text", async ({ page }) => {
+  await toWork(page, `{ const d = Engine.prototype.detect; Engine.prototype.detect = function (t) { return d.call(this, t).filter((h) => h.base !== "אבנר שטרן"); }; }`);
+  await expect.poll(async () => selfEvents(await sessionLog(page)).length, { timeout: 8000 }).toBeGreaterThan(0);
+  // more triggers on the same screen: scrolling, a resize
+  await page.mouse.wheel(0, 300);
+  const vp = page.viewportSize();
+  await page.setViewportSize({ width: 1100, height: 700 });
+  await page.waitForTimeout(300);
+  await page.setViewportSize(vp);
+  await page.waitForTimeout(2500);
+  const log = await sessionLog(page);
+  const ev = selfEvents(log);
+  expect(ev.filter((e) => e.rule === "listed-not-handled")).toHaveLength(1);
+  expect(ev[0]).toMatchObject({ rule: "listed-not-handled", screen: "work", n: 1 });
+  expect(typeof ev[0].ms).toBe("number");
+  expect(/[֐-׿]{3,}/.test(JSON.stringify(log))).toBe(false);
+});

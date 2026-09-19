@@ -1289,16 +1289,23 @@ class Component extends DCLogic {
     // מסך שעולה (אנימציית rise) מזיז את המילה בלי גלילה ובלי שינוי גודל: רמז שנפתח באמצע
     // העלייה נשאר כמה פיקסלים מתחת למילה. סוף אנימציה או מעבר מיישר אותו (שכבה 3 בתוכנית האיכות)
     addEventListener("animationend", this._follow, true); addEventListener("transitionend", this._follow, true);
+    // שכבה 5: גלילה ושינוי גודל עלולים להזיז שכבה מהמילה שלה או לגרום לגלישה — בדיקה עצמית כשנרגע
+    this._scNudge=()=>this.scheduleSelfCheck();
+    addEventListener("scroll", this._scNudge, {capture:true, passive:true}); addEventListener("resize", this._scNudge);
   }
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); removeEventListener("resize", this._resize);
     removeEventListener("beforeunload", this._unload); removeEventListener("popstate", this._pop);
-    removeEventListener("scroll", this._follow, true); removeEventListener("resize", this._follow); removeEventListener("animationend", this._follow, true); removeEventListener("transitionend", this._follow, true); removeEventListener("storage", this._storage);
+    removeEventListener("scroll", this._follow, true); removeEventListener("resize", this._follow); removeEventListener("animationend", this._follow, true); removeEventListener("transitionend", this._follow, true);
+    removeEventListener("scroll", this._scNudge, {capture:true}); removeEventListener("resize", this._scNudge); if(this._scT) clearTimeout(this._scT); removeEventListener("storage", this._storage);
     if(this._barObs) this._barObs.disconnect(); }
   /* ביומן של הסשן האמיתי 347 מתוך 375 האירועים היו "screen" — אותו מסך, שוב ושוב,
      בכל רינדור. הארגומנט הראשון של ההוק הוא ה-props הקודמים, לא ה-state הקודם, ולכן
      prev.screen היה undefined תמיד, ההשוואה תמיד "השתנה", ושדה from נעלם מהיומן.
      המסך האחרון נשמר על המופע ולא נלקח מההוק. */
   componentDidUpdate(){ this.applyProps(); if(this._barSize) this._barSize();
+    // שכבה 5: מסך, צעד בסיור, שכבה שנפתחה, תוצאה או רשימה חדשות — בדיקה עצמית כשהמסך נרגע
+    { const S=this.state, sig=[S.screen, S.tour?S.tour.i:-1, S.inline, S.tip, S.res, S.rules, S.allow, S.E];
+      if(!this._scSig||sig.some((x,i)=>x!==this._scSig[i])){ this._scSig=sig; this.scheduleSelfCheck(); } }
     // חלונית המופעים אינה שורדת מעבר מסך: העכבר נשאר במקומו והחלונית של המסך הקודם כיסתה את הבא
     if(this.state.screen!==this._tipScreen){ this._tipScreen=this.state.screen; if(this.state.tip) this.setState({tip:null}); }
     // רשומת היסטוריה אחת לכל מסמך (H5): "אחורה" חוזר אליה ולא יוצא מהאתר
@@ -2057,6 +2064,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
   async rerun(){
     const E=this.state.E; const t0=Date.now();
+    // בזמן ריצה הרשימה כבר חדשה והתוצאה עוד ישנה: הבדיקה העצמית מחכה (שכבה 5)
+    this._reruns=(this._reruns||0)+1;
     try{
       const res = this.guardModel(await E.redactDocx(this.state.buf.slice(0), this.state.rules, this.state.allow, this.opts()), this.state.rules, this.state.allow);
       this.log.add("rerun",{ms:Date.now()-t0, applied:res.applied.length, flagged:res.flagged.length});
@@ -2066,6 +2075,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const keep=sel&&(res.applied.some(r=>"a|"+n(r.of||r.base||r.value)===sel)||res.flagged.some(r=>"f|"+n(r.value)===sel));
       this.setState({res, rules:this.pinReps(this.state.rules,res), sel:keep?sel:null, err:"", inline:null}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה: "+(e.message||e)}); }
+    finally{ this._reruns--; }
   }
   /* C1 בביקורת השנייה: כינוי אוטומטי נבחר מתוך מאגר תוך דילוג על שמות שכבר
      נלקחו, ולכן היה תלוי בכל מה שהוקצה לפניו. שינוי כינוי של אדם אחד פינה שם
@@ -2837,6 +2847,36 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      זיהוי ההופעה במסמך בנוי כאן מחדש, מאותיות בלבד, ולא מהביטוי של המנוע — אחרת באג
      בגבול המילה (כמו המירכאות) היה מסתתר גם מהבדיקה. verbose מחזיר ערכים (לבדיקות);
      בלעדיו רק שמות הכללים ומספרים, כדי שאפשר יהיה לרשום אותם ביומן בלי טקסט. */
+  /* שכבה 5 בתוכנית האיכות: אותה בדיקה עצמית שרצה אחרי כל בדיקת דפדפן רצה גם בסשן
+     אמיתי, ומה שנשבר נכתב ליומן הסשן — שם הכלל, המסך וכמה פעמים, בלי מילה מהמסמך
+     (selfCheck(false) מחזיר שמות כללים בלבד, והשומר של היומן דוחה כל מילה עברית).
+     היומן מגיע בחבילת הבדיקה, כך שנראה שבר לפני שהיא צריכה לתאר אותו. רצה רק כשהמסך
+     נרגע: שנייה אחרי השינוי האחרון ואחרי שכל אנימציה הסתיימה, אחרת היא מודדת שכבה
+     באמצע תנועה (אנימציה אינסופית, כמו סמן טעינה, אינה נספרת). כל כלל נכתב פעם אחת לכל מסך. בדיקה איטית שלוש פעמים נכבית, ונרשמת. */
+  scheduleSelfCheck(){
+    if(this._scOff) return;
+    if(this._scT) clearTimeout(this._scT);
+    this._scT=setTimeout(()=>this.runSelfCheck(), 1000);
+  }
+  runSelfCheck(){
+    this._scT=null;
+    if(this._scOff||!this.log||document.hidden) return;
+    if(this._reruns>0||(document.getAnimations&&document.getAnimations().some(a=>a.playState==="running"&&!(a.effect&&a.effect.getTiming().iterations===Infinity)))){
+      this._scWait=(this._scWait||0)+1; if(this._scWait<=10) this._scT=setTimeout(()=>this.runSelfCheck(), 300);
+      return;
+    }
+    this._scWait=0;
+    const t0=performance.now(); let found;
+    try{ found=this.selfCheck(false); }catch(_){ found=[{rule:"check-error"}]; }
+    const ms=Math.round(performance.now()-t0);
+    if(ms>200&&(this._scSlow=(this._scSlow||0)+1)>=3){ this._scOff=true; this.log.add("self-check-off",{ms}); }
+    const S=this.state, screen=S.tour?"tour-"+S.screen:S.screen, seen=this._scSeen||(this._scSeen=new Set()), by={};
+    for(const f of found) by[f.rule]=(by[f.rule]||0)+1;
+    for(const [rule,n] of Object.entries(by)){
+      const k=rule+"|"+screen; if(seen.has(k)||seen.size>=40) continue;
+      seen.add(k); this.log.add("self-check",{rule, screen, n, ms});
+    }
+  }
   selfCheck(verbose){
     const S=this.state, E=S.E, out=[], add=(rule,detail)=>out.push(verbose?{rule,detail}:{rule});
     if(!E) return out;
