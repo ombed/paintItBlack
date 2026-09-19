@@ -117,11 +117,14 @@
       v: version || "", started: new Date(t0).toISOString(), events,
       at: () => Date.now() - t0,
       add(ev, data) {
-        const d = {};
+        const d = {}, dropped = [];
         for (const [k, v] of Object.entries(data || {})) {
           if (typeof v === "number" || typeof v === "boolean") d[k] = v;
           else if (typeof v === "string" && !/[֐-׿]{3,}/.test(v) && v.length <= 24) d[k] = v;
+          // a field the guard refuses leaves its name behind, so a drop is never silent
+          else dropped.push(k);
         }
+        if (dropped.length) d.dropped = dropped.join(",").slice(0, 60);
         events.push({ t: Date.now() - t0, ev, ...d });
         if (events.length > 2000) events.splice(0, events.length - 2000);
       },

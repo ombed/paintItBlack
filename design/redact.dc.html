@@ -1197,6 +1197,12 @@ class Component extends DCLogic {
       else this.setState({cases});
     };
     addEventListener("storage", this._storage);
+    // יומן: שגיאה בדף אצלה הייתה נעלמת בלי עקבות. נרשם רק סוג השגיאה והמסך — ההודעה עלולה
+    // להכיל טקסט מהמסמך, ולכן היא לא נרשמת. עד 20 בסשן.
+    this._pageErr=e=>{ try{ if((this._errN=(this._errN||0)+1)>20) return;
+      const x=e&&(e.error||e.reason), name=(x&&x.name)||(e&&e.type==="unhandledrejection"?"rejection":"error");
+      this.log.add("page-error",{name:String(name).replace(/[^A-Za-z]/g,"").slice(0,24)||"error", screen:this.state.screen, tour:!!this.state.tour}); }catch(_){} };
+    addEventListener("error", this._pageErr); addEventListener("unhandledrejection", this._pageErr);
     addEventListener("scroll", this._follow, true); addEventListener("resize", this._follow);
     // מסך שעולה (אנימציית rise) מזיז את המילה בלי גלילה ובלי שינוי גודל: רמז שנפתח באמצע
     // העלייה נשאר כמה פיקסלים מתחת למילה. סוף אנימציה או מעבר מיישר אותו (שכבה 3 בתוכנית האיכות)
@@ -1208,7 +1214,7 @@ class Component extends DCLogic {
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); removeEventListener("resize", this._resize);
     removeEventListener("beforeunload", this._unload); removeEventListener("popstate", this._pop);
     removeEventListener("scroll", this._follow, true); removeEventListener("resize", this._follow); removeEventListener("animationend", this._follow, true); removeEventListener("transitionend", this._follow, true);
-    removeEventListener("scroll", this._scNudge, {capture:true}); removeEventListener("resize", this._scNudge); if(this._scT) clearTimeout(this._scT); removeEventListener("storage", this._storage);
+    removeEventListener("scroll", this._scNudge, {capture:true}); removeEventListener("resize", this._scNudge); if(this._scT) clearTimeout(this._scT); removeEventListener("storage", this._storage); removeEventListener("error", this._pageErr); removeEventListener("unhandledrejection", this._pageErr);
     if(this._barObs) this._barObs.disconnect(); }
   /* ביומן של הסשן האמיתי 347 מתוך 375 האירועים היו "screen" — אותו מסך, שוב ושוב,
      בכל רינדור. הארגומנט הראשון של ההוק הוא ה-props הקודמים, לא ה-state הקודם, ולכן
@@ -1303,15 +1309,15 @@ class Component extends DCLogic {
     const E=this.state.E; if(!E) return;
     /* שגיאות קובץ ליד כרטיס הקובץ, עם מה לעשות (UX #4), ובזמן הבחירה ולא אחרי
        "המשך" (ביקורת QA 010): קובץ שאינו docx תקין, או docx בלי טקסט, לא מקבל ✓. */
-    const bad=m=>{ this.log.add("file-reject",{why:m.slice(0,12)}); this.setState({fileErr:m, err:"", pending:false, name:"", buf:null}); };
-    if(!/\.(docx|pdf)$/i.test(f.name)) return bad("נדרש קובץ Word (docx) או PDF. קובץ doc ישן — לשמור מחדש ב-Word בתור docx.");
-    let buf; try{ buf = await f.arrayBuffer(); }catch(_){ return bad("לא הצלחנו לפתוח את הקובץ. אם הוא שמור בענן (OneDrive, Dropbox) — להוריד עותק למחשב; אם הוא פתוח ב-Word — לסגור אותו, ולבחור אותו שוב."); }
+    const bad=(m,code)=>{ this.log.add("file-reject",{why:code||"other"}); this.setState({fileErr:m, err:"", pending:false, name:"", buf:null}); };
+    if(!/\.(docx|pdf)$/i.test(f.name)) return bad("נדרש קובץ Word (docx) או PDF. קובץ doc ישן — לשמור מחדש ב-Word בתור docx.", "type");
+    let buf; try{ buf = await f.arrayBuffer(); }catch(_){ return bad("לא הצלחנו לפתוח את הקובץ. אם הוא שמור בענן (OneDrive, Dropbox) — להוריד עותק למחשב; אם הוא פתוח ב-Word — לסגור אותו, ולבחור אותו שוב.", "read"); }
     if(/\.pdf$/i.test(f.name)) return this.loadPdf(buf, f);
     let blocks;
     try{ blocks=await this.blocksOf(buf); }
-    catch(_){ return bad("הקובץ לא נראה כמו מסמך Word תקין. אפשר לפתוח אותו ב-Word, לשמור בשם בתור docx, ולבחור שוב."); }
+    catch(_){ return bad("הקובץ לא נראה כמו מסמך Word תקין. אפשר לפתוח אותו ב-Word, לשמור בשם בתור docx, ולבחור שוב.", "not-docx"); }
     const chars=blocks.reduce((a,b)=>a+b.text.trim().length,0);
-    if(!chars) return bad("במסמך אין טקסט לקריאה. אם זה סריקה או תמונה, צריך קודם להמיר אותו לטקסט.");
+    if(!chars) return bad("במסמך אין טקסט לקריאה. אם זה סריקה או תמונה, צריך קודם להמיר אותו לטקסט.", "empty");
     const size = chars>=1000 ? `כ-${(chars/1000).toFixed(1)} אלף תווים` : `${chars} תווים`;
     const meta=`${blocks.length===1?"פסקה אחת":blocks.length+" פסקאות"} · ${size} · ${Math.round(f.size/1024)} KB`;
     this.setState({origBlocks:blocks.map(b=>({part:b.part, text:b.text})), err:"", fileErr:"", nerAsk:false, name:f.name, buf, pending:true, pendMeta:meta});
@@ -1524,6 +1530,15 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       // מה שהמודל מצא נשמר בנפרד מהרשימה: זה מה שמאפשר לוודא, בכל ריצה, ששם
       // שנמצא פעמיים ומעלה לא יוצא בלי שהיא החליטה עליו (guardModel)
       this._modelFound=found;
+      // יומן: כמה זמן, כמה נמצא מכל סוג, ואיך הוודאות של כל המקטעים הגולמיים מתפלגת — כדי לדעת
+      // אם סף אחר היה מוצא את מה שהיא הוסיפה בעצמה, או חוסך את מה שהיא הסירה
+      try{
+        const raw=(E.nerLast&&E.nerLast())||[], by={}, bands={high:0, mid:0, low:0, below:0};
+        for(const f of found) by[f.kind||"NAME"]=(by[f.kind||"NAME"]||0)+1;
+        for(const r of raw){ const x=+r.score||0; bands[x>=0.95?"high":x>=0.8?"mid":x>=0.6?"low":"below"]++; }
+        this.log.add("model-done",{ms:Date.now()-t0, cached:!!this.state.nerHave, found:found.length, names:by.NAME||0, orgs:by.ORG||0, places:by.PLACE||0,
+          review:found.filter(f=>f.review).length, spans:raw.length, high:bands.high, mid:bands.mid, low:bands.low, below:bands.below});
+      }catch(_){}
       // עדיין במסך הרשימה (UX #7): התוצאה נכנסת לרשימה כמו תמיד, לא לכללים — "המשך" בונה את הכללים מהרשימה
       if(this._goneAhead===my&&this.state.screen==="people"){ this._goneAhead=null; this.log.add("model-late",{found:found.length, added:0, screen:"people"}); }
       if(this._goneAhead===my){
@@ -1551,7 +1566,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         if(f.review){ if(!sug.some(x=>E.norm(x.value)===E.norm(f.value))) sug.push({value:f.value, why:"גוף בלי מילת סוג — לאישור", count:f.n, kind:f.kind}); continue; }
         // "שארסן" ליד "ארסן": כשהמודל עצמו אומר שהאות אינה חלק מהשם (Q4 בגרסה 3) הצורה
         // מתקפלת לשם הבסיס ואינה שבב; בספק היא שבב, והצעת המיזוג עולה עם "אות שימוש?"
-        if(f.prefixOf&&f.fold==="yes"){ this.log.add("fold",{why:f.foldWhy||""}); continue; }
+        if(f.prefixOf&&f.fold==="yes"){ { const w=f.foldWhy||""; this.log.add("fold",{cut:/cut/.test(w), listed:/listed/.test(w), position:/position/.test(w), tok:(w.match(/tokenizer:([a-z]+)/)||[])[1]||"-"}); } continue; }
         list.push({value:f.value, kind:f.kind, g:null, auto:true, note:f.n>1?`נמצא ${f.n}×`:"נמצא במסמך"});
         added++;
       }
@@ -1971,6 +1986,12 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const toReview=(res.verification.near||[]).length+(res.verification.suggest||[]).length+(this.state.allow||[]).length+
         res.flagged.filter(f=>f.src!=="near"&&f.src!=="nohit"&&f.src!=="collide").length;
       this.log.add("run",{applied:res.applied.length, flagged:res.flagged.length, near:(res.verification.near||[]).length, suggest:(res.verification.suggest||[]).length, passed:!!res.verification.passed});
+      // יומן: מאיזו שכבה הגיע כל מה שהוחלף וכל מה שמחכה, כדי לראות מה עולה לה בזמן
+      { const cnt=(arr,f)=>arr.filter(f).length, A=res.applied, F=res.flagged;
+        this.log.add("run-src",{aList:cnt(A,r=>r.src==="list"), aSweep:cnt(A,r=>r.src==="sweep"), aPattern:cnt(A,r=>r.src==="pattern"),
+          aReview:cnt(A,r=>r.review), fReview:cnt(F,r=>r.review&&r.src!=="nohit"), fNohit:cnt(F,r=>r.src==="nohit"), fNear:cnt(F,r=>r.src==="near"),
+          fPattern:cnt(F,r=>r.src==="pattern"), fList:cnt(F,r=>r.src==="list"), fCollide:cnt(F,r=>r.src==="collide"), rules:(this.state.rules||[]).length,
+          rulesAuto:cnt(this.state.rules||[],r=>r.auto!==false), allow:(this.state.allow||[]).length}); }
       this.setState({res, rules:this.pinReps(rules,res), screen:"work", open:toReview?["review","findings","send"]:["findings","send"], pane:"doc", docView:"red", markIdx:0, copied:false}, ()=>this.persistProfile());
     }catch(e){ this.setState({err:"שגיאה בעיבוד: "+(e.message||e), screen:"entry", res:null}); }
   }
@@ -2040,6 +2061,73 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   undo = () => this.stepHistory(true);
   redo = () => this.stepHistory(false);
 
+  /* יומן עשיר (לפני הסשן של 22.9): כל תיקון שלה נרשם עם מה שגרם לו, כדי שנבין למה היא
+     מתקנת בלי לראות מה. רק קודים, מספרים ודגלים — אף מילה מהמסמך, והשומר של היומן דוחה
+     כל מילה עברית בכל מקרה.
+       src  — מי הציע את הערך: m מודל · h כותרת · s דובר · p פרופיל התיק · t היא הוסיפה ·
+              b סריקת הגוף · w אחידות (חלק של שם) · x דפוס (מספר, תאריך) · n כתיב קרוב
+       kind · words · chars · review (חיכה להחלטה) · applied (הוחלף) · occ (הופעות שהוחלפו)
+       band — הוודאות של המודל: none · <.8 · <.95 · high
+       pre  — מתחיל באות שימוש שהגזע שלה גם ברשימה */
+  logFacts(v, base){
+    try{
+      const S=this.state, E=S.E; if(!E) return {};
+      const n=x=>E.norm(String(x||"")).trim(), keys=[n(v),n(base)].filter(Boolean), hit=x=>keys.includes(n(x));
+      const src=[];
+      const model=(this._modelFound||[]).find(f=>hit(f.value));
+      if(model) src.push("m");
+      const cand=(S.cands||[]).find(c=>hit(c.value));
+      if(cand) src.push(cand.speaker?"s":"h");
+      if(this.profileRules().some(r=>hit(r.value))) src.push("p");
+      const rule=(S.rules||[]).find(r=>hit(r.value));
+      if(rule&&rule.auto===false) src.push("t");
+      const ver=(S.res&&S.res.verification)||{};
+      if((ver.suggest||[]).some(x=>hit(x.value))) src.push("b");
+      const recs=S.res?[...S.res.applied,...S.res.flagged].filter(r=>hit(r.base)||hit(r.value)):[];
+      if(recs.some(r=>r.src==="sweep")) src.push("w");
+      if(recs.some(r=>r.src==="pattern")) src.push("x");
+      if(recs.some(r=>r.src==="near")) src.push("n");
+      const sc=model&&typeof model.score==="number"?model.score:null;
+      const nv=n(base||v);
+      return { src:src.join("")||"-", kind:(rule&&rule.kind)||(model&&model.kind)||(recs.length?"found":"-"),
+        words:nv.split(/\s+/).filter(Boolean).length, chars:nv.length,
+        review:recs.some(r=>r.review), applied:S.res?S.res.applied.some(r=>hit(r.base)||hit(r.value)):false,
+        occ:S.res?S.res.applied.filter(r=>hit(r.base)||hit(r.value)).length:0,
+        band:sc===null?"none":sc<0.8?"<.8":sc<0.95?"<.95":"high",
+        pre:/^[בהולמכש]/.test(nv)&&(S.rules||[]).some(r=>n(r.value)===nv.slice(1)) };
+    }catch(_){ return {factsError:true}; }
+  }
+  /* מה השתנה כשהיא החליפה כינוי: מגדר, מוצא, איזה חלק, ומספר המילים. הכינוי עצמו לא נרשם. */
+  repFacts(shown, rep){
+    try{
+      const E=this.state.E, a=String(shown||"").trim(), b=String(rep||"").trim();
+      if(!b) return {reset:true};
+      const aw=a.split(/\s+/).filter(Boolean), bw=b.split(/\s+/).filter(Boolean);
+      const part=!a?"new":aw.length!==bw.length?"shape":aw.every((w,i)=>w===bw[i])?"none":
+        aw.length===1?"one":(aw[0]!==bw[0]&&aw.slice(1).join(" ")===bw.slice(1).join(" "))?"first":
+        (aw[0]===bw[0])?"last":"both";
+      const code=/^\[|^[\d\s+()-]+$/.test(b)?"label":"name";
+      return { part, style:code, oldWords:aw.length, newWords:bw.length,
+        gender:a&&E.gender?(E.gender(a)===E.gender(b)?"same":"changed"):"?",
+        origin:a&&E.origin?(E.origin(a)===E.origin(b)?"same":"changed"):"?",
+        fromPool:E.POOL?["he_m","he_f","ar_m","ar_f"].some(k=>E.POOL[k].includes(bw[0])):false };
+    }catch(_){ return {factsError:true}; }
+  }
+  /* שם שהיא הוסיפה בעצמה הוא פספוס. מה כל שכבה חשבה עליו, בלי הטקסט (leakShape). */
+  async logMiss(value, kind, origin){
+    try{
+      const S=this.state, E=S.E; if(!S.buf||!window.PL) return;
+      const blocks=await this.blocksOf(S.buf);
+      const sh=window.PL.leakShape(E, blocks, value, {kind, modelUsed:S.nerUsed, cands:S.cands,
+        nerRaw:S.nerUsed&&E.nerLast?E.nerLast():[], rules:S.rules, near:(S.res&&S.res.verification.near)||[], suggest:(S.res&&S.res.verification.suggest)||[]});
+      const m=sh.layers.model;
+      this.log.add("miss",{origin:origin||"list", kind:kind||"NAME", words:sh.words, occ:sh.occurrences, otherForms:sh.otherForms,
+        prefix:!!sh.prefix, before:sh.before, after:sh.after, paraStart:!!sh.atParagraphStart,
+        model:m?(m.score<0.6?"below":m.score<0.8?"<.8":m.score<0.95?"<.95":"high"):"none", modelBounds:m?String(m.bounds||"exact").trim().slice(0,24):"-",
+        header:!!sh.layers.discover, near:!!sh.layers.near, suggest:!!sh.layers.suggest, hyphen:sh.hyphen, geresh:sh.geresh, nikud:sh.nikud, genre:sh.doc.genre});
+    }catch(_){}
+  }
+
   addRule = (value, kind, rep, origin) => {
     const E=this.state.E; value=E.trimEdges(value);
     if(value.length<2){ this.setState({err:"נדרשים לפחות שני תווים."}); return; }
@@ -2055,6 +2143,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     // הצורה של המקרה נרשמת (page-logic.js, leakShape) — בלי הטקסט — כדי שיהיה
     // אפשר לשחזר אותו בלי המסמך.
     this.log.add("add-rule",{origin:origin||"list", kind:kind||"NAME", words:value.split(/\s+/).length});
+    if(this.state.res) this.logMiss(value, kind||"NAME", origin);
     if(origin==="mark"&&this.state.res&&this.state.buf&&window.PL) this.recordLeak(value, kind||"NAME");
     // סתירה עם היתר קיים (Q6): ההחלטה החדשה מנצחת, וההיתר מוסר עם שורת הודעה
     const nrm=x=>E.norm(String(x||"")).trim();
@@ -2077,13 +2166,13 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   // מוסיף מקטע לפתוחים בלי לסגור אחרים
   openWith = k => { const o=Array.isArray(this.state.open)?this.state.open:[]; return o.includes(k)?o:[...o,k]; };
   // מחיקה מרשימת הפרופיל היא החלטה כמו כל אחרת (M7 בביקורת השנייה): צעד ביטול משלה, ושורה שאומרת מה קרה
-  dropRule = v => { this.pushHistory(); this.log.add("drop-rule",{}); this.setState({rules:this.state.rules.filter(r=>r.value!==v), notice:`«${v}» הוסר מהרשימה, והטקסט המקורי חזר.`}, ()=>this.rerun()); };
+  dropRule = v => { this.pushHistory(); this.log.add("drop-rule",this.logFacts(v)); this.setState({rules:this.state.rules.filter(r=>r.value!==v), notice:`«${v}» הוסר מהרשימה, והטקסט המקורי חזר.`}, ()=>this.rerun()); };
   // "לא שם": הכלל יורד מהרשימה על כל צורותיו, והטקסט הזה לא יוצע שוב
-  notAName = (base, v) => { this.pushHistory(); this.log.add("not-a-name",{}); return this.setState({allow:this.state.allow.includes(v)?this.state.allow:[...this.state.allow, v],
+  notAName = (base, v) => { this.pushHistory(); this.log.add("not-a-name",this.logFacts(v, base)); return this.setState({allow:this.state.allow.includes(v)?this.state.allow:[...this.state.allow, v],
     rules:this.state.rules.filter(r=>r.value!==base && r.value!==v)}, ()=>this.rerun()); };
   /* החלטה חדשה שסותרת ישנה (Q6 בגרסה 3): החדשה מנצחת, הישנה מוסרת, ושורה אחת
      אומרת מה הוחלף — עם ביטול. בפרופיל אמיתי ישב "קפדן" גם ככלל (נמחק) וגם בהיתר. */
-  addAllow = v => { if(this.state.allow.includes(v)) return; this.pushHistory(); this.log.add("allow",{});
+  addAllow = v => { if(this.state.allow.includes(v)) return; this.pushHistory(); this.log.add("allow",this.logFacts(v));
     const E=this.state.E, n=x=>E.norm(String(x||"")).trim();
     const gone=this.state.rules.filter(r=>n(r.value)===n(v));
     const notice=gone.length?`«${v}» יישאר כמו שהוא; הכלל שהחליף אותו הוסר.`:"";
@@ -2098,8 +2187,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const rules=[...this.state.rules];
     let r=rules.find(x=>n(x.value)===n(base||v)||n(x.value)===n(v));
     if(!r){ r={value:v, kind:kind||"OTHER", replacement:"", auto:false}; rules.push(r); }
-    const prev=r.style||null; r.style=style;
-    this.setState({rules}, ()=>this.rerun().then(()=>this.log.add("set-style",{style, changed:prev!==style, kind:r.kind})));
+    const prev=r.style||null; r.style=style; const facts=this.logFacts(v, base);
+    this.setState({rules}, ()=>this.rerun().then(()=>this.log.add("set-style",{...facts, style, from:prev||"default", changed:prev!==style, kind:r.kind})));
   };
   /* שמונה עריכות של תחליף בסשן אמיתי, ואף אחת לא שינתה דבר. הכרטיס מציג את הערך
      כפי שנמצא, והכלל יושב לפעמים תחת הצורה המלאה ("תמר גולדשמיט" כשהכרטיס אומר
@@ -2117,10 +2206,13 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       r=rules.find(x=>x.kind==="NAME"&&n(x.value).split(/\s+/).includes(n(v)));
     }
     const before=this.state.res?this.state.res.applied.length:-1, prev=r?r.replacement:null;
+    // הכינוי שהיא ראתה: שלה, או זה שהכלי בחר
+    const seen=(r&&r.replacement)||((this.state.res&&this.state.res.applied.find(a=>want.includes(n(a.base||a.value))))||{}).baseRep||"";
+    const facts={...this.logFacts(v, base), ...this.repFacts(seen, rep), was:!r?"none":(r.pinned||!r.replacement)?"auto":"hers"};
     if(r){ r.replacement=rep.trim(); delete r.pinned; } else rules.push({value:v, kind:"NAME", replacement:rep.trim()});
     this.setState({rules}, ()=>this.rerun().then(()=>{
       const after=this.state.res?this.state.res.applied.length:-1;
-      this.log.add("set-rep",{matched:!!r, changed:prev!==rep.trim(), appliedBefore:before, appliedAfter:after});
+      this.log.add("set-rep",{...facts, matched:!!r, changed:prev!==rep.trim(), appliedBefore:before, appliedAfter:after});
     }));
   };
 
@@ -2846,7 +2938,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   inlineAt(e, info){
     let x=24, y=80, anchor=null;
     try{ anchor=e.currentTarget; const p=this.popPos(anchor.getBoundingClientRect()); x=p.x; y=p.y; }catch(_){}
-    this.log.add("inline-open",{mode:info.mode, kind:info.label||""});
+    this.log.add("inline-open",{mode:info.mode, ...this.logFacts(info.value, info.base)});
     return {...info, x, y, anchor};
   }
   /* החלונית והרמז נעים עם הסימון שלהם (M4 בביקורת השנייה): הם קבועים על המסך, ובגלילה

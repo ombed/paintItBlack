@@ -19,7 +19,8 @@
     "bench:nomodel": "node bench/generate.js && node bench/run.js --no-model",
     "gate": "node bench/gate.js",
     "bump": "node scripts/bump.js",
-    "shapes": "node scripts/harvest-shapes.js"
+    "shapes": "node scripts/harvest-shapes.js",
+    "log-report": "node scripts/log-report.js"
   },
   "repository": {
     "type": "git",

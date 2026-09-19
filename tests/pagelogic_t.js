@@ -56,6 +56,7 @@ L.add("rerun", { ms: 120, applied: 5, flagged: 1 });
 const exp = L.export();
 ok("log exports", typeof exp === "string" && JSON.parse(exp).events.length === 3);
 ok("a text field is dropped, not exported", !exp.includes("רונית") && JSON.parse(exp).events[1].words === 2);
+ok("a dropped field leaves its name, so the drop is visible", JSON.parse(exp).events[1].dropped === "name");
 ok("no Hebrew word in the log", !/[֐-׿]{3,}/.test(exp));
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
