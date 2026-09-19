@@ -1198,10 +1198,13 @@ class Component extends DCLogic {
     };
     addEventListener("storage", this._storage);
     addEventListener("scroll", this._follow, true); addEventListener("resize", this._follow);
+    // מסך שעולה (אנימציית rise) מזיז את המילה בלי גלילה ובלי שינוי גודל: רמז שנפתח באמצע
+    // העלייה נשאר כמה פיקסלים מתחת למילה. סוף אנימציה או מעבר מיישר אותו (שכבה 3 בתוכנית האיכות)
+    addEventListener("animationend", this._follow, true); addEventListener("transitionend", this._follow, true);
   }
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); removeEventListener("resize", this._resize);
     removeEventListener("beforeunload", this._unload); removeEventListener("popstate", this._pop);
-    removeEventListener("scroll", this._follow, true); removeEventListener("resize", this._follow); removeEventListener("storage", this._storage);
+    removeEventListener("scroll", this._follow, true); removeEventListener("resize", this._follow); removeEventListener("animationend", this._follow, true); removeEventListener("transitionend", this._follow, true); removeEventListener("storage", this._storage);
     if(this._barObs) this._barObs.disconnect(); }
   /* ביומן של הסשן האמיתי 347 מתוך 375 האירועים היו "screen" — אותו מסך, שוב ושוב,
      בכל רינדור. הארגומנט הראשון של ההוק הוא ה-props הקודמים, לא ה-state הקודם, ולכן
