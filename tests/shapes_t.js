@@ -93,5 +93,63 @@ console.log("\n— numbers, with and without a space after their label —");
   ok(!find("A034567891").length, "a Latin letter glued before digits is a code, not an ID");
 }
 
+// layer 1b: places get every shape, and a prefix letter in front of them
+for (const [value, parts] of [["חיפה", ["חיפה"]], ["תל אביב", ["תל אביב", "אביב"]], ["קריית אתא", ["קריית", "אתא"]]]) {
+  console.log(`\n— the place ${value} in every shape —`);
+  const subs = [{ value, kind: "PLACE", replacement: "תקוע" }];
+  for (const [name, f] of Object.entries(SHAPES)) {
+    for (const pre of ["", "ב"]) {
+      // a prefix letter goes on the place itself, not on the quote or bracket before it
+      const t = pre ? f(value).replace(value, pre + value) : f(value);
+      if (pre && !t.includes(pre + value.split(" ")[0])) continue;
+      const { hits, out } = run(t, subs);
+      const tag = `${name}${pre ? ", with " + pre : ""}`;
+      ok(hits.length > 0, `${tag}: not found in ${JSON.stringify(t)}`);
+      ok(!parts.some((p) => out.includes(p)), `${tag}: left in the text: ${JSON.stringify(out)}`);
+      if (pre) ok(out.includes(pre + "תקוע"), `${tag}: the prefix letter is lost: ${JSON.stringify(out)}`);
+    }
+  }
+}
+
+// layer 1b: a model span on a value in every shape comes back as exactly the value, also
+// when the model cut its first letter (it does, after swallowing a prefix letter)
+console.log("\n— a model span on a value, in every shape, is cleaned to exactly the value —");
+for (const [value, type] of [["מיכל ברנע", "PER"], ["חיפה", "LOC"], ["אלונים", "ORG"]]) {
+  for (const [name, f] of Object.entries(SHAPES)) {
+    const t = f(value), s = t.indexOf(value);
+    if (s < 0) continue;
+    for (const [how, a, b] of [["exact", s, s + value.length], ["first letter cut", s + 1, s + value.length]]) {
+      const got = C.nerClean([{ type, score: 0.99, s: a, e: b }], t, {}).map((x) => x.value);
+      ok(got.length === 1 && got[0] === value, `${value}, ${name}, ${how}: ${JSON.stringify(t)} gave ${JSON.stringify(got)}`);
+    }
+  }
+}
+
+// layer 1b: the AI answers in its own shapes, and the real name comes back from each
+console.log("\n— the real name comes back from the AI answer in every shape —");
+{
+  const pairs = [["רחל פרידמן", "מיכל ברנע"], ["אלונים", "ברושים"]];
+  const back = (t) => C.restoreNames(t, pairs).text;
+  const RESHAPES = {
+    ...SHAPES,
+    "markdown bold": (x) => `המורה **${x}** אמרה.`,
+    "markdown italic": (x) => `המורה *${x}* אמרה.`,
+    "at the start of a line": (x) => `${x} אמרה.`,
+    "a title before": (x) => `עו"ד ${x} אמרה.`,
+    "prefix ל": (x) => `כתבתי ל${x} אתמול.`,
+    "prefix וב": (x) => `ובדקתי וב${x} אתמול.`,
+    "prefix ש": (x) => `אמרתי ש${x} צודקת.`,
+    "prefix with maqaf": (x) => `כתבתי ל־${x} אתמול.`,
+  };
+  for (const [fake, real] of [["מיכל ברנע", "רחל פרידמן"], ["ברושים", "אלונים"]]) {
+    for (const [name, f] of Object.entries(RESHAPES)) {
+      const t = f(fake), out = back(t);
+      ok(out.includes(real.split(" ").pop()) && !fake.split(" ").some((p) => out.includes(p)), `${fake}, ${name}: ${JSON.stringify(t)} came back as ${JSON.stringify(out)}`);
+    }
+  }
+  ok(back("כתבתי למיכל ברנע.").includes("לרחל פרידמן"), "the prefix letter stays in front of the real name: " + back("כתבתי למיכל ברנע."));
+  ok(back("ברנע אמרה.") === "פרידמן אמרה.", "the surname alone comes back as the surname: " + back("ברנע אמרה."));
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exitCode = 1;
