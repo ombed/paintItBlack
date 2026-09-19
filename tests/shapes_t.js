@@ -12,38 +12,7 @@ const C = require("./core.js");
 let pass = 0, fail = 0;
 const ok = (c, m) => { c ? pass++ : (fail++, console.log("  ✗ " + m)); };
 
-const SHAPES = {
-  plain: (x) => `המורה ${x} אמרה.`,
-  "double quotes": (x) => `המורה "${x}" אמרה.`,
-  "prefix + double quotes": (x) => `נפגשתי ב"${x}" אתמול.`,
-  "single quotes": (x) => `המורה '${x}' אמרה.`,
-  "typographic quotes": (x) => `המורה “${x}” אמרה.`,
-  "reversed typographic quotes": (x) => `המורה ”${x}“ אמרה.`,
-  "Hebrew gershayim as quotes": (x) => `המורה ״${x}״ אמרה.`,
-  "low-high quotes": (x) => `המורה „${x}” אמרה.`,
-  guillemets: (x) => `המורה «${x}» אמרה.`,
-  parentheses: (x) => `המורה (${x}) אמרה.`,
-  brackets: (x) => `המורה [${x}] אמרה.`,
-  commas: (x) => `המורה, ${x}, אמרה.`,
-  "speaker colon": (x) => `${x}: אני מסכימה.`,
-  "en dashes": (x) => `המורה – ${x} – אמרה.`,
-  "maqaf join": (x) => `המורה־${x} אמרה.`,
-  slash: (x) => `המורה/${x} אמרה.`,
-  "no-break space inside": (x) => `המורה ${x.replace(" ", " ")} אמרה.`,
-  "RLM around": (x) => `המורה ‏${x}‏ אמרה.`,
-  "LRM inside": (x) => `המורה ${x.replace(" ", " ‎")} אמרה.`,
-  "line break inside": (x) => `המורה ${x.replace(" ", "\n")} אמרה.`,
-  "tab inside": (x) => `המורה ${x.replace(" ", "\t")} אמרה.`,
-  "double space inside": (x) => `המורה ${x.replace(" ", "  ")} אמרה.`,
-  ellipsis: (x) => `המורה…${x}… אמרה.`,
-  "question mark": (x) => `האם ${x}? כן.`,
-  bullet: (x) => `• ${x}`,
-  numbered: (x) => `1. ${x} הגישה.`,
-  asterisks: (x) => `המורה *${x}* אמרה.`,
-  underscores: (x) => `המורה _${x}_ אמרה.`,
-  "footnote digit after": (x) => `המורה ${x}2 אמרה.`,
-  "footnote digit before": (x) => `המורה 2${x} אמרה.`,
-};
+const { SHAPES } = require("./shape-lib.js");
 const OPT = { on: new Set(["NAME", "ORG", "PLACES"]), flag: new Set(), mode: "real", near: false, body: false, prefixes: "normal" };
 
 function run(text, subs) {
@@ -101,7 +70,7 @@ for (const [value, parts] of [["חיפה", ["חיפה"]], ["תל אביב", ["ת
     for (const pre of ["", "ב"]) {
       // a prefix letter goes on the place itself, not on the quote or bracket before it
       const t = pre ? f(value).replace(value, pre + value) : f(value);
-      if (pre && !t.includes(pre + value.split(" ")[0])) continue;
+      if (pre && (name.startsWith("prefix") || !t.includes(pre + value.split(" ")[0]))) continue;
       const { hits, out } = run(t, subs);
       const tag = `${name}${pre ? ", with " + pre : ""}`;
       ok(hits.length > 0, `${tag}: not found in ${JSON.stringify(t)}`);
@@ -116,7 +85,8 @@ for (const [value, parts] of [["חיפה", ["חיפה"]], ["תל אביב", ["ת
 console.log("\n— a model span on a value, in every shape, is cleaned to exactly the value —");
 for (const [value, type] of [["מיכל ברנע", "PER"], ["חיפה", "LOC"], ["אלונים", "ORG"]]) {
   for (const [name, f] of Object.entries(SHAPES)) {
-    const t = f(value), s = t.indexOf(value);
+    // a name recurs: the second, plain mention is the evidence the cleaner uses to peel a prefix
+    const t = f(value) + " ושוב " + value + ".", s = t.indexOf(value);
     if (s < 0) continue;
     for (const [how, a, b] of [["exact", s, s + value.length], ["first letter cut", s + 1, s + value.length]]) {
       const got = C.nerClean([{ type, score: 0.99, s: a, e: b }], t, {}).map((x) => x.value);

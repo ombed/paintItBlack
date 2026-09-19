@@ -1083,6 +1083,14 @@ function nerClean(ents,text,opt){
       if(wasCut||elsewhere||known||headPeel){
         w[0]=w[0].slice(w[0].length-f.length+1); v=trimEdges(w.join(" "));
       }
+      // שתי אותיות שימוש ("ולמיכל", "כשחיפה", "ובאלונים"): הקילוף של אות אחת השאיר את
+      // השנייה בערך. זוגות שהעברית כותבת בלבד, ואותן עדויות על הגזע שאחרי שתיהן (שכבה 4).
+      else if(f.length>=5&&/^(?:ו[בהלמכ]|כש|מה|לכ)/.test(f)){
+        const stem2=f.slice(2), bare2=[stem2,...w.slice(1)].join(" ");
+        const ev2=tok.has(stem2)||!!PLACE_BY[norm(bare2)]||KNOWN_FIRST.has(stem2)||NER_HEADS.has(stem2)||
+          (typeof ORG_HEADS!=="undefined"&&ORG_HEADS.test(norm(bare2)));
+        if(ev2){ w[0]=w[0].slice(w[0].length-f.length+2); v=trimEdges(w.join(" ")); }
+      }
     }
     // פיסוק של סוף משפט אינו חלק משם. אם נשאר כזה בתוך המקטע, שומרים את
     // החלק שאחרי הפיסוק האחרון: שם שהמודל הדביק לו את סוף המשפט הקודם.

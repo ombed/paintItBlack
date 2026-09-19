@@ -44,6 +44,17 @@ A helper that does what a real person does between the steps a test expects. It 
 
 A script reads the private fixtures and records only the shapes around each entity, never the text. Shapes means the punctuation before and after, the quote style, whether a formatting run splits it, and whether it sits in a table, header or footnote. It then checks that the synthetic corpus covers every shape seen. A shape she has and we don't generate fails the check. Every new client package is harvested the same way.
 
+**Done.** Run `npm run shapes` on every new client package. It reads each fixture in ../private-bench and records only the shape of every keyed occurrence, never text. A guard refuses output with three Hebrew letters in a row, and the report stays beside the fixtures. It then harvests what our checks cover, from the corpus, tests/shape-lib.js and tests/structure-lib.js, and fails on any shape she has that we don't.
+
+The first run over her five documents found 418 occurrences.
+- Every one sits in the body, in a single run, with no table, field, text box or separator. So the Word-structure work in 1b guards against files we haven't received yet, not against hers.
+- Three shapes she does have were missing: a right-to-left embedding mark before a name (12 times), a bracket straight after one, and several prefix letters.
+- Adding them exposed a real gap: two prefix letters on a model span were never peeled.
+
+tests/harvest_t.js checks the harvester itself. Its first run reported "all covered" while finding nothing.
+
+A caveat: all five fixtures are redacted copies, not her originals, and a replacement writes into a single run. The "single run" finding is partly an artifact, and only an original file shows her real run structure.
+
 ### 5. Self-checks in her sessions
 
 The same invariants run inside the product and write a structural event to the session log when one breaks, with no text in it. Examples: "listed value not found although its letters are present", "card with edge punctuation", "overlay drift". They come back in her test package, so we see a break before she has to describe it.
@@ -74,8 +85,8 @@ QA runs use documents with real typography, carry the layer-3 misbehaviour list,
 | 6 | Class-not-instance rule in the PR template | an hour | done |
 | 5 | Self-check events in the session log | half a day | done |
 | 1b | Shape suite extended to places, restore and Word structure | about a day | done |
-| 4 | Shape harvesting from the private fixtures | one to two days | next |
-| 7 | Next QA round with the new brief | one round | |
+| 4 | Shape harvesting from the private fixtures | one to two days | done |
+| 7 | Next QA round with the new brief | one round | next |
 
 ## How we'll know it works
 
