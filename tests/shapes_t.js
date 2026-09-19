@@ -111,6 +111,20 @@ for (const [value, parts] of [["חיפה", ["חיפה"]], ["תל אביב", ["ת
   }
 }
 
+// layer 1b: a model span on a value in every shape comes back as exactly the value, also
+// when the model cut its first letter (it does, after swallowing a prefix letter)
+console.log("\n— a model span on a value, in every shape, is cleaned to exactly the value —");
+for (const [value, type] of [["מיכל ברנע", "PER"], ["חיפה", "LOC"], ["אלונים", "ORG"]]) {
+  for (const [name, f] of Object.entries(SHAPES)) {
+    const t = f(value), s = t.indexOf(value);
+    if (s < 0) continue;
+    for (const [how, a, b] of [["exact", s, s + value.length], ["first letter cut", s + 1, s + value.length]]) {
+      const got = C.nerClean([{ type, score: 0.99, s: a, e: b }], t, {}).map((x) => x.value);
+      ok(got.length === 1 && got[0] === value, `${value}, ${name}, ${how}: ${JSON.stringify(t)} gave ${JSON.stringify(got)}`);
+    }
+  }
+}
+
 // layer 1b: the AI answers in its own shapes, and the real name comes back from each
 console.log("\n— the real name comes back from the AI answer in every shape —");
 {

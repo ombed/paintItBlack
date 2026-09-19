@@ -88,10 +88,19 @@ function nerClean(ents,text,opt){
   for(const e of ents){
     if(!NER_KIND[e.type]||e.score<min)continue;
     // ── תיקון הקיצוץ: מרחיבים כל קצה עד גבול מילה בטקסט המקורי ──
+    // גבול מילה הוא אות או ניקוד. ״ ו-־ יושבים בטווח העברי, ובלי ההבחנה "״מיכל ברנע״" נקרא
+    // כמילה שנחתכה ו-מ קולפה, ו"המורה־מיכל" נבלע לתוך השם (שכבה 1ב, אותו סוג כמו המירכאות
+    // ב-v41). סימן בתוך מילה נכלל רק בצורה שהעברית כותבת אותו: גרשיים לפני האות האחרונה
+    // של ראשי תיבות (צה״ל, עו"ד), וגרש אחרי ג, ז, צ או ת (ג׳ורג׳). "ב״חיפה״" הוא ציטוט.
+    const LET=/[֑-ֽֿ-ׇא-ת]/, isL=k=>k>=0&&k<text.length&&LET.test(text[k]);
+    const inner=k=>{const c=text[k];
+      if(c==='"'||c==='״')return isL(k-1)&&isL(k+1)&&!isL(k+2);
+      if(c==="'"||c==='׳')return /[גזצץת]/.test(text[k-1]||"");
+      return false};
     let s=e.s,en=e.e;
-    while(s>0&&/[\u0590-\u05ff]/.test(text[s-1]))s--;
+    while(s>0&&(isL(s-1)||(inner(s-1)&&isL(s-2))))s--;
     const endWas=en;
-    while(en<text.length&&/[\u0590-\u05ff'"\u05f3\u05f4]/.test(text[en]))en++;
+    while(en<text.length&&(isL(en)||(inner(en)&&isL(en-1))))en++;
     // המודל מקצץ בסוף בדיוק כשהוא בלע אות שימוש בהתחלה. ההארכה בסוף
     // היא לכן העדות הטובה ביותר לכך שהאות הראשונה אינה חלק מהשם.
     const wasCut=en>endWas;
