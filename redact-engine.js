@@ -1039,10 +1039,19 @@ function nerClean(ents,text,opt){
   for(const e of ents){
     if(!NER_KIND[e.type]||e.score<min)continue;
     // ── תיקון הקיצוץ: מרחיבים כל קצה עד גבול מילה בטקסט המקורי ──
+    // גבול מילה הוא אות או ניקוד. ״ ו-־ יושבים בטווח העברי, ובלי ההבחנה "״מיכל ברנע״" נקרא
+    // כמילה שנחתכה ו-מ קולפה, ו"המורה־מיכל" נבלע לתוך השם (שכבה 1ב, אותו סוג כמו המירכאות
+    // ב-v41). סימן בתוך מילה נכלל רק בצורה שהעברית כותבת אותו: גרשיים לפני האות האחרונה
+    // של ראשי תיבות (צה״ל, עו"ד), וגרש אחרי ג, ז, צ או ת (ג׳ורג׳). "ב״חיפה״" הוא ציטוט.
+    const LET=/[֑-ֽֿ-ׇא-ת]/, isL=k=>k>=0&&k<text.length&&LET.test(text[k]);
+    const inner=k=>{const c=text[k];
+      if(c==='"'||c==='״')return isL(k-1)&&isL(k+1)&&!isL(k+2);
+      if(c==="'"||c==='׳')return /[גזצץת]/.test(text[k-1]||"");
+      return false};
     let s=e.s,en=e.e;
-    while(s>0&&/[\u0590-\u05ff]/.test(text[s-1]))s--;
+    while(s>0&&(isL(s-1)||(inner(s-1)&&isL(s-2))))s--;
     const endWas=en;
-    while(en<text.length&&/[\u0590-\u05ff'"\u05f3\u05f4]/.test(text[en]))en++;
+    while(en<text.length&&(isL(en)||(inner(en)&&isL(en-1))))en++;
     // המודל מקצץ בסוף בדיוק כשהוא בלע אות שימוש בהתחלה. ההארכה בסוף
     // היא לכן העדות הטובה ביותר לכך שהאות הראשונה אינה חלק מהשם.
     const wasCut=en>endWas;
@@ -2019,26 +2028,48 @@ const GAZ_RX=new RegExp("(?<![\\u0590-\\u05ff])(?:[בהולמכש]|ו[בהלמכ
   GAZ.slice().sort((a,b)=>b.length-a.length).map(n=>n.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+
   ")(?![\\u0590-\\u05ff])","gu");
 /* ══════════════════════════ DOCX ══════════════════════════ */
+/* טאב, מעבר שורה ומקף שאינו נשבר הם אלמנטים ולא תווים. בלי מפריד, "רחל<טאב/>פרידמן"
+   נקרא "רחלפרידמן": השם לא נמצא, והבדיקה שאחרי ההחלפה לא ראתה אותו (שכבה 1ב בתוכנית
+   האיכות). הם נספרים כתו אחד, רק בתוך ריצה — w:tab בתוך w:tabs הוא הגדרת עצירה. */
+const SEP={tab:" ",br:" ",cr:" ",noBreakHyphen:"-"};
 function ownText(p,out){
   for(const c of p.children){
     if(c.localName==="p")continue;
     if(c.localName==="t"||c.localName==="delText")out.push(c);
+    else if(SEP[c.localName]&&p.localName==="r")out.push({sep:SEP[c.localName],el:c});
     ownText(c,out)}}
+const DML="http://schemas.openxmlformats.org/drawingml/2006/main";
+// טקסט שאינו בגוף ואינו טקסט חלופי: כותרת פקד תוכן, תגית, משתנה מסמך, כותרת תמונה
+const hiddenPart=p=>/טקסט חלופי|נתון נסתר/.test(p);
 function flatten(doc,part){
   const out=[];
-  for(const p of doc.getElementsByTagNameNS(W,"p")){
+  // SmartArt וגרפים כותבים פסקאות DrawingML (a:p), לא פסקאות Word
+  const dml=/\/(diagrams|charts)\//.test(part);
+  for(const p of doc.getElementsByTagNameNS(dml?DML:W,"p")){
     const els=[];ownText(p,els);
     let pos=0;const spans=[];let txt="";
-    for(const el of els){const t=el.textContent||"";if(!t)continue;
+    for(const el of els){
+      if(el.sep){spans.push({el:el.el,s:pos,e:pos+1,sep:true});txt+=el.sep;pos++;continue}
+      const t=el.textContent||"";if(!t)continue;
       spans.push({el,s:pos,e:pos+t.length,attr:null});txt+=t;pos+=t.length}
-    if(txt)out.push({text:txt,spans,part});
+    if(txt.trim())out.push({text:txt,spans,part});
   }
-  for(const sel of ["docPr","cNvPr"])
-    for(const el of doc.getElementsByTagName("*")){
-      if(el.localName!==sel)continue;
-      for(const a of ["descr","name"]){const v=el.getAttribute(a);
+  // תוויות בגרף: שם קטגוריה או סדרה במטמון המחרוזות
+  if(dml)for(const el of doc.getElementsByTagName("*")){
+    if(el.localName!=="v"||!el.parentNode||el.parentNode.localName!=="pt")continue;
+    let a=el.parentNode.parentNode;
+    if(!a||a.localName!=="strCache")continue;
+    const t=el.textContent||"";if(t.trim())out.push({text:t,spans:[{el,s:0,e:t.length,attr:null}],part});
+  }
+  for(const el of doc.getElementsByTagName("*")){
+    const ln=el.localName;
+    if(ln==="docPr"||ln==="cNvPr"){
+      for(const a of ["descr","name","title"]){const v=el.getAttribute(a);
         if(v&&v.trim())out.push({text:v,spans:[{el,s:0,e:v.length,attr:a}],
           part:part+" (טקסט חלופי)"})}}
+    else if((ln==="alias"||ln==="tag"||ln==="docVar")&&el.namespaceURI===W){
+      const v=el.getAttribute("w:val");
+      if(v&&v.trim())out.push({text:v,spans:[{el,s:0,e:v.length,attr:"w:val"}],part:part+" (נתון נסתר)"})}}
   return out}
 function setSpan(sp,v){
   if(sp.attr)sp.el.setAttribute(sp.attr,v);
@@ -2051,11 +2082,14 @@ function applyReps(blk,reps){
   for(let i=cl.length-1;i>=0;i--){
     const [s,e,nw]=cl[i];
     const touched=blk.spans.filter(sp=>sp.s<e&&sp.e>s);
-    if(!touched.length)continue;
+    const w0=touched.findIndex(sp=>!sp.sep);
+    if(w0<0)continue;
     touched.forEach((sp,ix)=>{
+      // טאב או מעבר שורה בתוך הערך יוצאים איתו: הכינוי כתוב ברצף אחד
+      if(sp.sep){ if(sp.el.parentNode)sp.el.parentNode.removeChild(sp.el); return; }
       const t=sp.attr?sp.el.getAttribute(sp.attr):sp.el.textContent;
       const ls=Math.max(s,sp.s)-sp.s, le=Math.min(e,sp.e)-sp.s;
-      setSpan(sp, ix===0 ? t.slice(0,ls)+nw+t.slice(le) : t.slice(0,ls)+t.slice(le));
+      setSpan(sp, ix===w0 ? t.slice(0,ls)+nw+t.slice(le) : t.slice(0,ls)+t.slice(le));
     });}
   return cl.length}
 function acceptTracked(doc){
@@ -2068,7 +2102,34 @@ function acceptTracked(doc){
         const p=el.parentNode;while(el.firstChild)p.insertBefore(el.firstChild,el);
         el.remove();ins++;go=true;break}}}
   for(const el of Array.from(doc.getElementsByTagNameNS(W,"delText")))el.remove();
+  /* שינוי עיצוב במעקב (rPrChange, pPrChange וכו') שומר את העיצוב הקודם ואת שם מי שעשה
+     אותו. קבלת השינוי היא מחיקת הרשומה; בלעדיה שם הכותב נשאר בקובץ (שכבה 1ב). */
+  for(const el of Array.from(doc.getElementsByTagName("*")))
+    if(el.namespaceURI===W&&/PrChange$|^numberingChange$/.test(el.localName)&&el.parentNode){el.parentNode.removeChild(el);del++}
   return [ins,del]}
+/* חלקים שאינם גוף המסמך ובכל זאת נושאים טקסט שיוצא עם הקובץ (שכבה 1ב): משתני מסמך
+   בהגדרות, צורות SmartArt, ותוויות וכותרות של גרפים. הספרייה המוטמעת של גרף
+   (word/embeddings) אינה נקראת כאן; היא מדווחת כערוץ שלא נותח. */
+const EXTRAPART=/^word\/(settings\.xml|diagrams\/(data|drawing)\d*\.xml|charts\/chart\d*\.xml)$/;
+/* שם סימנייה נשמר בקובץ ונראה בחלון "סימניות" של Word — וסימנייה נקראת לעתים על שם
+   אדם ("רחל_פרידמן"). סימנייה עם אות עברית מקבלת שם ניטרלי, וכל הפניה אליה (קישור
+   פנימי, שדה REF או PAGEREF) עוברת איתה, כך שההפניות ממשיכות לעבוד. */
+function renameBookmarks(docsXml){
+  const map=new Map();let n=0;
+  for(const d of docsXml)for(const el of Array.from(d.getElementsByTagNameNS(W,"bookmarkStart"))){
+    const v=el.getAttribute("w:name")||"";
+    if(!/[א-ת]/.test(v))continue;
+    if(!map.has(v))map.set(v,"_pib"+(++n));
+    el.setAttribute("w:name",map.get(v));
+  }
+  if(!map.size)return 0;
+  const swap=t=>{let o=t;for(const [a,b] of map)o=o.split(a).join(b);return o};
+  for(const d of docsXml)for(const el of Array.from(d.getElementsByTagName("*"))){
+    if(el.localName==="hyperlink"&&el.getAttribute("w:anchor"))el.setAttribute("w:anchor",swap(el.getAttribute("w:anchor")));
+    else if(el.localName==="fldSimple"&&el.getAttribute("w:instr"))el.setAttribute("w:instr",swap(el.getAttribute("w:instr")));
+    else if(el.localName==="instrText")el.textContent=swap(el.textContent||"");
+  }
+  return map.size}
 function stripComments(doc){
   let n=0;const t=["commentRangeStart","commentRangeEnd","commentReference","annotationRef"];
   for(const el of Array.from(doc.getElementsByTagName("*")))
@@ -2120,12 +2181,14 @@ async function redactDocx(buf,subs,allow,opt){
   }
   const docs=[];
   for(const f of keep){
-    if(!TEXTPART.test(f.name))continue;
+    const main=TEXTPART.test(f.name);
+    if(!main&&!EXTRAPART.test(f.name))continue;
     const o=TXT.decode(f.data),d=parseXML(o);
-    const [i,dl]=acceptTracked(d);rep.ins+=i;rep.del+=dl;
-    rep.cm+=stripComments(d);rep.rsid+=stripRsid(d);
+    if(main){const [i,dl]=acceptTracked(d);rep.ins+=i;rep.del+=dl;
+      rep.cm+=stripComments(d);rep.rsid+=stripRsid(d);}
     docs.push({f,doc:d,orig:o});
   }
+  rep.bookmarks=renameBookmarks(docs.map(x=>x.doc));
   const applied=[],flagged=[],secrets=[];
   let blocks=[];
   for(const dd of docs) blocks=blocks.concat(flatten(dd.doc,dd.f.name));
@@ -2339,7 +2402,7 @@ async function redactDocx(buf,subs,allow,opt){
     for(const t of tset.values())banned.add(t.norm);
     for(const a of (allow||[]))banned.add(norm(a).trim());
     let blocksN=[];for(const dd of docs)blocksN=blocksN.concat(flatten(dd.doc,dd.f.name));
-    near=findNear(blocksN.filter(b=>!b.part.includes("טקסט חלופי")),
+    near=findNear(blocksN.filter(b=>!hiddenPart(b.part)),
       [...tset.values()],banned);
     for(const nm of near)flagged.push(nm);
   }
@@ -2377,7 +2440,7 @@ async function redactDocx(buf,subs,allow,opt){
     if(opt.body===false)throw {skip:1};
     const known=[...subs.map(s=>s.value),...(allow||[]),
       ...applied.map(r=>r.base||r.value),...applied.map(r=>r.baseRep||r.rep)];
-    suggest=bodyNames(ORIG.filter(b=>!b.part.includes("טקסט חלופי")),known)
+    suggest=bodyNames(ORIG.filter(b=>!hiddenPart(b.part)),known)
       .filter(x=>!near.some(nm=>norm(nm.value).trim()===norm(x.value).trim()))
       .slice(0,12);
   }catch(e){if(!e||!e.skip)console.warn("סריקת גוף הטקסט נכשלה",e)}
@@ -2390,11 +2453,14 @@ async function redactDocx(buf,subs,allow,opt){
 const PARTN={"document.xml":"גוף המסמך","footnotes.xml":"הערות שוליים","endnotes.xml":"הערות סיום"};
 function partName(p){
   const base=p.split(" (")[0].split("/").pop();
-  const ex=p.includes("טקסט חלופי")?" · טקסט חלופי":"";
+  const ex=p.includes("טקסט חלופי")?" · טקסט חלופי":p.includes("נתון נסתר")?" · נתון נסתר":"";
   if(PARTN[base])return PARTN[base]+ex;
   if(base.startsWith("header"))return "כותרת עליונה"+ex;
   if(base.startsWith("footer"))return "כותרת תחתונה"+ex;
   if(p.includes("glossary"))return "רכיבים מהירים"+ex;
+  if(p.includes("/diagrams/"))return "תרשים SmartArt"+ex;
+  if(p.includes("/charts/"))return "גרף"+ex;
+  if(base==="settings.xml")return "הגדרות המסמך"+ex;
   return base+ex}
 function ctxHTML(t,s,e,w=55){
   const a=Math.max(0,s-w),b=Math.min(t.length,e+w);
@@ -2436,6 +2502,11 @@ async function verify(buf,secrets){
     if(/^word\/(embeddings|media)\//.test(f.name))emb.push(f.name);
     for(const enc of ["utf-8","utf-16le"]){
       let t;try{t=new TextDecoder(enc).decode(f.data)}catch(_){continue}
+      /* הבדיקה קראה רק את ה-XML כמו שהוא, ושם שמפוצל בין ריצות, מופרד בטאב או כתוב
+         עם קו תחתון ("רחל_פרידמן") לא נראה לה כלל (שכבה 1ב). קוראים גם את הטקסט בלי
+         תגיות, כשטאב ומעבר שורה הם רווח וקו תחתון הוא רווח. */
+      if(/\.(xml|rels)$/.test(f.name)&&enc==="utf-8")
+        t+="\n"+t.replace(/<\/(?:w|a):p>/g,"\n").replace(/<w:(?:tab|br|cr)\b[^>]*\/>/g," ").replace(/<w:noBreakHyphen\/>/g,"-").replace(/<[^>]+>/g,"")+"\n"+t.replace(/_/g," ");
       const nt=norm(t);
       // מספר או תאריך נבדקים בגבולות ספרות: "1.3.2026" אינו דולף בתוך התאריך המוזז "11.3.2026"
       for(const [o,nv] of sec){
@@ -2896,13 +2967,18 @@ function pseudoRX(p){
   const pat=[...p].map(c=>/['\u05f3\u2019]/.test(c)?"['\u05f3\u2019]"
     :/["\u05f4\u201d]/.test(c)?'["\u05f4\u201d]'
     :/[-\u05be\u2013\s]/.test(c)?"[-\\u05be\\u2013\\s]+":esc(c)).join("");
+  /* גבול המילה הוא אות או ניקוד, לא כל הטווח העברי: ״ ו-׳ ו-־ (מקף) יושבים בטווח,
+     ולכן כינוי בגרשיים ("״מיכל ברנע״") או אחרי מקף ("ל־מיכל") לא הוחזר — אותו סוג
+     של באג כמו השם במירכאות ב-v41 (שכבה 1ב). אות שימוש יכולה לבוא עם מקף, והמקף
+     נשאר איתה. */
+  const L="\u0591-\u05bd\u05bf-\u05c7\u05d0-\u05ea", PRE="(?:[בהולמכש]|ו[בהלמכ]|כש|מה|לכ)";
   // כינוי שמתחיל ב-ה ("הגפן") נכתב במסמך בלי ה אחרי ב/ל/כ ("בגפן", "לגפן"):
   // כך addPre כותב אותו, וכך ה-AI מעתיק אותו. הקבוצה השנייה תופסת את הצורה הזאת.
   if(p[0]==="ה"&&p.length>2)
-    return new RegExp("(?<![\\u0590-\\u05ff])(?:([בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?ה|([בלכ]|ו[בלכ]|כש))"+
-      pat.slice(esc("ה").length)+"(?![\\u0590-\\u05ff])","gu");
-  return new RegExp("(?<![\\u0590-\\u05ff])([בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?"+pat+
-    "(?![\\u0590-\\u05ff])","gu");
+    return new RegExp("(?<!["+L+"])(?:("+PRE+"[-\u05be]?)?ה|((?:[בלכ]|ו[בלכ]|כש)[-\u05be]?))"+
+      pat.slice(esc("ה").length)+"(?!["+L+"])","gu");
+  return new RegExp("(?<!["+L+"])("+PRE+"[-\u05be]?)?"+pat+
+    "(?!["+L+"])","gu");
 }
 // זוגות [שם אמיתי, כינוי]. מחזיר טקסט, כמה הוחזרו, ומה לא נמצא —
 // כינוי שלא נמצא הוא לא בהכרח תקלה, אבל כדאי לדעת עליו.
