@@ -1,0 +1,28 @@
+name: pr
+
+# docs/QUALITY-PLAN.md, layer 6: a bug fix closes the class, not the instance.
+# Reads the pull request description (.github/pull_request_template.md) and
+# fails a bug fix that does not name the test for the case, the class and what
+# covers it, and the probe across its siblings. Runs again when the
+# description is edited, without rerunning the test suite.
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  description:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # the description goes through the environment, never into the command line
+      - run: node scripts/check-pr.js
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
