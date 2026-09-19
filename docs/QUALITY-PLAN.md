@@ -21,7 +21,7 @@ Each layer catches a different kind of miss. The first one is already in place.
 
 `tests/shapes_t.js` writes the same values in 31 shapes: every quote style, a prefix letter before the quote, brackets, dashes, maqaf, no-break spaces, direction marks, line breaks and tabs inside, footnote digits and bullets. For each shape it checks that the value is found, fully replaced, and shown in context, and that no suggested value carries punctuation at its edge. Numbers get the same treatment, with and without a space after their label. **Done: 221 checks. On the previous engine the same suite reports 62 failures.**
 
-Next: extend it to places, organisations, restore of AI answers, and the Word structure itself. That means a name split across two formatting runs, footnotes, text boxes, tables, headers and footers, and tracked changes.
+**1b, done.** Places now go through every shape, with and without a prefix letter, and all of them pass. The AI's answer goes through every shape plus markdown, titles and prefixes, and restore missed two: a fake name in gershayim and one after a maqaf. That was the same word-boundary class as the quoted names. `tests/structure_t.js` builds real .docx files with a name in 28 Word structures and reads every XML part of the output. It found ten ways a name left the tool, and all are fixed. They were: a tab, line break or non-breaking hyphen inside the name; content-control titles and tags; picture titles; document variables; bookmark names; SmartArt; chart labels; and tracked formatting changes. It also found that the final check could not see a name split across runs. The old engine fails 14 of its 66 checks. Still outside the scan: a chart's embedded workbook, which is reported as an unanalysed channel, and text inside images.
 
 ### 2. Invariants checked after every run, in every browser test
 
@@ -73,8 +73,8 @@ QA runs use documents with real typography, carry the layer-3 misbehaviour list,
 | 3 | Misbehaving-user helper on the main journeys | about a day | done |
 | 6 | Class-not-instance rule in the PR template | an hour | done |
 | 5 | Self-check events in the session log | half a day | done |
-| 1b | Shape suite extended to places, restore and Word structure | about a day | next |
-| 4 | Shape harvesting from the private fixtures | one to two days | |
+| 1b | Shape suite extended to places, restore and Word structure | about a day | done |
+| 4 | Shape harvesting from the private fixtures | one to two days | next |
 | 7 | Next QA round with the new brief | one round | |
 
 ## How we'll know it works
