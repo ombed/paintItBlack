@@ -38,6 +38,8 @@ A shared automatic fixture asserts the product's promises on whatever screen the
 
 A helper that does what a real person does between the steps a test expects. It scrolls the page and each pane, resizes, clicks outside overlays, presses Escape, Tab and Back, and double-clicks. The main journeys (entry to restore, the tour, a second document in a case) run through it at a desktop, a laptop and a phone size, and the layer-2 invariants are checked after each disturbance.
 
+**Done.** `e2e/unruly.js` holds the helper, `disturb(page, label, opts)`. It scrolls the page and every pane, narrows the window and restores it, clicks empty space, double-clicks a word, tabs, presses Escape, and presses Back and answers "stay" once a document is loaded. After each action it runs the layer-2 self-check, and the screen must still be the one the user was on. The sequence is fixed, so a failure reproduces from its label. `e2e/unruly.spec.js` runs the three journeys at 1440, 1280 and 390 px. On its first run it found one real bug: on a phone, a tooltip opened while the places screen rose into place stayed 3-5 px below its word. Back during the tour is left out on purpose, since the tour has no Back guard by design.
+
 ### 4. Shapes harvested from her real documents
 
 A script reads the private fixtures and records only the shapes around each entity, never the text. Shapes means the punctuation before and after, the quote style, whether a formatting run splits it, and whether it sits in a table, header or footnote. It then checks that the synthetic corpus covers every shape seen. A shape she has and we don't generate fails the check. Every new client package is harvested the same way.
@@ -64,8 +66,8 @@ QA runs use documents with real typography, carry the layer-3 misbehaviour list,
 |---|---|---|---|
 | 1 | Shape suite for names, organisations and numbers | — | done |
 | 2 | Invariants after every browser test | about a day | done |
-| 3 | Misbehaving-user helper on the main journeys | about a day | next |
-| 6 | Class-not-instance rule in the PR template | an hour | |
+| 3 | Misbehaving-user helper on the main journeys | about a day | done |
+| 6 | Class-not-instance rule in the PR template | an hour | next |
 | 5 | Self-check events in the session log | half a day | |
 | 1b | Shape suite extended to places, restore and Word structure | about a day | |
 | 4 | Shape harvesting from the private fixtures | one to two days | |
