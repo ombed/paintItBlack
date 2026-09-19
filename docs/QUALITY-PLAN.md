@@ -56,6 +56,8 @@ Every reported bug closes with three things, written into the PR template:
 2. The shape or invariant that covers its siblings.
 3. A probe across those siblings before closing, as the 31-shape probe did for quotes, which found footnote digits and glued numbers in the same pass.
 
+**Done, and checked rather than only written.** `.github/pull_request_template.md` asks for the three answers under a "Kind" choice. The `pr` workflow runs `scripts/check-pr.js` on the description and reruns whenever the description is edited, without rerunning the test suite. A PR must tick exactly one kind. A bug fix fails the check until the first answer names a test file under tests/ or e2e/ and the other two answers are not empty. The template's hints sit in HTML comments and do not count as answers. `tests/prcheck_t.js` builds every case from the real template, so the two cannot drift apart. The check can see that an answer is there, not whether it is good. That judgement stays with the reviewer.
+
 ### 7. A sharper brief for QA rounds
 
 QA runs use documents with real typography, carry the layer-3 misbehaviour list, and report the layer-2 invariants on every screen they visit.
@@ -67,8 +69,8 @@ QA runs use documents with real typography, carry the layer-3 misbehaviour list,
 | 1 | Shape suite for names, organisations and numbers | — | done |
 | 2 | Invariants after every browser test | about a day | done |
 | 3 | Misbehaving-user helper on the main journeys | about a day | done |
-| 6 | Class-not-instance rule in the PR template | an hour | next |
-| 5 | Self-check events in the session log | half a day | |
+| 6 | Class-not-instance rule in the PR template | an hour | done |
+| 5 | Self-check events in the session log | half a day | next |
 | 1b | Shape suite extended to places, restore and Word structure | about a day | |
 | 4 | Shape harvesting from the private fixtures | one to two days | |
 | 7 | Next QA round with the new brief | one round | |
