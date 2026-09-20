@@ -329,6 +329,7 @@ test("L6: the theme follows the OS until she chooses one", async ({ page }) => {
 
 test("L7: a valid file clears the error of the previous one", async ({ page }) => {
   await H.serveEngineWithStub(page);
+  await H.servePdfJsLocally(page); // the PDF library from node_modules, not from the network
   await H.boot(page);
   await page.locator('input[type="file"][accept*=".docx"]').setInputFiles("e2e/fixtures/case-empty.docx");
   await expect(page.locator("[data-file-err]")).toBeVisible();

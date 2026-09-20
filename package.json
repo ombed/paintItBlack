@@ -36,6 +36,7 @@
     "@playwright/test": "^1.62.1",
     "@xmldom/xmldom": "^0.9.12",
     "eslint": "^9.39.5",
-    "jsdom": "^30.0.1"
+    "jsdom": "^30.0.1",
+    "pdfjs-dist": "4.6.82"
   }
 }
