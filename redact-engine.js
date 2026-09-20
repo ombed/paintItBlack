@@ -1877,8 +1877,11 @@ class Engine{
     this.rules.sort((a,b)=>b.rx.source.length-a.rx.source.length);
     // הרשימה הלבנה חייבת לתפוס גם צורות עם אות שימוש ("בתל אביב"),
     // אחרת "אל תחליף" נכשל בשקט על כל מילה עם ב/ל/מ/ה לפניה.
+    // אותן אותיות שימוש שהכללים עצמם מכירים (SING ו-DBL ב-02-hebrew.js), ולא רשימה נפרדת:
+    // הרשימה שעמדה כאן הכירה 15 מתוך 22 הצורות, ו"שבחיפה" הוחלף גם אחרי "אל תחליף" (ביקורת H8)
+    const ALLOW_PRE="(?:"+[...DBL,...SING].join("|")+")?";
     this.allow=(allow||[]).map(a=>new RegExp(
-      "(?<![\\u0590-\\u05ff])(?:[בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?"+
+      "(?<![\\u0590-\\u05ff])"+ALLOW_PRE+
       flex(a)+NWE,"gu"));
     // הצורה המנורמלת של כל ערך מותר, באותו סדר, בשביל השער שב-detect
     this.allowN=(allow||[]).map(a=>norm(a).trim());
@@ -1922,8 +1925,9 @@ class Engine{
       const own=(this.allowN||[])[i]||"";
       while((m=rx.exec(n))){
         const tok=m[0].trim();
-        // רק כשההרחבה נחתה על ערך אחר ברשימה; "שרון" שהותרה בעצמה נשארת מותרת
-        if(tok!==own&&listed.has(tok))continue;
+        // רק כשההרחבה נחתה על ערך אחר ברשימה; "שרון" שהותרה בעצמה נשארת מותרת.
+        // גם כשלפני הערך האחר עומדת אות שימוש: "ושרון" הוא ו+שרון, לא וש+רון
+        if(tok!==own&&(listed.has(tok)||SING.some(p=>tok.startsWith(p)&&tok.slice(1)!==own&&listed.has(tok.slice(1)))))continue;
         zones.push([m.index,m.index+m[0].length])}});
     const hits=[];
     for(const r of this.rules){r.rx.lastIndex=0;let m;

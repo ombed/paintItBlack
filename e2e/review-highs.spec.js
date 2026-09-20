@@ -174,3 +174,32 @@ test("removing the last rule is saved too: the case does not keep a list she emp
   await expect.poll(async () => (await stored()).rules.map((r) => r.value)).not.toContain("רחל פרידמן");
   expect((await stored()).removed).toEqual(["רחל פרידמן"]);
 });
+
+/* H8: «אל תחליף» on a place, in the second document of a case. The rule arrives from the case
+   profile, the button added the allowance and left the rule, and the allowance knew fewer prefix
+   forms than the rule: "בחיפה" stayed and "שבחיפה" was replaced in the same document. */
+test("«אל תחליף» on a place holds for every prefix form, also when the case already had a rule for it", async ({ page }) => {
+  const prof = { v: 1, name: "תיק מקומות", created: new Date().toISOString(), updated: new Date().toISOString(), mode: "real",
+    rules: [{ value: "חיפה", kind: "PLACE", replacement: "אשדוד", auto: false }], allow: [], map: { "חיפה": "אשדוד" } };
+  await H.serveEngineWithStub(page);
+  await page.addInitScript((p) => { try { localStorage.setItem("redact-cases", JSON.stringify({ [p.name]: p })); } catch (_) {} }, prof);
+  await H.boot(page);
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "second.docx", ["סיכום ביקור", "המשפחה מתגוררת בחיפה מזה שש שנים, ועברה לשם מתל אביב.", "העובדת הסוציאלית ציינה שבחיפה אין מעון מתאים, ושהחיפוש נמשך גם בירושלים."].join("\n"));
+  await page.getByRole("button", { name: "שימוש בתיק הזה" }).click();
+  await H.startScan(page);
+  await expect(H.goButton(page).or(H.skipButton(page)).first()).toBeVisible({ timeout: 10000 });
+  if (await H.goButton(page).isVisible()) await H.goOn(page); else await H.skipButton(page).click();
+  const row = page.locator('div:has(> button:text-is("אל תחליף"))').filter({ hasText: "חיפה" }).first();
+  await expect(row).toBeVisible({ timeout: 15000 });
+  await row.getByRole("button", { name: "אל תחליף" }).click();
+  const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה|המשך לעיבוד/ }).first();
+  await run.click();
+  await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
+  const text = await page.locator("[data-work] section").first().innerText();
+  expect(text).toContain("מתגוררת בחיפה");
+  expect(text).toContain("ציינה שבחיפה");
+  expect(text).not.toContain("אשדוד");
+  const held = await page.evaluate(() => { const s = window.__pib.state(); return { rule: s.rules.some((r) => r.value === "חיפה"), allow: s.allow.includes("חיפה") }; });
+  expect(held).toEqual({ rule: false, allow: true });
+});

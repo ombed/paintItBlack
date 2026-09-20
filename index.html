@@ -1978,7 +1978,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(kept.length>=2) geo={...old, map:kept};
     else if(kept.length===1&&!extra.some(x=>E.norm(x.name).trim()===E.norm(kept[0].from).trim()))
       extra=[{name:kept[0].from, ambiguous:false, to:kept[0].to, on:true}, ...extra];
-    this.setState({geoNames:names, allow, geoEdits:{}, geoV:0,
+    // "אל תחליף" על יישוב מוריד גם את הכלל שלו, כמו addAllow ו-notAName (ביקורת H8): במסמך שני בתיק
+    // הכלל הגיע מהפרופיל, נשאר לצד ההיתר, והחליף את היישוב בכל צורה שההיתר לא הכיר
+    const nm=E.norm(name).trim(), rules=(this.state.rules||[]).filter(r=>E.norm(r.value).trim()!==nm);
+    this.setState({geoNames:names, allow, rules, geoEdits:{}, geoV:0,
       // בלי הבדיקה הזאת לחיצה שנייה על אותו יישוב הכניסה אותו לרצועה פעמיים
       geoExcluded: ex.includes(name) ? ex : [...ex, name],
       geo, geoExtra:extra});

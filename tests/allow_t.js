@@ -43,5 +43,18 @@ console.log("\n— allowing רון does not keep שרון —");
   ok(!/(^|[^א-ת])רון([^א-ת]|$)/.test(out) || out.includes("יובל"), "and רון is still replaced: " + out);
 }
 
+{
+  /* Review H8. "אל תחליף" on a place kept its rule beside the allowance, and the allowance knew
+     15 of the 22 prefix forms the rules know, so "שבחיפה" was replaced after she had said not to.
+     Every form the engine can write for a rule must be covered by the same value when allowed.
+     The forms come from the engine's own variants(), not from a list typed here. */
+  const subs = [{ value: "חיפה", kind: "PLACE", replacement: "אשדוד" }];
+  const forms = [...new Set(C.variants("חיפה", "normal").map((v) => v[0]))];
+  ok(forms.length >= 20, "the engine writes the prefix forms: " + forms.length);
+  const missed = forms.filter((f) => apply("המשפחה גרה " + f + " מזה שנים.", subs, ["חיפה"]).out.includes("אשדוד"));
+  ok(missed.length === 0, "an allowed place is kept in every prefix form; replaced anyway in: " + missed.join(" "));
+  ok(apply("המשפחה גרה בחיפה.", subs, []).out.includes("אשדוד"), "and without the allowance the rule still works");
+}
+
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
