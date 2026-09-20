@@ -1666,6 +1666,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         : "המודל רץ ולא מצא שמות מעבר למה שברשימה. אפשר להקליד שמות נוספים למטה."});
     }catch(e){
       if(my!==this._scan) return;
+      /* היא כבר המשיכה (ביקורת M3): ההודעה על הכישלון חיה רק במסך השמות, ובמסך הבדיקה לא הופיעה
+         המילה "מודל" בכלל — הענף של הצלחה טיפל במי שהמשיכה, והענף של כישלון לא. */
+      if(this._goneAhead===my&&this.state.screen!=="people"){ this._goneAhead=null; this.log.add("model-late",{failed:true, screen:this.state.screen});
+        this.setState({notice:"מודל הזיהוי לא נטען, והמסמך נבדק בלעדיו. ייתכנו שמות שלא נמצאו — כדאי לעבור על הטקסט בעין.", noticeUndo:false}); }
       this.setState({nerBox:false, nerFailed:true, peoNote:"המודל לא נטען ("+String(e.message||e).slice(0,70)+"). ממשיכים בלעדיו — הזיהוי הרגיל פועל, ובסוף התהליך תוצג בדיקה על שמות שלא נרשמו."});
     }finally{ if(my===this._scan) this.setState({scanning:false}); }
   }
@@ -2658,9 +2662,15 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     Object.assign(map, cur.map||{});
     return {...cur, created:prev.created||cur.created, rules, allow, map, removed};
   }
+  /* מחיקת תיק מוחקת את השמות (ביקורת M1): כל פרופיל נכתב גם ל"פרופיל אחרון", ומחיקת התיק ניקתה רק
+     את רשימת התיקים — מפת השמות האמיתיים נשארה בדפדפן בטקסט גלוי. ואם התיק שנמחק הוא זה שפתוח,
+     השמירה הבאה יצרה אותו מחדש; עכשיו המסמך ממשיך בלי תיק. */
   deleteCase = name => {
     try{ const m=JSON.parse(localStorage.getItem("redact-cases")||"{}"); delete m[name]; localStorage.setItem("redact-cases", JSON.stringify(m)); }catch(_){}
-    this.setState({cases:this.readCases()});
+    try{ const last=JSON.parse(localStorage.getItem("redact-profile-last")||"null"); if(last&&last.name===name) localStorage.removeItem("redact-profile-last"); }catch(_){}
+    const mine=this.state.caseName===name;
+    this.setState({cases:this.readCases(), ...(mine?{caseName:"", profile:null}:{}),
+      ...(this.state.lastProfile&&this.state.lastProfile.name===name?{lastProfile:null}:{})});
   };
   resumeCase = name => { const p=this.readCases().find(c=>c.name===name); if(!p) return; this.setState({caseName:name, lastProfile:null}); this.applyProfile(p); };
   /* ── הסיור (Q15) ──

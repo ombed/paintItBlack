@@ -203,3 +203,56 @@ test("«אל תחליף» on a place holds for every prefix form, also when the 
   const held = await page.evaluate(() => { const s = window.__pib.state(); return { rule: s.rules.some((r) => r.value === "חיפה"), allow: s.allow.includes("חיפה") }; });
   expect(held).toEqual({ rule: false, allow: true });
 });
+
+/* M3: a model that fails after she chose not to wait. The failure message lived on the people
+   screen only, and the check screen did not mention the model at all. */
+test("a model that fails after she moved on says so on the screen she is on", async ({ page }) => {
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  await page.evaluate(() => { window.__ner = { delay: () => 6000, error: "הרשת נפלה" }; });
+  await H.upload(page, "case.docx", "פרוטוקול דיון — התובעת: רונית לוי\nרונית לוי הגישה בקשה לצו הגנה.\nהדיון התקיים ביום שלישי.");
+  await H.startScan(page);
+  await expect(H.scanning(page)).toBeVisible();
+  await page.getByRole("button", { name: /לא לחכות למודל/ }).click();
+  await expect(H.goButton(page)).toBeEnabled();
+  await H.goOn(page);
+  const run = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first();
+  await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 15000 });
+  if (await run.isVisible()) await run.click();
+  await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
+  const notice = page.locator("[data-notice]");
+  await expect(notice).toBeVisible({ timeout: 15000 });
+  await expect(notice).toContainText("מודל הזיהוי לא נטען");
+});
+
+/* M1: deleting a case cleared the case list and left the same real-name map in
+   "redact-profile-last", in plain text, and an open document re-created the case on its next save. */
+test("deleting a case deletes its names too", async ({ page }) => {
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "one.docx", ["פרוטוקול", "רחל פרידמן: אני מבקשת לפתוח.", "אבנר שטרן: הגעתי.", "רחל פרידמן: תודה.", "אבנר שטרן: נכון."].join("\n"));
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  await page.locator("[data-case-field] input").fill("תיק למחיקה");
+  await H.goOn(page);
+  const run = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first();
+  await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 15000 });
+  if (await run.isVisible()) await run.click();
+  await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
+  const store = () => page.evaluate(() => ({ cases: Object.keys(JSON.parse(localStorage.getItem("redact-cases") || "{}")), last: localStorage.getItem("redact-profile-last") || "" }));
+  await expect.poll(async () => (await store()).cases).toContain("תיק למחיקה");
+  expect((await store()).last).toContain("רחל פרידמן");
+
+  // back to the entry screen, where the case is listed, and delete it there
+  page.on("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "מסמך חדש" }).click();
+  const strip = page.locator("main").filter({ hasText: "תיק למחיקה" });
+  await expect(strip).toBeVisible();
+  await page.locator('button[title^="מחיקה מרשימת התיקים"]').first().click();
+  const after = await store();
+  expect(after.cases).not.toContain("תיק למחיקה");
+  expect(after.last).not.toContain("רחל פרידמן");
+  expect(after.last).not.toContain("אבנר שטרן");
+  await expect(page.getByText("תיק למחיקה")).toHaveCount(0);
+});
