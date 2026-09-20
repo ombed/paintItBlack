@@ -51,9 +51,17 @@ let pass=0,fail=0;const ok=(c,m)=>{c?pass++:(fail++,console.log("  ✗ "+m))};
    if(v&&p&&!(v in mapB))mapB[v]=p}
  console.log("מסמך ב׳ (עם פרופיל):"); console.log("  "+rb.preview.map(x=>x.text).join("\n  "));
 
- for(const k of Object.keys(mapA))
-   if(k in mapB) ok(mapA[k]===mapB[k],`«${k}» קיבל שם שונה: ${mapA[k]} מול ${mapB[k]}`);
- ok(true,"כל אדם שמופיע בשני המסמכים קיבל את אותו שם בדוי");
+ // (ביקורת M23: כאן עמד ok(true), והלולאה דילגה על מי שאינו במיפוי של מסמך ב׳ — כלומר על
+ // האדם הקשה מכולם, שמופיע שם רק בשם המשפחה. עכשיו כל אחד משלושת האנשים חייב להיבדק:
+ // שם מלא מול שם מלא, ושם משפחה לבדו מול שם המשפחה של אותו כינוי.)
+ let compared=0;
+ for(const k of Object.keys(mapA)){
+   const sur=k.split(" ").slice(1).join(" ");
+   if(k in mapB){ compared++; ok(mapA[k]===mapB[k],`«${k}» קיבל שם שונה: ${mapA[k]} מול ${mapB[k]}`); }
+   else if(sur&&sur in mapB){ compared++; const want=mapA[k].split(" ").slice(1).join(" ");
+     ok(mapB[sur]===want,`«${sur}» לבדו קיבל «${mapB[sur]}», ושם המשפחה של הכינוי במסמך א׳ הוא «${want}»`); }
+ }
+ ok(compared===Object.keys(mapA).length,`נבדקו ${compared} מתוך ${Object.keys(mapA).length} האנשים שבשני המסמכים`);
  const out=rb.preview.map(x=>x.text).join("\n");
  ok(!out.includes("רונית")&&!out.includes("גולדשמיט")&&!out.includes("בן-שחר"),
     "אין פרט מזהה במסמך ב׳: "+out.replace(/\n/g," / "));

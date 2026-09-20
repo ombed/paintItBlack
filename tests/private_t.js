@@ -20,8 +20,11 @@ const ok = (c, m) => { c ? pass++ : (fail++, console.log("  ✗ " + m)); };
 
 console.log("\n— nothing private is tracked —");
 {
-  let tracked = "";
-  try { tracked = execSync("git ls-files", { cwd: PRIVATE.ROOT, encoding: "utf8" }); } catch (_) { tracked = ""; }
+  // (review M24: a failing git used to become "", and an empty list has nothing private in it,
+  // so the only mechanical guard on this promise passed without looking)
+  let tracked = "", listed = true;
+  try { tracked = execSync("git ls-files", { cwd: PRIVATE.ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }); } catch (_) { listed = false; }
+  ok(listed && tracked.split("\n").length > 50, "git ls-files ran and listed the repository; without it this check proves nothing");
   const bad = tracked.split("\n").filter((f) => /private-bench|bench\/private\/|private-fixture|real-use|r\d+-interview/i.test(f));
   ok(bad.length === 0, "tracked paths that look private: " + JSON.stringify(bad));
 }
