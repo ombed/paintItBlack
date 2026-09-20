@@ -408,6 +408,8 @@ test("L22: a chip removed with ✕ is not offered again as a suggestion, and the
 });
 
 test("L16: if the engine fails to load, the message is plain Hebrew and offers a reload", async ({ page }) => {
+  // the engine is blocked on purpose, so the self-check hook can never be installed
+  test.info().annotations.push({ type: "no-self-check" });
   await page.route("**/redact-engine.js", (r) => r.abort());
   await page.addInitScript(() => { try { localStorage.setItem("redact-intro-seen", "1"); localStorage.setItem("redact-tour-seen", "*"); } catch (_) {} });
   await page.goto("/index.html");
