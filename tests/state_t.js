@@ -63,7 +63,8 @@ console.log("\n— every state key is cleared by 'new document' or is named as t
 ok(init.length >= 60, "the initial state was parsed: " + init.length + " keys");
 for (const k of init) ok(reset.has(k) || k in SESSION, `"${k}" is neither reset by "new document" nor listed as session-scoped`);
 for (const k of Object.keys(SESSION)) ok(init.includes(k) || k === "numStyle", `"${k}" is listed as session-scoped but is not a state key any more`);
-for (const k of ["leaks", "rvIn", "rvOut", "peoNotSame", "geoEdits", "rules", "allow", "caseName"]) ok(reset.has(k), `"${k}" holds one client's data and must be reset`);
+// origBlocks is set when a file is read, not in the initial state, and holds the whole original text
+for (const k of ["origBlocks", "leaks", "rvIn", "rvOut", "peoNotSame", "geoEdits", "rules", "allow", "caseName"]) ok(reset.has(k), `"${k}" holds one client's data and must be reset`);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exitCode = 1;
