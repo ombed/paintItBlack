@@ -10,8 +10,8 @@ function ownText(p,out){
     else if(SEP[c.localName]&&p.localName==="r")out.push({sep:SEP[c.localName],el:c});
     ownText(c,out)}}
 const DML="http://schemas.openxmlformats.org/drawingml/2006/main";
-// טקסט שאינו בגוף ואינו טקסט חלופי: כותרת פקד תוכן, תגית, משתנה מסמך, כותרת תמונה
-const hiddenPart=p=>/טקסט חלופי|נתון נסתר/.test(p);
+// טקסט חלופי של תמונה אינו חלק מגוף הטקסט: לא נסרק לשמות חדשים ולא מוצג כפסקה
+const hiddenPart=p=>p.includes("טקסט חלופי");
 function flatten(doc,part){
   const out=[];
   // SmartArt וגרפים כותבים פסקאות DrawingML (a:p), לא פסקאות Word
@@ -26,10 +26,12 @@ function flatten(doc,part){
     if(txt.trim())out.push({text:txt,spans,part});
   }
   // תוויות בגרף: שם קטגוריה או סדרה במטמון המחרוזות
+  // (גרף מורחב, chartEx, כותב את אותן תוויות כ-pt בתוך lvl)
   if(dml)for(const el of doc.getElementsByTagName("*")){
-    if(el.localName!=="v"||!el.parentNode||el.parentNode.localName!=="pt")continue;
-    let a=el.parentNode.parentNode;
-    if(!a||a.localName!=="strCache")continue;
+    const p1=el.parentNode, ln=el.localName;
+    const label=(ln==="v"&&p1&&p1.localName==="pt"&&p1.parentNode&&p1.parentNode.localName==="strCache")||
+                (ln==="pt"&&p1&&p1.localName==="lvl");
+    if(!label)continue;
     const t=el.textContent||"";if(t.trim())out.push({text:t,spans:[{el,s:0,e:t.length,attr:null}],part});
   }
   for(const el of doc.getElementsByTagName("*")){
@@ -37,11 +39,33 @@ function flatten(doc,part){
     if(ln==="docPr"||ln==="cNvPr"){
       for(const a of ["descr","name","title"]){const v=el.getAttribute(a);
         if(v&&v.trim())out.push({text:v,spans:[{el,s:0,e:v.length,attr:a}],
-          part:part+" (טקסט חלופי)"})}}
-    else if((ln==="alias"||ln==="tag"||ln==="docVar")&&el.namespaceURI===W){
-      const v=el.getAttribute("w:val");
-      if(v&&v.trim())out.push({text:v,spans:[{el,s:0,e:v.length,attr:"w:val"}],part:part+" (נתון נסתר)"})}}
+          part:part+" (טקסט חלופי)"})}}}
   return out}
+/* נתון שהיא אינה רואה ואינה יכולה לסמן — משתני מסמך (docVars), וכותרת ותגית של פקד תוכן —
+   אינו נסרק אלא מוסר. מערכות לניהול מסמכים שומרות שם את שם הלקוח ומספר התיק; כל עוד הערך
+   הוחלף רק כשהיה ברשימה, שם שישב רק שם לא הוצע על ידי אף שכבה, נשאר בקובץ, והפס היה ירוק
+   (ביקורת C2). הסרה אינה פוגעת במסמך: שלושתם רשות ב-OOXML. */
+function stripHidden(doc){
+  let n=0;
+  for(const el of Array.from(doc.getElementsByTagName("*"))){
+    if(el.namespaceURI!==W||!el.parentNode)continue;
+    const ln=el.localName;
+    if(ln==="docVars"||((ln==="alias"||ln==="tag")&&el.parentNode.localName==="sdtPr")){el.parentNode.removeChild(el);n++}}
+  return n}
+/* קורא אחד לטקסט של המסמך. שכבות ההצעה בממשק (המודל, הכותרת, הדוברים) והחלפת הערכים
+   קראו את הקובץ כל אחת בדרכה, והראשונה לא ראתה הגדרות, SmartArt וגרפים שהשנייה ניקתה:
+   שם שישב רק בתווית של גרף לא הוצע על ידי אף שכבה (ביקורת C2). מה שנחשב חלק עם טקסט
+   מוכרע כאן פעם אחת. */
+const isTextPart=n=>TEXTPART.test(n)||EXTRAPART.test(n);
+async function readBlocks(buf){
+  const files=await unzip(buf); let blocks=[];
+  for(const f of files){
+    if(!isTextPart(f.name))continue;
+    const d=parseXML(TXT.decode(f.data));
+    if(TEXTPART.test(f.name))acceptTracked(d);
+    stripHidden(d);
+    blocks=blocks.concat(flatten(d,f.name));}
+  return blocks}
 function setSpan(sp,v){
   if(sp.attr)sp.el.setAttribute(sp.attr,v);
   else{sp.el.textContent=v; if(v!==v.trim())sp.el.setAttributeNS(XMLNS,"xml:space","preserve")}}
@@ -81,7 +105,7 @@ function acceptTracked(doc){
 /* חלקים שאינם גוף המסמך ובכל זאת נושאים טקסט שיוצא עם הקובץ (שכבה 1ב): משתני מסמך
    בהגדרות, צורות SmartArt, ותוויות וכותרות של גרפים. הספרייה המוטמעת של גרף
    (word/embeddings) אינה נקראת כאן; היא מדווחת כערוץ שלא נותח. */
-const EXTRAPART=/^word\/(settings\.xml|diagrams\/(data|drawing)\d*\.xml|charts\/chart\d*\.xml)$/;
+const EXTRAPART=/^word\/(settings\.xml|diagrams\/(data|drawing)\d*\.xml|charts\/chart(?:Ex)?\d*\.xml)$/;
 /* שם סימנייה נשמר בקובץ ונראה בחלון "סימניות" של Word — וסימנייה נקראת לעתים על שם
    אדם ("רחל_פרידמן"). סימנייה עם אות עברית מקבלת שם ניטרלי, וכל הפניה אליה (קישור
    פנימי, שדה REF או PAGEREF) עוברת איתה, כך שההפניות ממשיכות לעבוד. */
@@ -119,7 +143,7 @@ const LEAK=/Target="(mailto:[^"]+|file:[^"]+|[A-Za-z]:\\[^"]+|\\\\[^"]+)"/g;
 
 async function redactDocx(buf,subs,allow,opt){
   const files=await unzip(buf);
-  const rep={ins:0,del:0,cm:0,rsid:0,dropped:[],meta:[],rels:[],sweep:0};
+  const rep={ins:0,del:0,cm:0,rsid:0,hidden:0,dropped:[],meta:[],rels:[],sweep:0};
   let keep=files.filter(f=>{
     if(DROP.includes(f.name)||f.name.startsWith("customXml/")){rep.dropped.push(f.name);return false}
     return true});
@@ -152,11 +176,12 @@ async function redactDocx(buf,subs,allow,opt){
   }
   const docs=[];
   for(const f of keep){
+    if(!isTextPart(f.name))continue;
     const main=TEXTPART.test(f.name);
-    if(!main&&!EXTRAPART.test(f.name))continue;
     const o=TXT.decode(f.data),d=parseXML(o);
     if(main){const [i,dl]=acceptTracked(d);rep.ins+=i;rep.del+=dl;
       rep.cm+=stripComments(d);rep.rsid+=stripRsid(d);}
+    rep.hidden+=stripHidden(d);
     docs.push({f,doc:d,orig:o});
   }
   rep.bookmarks=renameBookmarks(docs.map(x=>x.doc));
@@ -416,6 +441,24 @@ async function redactDocx(buf,subs,allow,opt){
       .slice(0,12);
   }catch(e){if(!e||!e.skip)console.warn("סריקת גוף הטקסט נכשלה",e)}
   ver.suggest=suggest;
+  /* תווית בגרף או בתרשים עומדת לבדה, בלי משפט סביבה, ולכן סריקת הגוף — ששוקלת הקשר — אינה
+     יכולה להציע אותה, וגם המודל כבוי לפעמים. תווית קצרה שכל מילה בה נראית כמו שם מוצעת
+     להחלטה שלה, והפס אינו ירוק עד שהחליטה (ביקורת C2). */
+  try{
+    const knownN=new Set([...subs.map(s=>s.value),...(allow||[]),...applied.map(r=>r.base||r.value),
+      ...suggest.map(x=>x.value)].map(v=>norm(v).trim()));
+    const docTok=new Set(norm(ORIG.map(b=>b.text).join(" ")).split(/\s+/));
+    const looksName=w=>KNOWN_FIRST.has(w)||POOL.he_s.includes(w)||POOL.ar_s.includes(w)||nameish(w,docTok);
+    for(const b of ORIG){
+      if(!/\/(?:charts|diagrams)\//.test(b.part))continue;
+      const t=trimEdges(norm(b.text)).trim(), w=t.split(/\s+/).filter(Boolean);
+      if(!t||w.length>3||knownN.has(t)||!w.every(looksName))continue;
+      // מילה בודדת מוצעת רק כשהיא שם פרטי או שם משפחה מוכר: "הכנסות" ו"ינואר" הן תוויות רגילות
+      if(w.length===1&&!(KNOWN_FIRST.has(t)||POOL.he_s.includes(t)||POOL.ar_s.includes(t)))continue;
+      knownN.add(t);
+      suggest.push({value:t,score:0,count:1,why:"תווית בגרף או בתרשים שנראית כמו שם",ctx:ctxHTML(b.text,0,b.text.length),part:partName(b.part)});
+    }
+  }catch(e){console.warn("סריקת התוויות נכשלה",e)}
   // ירוק רק כשאין דליפות, אין ממצאים פתוחים, ואין ערוץ שלא נותח
   ver.complete=ver.passed&&!remaining.length&&!ver.embedded.length&&
     !near.length&&!suggest.length;
@@ -424,7 +467,7 @@ async function redactDocx(buf,subs,allow,opt){
 const PARTN={"document.xml":"גוף המסמך","footnotes.xml":"הערות שוליים","endnotes.xml":"הערות סיום"};
 function partName(p){
   const base=p.split(" (")[0].split("/").pop();
-  const ex=p.includes("טקסט חלופי")?" · טקסט חלופי":p.includes("נתון נסתר")?" · נתון נסתר":"";
+  const ex=p.includes("טקסט חלופי")?" · טקסט חלופי":"";
   if(PARTN[base])return PARTN[base]+ex;
   if(base.startsWith("header"))return "כותרת עליונה"+ex;
   if(base.startsWith("footer"))return "כותרת תחתונה"+ex;
@@ -992,4 +1035,4 @@ export {nerLast, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, 
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,
   discover, PLACES, PLACE_BY, geoMap, geoNames, placesFound, examplesOf, findPlaces, fakePlace,
   atlasTags, atlasDiff, atlasPenalty, placeKind, nerEnv, nerCached, nerPersist, nerLoad, nerRun,
-  TITLE_RX, ORG_RX, likelyOrg, cleanEntry, trimEdges, pseudoRX, restoreNames, STOP, gender, origin};
+  TITLE_RX, ORG_RX, likelyOrg, cleanEntry, trimEdges, pseudoRX, restoreNames, STOP, gender, origin, readBlocks, isTextPart};

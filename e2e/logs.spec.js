@@ -43,6 +43,9 @@ test("each correction says what caused it, and the log still carries no text", a
   await ed.getByPlaceholder("תחליף אחר").fill("משה כהן");
   await ed.getByPlaceholder("תחליף אחר").press("Enter");
   await expect(ed).toHaveCount(0);
+  // the change lands when the re-run finishes, and a finishing re-run closes an open editor:
+  // wait for the new pseudonym, as she would see it, before opening the next one
+  await expect.poll(() => page.locator("[data-work] section").first().innerText(), { timeout: 15000 }).toContain("משה כהן");
   // "don't replace" on a name the model and the speaker layer both found
   await page.locator('[data-mark][data-val="אבנר שטרן"]').first().click();
   await page.locator("[data-inline]").getByRole("button", { name: "אל תחליף" }).click();

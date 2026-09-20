@@ -196,12 +196,10 @@
    "fp": 0,
    "via": [
     "model",
-    "suggest",
     "applied"
    ],
    "matched": [
-    "ענבר",
-    "ענבר מודאגת"
+    "ענבר"
    ],
    "leakedSurfaces": []
   },
@@ -1108,12 +1106,10 @@
    "fp": 0,
    "via": [
     "model",
-    "suggest",
     "applied"
    ],
    "matched": [
-    "עומרי",
-    "עומרי פעם"
+    "עומרי"
    ],
    "leakedSurfaces": []
   },
@@ -1251,12 +1247,10 @@
    "fp": 0,
    "via": [
     "model",
-    "suggest",
     "applied"
    ],
    "matched": [
     "איל שקור",
-    "ואיל שקור",
     "שקור"
    ],
    "leakedSurfaces": []
@@ -2320,7 +2314,7 @@
    ],
    "matched": [
     "רווה עבאס",
-    "מרווה עבאס",
+    "מרווה",
     "עבאס"
    ],
    "leakedSurfaces": []
@@ -3178,7 +3172,7 @@
     "applied"
    ],
    "matched": [
-    "גבעת עדה"
+    "גבעת"
    ],
    "leakedSurfaces": []
   },
@@ -3832,12 +3826,10 @@
    "fp": 0,
    "via": [
     "model",
-    "suggest",
     "applied"
    ],
    "matched": [
-    "צליל",
-    "צליל תביא"
+    "צליל"
    ],
    "leakedSurfaces": []
   },
@@ -4012,11 +4004,10 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "flagged",
     "applied"
    ],
    "matched": [
-    "6650912"
+    "050-6650912"
    ],
    "leakedSurfaces": []
   },
@@ -4277,6 +4268,7 @@
    "leaked": false,
    "fp": 0,
    "via": [
+    "model",
     "applied"
    ],
    "matched": [
@@ -4773,7 +4765,6 @@
    ],
    "matched": [
     "ולריה",
-    "ולריה עודה",
     "עודה"
    ],
    "leakedSurfaces": []
@@ -4914,13 +4905,11 @@
    "fp": 0,
    "via": [
     "model",
-    "suggest",
     "applied"
    ],
    "matched": [
     "תורגמן",
-    "טורגמן",
-    "בסוף טורגמן"
+    "טורגמן"
    ],
    "leakedSurfaces": []
   },
@@ -5462,42 +5451,42 @@
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 119,
+   "ms": 169,
    "rules": 10,
    "unlisted": 1
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 69,
-   "rules": 13,
+   "ms": 93,
+   "rules": 12,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 52,
+   "ms": 68,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 76,
+   "ms": 84,
    "rules": 7,
    "unlisted": 1
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 93,
+   "ms": 107,
    "rules": 14,
    "unlisted": 2
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 102,
+   "ms": 126,
    "rules": 16,
    "unlisted": 1
   },
@@ -5505,237 +5494,237 @@
    "id": "f3",
    "genre": "filing",
    "ms": 71,
-   "rules": 9,
+   "rules": 8,
    "unlisted": 0
   },
   {
    "id": "f4",
    "genre": "filing",
-   "ms": 80,
-   "rules": 11,
+   "ms": 97,
+   "rules": 10,
    "unlisted": 3
   },
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 64,
+   "ms": 80,
    "rules": 8,
    "unlisted": 0
   },
   {
    "id": "t2",
    "genre": "transcript",
-   "ms": 67,
+   "ms": 87,
    "rules": 12,
    "unlisted": 1
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 65,
+   "ms": 78,
    "rules": 11,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 74,
+   "ms": 81,
    "rules": 14,
    "unlisted": 1
   },
   {
    "id": "w1",
    "genre": "welfare",
-   "ms": 50,
+   "ms": 58,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "w2",
    "genre": "welfare",
-   "ms": 47,
+   "ms": 52,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "w3",
    "genre": "welfare",
-   "ms": 55,
+   "ms": 67,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "w4",
    "genre": "welfare",
-   "ms": 53,
+   "ms": 61,
    "rules": 6,
    "unlisted": 1
   },
   {
    "id": "h1",
    "genre": "medical",
-   "ms": 46,
+   "ms": 65,
    "rules": 7,
    "unlisted": 2
   },
   {
    "id": "h2",
    "genre": "medical",
-   "ms": 47,
+   "ms": 58,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "h3",
    "genre": "medical",
-   "ms": 47,
+   "ms": 54,
    "rules": 5,
    "unlisted": 3
   },
   {
    "id": "p1",
    "genre": "police",
-   "ms": 54,
+   "ms": 64,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "p2",
    "genre": "police",
-   "ms": 47,
+   "ms": 48,
    "rules": 4,
    "unlisted": 1
   },
   {
    "id": "p3",
    "genre": "police",
-   "ms": 39,
+   "ms": 54,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "p4",
    "genre": "police",
-   "ms": 39,
+   "ms": 46,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "b1",
    "genre": "bank",
-   "ms": 39,
+   "ms": 51,
    "rules": 6,
    "unlisted": 2
   },
   {
    "id": "b2",
    "genre": "bank",
-   "ms": 31,
+   "ms": 42,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "b3",
    "genre": "bank",
-   "ms": 35,
+   "ms": 49,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "c1",
    "genre": "chat",
-   "ms": 42,
-   "rules": 5,
+   "ms": 59,
+   "rules": 4,
    "unlisted": 0
   },
   {
    "id": "c2",
    "genre": "chat",
-   "ms": 51,
+   "ms": 69,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "c3",
    "genre": "chat",
-   "ms": 48,
-   "rules": 4,
+   "ms": 63,
+   "rules": 3,
    "unlisted": 0
   },
   {
    "id": "c4",
    "genre": "chat",
-   "ms": 45,
+   "ms": 63,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "x1",
    "genre": "position",
-   "ms": 79,
-   "rules": 7,
+   "ms": 112,
+   "rules": 8,
    "unlisted": 2
   },
   {
    "id": "x2",
    "genre": "position",
-   "ms": 47,
+   "ms": 75,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "x3",
    "genre": "position",
-   "ms": 53,
+   "ms": 70,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "a1",
    "genre": "audio",
-   "ms": 51,
+   "ms": 65,
    "rules": 7,
    "unlisted": 0
   },
   {
    "id": "a2",
    "genre": "audio",
-   "ms": 47,
+   "ms": 68,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "a3",
    "genre": "audio",
-   "ms": 66,
+   "ms": 79,
    "rules": 8,
    "unlisted": 1
   },
   {
    "id": "a4",
    "genre": "audio",
-   "ms": 52,
-   "rules": 7,
+   "ms": 56,
+   "rules": 6,
    "unlisted": 0
   },
   {
    "id": "v1",
    "genre": "interview",
-   "ms": 56,
+   "ms": 79,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "v2",
    "genre": "interview",
-   "ms": 53,
+   "ms": 71,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "v3",
    "genre": "interview",
-   "ms": 34,
+   "ms": 36,
    "rules": 3,
    "unlisted": 0
   }

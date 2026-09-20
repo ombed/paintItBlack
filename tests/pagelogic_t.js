@@ -48,6 +48,37 @@ ok("a shape carrying text is refused", threw);
 const s4 = PL.leakShape(E, blocks, "איגור וולקוב", { cands, nerRaw: [{ type: "PER", score: 0.93, s: blocks.slice(0, 2).map((b) => b.text).join("\n").length + 1 + "הפסיכולוג ".length, e: blocks.slice(0, 2).map((b) => b.text).join("\n").length + 1 + "הפסיכולוג איגור וול".length }] });
 ok("model span bounds classified", s4.layers.model && s4.layers.model.bounds === "cut-right");
 
+/* Review C1. The gap between the marked value and its neighbour was exported as the raw
+   run of non-Hebrew characters, and the only guard looked for Hebrew. These lines have the
+   shape of real corpus lines: an ID after the name, an email before it, an account number
+   at the end of the previous paragraph. */
+{
+  const mark = (paras, v, ctx) => PL.leakShape(E, paras.map((t) => ({ part: "w", text: t })), v, ctx || { kind: "NAME", version: "v48" });
+  const a = mark(["מרווה עבאס (205549611, ילידת 1990) נכחה."], "מרווה עבאס");
+  ok("an ID after the name is a class", a.gapAfter === "digits(9)");
+  const b = mark(["כתבו אל oleg.ivanov77@mail.ru. דניס וסילייב השיב."], "דניס וסילייב");
+  ok("an email before the name is a class", b.gapBefore === "email");
+  const c = mark(["מספר החשבון 5521907.", "אולג איוונוב חתם."], "אולג איוונוב");
+  ok("the previous paragraph's tail is not context", c.gapBefore === "" && c.before === "none");
+  const d = mark(["המורה, \"רחל פרידמן\", אמרה."], "רחל פרידמן");
+  ok("punctuation from the short list is kept", d.gapBefore === "\"" && d.gapAfter === "\",");
+  const e = mark(["ראו ABC-12/x רחל פרידמן כאן."], "רחל פרידמן");
+  ok("anything else is a length, not characters", e.gapBefore === "mixed(8)");
+  const rep = PL.leakReport([a, b, c, d, e], { version: "v48" });
+  ok("no identifier reaches the report", !/205549611|oleg|ivanov|mail\.ru|5521907|ABC/.test(rep));
+  ok("a clean report refuses nothing", JSON.parse(rep).refused === undefined);
+
+  // the report is written from a schema: an unknown key does not leave, a wrong value is refused by name.
+  // Hebrew text in a shape still makes the whole report refuse, as the older check above pins.
+  const bad = JSON.parse(PL.leakReport([{ ...a, gapAfter: "(205549611,", kind: "rachel@x.com", note: "rachel friedman", lens: ["x"] }], { version: "<script>" }));
+  ok("an unknown key does not leave", !("note" in bad.shapes[0]));
+  ok("a value that does not fit is replaced", bad.shapes[0].gapAfter === "?" && bad.shapes[0].kind === "?" && bad.shapes[0].lens === "?");
+  ok("and named, so the refusal is visible", ["shapes[0].kind", "shapes[0].lens", "shapes[0].gapAfter"].every((p) => bad.refused.includes(p)));
+  ok("the version is checked too", bad.v === "");
+  const model = mark(["רחל פרידמן אמרה."], "רחל פרידמן", { kind: "NAME", nerRaw: [{ type: "PER", score: 0.913, s: 0, e: 3 }] });
+  ok("the model's bounds are codes with no stray space", model.layers.model.bounds === "cut-right" && JSON.parse(PL.leakReport([model])).refused === undefined);
+}
+
 // the session log keeps timings and counts, and refuses text
 const L = PL.sessionLog("v18");
 L.add("screen", { to: "people", from: "entry" });

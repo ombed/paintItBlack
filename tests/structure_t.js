@@ -32,7 +32,7 @@ const js = fs.readFileSync(path.join(HERE, "app.html"), "utf8").split("<script>"
   .replace('const deflate=u8=>pipe(u8,CompressionStream,"deflate-raw");', "const deflate=async u8=>global.__deflate(u8);");
 const cut = js.indexOf("/* ══════════════════════════ ממשק ══════════════════════════ */");
 const a = js.indexOf("function pseudoRX(p){"), b = js.indexOf("function livePairs(){");
-fs.writeFileSync(path.join(HERE, "structure-core.js"), js.slice(0, cut) + "\n" + js.slice(a, b) + "\nmodule.exports={redactDocx,unzip,verify};\n");
+fs.writeFileSync(path.join(HERE, "structure-core.js"), js.slice(0, cut) + "\n" + js.slice(a, b) + "\nmodule.exports={redactDocx,unzip,verify,readBlocks};\n");
 const E = require("./structure-core.js");
 const { mkzip } = require("./mkzip.js");
 
@@ -59,6 +59,50 @@ const bodyOf = (x) => (x.match(/<w:body>[\s\S]*<\/w:body>/) || [""])[0];
     ok(!left.length, `${name}: the name is still in ${left.join(", ")}`);
     const docOut = TXT.decode(out.find((f) => f.name === "word/document.xml").data);
     ok(/<w:body>/.test(docOut) && docOut.includes("פרוטוקול הדיון"), `${name}: the document body did not survive`);
+  }
+
+  /* Review C2. Every case above supplies the rule itself, so it proves the apply layer and
+     says nothing about who would have proposed the name. These run with an empty list, the
+     way a document arrives: the name must either be gone from the file, or be put in front
+     of her, and the result must not be reported as complete. */
+  console.log("\n— with nothing on her list: gone from the file, or put in front of her —");
+  {
+    const chartOf = (label) => `<?xml version="1.0"?><c:chartSpace xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><c:chart><c:ser><c:cat><c:strRef><c:strCache><c:pt idx="0"><c:v>${label}</c:v></c:pt></c:strCache></c:strRef></c:cat></c:ser></c:chart></c:chartSpace>`;
+    const smart = (label) => `<?xml version="1.0"?><dgm:dataModel xmlns:dgm="http://schemas.openxmlformats.org/drawingml/2006/diagram" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><dgm:ptLst><dgm:pt modelId="1"><dgm:t><a:p><a:r><a:t>${label}</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst></dgm:dataModel>`;
+    const chartEx = (label) => `<?xml version="1.0"?><cx:chartSpace xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex"><cx:chartData><cx:data id="0"><cx:strDim type="cat"><cx:lvl ptCount="1"><cx:pt idx="0">${label}</cx:pt></cx:lvl></cx:strDim></cx:data></cx:chartData></cx:chartSpace>`;
+    const plain = P(R("המסמך עוסק בהסדרי ראייה ובמזונות."));
+    const NOLIST = { ...OPT, body: true };
+    for (const [what, parts] of [
+      ["a chart label", [{ name: "word/charts/chart1.xml", body: chartOf(NAME) }]],
+      ["an extended chart label", [{ name: "word/charts/chartEx1.xml", body: chartEx(NAME) }]],
+      ["a SmartArt shape", [{ name: "word/diagrams/data1.xml", body: smart(NAME) }]],
+    ]) {
+      const blocks = await E.readBlocks(zipOf(plain, parts));
+      ok(blocks.some((b) => b.text.includes(NAME)), `${what}: the proposal layers can read it`);
+      const res = await E.redactDocx(zipOf(plain, parts), [], [], NOLIST);
+      ok(res.verification.suggest.some((x) => x.value === NAME), `${what}: proposed to her: ${JSON.stringify(res.verification.suggest.map((x) => x.value))}`);
+      ok(res.verification.complete === false, `${what}: not reported as complete`);
+    }
+    // invisible machine data is removed, whatever it holds
+    const hiddenCases = [
+      ["a document variable", plain, S["a document variable"].parts],
+      ["a content control's title and tag", S["a content control, with the name as its title"].body.replace(`<w:sdtContent>${P(R(NAME))}</w:sdtContent>`, `<w:sdtContent>${P(R("טקסט"))}</w:sdtContent>`), []],
+    ];
+    for (const [what, body, parts] of hiddenCases) {
+      const res = await E.redactDocx(zipOf(body, parts), [], [], NOLIST);
+      const out = await outOf(res);
+      const left = out.filter((f) => /\.xml$/.test(f.name) && /רחל|פרידמן/.test(TXT.decode(f.data))).map((f) => f.name);
+      ok(!left.length, `${what}: gone from the file with nothing on the list, still in ${left.join(", ")}`);
+      ok(res.structural.hidden > 0, `${what}: counted among what was cleaned`);
+      ok(!(await E.readBlocks(zipOf(body, parts))).some((b) => b.text.includes(NAME)), `${what}: not offered as text either, so it cannot become a rule that finds nothing`);
+    }
+    // ordinary chart labels are left alone
+    const labels = ["הכנסות", "ינואר", "רבעון ראשון", "סדרה 1", "סך הכול", "ביקורים בחודש"];
+    const quiet = await E.redactDocx(zipOf(plain, labels.map((l, i) => ({ name: `word/charts/chart${i + 1}.xml`, body: chartOf(l) }))), [], [], NOLIST);
+    ok(quiet.verification.suggest.length === 0, "ordinary labels are not proposed: " + JSON.stringify(quiet.verification.suggest.map((x) => x.value)));
+    // a label that is already on her list is not proposed again
+    const listed = await E.redactDocx(zipOf(plain, [{ name: "word/charts/chart1.xml", body: chartOf(NAME) }]), SUBS, [], NOLIST);
+    ok(!listed.verification.suggest.some((x) => x.value === NAME), "a listed name is replaced, not proposed");
   }
 
   console.log("\n— a hyphen or a soft hyphen that Word stores as an element —");
