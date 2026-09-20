@@ -3326,7 +3326,12 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         this.setState({screen:"entry", res:null, err:"", fileErr:"", name:"", buf:null, pending:false,
           pasteText:"", query:"", cat:"", filter:"all", addV:"", addR:"", sel:null, inline:null, popup:null,
           notice:"", copied:false, copyLabel:"העתקה ל-AI", sugAsk:false, casesHidden:false, peo:[], peoSug:[], peoKept:[],
-          caseName:"", profile:null, rules:[], allow:[], profileDirty:false, approved:[], undoN:0, redoN:0, lastProfile, cases:this.readCases()},
+          caseName:"", profile:null, rules:[], allow:[], profileDirty:false, approved:[], undoN:0, redoN:0, lastProfile, cases:this.readCases(),
+          // כל מה ששייך למסמך ולא לסשן מתאפס כאן (ביקורת H1): דוח הדליפה של לקוח אחד יצא בחבילה של הבא,
+          // ותשובת ה-AI עם השמות האמיתיים שלו חיכתה במסך ההחזרה. tests/state_t.js בודק שכל מפתח ב-state
+          // מתאפס כאן או רשום שם כשייך לסשן.
+          leaks:[], rvIn:"", rvOut:"", aiIn:"", aiWarn:"", cands:[], nerUsed:false, peoIn:"", peoNote:"", hot:null, addK:"NAME",
+          geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, tip:null, repDraft:"", peoNotSame:[], inlineDraft:""},
           ()=>{ try{ scrollTo(0,0); }catch(_){} });
         this._undo=[]; this._redo=[]; this._modelFound=null; this._lastScan=null;
         this.log.add("new-doc",{}); },

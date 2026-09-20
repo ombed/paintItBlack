@@ -89,3 +89,28 @@ test("an ID, a phone and an email next to the marked name never reach the report
   expect(gaps.some((g) => /^digits\(/.test(g))).toBe(true);
   expect(gaps).toContain("email");
 });
+
+/* Review H1: the leak shapes were never cleared by "new document", so the next client's
+   report and package carried the previous client's shapes, and the screen said she had
+   marked two names when she had marked one. */
+test("a new document starts with an empty leak report", async ({ page }) => {
+  await toCheck(page, DOC);
+  await markByHand(page, "קרבוטינסקי");
+  expect(JSON.parse(await copiedReport(page)).count).toBe(1);
+
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "מסמך חדש" }).click();
+  await expect(page.getByRole("heading", { name: /מה יוצא מהמסמך/ })).toBeVisible();
+  await H.upload(page, "other.docx", "סיכום פגישה\nהשכן וסילייבסקי הגיע באיחור.\nהפגישה נערכה ביום שני.");
+  await H.startScan(page);
+  await expect(H.goButton(page).or(H.skipButton(page)).first()).toBeVisible({ timeout: 10000 });
+  if (await H.goButton(page).isVisible()) await H.goOn(page); else await H.skipButton(page).click();
+  const run = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first();
+  await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 15000 });
+  if (await run.isVisible()) await run.click();
+  await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
+  await markByHand(page, "וסילייבסקי");
+  await page.getByRole("button", { name: /מה נוקה מהקובץ/ }).click();
+  await expect(page.getByText("שמות שסימנת בעצמך: 1")).toBeVisible();
+  expect(JSON.parse(await copiedReport(page)).count).toBe(1);
+});
