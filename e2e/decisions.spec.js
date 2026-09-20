@@ -25,8 +25,14 @@ test("a found name removed on the people screen does not come back at the check 
   // not replaced, and not offered again anywhere in the rail
   await expect(page.locator("[data-work] section").first()).toContainText("ברקוביץ");
   // another prose name may still be offered; this one must not be
-  await expect(page.locator("aside")).not.toContainText(/ברקוביץ d+×/); // as an item; context snippets may still quote it
-  // and the decision sits in the profile as "do not replace"
+  // (review H5: this read /ברקוביץ d+×/, a literal "d", which can match nothing and so could never fail)
+  await expect(page.locator("aside")).not.toContainText(/ברקוביץ \d+×/); // as an item; context snippets may still quote it
+  // and the decision itself is recorded: not a rule, and on the "do not replace" list. The old
+  // check looked for the words "אל תחליף" in the panel, which is a button label that is always there.
+  const held = await page.evaluate(() => { const s = window.__pib.state(); return { rule: s.rules.some((r) => r.value === "ברקוביץ"), allow: s.allow.includes("ברקוביץ") }; });
+  expect(held).toEqual({ rule: false, allow: true });
+  // and she can see it: the "staying as they are" strip names it, with the way back
+  await expect(page.locator('button[title="לחזור ולהחליף"]').filter({ hasText: "ברקוביץ" })).toBeVisible();
   await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
   await expect(page.locator("aside")).toContainText("אל תחליף");
 });
