@@ -46,7 +46,11 @@ function docFor(shape, k) {
   const name = shape.lens.map(madeUpWord).join(shape.hyphen ? "-" : " ");
   const surface = (shape.prefix || "") + name;
   const before = pick(shape.before), after = pick(shape.after);
-  const gapB = shape.gapBefore ? shape.gapBefore + " " : " ", gapA = shape.gapAfter ? shape.gapAfter + " " : " ";
+  // a gap arrives as a class (page-logic.js, gapClass): punctuation as it was, anything else as a
+  // label with a length, which is rebuilt here as made-up characters of the same kind
+  const gapText = (g) => { const m = /^(digits|latin|mixed)((d+))$/.exec(g || ""); if (g === "email") return "a.b@example.com";
+    return m ? (m[1] === "digits" ? "1234567890" : m[1] === "latin" ? "abcdefghij" : "a1b2c3d4e5").repeat(30).slice(0, +m[2]) : (g || ""); };
+  const gapB = shape.gapBefore ? gapText(shape.gapBefore) + " " : " ", gapA = shape.gapAfter ? gapText(shape.gapAfter) + " " : " ";
   const line = `${before}${before ? gapB : ""}${surface}${gapA}${after} בהמשך היום.`.replace(/\s+/g, " ").trim();
   console.log(`   (made-up name «${name}», shown only here; the report never carried one)`);
   const paras = shape.doc && shape.doc.genre === "transcript"
