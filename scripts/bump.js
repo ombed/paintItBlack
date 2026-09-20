@@ -12,6 +12,13 @@ const ROOT = path.join(__dirname, "..");
 const n = Number(process.argv[2]);
 if (!Number.isInteger(n) || n < 1) { console.error("usage: node scripts/bump.js <number>"); process.exit(2); }
 const V = "v" + n;
+// The chip is the only version she can report and the only thing the deploy check reads, so it
+// only moves forward (review L2). A rollback publishes an older tag; it does not bump backwards.
+const cur = Number((fs.readFileSync(path.join(ROOT, "index.html"), "utf8").match(/גרסה v(\d+)/) || [])[1]);
+if (cur && n <= cur && !process.argv.includes("--force")) {
+  console.error(`the site is at v${cur}; ${V} is not newer (add --force to insist)`);
+  process.exit(2);
+}
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), "utf8");
 const write = (f, s) => fs.writeFileSync(path.join(ROOT, f), s);

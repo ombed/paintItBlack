@@ -42,6 +42,12 @@ const html = read("index.html");
 const refs = new Set();
 for (const m of html.matchAll(/(?:src|href)="\.\/([^"#?]+)"/g)) refs.add(m[1]);
 for (const m of html.matchAll(/\|\|\s*"\.\/([^"]+)"/g)) refs.add(m[1]);
+// a bare import("./x.js") with no fallback in front of it (review M8): the four runtime modules were
+// caught only because each happens to be written as `something || "./x.js"`. The same goes for
+// every runtime file that imports a sibling.
+const dyn = /import\(\s*(?:\/\*[^*]*\*\/\s*)?["'`]\.\/([^"'`]+)["'`]\s*\)/g;
+for (const m of html.matchAll(dyn)) refs.add(m[1]);
+for (const f of SITE_FILES.filter((x) => /\.js$/.test(x) && x !== "support.js")) for (const m of read(f).matchAll(dyn)) refs.add(m[1]);
 for (const f of refs) ok("index.html loads " + f + " but the site does not ship it", listed.has(f));
 ok("index.html references were found", refs.size >= 5);
 
