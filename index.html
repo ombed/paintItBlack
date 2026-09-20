@@ -1450,7 +1450,7 @@ class Component extends DCLogic {
     const st=RES.structural;
     const clean=[["טקסט שנמחק במעקב שינויים",st.del],["שינויים שהתקבלו",st.ins],["סימוני הערות",st.cm],
       ["חלקים שהוסרו",st.dropped.length],["שדות מטא-דאטה",st.meta.length],["קישורים שנוטרלו",st.rels.length],
-      ["מזהי עריכה",st.rsid],["החלפות אחידות",st.sweep]].filter(x=>x[1]);
+      ["מזהי עריכה",st.rsid],["נתונים נסתרים שהוסרו",st.hidden],["החלפות אחידות",st.sweep]].filter(x=>x[1]);
     const modeName={real:"שם חלופי",label:"פלוני א׳",block:"███"}[S.mode];
     return `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
 <title>דוח השחרה — ${esc(S.name)}</title>
@@ -1475,7 +1475,7 @@ ${flagged.size?`<h2>סומן לבדיקה ולא הוחלף (${flagged.size})</h
 ${[...flagged.values()].map(r=>`<tr><td>${esc(r.value)}</td><td>${esc(r.label)}</td><td>${esc(r.why)}</td><td>${r.n}</td></tr>`).join("")}</table>`:""}
 ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><td>${esc(l)}</td><td>${n}</td></tr>`).join("")}</table>`:""}
 <h2>מגבלות</h2>
-<p class="sub">האימות מוודא שהערכים שזוהו נעלמו מערוצי הטקסט של הקובץ, ומחפש כתיב שנבדל מהם בתו אחד. טקסט בתוך תמונה, קובץ מוטמע או תרשים אינו נסרק, וגם שם שלא זוהה מעולם לא ייתפס.</p>
+<p class="sub">האימות מוודא שהערכים שזוהו נעלמו מערוצי הטקסט של הקובץ, ומחפש כתיב שנבדל מהם בתו אחד. תוויות של גרפים ושל תרשימי SmartArt נסרקות. טקסט בתוך תמונה, קובץ מוטמע וגיליון הנתונים שמאחורי גרף אינם נסרקים, וגם שם שלא זוהה מעולם לא ייתפס.</p>
 </body></html>`;
   }
   downloadReport = () => {
@@ -1555,16 +1555,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     return raw.length>=2 ? [{part:"__name", text:raw}] : [];
   }
 
-  async blocksOf(buf){
-    const E=this.state.E;
-    const files = await E.unzip(buf.slice(0));
-    let blocks=[];
-    for(const fl of files) if(E.TEXTPART.test(fl.name)){
-      const d = E.parseXML(E.TXT.decode(fl.data)); E.acceptTracked(d);
-      blocks = blocks.concat(E.flatten(d, fl.name));
-    }
-    return blocks;
-  }
+  // הקריאה של המסמך נעשית במנוע, באותו קורא שמשמש את ההחלפה (ביקורת C2): שכבות ההצעה
+  // רואות בדיוק את החלקים שההחלפה מנקה — כולל הגדרות, SmartArt וגרפים
+  blocksOf(buf){ return this.state.E.readBlocks(buf.slice(0)); }
 
   /* ── מי בתיק ── */
   async showPeople(blocks, cands){
@@ -2397,7 +2390,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
   kindOfLabel(l){ return /^(?:שם|אדם)/.test(l||"")?"NAME":/^גוף/.test(l||"")?"ORG":/^(?:יישוב|מקום)/.test(l||"")?"PLACE":"OTHER"; }
   redactedText(){
-    return this.state.res.preview.filter(b=>!/טקסט חלופי|נתון נסתר/.test(b.part))
+    return this.state.res.preview.filter(b=>!b.part.includes("טקסט חלופי"))
       .map(b=>b.text).join("\n").replace(/\n{3,}/g,"\n\n").trim();
   }
   livePairs(){
@@ -3738,7 +3731,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     add("טקסט שנמחק במעקב שינויים", st.del); add("שינויים שהתקבלו", st.ins);
     add("סימוני הערות", st.cm); add("חלקים שהוסרו", st.dropped.length);
     add("שדות מטא-דאטה", st.meta.length); add("קישורים שנוטרלו", st.rels.length);
-    add("מזהי עריכה", st.rsid); add("החלפות אחידות", st.sweep);
+    add("מזהי עריכה", st.rsid); add("נתונים נסתרים שהוסרו", st.hidden); add("החלפות אחידות", st.sweep);
     v.stats = stats.length?stats:[{label:"לא נמצא מה לנקות", value:"—"}];
 
     v.onReport = this.downloadReport;
