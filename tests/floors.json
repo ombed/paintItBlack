@@ -32,5 +32,6 @@
  "logreport_t.js": 12,
  "state_t.js": 92,
  "runner_t.js": 5,
- "passes_t.js": 17
+ "passes_t.js": 17,
+ "benchlib_t.js": 4
 }
