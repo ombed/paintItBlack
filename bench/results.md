@@ -1,6 +1,6 @@
 # Benchmark results
 
-40 documents, 314 keyed entities, model on (q8, same artifact as the browser). Generated 2026-09-16.
+40 documents, 314 keyed entities, model on (q8, same artifact as the browser). Generated 2026-09-20.
 
 ## Per category
 
@@ -104,43 +104,43 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 119 | 10 | 1 |
-| m2 | meeting | 69 | 13 | 0 |
-| m3 | meeting | 52 | 6 | 0 |
-| m4 | meeting | 76 | 7 | 1 |
-| f1 | filing | 93 | 14 | 2 |
-| f2 | filing | 102 | 16 | 1 |
-| f3 | filing | 71 | 9 | 0 |
-| f4 | filing | 80 | 11 | 3 |
-| t1 | transcript | 64 | 8 | 0 |
-| t2 | transcript | 67 | 12 | 1 |
-| t3 | transcript | 65 | 11 | 1 |
-| t4 | transcript | 74 | 14 | 1 |
-| w1 | welfare | 50 | 4 | 0 |
-| w2 | welfare | 47 | 5 | 0 |
-| w3 | welfare | 55 | 6 | 0 |
-| w4 | welfare | 53 | 6 | 1 |
-| h1 | medical | 46 | 7 | 2 |
-| h2 | medical | 47 | 4 | 0 |
-| h3 | medical | 47 | 5 | 3 |
-| p1 | police | 54 | 5 | 1 |
-| p2 | police | 47 | 4 | 1 |
-| p3 | police | 39 | 2 | 0 |
-| p4 | police | 39 | 3 | 0 |
-| b1 | bank | 39 | 6 | 2 |
-| b2 | bank | 31 | 3 | 0 |
-| b3 | bank | 35 | 3 | 0 |
-| c1 | chat | 42 | 5 | 0 |
-| c2 | chat | 51 | 5 | 1 |
-| c3 | chat | 48 | 4 | 0 |
-| c4 | chat | 45 | 5 | 0 |
-| x1 | position | 79 | 7 | 2 |
-| x2 | position | 47 | 5 | 0 |
-| x3 | position | 53 | 5 | 0 |
-| a1 | audio | 51 | 7 | 0 |
-| a2 | audio | 47 | 6 | 0 |
-| a3 | audio | 66 | 8 | 1 |
-| a4 | audio | 52 | 7 | 0 |
-| v1 | interview | 56 | 3 | 0 |
-| v2 | interview | 53 | 5 | 0 |
-| v3 | interview | 34 | 3 | 0 |
+| m1 | meeting | 169 | 10 | 1 |
+| m2 | meeting | 93 | 12 | 0 |
+| m3 | meeting | 68 | 6 | 0 |
+| m4 | meeting | 84 | 7 | 1 |
+| f1 | filing | 107 | 14 | 2 |
+| f2 | filing | 126 | 16 | 1 |
+| f3 | filing | 71 | 8 | 0 |
+| f4 | filing | 97 | 10 | 3 |
+| t1 | transcript | 80 | 8 | 0 |
+| t2 | transcript | 87 | 12 | 1 |
+| t3 | transcript | 78 | 11 | 1 |
+| t4 | transcript | 81 | 14 | 1 |
+| w1 | welfare | 58 | 4 | 0 |
+| w2 | welfare | 52 | 5 | 0 |
+| w3 | welfare | 67 | 6 | 0 |
+| w4 | welfare | 61 | 6 | 1 |
+| h1 | medical | 65 | 7 | 2 |
+| h2 | medical | 58 | 4 | 0 |
+| h3 | medical | 54 | 5 | 3 |
+| p1 | police | 64 | 5 | 1 |
+| p2 | police | 48 | 4 | 1 |
+| p3 | police | 54 | 2 | 0 |
+| p4 | police | 46 | 3 | 0 |
+| b1 | bank | 51 | 6 | 2 |
+| b2 | bank | 42 | 3 | 0 |
+| b3 | bank | 49 | 3 | 0 |
+| c1 | chat | 59 | 4 | 0 |
+| c2 | chat | 69 | 5 | 1 |
+| c3 | chat | 63 | 3 | 0 |
+| c4 | chat | 63 | 5 | 0 |
+| x1 | position | 112 | 8 | 2 |
+| x2 | position | 75 | 5 | 0 |
+| x3 | position | 70 | 5 | 0 |
+| a1 | audio | 65 | 7 | 0 |
+| a2 | audio | 68 | 6 | 0 |
+| a3 | audio | 79 | 8 | 1 |
+| a4 | audio | 56 | 6 | 0 |
+| v1 | interview | 79 | 3 | 0 |
+| v2 | interview | 71 | 5 | 0 |
+| v3 | interview | 36 | 3 | 0 |
