@@ -16,7 +16,7 @@
  "places_t.js": 68,
  "numbers_t.js": 12,
  "private_t.js": 7,
- "allow_t.js": 6,
+ "allow_t.js": 9,
  "omit_t.js": 17,
  "orgs_t.js": 30,
  "atlas_t.js": 34,
@@ -27,11 +27,12 @@
  "r5_t.js": 27,
  "shapes_t.js": 1154,
  "prcheck_t.js": 14,
- "structure_t.js": 83,
+ "structure_t.js": 95,
  "harvest_t.js": 21,
  "logreport_t.js": 12,
- "state_t.js": 92,
+ "state_t.js": 93,
  "runner_t.js": 5,
  "passes_t.js": 17,
- "benchlib_t.js": 4
+ "benchlib_t.js": 4,
+ "license_t.js": 2
 }

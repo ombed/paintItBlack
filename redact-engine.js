@@ -1877,8 +1877,11 @@ class Engine{
     this.rules.sort((a,b)=>b.rx.source.length-a.rx.source.length);
     // הרשימה הלבנה חייבת לתפוס גם צורות עם אות שימוש ("בתל אביב"),
     // אחרת "אל תחליף" נכשל בשקט על כל מילה עם ב/ל/מ/ה לפניה.
+    // אותן אותיות שימוש שהכללים עצמם מכירים (SING ו-DBL ב-02-hebrew.js), ולא רשימה נפרדת:
+    // הרשימה שעמדה כאן הכירה 15 מתוך 22 הצורות, ו"שבחיפה" הוחלף גם אחרי "אל תחליף" (ביקורת H8)
+    const ALLOW_PRE="(?:"+[...DBL,...SING].join("|")+")?";
     this.allow=(allow||[]).map(a=>new RegExp(
-      "(?<![\\u0590-\\u05ff])(?:[בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?"+
+      "(?<![\\u0590-\\u05ff])"+ALLOW_PRE+
       flex(a)+NWE,"gu"));
     // הצורה המנורמלת של כל ערך מותר, באותו סדר, בשביל השער שב-detect
     this.allowN=(allow||[]).map(a=>norm(a).trim());
@@ -1922,8 +1925,9 @@ class Engine{
       const own=(this.allowN||[])[i]||"";
       while((m=rx.exec(n))){
         const tok=m[0].trim();
-        // רק כשההרחבה נחתה על ערך אחר ברשימה; "שרון" שהותרה בעצמה נשארת מותרת
-        if(tok!==own&&listed.has(tok))continue;
+        // רק כשההרחבה נחתה על ערך אחר ברשימה; "שרון" שהותרה בעצמה נשארת מותרת.
+        // גם כשלפני הערך האחר עומדת אות שימוש: "ושרון" הוא ו+שרון, לא וש+רון
+        if(tok!==own&&(listed.has(tok)||SING.some(p=>tok.startsWith(p)&&tok.slice(1)!==own&&listed.has(tok.slice(1)))))continue;
         zones.push([m.index,m.index+m[0].length])}});
     const hits=[];
     for(const r of this.rules){r.rx.lastIndex=0;let m;
@@ -2048,7 +2052,7 @@ function ownText(p,out){
     ownText(c,out)}}
 const DML="http://schemas.openxmlformats.org/drawingml/2006/main";
 // טקסט חלופי של תמונה אינו חלק מגוף הטקסט: לא נסרק לשמות חדשים ולא מוצג כפסקה
-const hiddenPart=p=>p.includes("טקסט חלופי");
+const hiddenPart=p=>p.includes("טקסט חלופי")||p.includes("קוד שדה");
 function flatten(doc,part){
   const out=[];
   // SmartArt וגרפים כותבים פסקאות DrawingML (a:p), לא פסקאות Word
@@ -2076,8 +2080,35 @@ function flatten(doc,part){
     if(ln==="docPr"||ln==="cNvPr"){
       for(const a of ["descr","name","title"]){const v=el.getAttribute(a);
         if(v&&v.trim())out.push({text:v,spans:[{el,s:0,e:v.length,attr:a}],
-          part:part+" (טקסט חלופי)"})}}}
+          part:part+" (טקסט חלופי)"})}}
+    // טקסט חלופי של טבלה: בודק הנגישות של Word מבקש אותו, ולכן הוא מתמלא (ביקורת H10)
+    else if((ln==="tblCaption"||ln==="tblDescription")&&el.namespaceURI===W){
+      const v=el.getAttribute("w:val");
+      if(v&&v.trim())out.push({text:v,spans:[{el,s:0,e:v.length,attr:"w:val"}],part:part+" (טקסט חלופי)"})}
+    // קוד שדה: HYPERLINK, REF, DOCPROPERTY. אינו טקסט שהיא רואה, אבל הוא יוצא עם הקובץ (H10)
+    else if(ln==="instrText"&&el.namespaceURI===W){
+      // רק קוד שיש בו עברית: PAGE, TOC ו-REF _Ref123 הם עשרות בלוקים ריקים מתוכן בכל מסמך
+      const t=el.textContent||"";
+      if(HEB_LETTER.test(t))out.push({text:t,spans:[{el,s:0,e:t.length,attr:null}],part:part+" (קוד שדה)"})}
+    else if(ln==="fldSimple"&&el.namespaceURI===W){
+      const v=el.getAttribute("w:instr");
+      if(v&&HEB_LETTER.test(v))out.push({text:v,spans:[{el,s:0,e:v.length,attr:"w:instr"}],part:part+" (קוד שדה)"})}}
   return out}
+/* יעד של קישור בתוך קוד שדה: כתובת מייל, או נתיב לקובץ במחשב שלה, יוצאים עם הקובץ בדיוק כמו
+   יעד ב-.rels, ושם הם כבר מנוטרלים (LEAK). כאן לא נגעו בהם (ביקורת H10). */
+const HEB_LETTER=/[א-ת]/;
+const FIELD_LEAK=/(mailto:[^"\s]+|file:[^"\s]+|[A-Za-z]:\\[^"\s]+|\\\\[^"\s]+)/g;
+function scrubFieldLinks(doc,found){
+  let n=0;
+  for(const el of Array.from(doc.getElementsByTagName("*"))){
+    if(el.namespaceURI!==W)continue;
+    if(el.localName==="instrText"){const t=el.textContent||"";
+      if(FIELD_LEAK.test(t)){FIELD_LEAK.lastIndex=0;for(const m of t.match(FIELD_LEAK)||[])found.push(m);el.textContent=t.replace(FIELD_LEAK,"#");n++}
+      FIELD_LEAK.lastIndex=0}
+    else if(el.localName==="fldSimple"){const v=el.getAttribute("w:instr")||"";
+      if(FIELD_LEAK.test(v)){FIELD_LEAK.lastIndex=0;for(const m of v.match(FIELD_LEAK)||[])found.push(m);el.setAttribute("w:instr",v.replace(FIELD_LEAK,"#"));n++}
+      FIELD_LEAK.lastIndex=0}}
+  return n}
 /* נתון שהיא אינה רואה ואינה יכולה לסמן — משתני מסמך (docVars), וכותרת ותגית של פקד תוכן —
    אינו נסרק אלא מוסר. מערכות לניהול מסמכים שומרות שם את שם הלקוח ומספר התיק; כל עוד הערך
    הוחלף רק כשהיה ברשימה, שם שישב רק שם לא הוצע על ידי אף שכבה, נשאר בקובץ, והפס היה ירוק
@@ -2182,7 +2213,8 @@ async function redactDocx(buf,subs,allow,opt){
   const files=await unzip(buf);
   const rep={ins:0,del:0,cm:0,rsid:0,hidden:0,dropped:[],meta:[],rels:[],sweep:0};
   let keep=files.filter(f=>{
-    if(DROP.includes(f.name)||f.name.startsWith("customXml/")){rep.dropped.push(f.name);return false}
+    // התמונה הממוזערת היא צילום של העמוד הראשון, עם כל מה שכתוב בו (ביקורת H10)
+    if(DROP.includes(f.name)||f.name.startsWith("customXml/")||f.name.startsWith("docProps/thumbnail.")){rep.dropped.push(f.name);return false}
     return true});
   for(const f of keep){
     if(f.name.endsWith(".rels")||f.name==="[Content_Types].xml"){
@@ -2219,6 +2251,7 @@ async function redactDocx(buf,subs,allow,opt){
     if(main){const [i,dl]=acceptTracked(d);rep.ins+=i;rep.del+=dl;
       rep.cm+=stripComments(d);rep.rsid+=stripRsid(d);}
     rep.hidden+=stripHidden(d);
+    if(main)scrubFieldLinks(d,rep.rels);
     docs.push({f,doc:d,orig:o});
   }
   rep.bookmarks=renameBookmarks(docs.map(x=>x.doc));
@@ -2504,7 +2537,7 @@ async function redactDocx(buf,subs,allow,opt){
 const PARTN={"document.xml":"גוף המסמך","footnotes.xml":"הערות שוליים","endnotes.xml":"הערות סיום"};
 function partName(p){
   const base=p.split(" (")[0].split("/").pop();
-  const ex=p.includes("טקסט חלופי")?" · טקסט חלופי":"";
+  const ex=p.includes("טקסט חלופי")?" · טקסט חלופי":p.includes("קוד שדה")?" · קוד שדה":"";
   if(PARTN[base])return PARTN[base]+ex;
   if(base.startsWith("header"))return "כותרת עליונה"+ex;
   if(base.startsWith("footer"))return "כותרת תחתונה"+ex;

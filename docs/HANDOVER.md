@@ -1,5 +1,9 @@
 # Handover — the night of 2026-09-05/06
 
+> **Note, 2026-09-20.** This is a dated record and is left as written. One thing in it is no longer
+> true: the licence. It was MIT that night; it has been **PolyForm Shield 1.0.0** since the decision
+> recorded as Q6 in `docs/PLAN-v18.md`, and `LICENSE` and `package.json` say so.
+
 Branch `night-1`, PR #8, one commit per item. Nothing merged; main is still v13.
 Every commit left `npm test` green; the last one bumps to v14.
 
