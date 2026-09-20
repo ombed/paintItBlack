@@ -83,6 +83,21 @@ const bodyOf = (x) => (x.match(/<w:body>[\s\S]*<\/w:body>/) || [""])[0];
       ok(res.verification.suggest.some((x) => x.value === NAME), `${what}: proposed to her: ${JSON.stringify(res.verification.suggest.map((x) => x.value))}`);
       ok(res.verification.complete === false, `${what}: not reported as complete`);
     }
+    // review H10: the page-one thumbnail is a picture of the text, and a link inside a field code is
+    // a target like any other; both go whatever is on her list
+    {
+      const field = P('<w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText xml:space="preserve"> HYPERLINK "mailto:rachel.friedman@example.com" </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r>' + R("כתבו לי") + '<w:r><w:fldChar w:fldCharType="end"/></w:r>') +
+        P(`<w:fldSimple w:instr=' HYPERLINK "file:///C:/Users/lawyer/cases/friedman.docx" '>${R("הקובץ")}</w:fldSimple>`);
+      const res = await E.redactDocx(zipOf(plain + field, [{ name: "docProps/thumbnail.jpeg", body: "JFIF-not-really" }]), [], [], NOLIST);
+      const out = await outOf(res), x = docXml(out);
+      ok(!out.some((f) => f.name.startsWith("docProps/thumbnail")), "the page-one thumbnail is dropped");
+      ok(res.structural.dropped.includes("docProps/thumbnail.jpeg"), "and counted among the removed parts");
+      ok(!/mailto:|rachel\.friedman/.test(x), "a mailto inside a field code is neutralised");
+      ok(!/file:|lawyer|friedman\.docx/.test(x), "a file path inside a simple field is neutralised");
+      ok(x.includes("כתבו לי") && x.includes("הקובץ"), "the visible text of both fields stays");
+      const pageNo = await E.readBlocks(zipOf(P('<w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText> PAGE </w:instrText></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r>')));
+      ok(!pageNo.some((b) => b.part.includes("קוד שדה")), "an ordinary field code, like a page number, is not put in front of her");
+    }
     // invisible machine data is removed, whatever it holds
     const hiddenCases = [
       ["a document variable", plain, S["a document variable"].parts],

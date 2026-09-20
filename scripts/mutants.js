@@ -16,6 +16,8 @@ const MUTANTS = [
   ["stripComments", "function stripComments(doc){", "function stripComments(doc){return 0;", "tests/passes_t.js"],
   ["stripRsid", "function stripRsid(doc){let n=0;", "function stripRsid(doc){return 0;let n=0;", "tests/passes_t.js"],
   ["the shared reader's extra parts", "const isTextPart=n=>TEXTPART.test(n)||EXTRAPART.test(n);", "const isTextPart=n=>TEXTPART.test(n);", "tests/structure_t.js"],
+  ["the scrub of links inside field codes", "    if(main)scrubFieldLinks(d,rep.rels);", "    ;", "tests/structure_t.js"],
+  ["dropping the page-one thumbnail", "||f.name.startsWith(\"docProps/thumbnail.\")", "", "tests/structure_t.js"],
   ["stripHidden", "function stripHidden(doc){\n  let n=0;", "function stripHidden(doc){\n  return 0;let n=0;", "tests/structure_t.js"],
 ];
 const keep = fs.readFileSync(FILE, "utf8");

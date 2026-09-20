@@ -79,6 +79,10 @@ const S = {
     parts: [{ name: "word/charts/chart1.xml", body: `<?xml version="1.0"?><c:chartSpace xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><c:chart><c:title><c:tx><c:rich><a:p><a:r><a:t>ביקורים של ${NAME}</a:t></a:r></a:p></c:rich></c:tx></c:title><c:ser><c:cat><c:strRef><c:strCache><c:pt idx="0"><c:v>${NAME}</c:v></c:pt></c:strCache></c:strRef></c:cat></c:ser></c:chart></c:chartSpace>` }],
   },
   "a formatting change whose author is the name": { body: P(`<w:r><w:rPr><w:b/><w:rPrChange w:id="5" w:author="${NAME}"><w:rPr/></w:rPrChange></w:rPr><w:t>המורה אמרה.</w:t></w:r>`) },
+  // review H10: channels the engine did not walk at all
+  "a field code": { body: P('<w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText xml:space="preserve"> HYPERLINK "https://example.org/' + NAME + '" </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r>' + R("קישור") + '<w:r><w:fldChar w:fldCharType="end"/></w:r>') },
+  "a simple field's instruction": { body: P(`<w:fldSimple w:instr=' DOCPROPERTY "${NAME}" '>${R("ערך")}</w:fldSimple>`) },
+  "a table's alt text": { body: `<w:tbl><w:tblPr><w:tblCaption w:val="${NAME}"/><w:tblDescription w:val="טבלת הביקורים של ${NAME}"/></w:tblPr><w:tr><w:tc>${P(R("שם"))}</w:tc></w:tr></w:tbl>` + P(R("")) },
   "a glossary building block": {
     body: P(R("המורה אמרה.")),
     parts: [{ name: "word/glossary/document.xml", body: doc(P(R(NAME))) }],
