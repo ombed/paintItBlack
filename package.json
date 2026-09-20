@@ -20,7 +20,8 @@
     "gate": "node bench/gate.js",
     "bump": "node scripts/bump.js",
     "shapes": "node scripts/harvest-shapes.js",
-    "log-report": "node scripts/log-report.js"
+    "log-report": "node scripts/log-report.js",
+    "mutants": "node scripts/mutants.js"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,7 @@
     "@playwright/test": "^1.62.1",
     "@xmldom/xmldom": "^0.9.12",
     "eslint": "^9.39.5",
-    "jsdom": "^30.0.1"
+    "jsdom": "^30.0.1",
+    "pdfjs-dist": "4.6.82"
   }
 }

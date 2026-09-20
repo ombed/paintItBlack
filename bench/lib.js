@@ -140,7 +140,12 @@ function makeBench(E, opt) {
         for (const s of surfaces) for (const k of keys) if (hit(k, s)) { row.found = true; row.matched.push(res.surfaced.get(k).value); for (const src of res.surfaced.get(k).sources) row.via.push(src); }
         // replaced automatically by a pattern detector without being surfaced: handled, not missed
         for (const s of surfaces) for (const k of res.applied) if (hit(k, s)) { row.found = true; row.matched.push(k); row.via.push("applied"); }
-        row.leakedSurfaces = bare.filter((s) => s.length >= 3 && wordIn(outForLeak, s));
+        /* A surviving two-letter surname is a leak too (outside review, H12). The three-letter floor
+           is right for the generous `found` matcher, where a short needle matches by accident, but here
+           it hid the very failure docs/measurements.md records: "כץ leaked five times". A short
+           surface counts only as an exact whole token, with no prefix letter allowed. */
+        const leakIn = (hay, s) => s.length >= 3 ? wordIn(hay, s) : s.length === 2 && new RegExp("(^|[^א-ת])" + rx(s) + "(?![א-ת])").test(hay);
+        row.leakedSurfaces = bare.filter((s) => leakIn(outForLeak, s));
         row.leaked = row.leakedSurfaces.length > 0;
         if (e.cat === "P_ED1_PAIR") {
           // merged = the scanner flagged this person as a typo of the other

@@ -133,3 +133,18 @@ test("in a session, a break is written to the log once, as a rule and a screen, 
   expect(typeof ev[0].ms).toBe("number");
   expect(/[֐-׿]{3,}/.test(JSON.stringify(log))).toBe(false);
 });
+
+/* Review H4: the fixture turned "could not run" into "found nothing". A missing hook, or a
+   check that throws, must come back as a problem and fail the test. */
+test("a missing hook and a throwing check are reported, never read as clean", async ({ page }) => {
+  const { selfCheckOf } = require("./base");
+  await toWork(page);
+  expect(await selfCheckOf(page)).toEqual([]);
+  await page.evaluate(() => { window.__pib.check = () => { throw new Error("boom"); }; });
+  expect((await selfCheckOf(page)).map((v) => v.rule)).toEqual(["check-threw"]);
+  await page.evaluate(() => { delete window.__pib; });
+  expect((await selfCheckOf(page, 500)).map((v) => v.rule)).toEqual(["no-hook"]);
+  // a page that is not the app at all is skipped, and says so with null rather than []
+  await page.goto("about:blank");
+  expect(await selfCheckOf(page)).toBeNull();
+});

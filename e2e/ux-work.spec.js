@@ -103,7 +103,9 @@ test("UX #18: copy while items are pending asks first, copies only on 'בכל ז
   await expect(ask).toBeVisible();
   await expect(ask).toContainText("אלמליח");
   expect(await page.evaluate(() => window.__copied)).toBeNull();
-  await expect(page.locator("[data-steps]")).not.toContainText("✓ ›", { timeout: 500 }).catch(() => {});
+  // (review L1: this line ended in .catch(() => {}), so it could not fail. What it meant: the
+  // copy step is not marked done while the question is still open.)
+  await expect(page.locator("[data-steps]")).not.toContainText("2 העתקה או הורדה ✓");
   expect(await page.locator("[data-steps]").innerText()).not.toContain("הורדה ✓");
   await ask.getByRole("button", { name: "להעתיק בכל זאת" }).click();
   await expect.poll(() => page.evaluate(() => window.__copied)).toContain("אלמליח");

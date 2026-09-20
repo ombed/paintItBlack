@@ -1,4 +1,5 @@
 const { test, expect } = require("./base");
+const H = require("./helpers");
 
 /* pdf-text.js had no behavioural test (review M11), and it sorted every line's text items
    by ascending x. A Hebrew line split into several items, which one bold word is enough to
@@ -20,6 +21,7 @@ test("a Hebrew PDF is read in reading order, line by line, also when a line is s
   const pdf = await printer.pdf({ format: "A4" });
   await printer.close();
 
+  await H.servePdfJsLocally(page);
   await page.goto("/index.html");
   const got = await page.evaluate(async (bytes) => {
     const { pdfToText } = await import("./pdf-text.js");

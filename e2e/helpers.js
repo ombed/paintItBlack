@@ -87,4 +87,16 @@ async function goOn(page) {
 const peopleRows = (page) => page.locator('div:has(> button[aria-label="הסרה"])');
 const listedNames = (page) => peopleRows(page).locator("> span").allTextContents();
 
-module.exports = { DOCX, serveEngineWithStub, boot, upload, startScan, scanning, goButton, goOn, skipButton, peopleRows, listedNames };
+/* pdf.js comes from a CDN at runtime. A test that waits on a third party fails when the
+   third party hiccups, which a CI run did, so the browser gets the same version from
+   node_modules instead. tests/site_t.js keeps the pinned version and the one in
+   pdf-text.js the same. */
+async function servePdfJsLocally(page) {
+  const fs = require("fs"), path = require("path");
+  const dir = path.join(__dirname, "..", "node_modules", "pdfjs-dist", "build");
+  for (const f of ["pdf.min.mjs", "pdf.worker.min.mjs"]) {
+    await page.route("**/pdfjs-dist@*/build/" + f, (route) => route.fulfill({ status: 200, contentType: "text/javascript; charset=utf-8", body: fs.readFileSync(path.join(dir, f)) }));
+  }
+}
+
+module.exports = { servePdfJsLocally, DOCX, serveEngineWithStub, boot, upload, startScan, scanning, goButton, goOn, skipButton, peopleRows, listedNames };

@@ -1,6 +1,6 @@
 # Benchmark results (no model)
 
-40 documents, 314 keyed entities, model off. Generated 2026-09-18.
+40 documents, 314 keyed entities, model off. Generated 2026-09-20.
 
 ## Per category
 
@@ -119,24 +119,24 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 - t3 · person: nikud on one occurrence · מיקה: missed, **leaked**: מיקה
 - t4 · person: minor, first name only · עומרי: missed, **leaked**: עומרי
 - t4 · person: name that reads like a body's · עומרי גן: missed, **leaked**: עומרי גן
-- w1 · person: two-letter surname · ליעד כץ: missed, **leaked**: ליעד כץ
+- w1 · person: two-letter surname · ליעד כץ: missed, **leaked**: ליעד כץ, כץ
 - w1 · person: title attached · שיראל שטרית: missed, **leaked**: שיראל שטרית, עו"ס שיראל שטרית, שטרית
 - w2 · org: private body, must be redacted · פנימיית גבעת הרימון: missed, **leaked**: פנימיית גבעת הרימון, גבעת הרימון
 - w2 · place: neighbourhood · שכונת נווה חן: missed, **leaked**: שכונת נווה חן
-- w3 · person: two-letter surname · מתן צח: missed, **leaked**: מתן צח
+- w3 · person: two-letter surname · מתן צח: missed, **leaked**: מתן צח, צח
 - w3 · person: two people sharing a surname · סלים מנסור: found via suggest+applied as «סלים מנסור», **leaked**: סלים
 - w3 · person: two people sharing a surname · חנין מנסור: found via suggest+applied as «סלים מנסור», **leaked**: חנין מנסור, מנסור
 - h1 · person: minor, first name only · אבישג: missed, **leaked**: אבישג
 - h3 · person: Russian name · ולריה קוזנצוב: missed, **leaked**: ולריה קוזנצוב, קוזנצוב
 - h3 · person: Ethiopian name · יונס גטהון: missed, **leaked**: יונס גטהון, גטהון
-- h3 · person: two-letter surname · איה נץ: missed, **leaked**: איה נץ
+- h3 · person: two-letter surname · איה נץ: missed, **leaked**: איה נץ, נץ
 - h3 · org: private body, must be redacted · מכון שורשים: missed, **leaked**: מכון שורשים, שורשים
 - p1 · person: same person, one clean and one corrupted spelling · ארטיום מורוזוב: missed, **leaked**: ארטיום מורוזוב, מורוזב
 - p2 · place: town · גבעת עדה: missed, **leaked**: גבעת עדה
-- p3 · person: two-letter surname · עלמה כץ: missed, **leaked**: עלמה כץ
+- p3 · person: two-letter surname · עלמה כץ: missed, **leaked**: עלמה כץ, כץ
 - b2 · person: Arabic name · טהא עודה: missed, **leaked**: טהא עודה, עודה
 - b2 · org: private body, must be redacted · חברת קו הזהב הובלות: missed, **leaked**: חברת קו הזהב הובלות, קו הזהב
-- c1 · person: two-letter surname · מיקי צח: missed, **leaked**: מיקי צח
+- c1 · person: two-letter surname · מיקי צח: missed, **leaked**: מיקי צח, צח
 - c1 · person: minor, first name only · טרקה: missed, **leaked**: טרקה
 - c1 · place: town · נופית: missed, **leaked**: נופית
 - c2 · person: Arabic name · מייסא סרחאן: missed, **leaked**: מייסא סרחאן, סרחאן
@@ -169,43 +169,43 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 93 | 4 | 1 |
-| m2 | meeting | 34 | 6 | 0 |
-| m3 | meeting | 18 | 3 | 0 |
-| m4 | meeting | 22 | 3 | 1 |
-| f1 | filing | 37 | 10 | 1 |
-| f2 | filing | 56 | 13 | 1 |
-| f3 | filing | 22 | 5 | 0 |
-| f4 | filing | 31 | 8 | 3 |
-| t1 | transcript | 27 | 6 | 0 |
-| t2 | transcript | 20 | 5 | 1 |
-| t3 | transcript | 23 | 6 | 1 |
-| t4 | transcript | 26 | 8 | 1 |
-| w1 | welfare | 15 | 1 | 0 |
-| w2 | welfare | 19 | 3 | 0 |
-| w3 | welfare | 15 | 2 | 0 |
-| w4 | welfare | 25 | 5 | 1 |
-| h1 | medical | 25 | 6 | 2 |
-| h2 | medical | 20 | 2 | 0 |
-| h3 | medical | 18 | 3 | 3 |
-| p1 | police | 21 | 2 | 1 |
-| p2 | police | 17 | 3 | 1 |
-| p3 | police | 11 | 1 | 0 |
-| p4 | police | 16 | 3 | 0 |
-| b1 | bank | 18 | 5 | 2 |
-| b2 | bank | 9 | 1 | 0 |
-| b3 | bank | 10 | 2 | 0 |
-| c1 | chat | 9 | 1 | 0 |
-| c2 | chat | 13 | 2 | 1 |
-| c3 | chat | 9 | 2 | 0 |
-| c4 | chat | 14 | 3 | 0 |
-| x1 | position | 28 | 5 | 1 |
-| x2 | position | 16 | 4 | 0 |
-| x3 | position | 22 | 4 | 0 |
-| a1 | audio | 12 | 3 | 0 |
+| m1 | meeting | 62 | 4 | 1 |
+| m2 | meeting | 24 | 6 | 0 |
+| m3 | meeting | 16 | 3 | 0 |
+| m4 | meeting | 18 | 3 | 1 |
+| f1 | filing | 35 | 10 | 1 |
+| f2 | filing | 46 | 13 | 1 |
+| f3 | filing | 21 | 5 | 0 |
+| f4 | filing | 24 | 8 | 3 |
+| t1 | transcript | 20 | 6 | 0 |
+| t2 | transcript | 17 | 5 | 1 |
+| t3 | transcript | 20 | 6 | 1 |
+| t4 | transcript | 22 | 8 | 1 |
+| w1 | welfare | 9 | 1 | 0 |
+| w2 | welfare | 14 | 3 | 0 |
+| w3 | welfare | 11 | 2 | 0 |
+| w4 | welfare | 15 | 5 | 1 |
+| h1 | medical | 19 | 6 | 2 |
+| h2 | medical | 13 | 2 | 0 |
+| h3 | medical | 13 | 3 | 3 |
+| p1 | police | 13 | 2 | 1 |
+| p2 | police | 13 | 3 | 1 |
+| p3 | police | 8 | 1 | 0 |
+| p4 | police | 12 | 3 | 0 |
+| b1 | bank | 16 | 5 | 2 |
+| b2 | bank | 6 | 1 | 0 |
+| b3 | bank | 8 | 2 | 0 |
+| c1 | chat | 7 | 1 | 0 |
+| c2 | chat | 11 | 2 | 1 |
+| c3 | chat | 8 | 1 | 0 |
+| c4 | chat | 9 | 3 | 0 |
+| x1 | position | 20 | 5 | 1 |
+| x2 | position | 12 | 4 | 0 |
+| x3 | position | 16 | 4 | 0 |
+| a1 | audio | 9 | 3 | 0 |
 | a2 | audio | 16 | 5 | 0 |
-| a3 | audio | 26 | 7 | 1 |
-| a4 | audio | 12 | 4 | 0 |
-| v1 | interview | 16 | 2 | 0 |
-| v2 | interview | 16 | 3 | 0 |
-| v3 | interview | 10 | 2 | 0 |
+| a3 | audio | 24 | 7 | 1 |
+| a4 | audio | 10 | 4 | 0 |
+| v1 | interview | 12 | 2 | 0 |
+| v2 | interview | 14 | 3 | 0 |
+| v3 | interview | 9 | 2 | 0 |

@@ -329,6 +329,7 @@ test("L6: the theme follows the OS until she chooses one", async ({ page }) => {
 
 test("L7: a valid file clears the error of the previous one", async ({ page }) => {
   await H.serveEngineWithStub(page);
+  await H.servePdfJsLocally(page); // the PDF library from node_modules, not from the network
   await H.boot(page);
   await page.locator('input[type="file"][accept*=".docx"]').setInputFiles("e2e/fixtures/case-empty.docx");
   await expect(page.locator("[data-file-err]")).toBeVisible();
@@ -407,6 +408,8 @@ test("L22: a chip removed with ✕ is not offered again as a suggestion, and the
 });
 
 test("L16: if the engine fails to load, the message is plain Hebrew and offers a reload", async ({ page }) => {
+  // the engine is blocked on purpose, so the self-check hook can never be installed
+  test.info().annotations.push({ type: "no-self-check" });
   await page.route("**/redact-engine.js", (r) => r.abort());
   await page.addInitScript(() => { try { localStorage.setItem("redact-intro-seen", "1"); localStorage.setItem("redact-tour-seen", "*"); } catch (_) {} });
   await page.goto("/index.html");

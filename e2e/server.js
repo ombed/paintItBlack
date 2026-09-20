@@ -24,9 +24,12 @@ const TYPES = {
 
 http
   .createServer((req, res) => {
-    const url = decodeURIComponent(req.url.split("?")[0]);
+    // a malformed escape must not kill the server: a crashed server reads as a red test run (review L3)
+    let url;
+    try { url = decodeURIComponent(req.url.split("?")[0]); } catch (_) { res.writeHead(400).end("bad request"); return; }
     const file = path.join(ROOT, url === "/" ? "/index.html" : url);
-    if (!file.startsWith(ROOT)) {
+    // inside ROOT means ROOT plus a separator: a bare prefix test also let a sibling folder through
+    if (file !== ROOT && !file.startsWith(ROOT + path.sep)) {
       res.writeHead(403).end("forbidden");
       return;
     }
