@@ -75,3 +75,102 @@ test("a failed verification stops the download until she says so", async ({ page
   await got;
   expect(downloads).toBe(1);
 });
+
+/* H11, and the decision of 20.9: removing a name from the list is remembered by the case. It
+   used to be forgotten: the next document of the case brought the rule back without a word,
+   with its old pseudonym, while "לא שם" was remembered. A removed name that turns up again
+   is put in front of her as a suggestion, never added and never skipped in silence. */
+test("a name removed from the list stays removed in the next document of the case, and comes back only as a question", async ({ page }) => {
+  const A = ["פרוטוקול", "רחל פרידמן: אני מבקשת לפתוח.", "אבנר שטרן: הגעתי.", "רחל פרידמן: תודה.", "אבנר שטרן: נכון."].join("\n");
+  const B = ["המשך הדיון", "רחל פרידמן: חזרתי.", "אבנר שטרן: גם אני.", "רחל פרידמן: נתחיל.", "אבנר שטרן: בבקשה."].join("\n");
+  const toWork = async () => {
+    const run = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first();
+    await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 15000 });
+    if (await run.isVisible()) await run.click();
+    await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
+  };
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "first.docx", A);
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  await page.locator("[data-case-field] input").fill("פרידמן נ׳ שטרן");
+  await H.goOn(page);
+  await toWork();
+  const sheet = page.locator("[data-work] section").first();
+  await expect(sheet).not.toContainText("אבנר שטרן");
+
+  // she removes him from the list, in the profile section of the rail
+  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  await page.locator("[data-mine] > div").filter({ hasText: "אבנר שטרן" }).getByRole("button", { name: "הסרה מהרשימה" }).click();
+  await expect.poll(() => sheet.innerText(), { timeout: 15000 }).toContain("אבנר שטרן");
+  await expect.poll(() => page.evaluate(() => (JSON.parse(localStorage.getItem("redact-cases") || "{}")["פרידמן נ׳ שטרן"] || {}).removed || [])).toContain("אבנר שטרן");
+
+  // the next document of the same case
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "מסמך חדש" }).click();
+  await H.upload(page, "second.docx", B);
+  await page.getByRole("button", { name: "שימוש בתיק הזה" }).click();
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  const names = await H.listedNames(page);
+  expect(names).toContain("רחל פרידמן");
+  expect(names).not.toContain("אבנר שטרן");
+  // not silently skipped: he is offered, first, with the reason
+  const offer = page.locator("button").filter({ hasText: /^\+ אבנר שטרן/ }).first();
+  await expect(offer).toBeVisible();
+  await expect(page.locator("[data-removed-note]")).toHaveText("הוסר במסמך קודם בתיק"); // visible, not a tooltip
+  // declining keeps him in clear; the case still remembers
+  await H.goOn(page);
+  await toWork();
+  await expect(sheet).toContainText("אבנר שטרן");
+  await expect(sheet).not.toContainText("רחל פרידמן");
+  const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("redact-cases") || "{}")["פרידמן נ׳ שטרן"]);
+  expect(stored.removed).toContain("אבנר שטרן");
+  expect(stored.rules.map((r) => r.value)).not.toContain("אבנר שטרן");
+  expect(Object.keys(stored.map || {})).not.toContain("אבנר שטרן");
+});
+
+test("accepting the question puts the name back, and the case forgets the removal", async ({ page }) => {
+  const prof = { v: 1, name: "תיק בדיקה", created: new Date().toISOString(), updated: new Date().toISOString(), mode: "real",
+    rules: [{ value: "רחל פרידמן", kind: "NAME", replacement: "יעל כהן" }], allow: [], map: { "רחל פרידמן": "יעל כהן" }, removed: ["אבנר שטרן"] };
+  await H.serveEngineWithStub(page);
+  await page.addInitScript((p) => { try { localStorage.setItem("redact-cases", JSON.stringify({ [p.name]: p })); } catch (_) {} }, prof);
+  await H.boot(page);
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "second.docx", ["המשך הדיון", "רחל פרידמן: חזרתי.", "אבנר שטרן: גם אני.", "רחל פרידמן: נתחיל.", "אבנר שטרן: בבקשה."].join("\n"));
+  await page.getByRole("button", { name: "שימוש בתיק הזה" }).click();
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  await page.locator("button").filter({ hasText: /^\+ אבנר שטרן/ }).first().click();
+  expect(await H.listedNames(page)).toContain("אבנר שטרן");
+  await H.goOn(page);
+  const run = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first();
+  await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 15000 });
+  if (await run.isVisible()) await run.click();
+  await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
+  await expect(page.locator("[data-work] section").first()).not.toContainText("אבנר שטרן");
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("redact-cases") || "{}")["תיק בדיקה"].removed || [])).not.toContain("אבנר שטרן");
+});
+
+test("removing the last rule is saved too: the case does not keep a list she emptied", async ({ page }) => {
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "one.docx", ["פרוטוקול", "רחל פרידמן: אני מבקשת לפתוח.", "הדיון נדחה.", "רחל פרידמן: תודה."].join("\n"));
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  await page.locator("[data-case-field] input").fill("תיק של אחת");
+  await H.goOn(page);
+  const run = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first();
+  await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 15000 });
+  if (await run.isVisible()) await run.click();
+  await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
+  const stored = () => page.evaluate(() => JSON.parse(localStorage.getItem("redact-cases") || "{}")["תיק של אחת"]);
+  await expect.poll(async () => ((await stored()) || { rules: [] }).rules.map((r) => r.value)).toContain("רחל פרידמן");
+  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  await page.locator("[data-mine] > div").filter({ hasText: "רחל פרידמן" }).getByRole("button", { name: "הסרה מהרשימה" }).click();
+  await expect.poll(async () => (await stored()).rules.map((r) => r.value)).not.toContain("רחל פרידמן");
+  expect((await stored()).removed).toEqual(["רחל פרידמן"]);
+});

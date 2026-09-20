@@ -523,6 +523,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
           <sc-for list="{{ peoSugItems }}" as="x" hint-placeholder-count="3">
             <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 8px 5px 10px;border-radius:16px;border:1px solid var(--line);background:var(--panel);font-size:13px">
               <button onClick="{{ x.onAdd }}" title="{{ x.why }}" style="font-weight:500;color:var(--accent-ink)">+ {{ x.value }}</button>
+              <sc-if value="{{ x.removed }}"><span data-removed-note style="font-size:11.5px;color:var(--ink2)">הוסר במסמך קודם בתיק</span></sc-if>
               <button onClick="{{ x.onDrop }}" aria-label="לא אדם" style="width:18px;height:18px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:12px">✕</button>
             </span>
           </sc-for>
@@ -1149,7 +1150,7 @@ class Component extends DCLogic {
     copyLabel:"העתקה ל-AI", busyT:"מעבד…", err:"",
     geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, popup:null, tip:null, repDraft:"", peoKept:[], peoNotSame:[], inline:null, inlineDraft:"",
     // הפרופיל של התיק נשמר בדפדפן אחרי כל שינוי; lastProfile הוא מה שנמצא בכניסה
-    caseName:"", lastProfile:null, profileDirty:false, leaks:[], cases:[], copied:false, feedbackMail:"", logCopyLabel:""
+    caseName:"", lastProfile:null, profileDirty:false, removed:[], leaks:[], cases:[], copied:false, feedbackMail:"", logCopyLabel:""
   };
 
   async componentDidMount(){
@@ -1573,6 +1574,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       // ו"הלל שר" הם דוברים גם כש"לב" היא מילה ו"הלל" מתחיל ב-ה.
       if(w.length>3 || !w.every(x=>x.length>=2)) continue;
       if(!c.speaker && (!w.every(x=>E.nameish(x,dt)) || w[0][0]==="ו" || w.some(x=>x[0]==="ה"))) continue;
+      // מי שהוסר בתיק הזה אינו חוזר לרשימה מעצמו; הוא מוצע לה לאישור למטה (H11)
+      if(this.wasRemoved(c.value)) continue;
       peo.push({value:c.value, note:c.speaker?"דובר בתמלול":"מהכותרת", auto:true, g:c.g, kind:"NAME"});
     }
     // תיק שנבחר לפני המסמך (C2 בביקורת השנייה): האנשים שלו נכנסים לרשימה כאן,
@@ -1583,9 +1586,12 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     // מה ש-discover מצא ולא מילא מעצמו לא נעלם: הוא מוצג לאישור בהקשה אחת.
     // ניחוש בינוני עולה הקשה; שם שהיא לא נשאלה עליו הוא הכשל שהכלי נועד למנוע.
     const inList=v=>peo.some(p=>E.norm(p.value)===E.norm(v));
+    // מי שהוסר בתיק ומופיע שוב עולה ראשון, עם ההסבר שלו, גם אם לא היה עובר את סף ההצעות
+    const REMOVED_WHY="הוסר מהרשימה במסמך קודם בתיק — להחליף גם כאן?";
     const peoSug=cands.filter(c=>!inList(c.value)).filter(c=>{const w=c.value.split(/\s+/);
-      return w.length<=3&&w.every(x=>x.length>=2)&&(w.length>=2||c.speaker||c.count>=2);})
-      .slice(0,8).map(c=>({value:c.value, why:c.why, count:c.count, kind:"NAME"}));
+      return this.wasRemoved(c.value)||(w.length<=3&&w.every(x=>x.length>=2)&&(w.length>=2||c.speaker||c.count>=2));})
+      .sort((a,b)=>(this.wasRemoved(b.value)?1:0)-(this.wasRemoved(a.value)?1:0))
+      .slice(0,8).map(c=>({value:c.value, why:this.wasRemoved(c.value)?REMOVED_WHY:c.why, count:c.count, kind:"NAME"}));
     this._lastScan={blocks,cands};
     this.setState({peo, peoSug, peoIn:"", screen:"people", nerBox:false, nerFailed:false});
     if(!(this.state.o.ner && blocks && blocks.length)){
@@ -1630,6 +1636,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
           const k=E2.norm(f.value).trim();
           if(rules.some(r=>E2.norm(r.value).trim()===k)||allowN.has(k)) continue;
           if(f.prefixOf&&f.fold==="yes") continue;
+          // הוסר בתיק: לא חוזר ככלל מאחורי גבה; guardModel מעלה אותו כהצעה במסך הבדיקה (H11)
+          if(this.wasRemoved(f.value)) continue;
           rules.push({value:f.value, kind:f.kind||"NAME", replacement:"", auto:true, g:null, review:!!f.review});
           late++;
         }
@@ -1645,6 +1653,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         // גוף בלי מילת סוג ("ברסלב", "שביל הלב" לבדו) אינו נכנס לרשימה מעצמו:
         // הוא מוצע לאישור, כי בלי הראש אין לדעת אם זה מזהה או מילה מהעולם.
         if(f.review){ if(!sug.some(x=>E.norm(x.value)===E.norm(f.value))) sug.push({value:f.value, why:"גוף בלי מילת סוג — לאישור", count:f.n, kind:f.kind}); continue; }
+        // הוסר בתיק ונמצא שוב: מוצע לה ראשון, לא נכנס מעצמו ולא מדולג בשקט (H11)
+        if(this.wasRemoved(f.value)){ if(!sug.some(x=>E.norm(x.value)===E.norm(f.value))) sug.unshift({value:f.value, why:"הוסר מהרשימה במסמך קודם בתיק — להחליף גם כאן?", count:f.n, kind:f.kind}); continue; }
         // "שארסן" ליד "ארסן": כשהמודל עצמו אומר שהאות אינה חלק מהשם (Q4 בגרסה 3) הצורה
         // מתקפלת לשם הבסיס ואינה שבב; בספק היא שבב, והצעת המיזוג עולה עם "אות שימוש?"
         if(f.prefixOf&&f.fold==="yes"){ { const w=f.foldWhy||""; this.log.add("fold",{cut:/cut/.test(w), listed:/listed/.test(w), position:/position/.test(w), tok:(w.match(/tokenizer:([a-z]+)/)||[])[1]||"-"}); } continue; }
@@ -1669,7 +1679,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.setState({sugAsk:false});
     this.toPlaces(this.rulesFromPeo(this.state.peo));
   }
-  profileRules(){ const p=this.state.profile; return (p&&Array.isArray(p.rules)?p.rules:[]).filter(r=>r&&r.value); }
+  profileRules(){ const p=this.state.profile; return (p&&Array.isArray(p.rules)?p.rules:[]).filter(r=>r&&r.value&&!this.wasRemoved(r.value)); }
   /* הרשימה הופכת לכללים. עד כאן כל כלל נולד ריק (replacement:""), גם כשהתיק
      כבר ידע מה הכינוי של האדם הזה: "יוני כהן" שהוקלד במסמך הקודם נזרק, והוא קיבל
      שם בדוי חדש (C2). עכשיו כלל של ערך שכבר הוחלט עליו — בכללים הנוכחיים או
@@ -2121,7 +2131,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      יושבים על המופע ולא ב-state, כי הם אינם משתתפים ברינדור; רק שני המונים כן,
      בשביל הכפתורים. ארבעים צעדים מספיקים למסמך אחד. */
   snapshot(){
-    return {rules:(this.state.rules||[]).map(r=>({...r})), allow:[...(this.state.allow||[])]};
+    return {rules:(this.state.rules||[]).map(r=>({...r})), allow:[...(this.state.allow||[])], removed:[...(this.state.removed||[])]};
   }
   pushHistory(){
     this._undo=(this._undo||[]).concat([this.snapshot()]).slice(-40);
@@ -2136,7 +2146,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     to.push(this.snapshot());
     const snap=from.pop();
     if(this.log) this.log.add(back?"undo":"redo",{});
-    this.setState({rules:snap.rules, allow:snap.allow, sel:null,
+    this.setState({rules:snap.rules, allow:snap.allow, removed:snap.removed||[], sel:null,
       undoN:this._undo.length, redoN:this._redo.length}, ()=>this.rerun());
   }
   undo = () => this.stepHistory(true);
@@ -2230,7 +2240,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const nrm=x=>E.norm(String(x||"")).trim();
     const allowGone=this.state.allow.filter(a=>nrm(a)===nrm(value));
     if(allowGone.length) this.log.add("conflict",{won:"rule"});
-    this.setState({rules:[...this.state.rules, {value, kind:kind||"NAME", replacement:(rep||"").trim(), auto:false}],
+    this.setState({removed:(this.state.removed||[]).filter(x=>E.norm(x).trim()!==E.norm(value).trim()),
+      rules:[...this.state.rules, {value, kind:kind||"NAME", replacement:(rep||"").trim(), auto:false}],
       allow:this.state.allow.filter(a=>nrm(a)!==nrm(value)),
       notice:allowGone.length?`«${value}» יוחלף; ההיתר «אל תחליף» שהיה עליו הוסר.`:"",
       addV:"", addR:"", popup:null, err:""}, ()=>this.rerun());
@@ -2247,7 +2258,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   // מוסיף מקטע לפתוחים בלי לסגור אחרים
   openWith = k => { const o=Array.isArray(this.state.open)?this.state.open:[]; return o.includes(k)?o:[...o,k]; };
   // מחיקה מרשימת הפרופיל היא החלטה כמו כל אחרת (M7 בביקורת השנייה): צעד ביטול משלה, ושורה שאומרת מה קרה
-  dropRule = v => { this.pushHistory(); this.log.add("drop-rule",this.logFacts(v)); this.setState({rules:this.state.rules.filter(r=>r.value!==v), notice:`«${v}» הוסר מהרשימה, והטקסט המקורי חזר.`}, ()=>this.rerun()); };
+  /* הסרה נזכרת בתיק (ביקורת H11, והחלטה מ-20.9): "לא שם" נשמר בהיתר ולכן לא חזר, אבל הסרה רגילה
+     נשכחה — המסמך הבא בתיק החזיר את הכלל בשקט, עם הכינוי הישן. הערך נרשם ב-removed, נשמר
+     בפרופיל התיק, ואינו חוזר מעצמו. אם הוא מופיע במסמך הבא הוא מוצע לה לאישור, לא מדולג בשקט. */
+  dropRule = v => { this.pushHistory(); this.log.add("drop-rule",this.logFacts(v)); this.setState({removed:this.state.removed.includes(v)?this.state.removed:[...this.state.removed, v], rules:this.state.rules.filter(r=>r.value!==v), notice:`«${v}» הוסר מהרשימה, והטקסט המקורי חזר.`}, ()=>this.rerun()); };
   // "לא שם": הכלל יורד מהרשימה על כל צורותיו, והטקסט הזה לא יוצע שוב
   notAName = (base, v) => { this.pushHistory(); this.log.add("not-a-name",this.logFacts(v, base)); return this.setState({allow:this.state.allow.includes(v)?this.state.allow:[...this.state.allow, v],
     rules:this.state.rules.filter(r=>r.value!==base && r.value!==v)}, ()=>this.rerun()); };
@@ -2595,9 +2609,15 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this._dlDoc=doc; this._dlName="מסמך-מושחר-"+new Date().toISOString().slice(0,10)+(this._dlSeq>1?"-"+this._dlSeq:"");
     return this._dlName;
   }
+  // מה שהוסר ועדיין מוסר: ערך שחזר להיות כלל (ביטול, או הוספה מחדש ביד) או שהותר יוצא מהרשימה
+  removedNow(){ const E=this.state.E, n=v=>E.norm(String(v||"")).trim();
+    const live=new Set([...(this.state.rules||[]).map(r=>n(r.value)), ...(this.state.allow||[]).map(n)]);
+    return (this.state.removed||[]).filter(v=>v&&!live.has(n(v))); }
+  wasRemoved(v){ const E=this.state.E, n=x=>E.norm(String(x||"")).trim(); return this.removedNow().some(x=>n(x)===n(v)); }
   profileObj(){
     return {v:1, created:(this.state.profile&&this.state.profile.created)||new Date().toISOString(), updated:new Date().toISOString(),
       name:this.state.caseName||"", mode:this.state.mode, rules:this.state.rules, allow:this.state.allow, map:this.currentMap(),
+      removed:this.removedNow(),
       // הבחירה על מספרים ועל תאריכים היא של התיק, לא של הלשונית (Q1 בגרסה 5)
       styles:{num:this.state.o.numStyle||"blank", date:this.state.o.dateStyle||"name"}};
   }
@@ -2623,14 +2643,17 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   mergeCase(prev, cur){
     const E=this.state.E, n=v=>E.norm(String(v||"")).trim();
     const curAllow=new Set((cur.allow||[]).map(n)), curRules=new Set((cur.rules||[]).map(r=>n(r&&r.value)));
+    // מה שהוסר בתיק נשאר מוסר, אלא אם הוא כלל או היתר במסמך הנוכחי
+    const removed=[...new Set([...(prev.removed||[]), ...(cur.removed||[])])].filter(v=>v&&!curRules.has(n(v))&&!curAllow.has(n(v)));
+    const gone=new Set(removed.map(n));
     const rules=(cur.rules||[]).slice();
-    for(const r of prev.rules||[]) if(r&&r.value&&!curRules.has(n(r.value))&&!curAllow.has(n(r.value))) rules.push(r);
+    for(const r of prev.rules||[]) if(r&&r.value&&!curRules.has(n(r.value))&&!curAllow.has(n(r.value))&&!gone.has(n(r.value))) rules.push(r);
     const allow=(cur.allow||[]).slice();
     for(const a of prev.allow||[]) if(a&&!curRules.has(n(a))&&!curAllow.has(n(a))) allow.push(a);
     const map={...(prev.map||{})};
-    for(const k of Object.keys(map)) if(curAllow.has(n(k))) delete map[k];
+    for(const k of Object.keys(map)) if(curAllow.has(n(k))||gone.has(n(k))) delete map[k];
     Object.assign(map, cur.map||{});
-    return {...cur, created:prev.created||cur.created, rules, allow, map};
+    return {...cur, created:prev.created||cur.created, rules, allow, map, removed};
   }
   deleteCase = name => {
     try{ const m=JSON.parse(localStorage.getItem("redact-cases")||"{}"); delete m[name]; localStorage.setItem("redact-cases", JSON.stringify(m)); }catch(_){}
@@ -2827,7 +2850,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   persistProfile(){
     // המסמך לדוגמה של הסיור אינו תיק: שום דבר ממנו לא נשמר בדפדפן
     if(this.state.tour) return;
-    if(!this.state.res||!this.state.rules.length) return;
+    // רשימה ריקה נשמרת גם היא כשיש מה לזכור: קודם, מחיקה של כל הכללים לא שמרה דבר, והתיק הישן החזיק את כולם
+    if(!this.state.res) return;
+    if(!this.state.rules.length&&!(this.state.allow||[]).length&&!this.removedNow().length) return;
     const prof=this.profileObj();
     try{ localStorage.setItem("redact-profile-last", JSON.stringify(prof)); }catch(_){}
     if(prof.name){ this.writeCase(prof); this.setState({cases:this.readCases()}); }
@@ -2864,9 +2889,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   };
   applyProfile(prof){
     try{
-      const rules=(prof.rules||[]).slice();
+      const En=this.state.E, nn=v=>En.norm(String(v||"")).trim(), goneP=new Set((prof.removed||[]).map(nn));
+      const rules=(prof.rules||[]).filter(r=>r&&!goneP.has(nn(r.value)));
       for(const [value, replacement] of Object.entries(prof.map||{})){
-        if(!value||!replacement) continue;
+        if(!value||!replacement||goneP.has(nn(value))) continue;
         const ex=rules.find(r=>r.value===value);
         if(ex){ if(!ex.replacement) ex.replacement=replacement; }
         else rules.push({value, kind:/^\[|^[\d\s+()-]+$/.test(replacement)?"OTHER":"NAME", replacement, auto:true});
@@ -2874,7 +2900,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const mode = prof.mode || this.state.mode;
       const st=prof.styles||{};
       const o={...this.state.o, ...(st.num?{numStyle:st.num}:{}), ...(st.date?{dateStyle:st.date}:{})};
-      this.setState({profile:prof, rules, allow:(prof.allow||[]).slice(), mode, o, err:""}, ()=>{
+      this.setState({profile:prof, rules, allow:(prof.allow||[]).slice(), removed:(prof.removed||[]).slice(), mode, o, err:""}, ()=>{
         if(this.state.screen==="people"){
           const list=[...this.state.peo]; const E=this.state.E;
           for(const r of rules) if(r.kind==="NAME"||r.kind==="ORG"){
@@ -3281,7 +3307,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       profileNote:(S.caseName?"נשמר ברשימת התיקים בדפדפן הזה אחרי כל שינוי, ומוצע בכניסה הבאה. ":"בלי שם התיק נשמר רק כ«פרופיל אחרון». ")+(S.profileDirty?"הדפדפן אינו גיבוי — ייצוא לקובץ שומר את הפרופיל גם אם המטמון ינוקה.":"יוצא לקובץ."),
       hasPeoSug:S.peoSug.some(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))&&!(S.peoKept||[]).some(k=>S.E.norm(k.value)===S.E.norm(x.value))),
       peoSugItems:S.peoSug.filter(x=>!S.peo.some(p=>S.E.norm(p.value)===S.E.norm(x.value))&&!(S.peoKept||[]).some(k=>S.E.norm(k.value)===S.E.norm(x.value))).map(x=>({
-        value:x.value, why:x.why,
+        value:x.value, why:x.why, removed:this.wasRemoved(x.value),
         onAdd:()=>this.peoAdd(x.value,"מההקשר",true,x.kind),
         // "לא אדם" הוא החלטה, ולכן נראית (H3): השם נכנס ל"נשארים כמו שהם" עם ↩, כמו מחיקת שבב
         onDrop:()=>{ this.log.add("sug-drop",{}); this.setState({peoSug:S.peoSug.filter(y=>y!==x), allow:S.allow.includes(x.value)?S.allow:[...S.allow, x.value],
@@ -3414,7 +3440,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           // כל מה ששייך למסמך ולא לסשן מתאפס כאן (ביקורת H1): דוח הדליפה של לקוח אחד יצא בחבילה של הבא,
           // ותשובת ה-AI עם השמות האמיתיים שלו חיכתה במסך ההחזרה. tests/state_t.js בודק שכל מפתח ב-state
           // מתאפס כאן או רשום שם כשייך לסשן.
-          origBlocks:[], leaks:[], rvIn:"", rvOut:"", aiIn:"", aiWarn:"", cands:[], nerUsed:false, peoIn:"", peoNote:"", hot:null, addK:"NAME",
+          origBlocks:[], removed:[], leaks:[], rvIn:"", rvOut:"", aiIn:"", aiWarn:"", cands:[], nerUsed:false, peoIn:"", peoNote:"", hot:null, addK:"NAME",
           geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, tip:null, repDraft:"", peoNotSame:[], inlineDraft:""},
           ()=>{ try{ scrollTo(0,0); }catch(_){} });
         this._undo=[]; this._redo=[]; this._modelFound=null; this._lastScan=null;
