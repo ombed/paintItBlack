@@ -8,6 +8,30 @@ check it. The review's rules of engagement are in `docs/review/CHARTER.md`.
 
 Written 2026-09-20, at v48.
 
+## Corrections after the review (added 2026-09-20)
+
+The review ran against this brief as it stood, so the text below is left as it was given. Four
+things in it were wrong or incomplete, and the review proved each one:
+
+- **Section 9, complexity.** The list names `bodyNames` (113) and `nerClean` (110) as the
+  extremes. `redactDocx`, the function that decides what reaches the downloaded file, scores
+  **155** and was missing: the measuring command hit a parse error on `engine/08-docx.js` and
+  skipped the file without saying so. Inside `index.html`, which the linter does not read at
+  all, `renderVals` scores **173**. Nested-deeper-than-4 is 49, not 47.
+- **Section 6, integrity.** "One `integrity=` attribute" counted markup and missed the loader:
+  five of the seven executable third-party loads carry a hash (React, ReactDOM, the Babel
+  constant, d3, topojson). The two that do not are the two that see document text,
+  `@huggingface/transformers` and `pdfjs-dist`, because a bare dynamic `import()` cannot carry
+  one. `CHARTER.md` section 6.6 repeats the same mistake as "No Subresource Integrity".
+- **Section 9, payload.** Babel is never fetched. It is reachable only through an import of a
+  `.jsx` or `.tsx` URL, and the repository has none.
+- **Section 9, API surface.** The engine has 83 exports, not 81.
+
+The review also found the brief too hard on itself in one place: about 88% of the comments state
+the rule the code keeps, and none narrates a bug without it.
+
+`docs/review/TRIAGE.md` is the answer to the findings themselves.
+
 ## 1. What the product is
 
 A single-page browser tool that removes identifying details from Hebrew legal

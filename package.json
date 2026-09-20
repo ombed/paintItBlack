@@ -28,7 +28,7 @@
     "url": "git@github-new:ombed/paintItBlack.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "PolyForm-Shield-1.0.0",
   "type": "commonjs",
   "private": true,
   "devDependencies": {
