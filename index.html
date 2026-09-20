@@ -2492,10 +2492,13 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
   /* ייצוא כשהסטטוס אדום (UX #18, #23): לחיצה ראשונה שואלת בסרגל, עם "להציג אותם"
      ו"בכל זאת". הצבע האדום היה ההגנה היחידה, וההורדה לא נשאה אפילו אותו. */
+  /* אימות שנכשל עוצר גם הוא (ביקורת H2): הפס האדום אמר "אין לשלוח ואין להעתיק", וההורדה
+     יצאה בלי שאלה, כי השומר ספר רק פריטים בלי החלטה ולא הסתכל על תוצאת האימות. */
+  verifyFailed(){ const v=this.state.res&&this.state.res.verification; return !!(v&&v.passed===false&&(v.leaks||[]).length); }
   exportGuard(what){
-    const p=this.pendingReview();
-    if(!p.blocking||this.state.exportAsk===what) { if(this.state.exportAsk) this.setState({exportAsk:""}); return true; }
-    this.log.add("export-ask",{what, open:p.blocking});
+    const p=this.pendingReview(), failed=this.verifyFailed();
+    if((!p.blocking&&!failed)||this.state.exportAsk===what) { if(this.state.exportAsk) this.setState({exportAsk:""}); return true; }
+    this.log.add("export-ask",{what, open:p.blocking, verifyFailed:failed});
     this.setState({exportAsk:what});
     return false;
   }
@@ -3783,8 +3786,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.copyBtnStyle="padding:11px 20px;border-radius:10px;font-weight:500;font-size:14px;white-space:nowrap;color:var(--panel);background:"+(kind==="ok"?"var(--accent)":kind==="warn"?"var(--warn)":"var(--bad)");
     v.onCopyAi=this.copyAi; v.onDownload=this.download;
     // השאלה לפני ייצוא כשיש ממתינים (UX #18, #23)
-    v.exportAsk=!!S.exportAsk&&PR.blocking>0;
-    v.exportAskText=(PR.blocking===1?"פריט אחד עדיין בלי החלטה":PR.blocking+" פריטים עדיין בלי החלטה")+" — "+listNames([...PR.people.map(x=>x.value), ...PR.numbers.map(x=>x.value), ...PR.sug.map(x=>x.value), ...PR.near.map(x=>x.value)]);
+    const vFail=this.verifyFailed(), vLeaks=vFail?S.res.verification.leaks:[];
+    v.exportAsk=!!S.exportAsk&&(PR.blocking>0||vFail);
+    v.exportAskText=vFail
+      ? "האימות נכשל: "+(vLeaks.length===1?"ערך מזהה אחד":vLeaks.length+" ערכים מזהים")+" עדיין בקובץ ("+[...new Set(vLeaks.map(l=>E.partName(l.part)))].slice(0,3).join(", ")+"). קובץ שיוצא עכשיו נושא אותם."
+      : (PR.blocking===1?"פריט אחד עדיין בלי החלטה":PR.blocking+" פריטים עדיין בלי החלטה")+" — "+listNames([...PR.people.map(x=>x.value), ...PR.numbers.map(x=>x.value), ...PR.sug.map(x=>x.value), ...PR.near.map(x=>x.value)]);
     v.exportAnyLabel=S.exportAsk==="download"?"להוריד בכל זאת":"להעתיק בכל זאת";
     v.onExportShow=()=>{ this.log.add("export-ask",{act:"show"}); this.setState({exportAsk:"", open:this.openWith("review"), pane:"find"}); };
     v.onExportAnyway=()=>{ const w=S.exportAsk; this.log.add("export-ask",{act:"anyway", what:w}); if(w==="download") this.download(); else this.copyAi(); };
