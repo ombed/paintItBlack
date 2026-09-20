@@ -19,7 +19,23 @@ const SITE_FILES = [
   "text-to-docx.js", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png",
 ];
 
+/* The output folder is deleted before it is rebuilt, so what may be named is narrow: an
+   existing folder is only removed if this script made it, which means it holds .nojekyll
+   and nothing but the site files. Before this check the path was whatever was typed:
+   "node scripts/build-site.js --list" built a folder called --list, and a slip of the hand
+   next to "npm run shapes ../private-bench" would have deleted the client fixtures
+   (review M9). */
+function safeToReplace(out) {
+  if (!fs.existsSync(out)) return true;
+  if (!fs.statSync(out).isDirectory()) return false;
+  const names = fs.readdirSync(out);
+  if (!names.length) return true;
+  return names.includes(".nojekyll") && names.every((n) => n === ".nojekyll" || SITE_FILES.includes(n));
+}
+
 function build(out) {
+  if (path.basename(out).startsWith("-")) throw new Error("not a folder name: " + path.basename(out));
+  if (!safeToReplace(out)) throw new Error("refusing to delete " + out + ": it is not a folder this script built");
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });
   for (const f of SITE_FILES) fs.copyFileSync(path.join(ROOT, f), path.join(out, f));

@@ -51,6 +51,16 @@ const got = fs.readdirSync(out).sort();
 ok("build output is the list plus .nojekyll", JSON.stringify(got) === JSON.stringify([".nojekyll", ...SITE_FILES].sort()));
 ok("no design canvas in the site", !fs.existsSync(path.join(out, "design")));
 ok("no archive in the site", !fs.existsSync(path.join(out, "docs")));
+// the build deletes its target first, so it only ever replaces a folder it made (review M9)
+let rebuilt = true; try { build(out); } catch (_) { rebuilt = false; }
+ok("its own output can be rebuilt in place", rebuilt);
+const foreign = fs.mkdtempSync(path.join(os.tmpdir(), "keep-"));
+fs.writeFileSync(path.join(foreign, "client-document.docx"), "x");
+let refused = false; try { build(foreign); } catch (_) { refused = true; }
+ok("a folder it did not build is refused", refused && fs.existsSync(path.join(foreign, "client-document.docx")));
+let dash = false; try { build(path.join(os.tmpdir(), "--list")); } catch (_) { dash = true; }
+ok("a flag typed as a path is refused", dash && !fs.existsSync(path.join(os.tmpdir(), "--list")));
+fs.rmSync(foreign, { recursive: true, force: true });
 fs.rmSync(out, { recursive: true, force: true });
 
 console.log(`  site: ${pass} passed, ${fail} failed`);

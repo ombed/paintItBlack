@@ -9,11 +9,28 @@ name: pages
 # file missing from the list fails here instead of on the live site. The
 # fixture pages the checks load (e2e helpers import ./text-to-docx.js) are
 # part of the site already.
+#
+# What reaches the live site (outside review, H9 and M10):
+#   - A push to main is published only after the `test` workflow has passed on
+#     that same commit. Before, both workflows started together and this one
+#     gated the deploy on 11 browser checks, so a commit that failed the Node
+#     suites was still published.
+#   - After the deploy, the live page must report the version this commit
+#     carries, or the run fails. The check used to be a person reading the chip.
+#   - Every published commit gets a `live/vNN` tag. A rollback is a manual run
+#     of this workflow with that tag as `ref`: see docs/ROLLBACK.md.
 
 on:
-  push:
+  workflow_run:
+    workflows: [test]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
+    inputs:
+      ref:
+        description: "Tag or commit to publish, for a rollback (for example live/v49). Empty publishes main."
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -24,10 +41,19 @@ concurrency:
 
 jobs:
   build:
+    # a manual run always goes; an automatic one only after a passing test run of a push to main
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      sha: ${{ steps.version.outputs.sha }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.event.workflow_run.head_sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -40,6 +66,11 @@ jobs:
         run: npx playwright test e2e/flow.spec.js e2e/tour.spec.js e2e/ui.spec.js
         env:
           SITE_ROOT: _site
+      - name: The version this commit carries
+        id: version
+        run: |
+          echo "version=$(grep -o 'גרסה v[0-9]*' _site/index.html | head -1 | grep -o 'v[0-9]*')" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
@@ -56,3 +87,36 @@ jobs:
     steps:
       - id: deploy
         uses: actions/deploy-pages@v4
+
+  verify:
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      WANT: ${{ needs.build.outputs.version }}
+      SHA: ${{ needs.build.outputs.sha }}
+    steps:
+      - name: The live page reports this version
+        run: |
+          test -n "$WANT"
+          for i in $(seq 1 30); do
+            page=$(curl -fsS "https://ombed.github.io/paintItBlack/index.html?verify=$RANDOM" | grep -o 'גרסה v[0-9]*' | head -1 | grep -o 'v[0-9]*' || true)
+            worker=$(curl -fsS "https://ombed.github.io/paintItBlack/sw.js?verify=$RANDOM" | grep -o 'v[0-9][0-9]*' | head -1 || true)
+            echo "attempt $i: page=$page worker=$worker want=$WANT"
+            if [ "$page" = "$WANT" ] && [ "$worker" = "$WANT" ]; then exit 0; fi
+            sleep 10
+          done
+          echo "the live site does not report $WANT"; exit 1
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.sha }}
+      - name: Tag what is live, so it can be published again
+        run: |
+          tag="live/$WANT"
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "$tag already exists: a rollback or a re-run, nothing to tag"
+          else
+            git tag "$tag" "$SHA" && git push origin "$tag"
+          fi
