@@ -75,6 +75,8 @@ Every reported bug closes with three things, written into the PR template:
 
 QA runs use documents with real typography, carry the layer-3 misbehaviour list, and report the layer-2 invariants on every screen they visit.
 
+**Brief written.** `docs/review/QA-ROUND.md` is the prompt a browser-driving agent runs. It plays her: two documents of one case, most of the time spent overriding the tool on the check screen, restore with a Hebrew and an English answer, and disturbances from resizing to a second tab. On every screen it records the self-check, CSP refusals, dropped log fields and console errors, and it unzips every download to search each part for the real values. A finding is filed only after it reproduces twice, with its class and a suggested test. A first short dry run is in `qa-audit/qa-round-1/report.md` (local only). The full round is still to run.
+
 ## Order
 
 | Step | What | Effort | Status |
@@ -86,7 +88,7 @@ QA runs use documents with real typography, carry the layer-3 misbehaviour list,
 | 5 | Self-check events in the session log | half a day | done |
 | 1b | Shape suite extended to places, restore and Word structure | about a day | done |
 | 4 | Shape harvesting from the private fixtures | one to two days | done |
-| 7 | Next QA round with the new brief | one round | next |
+| 7 | Next QA round with the new brief | one round | brief written, dry run done; full round next |
 
 ## How we'll know it works
 
