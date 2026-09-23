@@ -58,16 +58,20 @@ Every part of the harness (`bench/model-eval/`) reads and writes these shapes. T
 { "model": "base-q8", "set": "synthetic-test", "stage": "raw", "threshold": 0,
   "docs": [ { "id": "m1", "spans": [ { "s": 12, "e": 21, "type": "PER", "score": 0.97 } ] } ],
   "health": { "unmappedLabels": 0, "chunksOver510": 0, "chunkErrors": 0,
-    "alignFailTokens": 0, "alignFailEntityTokens": 0, "tokens": 0 },
+    "alignFailTokens": 0, "alignFailEntityTokens": 0, "entityTokens": 0, "tokens": 0 },
   "timing": { "loadMs": 0, "scanMs": 0, "words": 0 } }
 ```
 
 - `raw`: after the adapter, `E.nerAlign` and `E.nerGroup`, before `E.nerClean`; every span kept with its
   score (threshold 0), so the cut-off sweep is done offline from this file.
 - `cleaned`: `E.nerClean` returns names, not positions. Its output is scored per name: every
-  whole-word occurrence of a cleaned value in `text` (the product's own matching, `E.NW + E.flex(v) + E.NWE`)
-  is a predicted span with the cleaned kind.
-- `health.alignFailEntityTokens` counts tokens inside a gold mention that `nerAlign` could not place.
+  occurrence of a cleaned value in `text` that the product would replace, bare or after a prefix letter
+  (`E.variants(v, "normal")`, each form matched with `E.NW + E.flex(form) + E.NWE`), is a predicted span
+  with the cleaned kind; the span leaves the prefix letter out, as the gold does.
+- `health.alignFailEntityTokens` counts tokens inside a gold mention that `nerAlign` could not place, out of
+  `health.entityTokens` tokens inside gold mentions.
+- Where two chunks overlap (60 characters), one span can come back twice in `raw`, as it does in the product;
+  the scorer counts a span once per (document, start, end, type).
 
 ## Scores (`score-spans.js` output)
 
@@ -78,6 +82,11 @@ Every part of the harness (`bench/model-eval/`) reads and writes these shapes. T
 ```
 
 `match` is one of `word-exact`, `overlap-typed`, `overlap-untyped`, as defined in PLAN.md 3.1.
+
+## Private gold sets
+
+A gold set built from her documents has `"licence": "private"` and lives under `private-bench/model-eval/`;
+`compare.js` switches to counts-only output on either.
 
 ## Privacy rule for code that touches private sets
 

@@ -40,7 +40,10 @@ const REMOVED_BY_DESIGN = new Set(["S_COMMENT", "S_META"]);
 const strip = (s) => String(s || "").replace(/[֑-ׇ]/g, "");
 const rx = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-async function loadModel() {
+// no spec: today's model, as every bench script has always loaded it. A registry key or
+// entry goes through the model-eval loader (pinned revision, own cache, sha256 checked).
+async function loadModel(spec, opt) {
+  if (spec) return require("./model-eval/load.js").loadModel(spec, opt);
   const T = await import("@huggingface/transformers");
   T.env.allowLocalModels = false;
   return T.pipeline("token-classification", "onnx-community/dictabert-ner-ONNX", { dtype: "q8" });

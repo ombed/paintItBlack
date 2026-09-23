@@ -207,7 +207,7 @@ We also score **each exported candidate at fp32 in Node** (the export produces f
 - Paired bootstrap with 2,000 resamples, fixed seed.
 - Resampling units:
   - synthetic: by document;
-  - Knesset UD: by its 11 `newdoc` documents;
+  - Knesset UD: by its `newdoc` documents (15 after the IAHLT overlap is dropped, 19 before; dev and test together);
   - NEMO/BMC: blocks of 20 sentences. The files mark no article boundaries, so we state that these intervals are optimistic.
 - Her documents are reported per document, with no intervals.
 - The baseline is run twice to confirm the runs repeat exactly.
@@ -231,7 +231,7 @@ F-scores decide which models earn a product run, and they explain why a model wi
 | Known cases (4.5) | ~25 named cases, all made-up text | Pass or fail per model | None |
 | NEMO test | PER 267, ORG 408, GPE 195, LOC 41, FAC 11 | Held-out, headline public score | msperka, aleph, joint and parse trained on NEMO; whether the test split was held out is **unknown** for joint and parse; the baseline is unknown |
 | BMC split 1 test | PER 373, LOC 318, ORG 273 | Held-out public score | `hebert` trained on BMC (not counted for it) |
-| Knesset UD dev+test, minus the 40 sentences also in IAHLT NER | ~480 sentences | Spoken register, closest to her transcripts | joint and parse **possibly** contaminated (trained on IAHLT UD) |
+| Knesset UD dev+test, minus the 56 sentences also in IAHLT NER | 465 sentences, 7,402 words | Spoken register, closest to her transcripts | joint and parse **possibly** contaminated (trained on IAHLT UD) |
 | Her fixtures r1–r5 | ~10,450 words, 33 must | Safety and her-time checks only; **counts only** | Created by the baseline itself (see section 1) |
 
 **Not used for the decision:**
