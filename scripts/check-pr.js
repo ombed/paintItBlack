@@ -10,6 +10,9 @@
    CI passes the description in PR_BODY, through the environment and never
    through the shell, so nothing in it is executed. */
 
+const fs = require("fs");
+const path = require("path");
+const ROOT = path.join(__dirname, "..");
 const strip = (s) => s.replace(/<!--[\s\S]*?-->/g, "").trim();
 
 // the text under a heading, up to the next heading of the same or a higher level
@@ -41,6 +44,11 @@ function checkPr(body) {
   const hitText = hit === null ? "" : strip(hit);
   if (!hitText) problems.push("Bug fix: \"1. The case that was hit\" is empty. Name the test that fails without the fix.");
   else if (!/\b(?:tests|e2e)\/[\w.-]+\.js\b/.test(hitText)) problems.push("Bug fix: \"1. The case that was hit\" names no test file under tests/ or e2e/.");
+  else {
+    // every file it names is in the checkout (review M6): a made-up name passed before
+    for (const f of new Set(hitText.match(/\b(?:tests|e2e)\/[\w.-]+\.js\b/g)))
+      if (!fs.existsSync(path.join(ROOT, f))) problems.push(`Bug fix: "1. The case that was hit" names ${f}, which does not exist in this branch.`);
+  }
   if (cls === null || !strip(cls)) problems.push("Bug fix: \"2. The class\" is empty. Say what the siblings share and what now covers them.");
   if (probe === null || !strip(probe)) problems.push("Bug fix: \"3. The probe\" is empty. Say what was tried beyond the case and what it found, \"nothing\" included.");
   return problems;
