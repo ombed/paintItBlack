@@ -246,7 +246,12 @@ versions are in `docs/review/SOURCES.md`.
   Long Hebrew strings are refused, but what about two-letter words, Latin
   transliteration, numbers, file names, or a value in a field name.
 - Third-party code: React, Babel, d3, topojson, pdf.js, transformers.js, fonts,
-  and the model weights. No Subresource Integrity, no Content-Security-Policy.
+  and the model weights. No Content-Security-Policy. Subresource Integrity is
+  partial: five of the seven executable third-party loads carry a hash through
+  the loader (React, ReactDOM, the Babel constant, d3, topojson); the two that
+  see document text, transformers.js and pdf.js, come in by a bare `import()`
+  and carry none, and the weights have no check at all. (Corrected 2026-09-23;
+  it read "No Subresource Integrity", which the review showed wrong, L18.)
   What is the worst case if one of those CDNs serves something else tomorrow,
   and what would it cost to prevent it.
 - The service worker: what it caches, for how long, whether a poisoned entry
