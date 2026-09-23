@@ -83,6 +83,16 @@ const S = {
   "a field code": { body: P('<w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText xml:space="preserve"> HYPERLINK "https://example.org/' + NAME + '" </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r>' + R("קישור") + '<w:r><w:fldChar w:fldCharType="end"/></w:r>') },
   "a simple field's instruction": { body: P(`<w:fldSimple w:instr=' DOCPROPERTY "${NAME}" '>${R("ערך")}</w:fldSimple>`) },
   "a table's alt text": { body: `<w:tbl><w:tblPr><w:tblCaption w:val="${NAME}"/><w:tblDescription w:val="טבלת הביקורים של ${NAME}"/></w:tblPr><w:tr><w:tc>${P(R("שם"))}</w:tc></w:tr></w:tbl>` + P(R("")) },
+  // the rest of H10: legacy WordArt from a converted .doc, a list number's text, a style's name
+  "a WordArt shape (VML)": { body: P(`<w:r><w:pict><v:shape type="#_x0000_t136"><v:textpath style="font-family:David" string="${NAME}"/></v:shape></w:pict></w:r>`) },
+  "a list number whose text carries the name": {
+    body: P('<w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr></w:pPr>' + R("המורה אמרה.")),
+    parts: [{ name: "word/numbering.xml", body: part("numbering", `<w:abstractNum w:abstractNumId="0"><w:lvl w:ilvl="0"><w:numFmt w:val="decimal"/><w:lvlText w:val="${NAME} %1."/></w:lvl></w:abstractNum><w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num>`) }],
+  },
+  "a style named after the person": {
+    body: P('<w:pPr><w:pStyle w:val="Client"/></w:pPr>' + R("המורה אמרה.")),
+    parts: [{ name: "word/styles.xml", body: part("styles", `<w:style w:type="paragraph" w:styleId="Client"><w:name w:val="${NAME}"/><w:aliases w:val="${NAME} ישן"/></w:style>`) }],
+  },
   "a glossary building block": {
     body: P(R("המורה אמרה.")),
     parts: [{ name: "word/glossary/document.xml", body: doc(P(R(NAME))) }],

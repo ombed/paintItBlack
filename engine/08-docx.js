@@ -11,7 +11,8 @@ function ownText(p,out){
     ownText(c,out)}}
 const DML="http://schemas.openxmlformats.org/drawingml/2006/main";
 // טקסט חלופי של תמונה אינו חלק מגוף הטקסט: לא נסרק לשמות חדשים ולא מוצג כפסקה
-const hiddenPart=p=>p.includes("טקסט חלופי")||p.includes("קוד שדה");
+const hiddenPart=p=>p.includes("טקסט חלופי")||p.includes("קוד שדה")||p.includes("הגדרות עיצוב");
+const VML="urn:schemas-microsoft-com:vml";
 function flatten(doc,part){
   const out=[];
   // SmartArt וגרפים כותבים פסקאות DrawingML (a:p), לא פסקאות Word
@@ -51,7 +52,17 @@ function flatten(doc,part){
       if(HEB_LETTER.test(t))out.push({text:t,spans:[{el,s:0,e:t.length,attr:null}],part:part+" (קוד שדה)"})}
     else if(ln==="fldSimple"&&el.namespaceURI===W){
       const v=el.getAttribute("w:instr");
-      if(v&&HEB_LETTER.test(v))out.push({text:v,spans:[{el,s:0,e:v.length,attr:"w:instr"}],part:part+" (קוד שדה)"})}}
+      if(v&&HEB_LETTER.test(v))out.push({text:v,spans:[{el,s:0,e:v.length,attr:"w:instr"}],part:part+" (קוד שדה)"})}
+    /* WordArt ישן (VML), בעיקר בקובץ .doc שהומר: הטקסט הוא מאפיין, לא ריצה, והוא נראה בעמוד
+       כמו כל טקסט אחר — ולכן הוא בלוק רגיל שנסרק (שאר H10) */
+    else if(ln==="textpath"&&el.namespaceURI===VML){
+      const v=el.getAttribute("string");
+      if(v&&v.trim())out.push({text:v,spans:[{el,s:0,e:v.length,attr:"string"}],part,label:true})}
+    /* טקסט של מספור ("סעיף %1") ושם של סגנון: רק כשיש בהם עברית. אינם טקסט שהיא קוראת
+       כמשפט, ולכן לא נסרקים לשמות חדשים, אבל שם מהרשימה מוחלף בהם (שאר H10) */
+    else if((ln==="lvlText"||(ln==="name"||ln==="aliases")&&el.parentNode&&el.parentNode.localName==="style")&&el.namespaceURI===W){
+      const v=el.getAttribute("w:val");
+      if(v&&HEB_LETTER.test(v))out.push({text:v,spans:[{el,s:0,e:v.length,attr:"w:val"}],part:part+" (הגדרות עיצוב)"})}}
   return out}
 /* יעד של קישור בתוך קוד שדה: כתובת מייל, או נתיב לקובץ במחשב שלה, יוצאים עם הקובץ בדיוק כמו
    יעד ב-.rels, ושם הם כבר מנוטרלים (LEAK). כאן לא נגעו בהם (ביקורת H10). */
@@ -132,7 +143,7 @@ function acceptTracked(doc){
 /* חלקים שאינם גוף המסמך ובכל זאת נושאים טקסט שיוצא עם הקובץ (שכבה 1ב): משתני מסמך
    בהגדרות, צורות SmartArt, ותוויות וכותרות של גרפים. הספרייה המוטמעת של גרף
    (word/embeddings) אינה נקראת כאן; היא מדווחת כערוץ שלא נותח. */
-const EXTRAPART=/^word\/(settings\.xml|diagrams\/(data|drawing)\d*\.xml|charts\/chart(?:Ex)?\d*\.xml)$/;
+const EXTRAPART=/^word\/(settings\.xml|numbering\.xml|styles(?:WithEffects)?\.xml|diagrams\/(data|drawing)\d*\.xml|charts\/chart(?:Ex)?\d*\.xml)$/;
 /* שם סימנייה נשמר בקובץ ונראה בחלון "סימניות" של Word — וסימנייה נקראת לעתים על שם
    אדם ("רחל_פרידמן"). סימנייה עם אות עברית מקבלת שם ניטרלי, וכל הפניה אליה (קישור
    פנימי, שדה REF או PAGEREF) עוברת איתה, כך שההפניות ממשיכות לעבוד. */
@@ -220,7 +231,7 @@ async function redactDocx(buf,subs,allow,opt){
   const eng=new Engine(subs,allow,opt,blocks.map(b=>b.text).join("\n"));
   // ה-XML משתנה במקום, ולכן flatten אחרי ההחלפה מחזיר את הטקסט המושחר.
   // בלי צילום מראש, סורק הגוף מציע לה בחזרה את השמות הבדויים שהמצאנו.
-  const ORIG=blocks.map(b=>({part:b.part,text:b.text}));
+  const ORIG=blocks.map(b=>({part:b.part,text:b.text,label:!!b.label}));
   for(const blk of blocks){
     const hits=eng.detect(blk.text);if(!hits.length)continue;
     const reps=[];
@@ -482,13 +493,13 @@ async function redactDocx(buf,subs,allow,opt){
     const docTok=new Set(norm(ORIG.map(b=>b.text).join(" ")).split(/\s+/));
     const looksName=w=>KNOWN_FIRST.has(w)||POOL.he_s.includes(w)||POOL.ar_s.includes(w)||nameish(w,docTok);
     for(const b of ORIG){
-      if(!/\/(?:charts|diagrams)\//.test(b.part))continue;
+      if(!b.label&&!/\/(?:charts|diagrams)\//.test(b.part))continue;
       const t=trimEdges(norm(b.text)).trim(), w=t.split(/\s+/).filter(Boolean);
       if(!t||w.length>3||knownN.has(t)||!w.every(looksName))continue;
       // מילה בודדת מוצעת רק כשהיא שם פרטי או שם משפחה מוכר: "הכנסות" ו"ינואר" הן תוויות רגילות
       if(w.length===1&&!(KNOWN_FIRST.has(t)||POOL.he_s.includes(t)||POOL.ar_s.includes(t)))continue;
       knownN.add(t);
-      suggest.push({value:t,score:0,count:1,why:"תווית בגרף או בתרשים שנראית כמו שם",ctx:ctxHTML(b.text,0,b.text.length),part:partName(b.part)});
+      suggest.push({value:t,score:0,count:1,why:b.label?"כיתוב מעוצב (WordArt) שנראה כמו שם":"תווית בגרף או בתרשים שנראית כמו שם",ctx:ctxHTML(b.text,0,b.text.length),part:partName(b.part)});
     }
   }catch(e){console.warn("סריקת התוויות נכשלה",e);incomplete.push("labels")}
   ver.incomplete=incomplete;
@@ -500,7 +511,7 @@ async function redactDocx(buf,subs,allow,opt){
 const PARTN={"document.xml":"גוף המסמך","footnotes.xml":"הערות שוליים","endnotes.xml":"הערות סיום"};
 function partName(p){
   const base=p.split(" (")[0].split("/").pop();
-  const ex=p.includes("טקסט חלופי")?" · טקסט חלופי":p.includes("קוד שדה")?" · קוד שדה":"";
+  const ex=p.includes("טקסט חלופי")?" · טקסט חלופי":p.includes("קוד שדה")?" · קוד שדה":p.includes("הגדרות עיצוב")?" · הגדרות עיצוב":"";
   if(PARTN[base])return PARTN[base]+ex;
   if(base.startsWith("header"))return "כותרת עליונה"+ex;
   if(base.startsWith("footer"))return "כותרת תחתונה"+ex;
@@ -508,6 +519,8 @@ function partName(p){
   if(p.includes("/diagrams/"))return "תרשים SmartArt"+ex;
   if(p.includes("/charts/"))return "גרף"+ex;
   if(base==="settings.xml")return "הגדרות המסמך"+ex;
+  if(base==="numbering.xml")return "מספור"+ex;
+  if(base.startsWith("styles"))return "סגנונות"+ex;
   return base+ex}
 function ctxHTML(t,s,e,w=55){
   const a=Math.max(0,s-w),b=Math.min(t.length,e+w);
@@ -1067,7 +1080,7 @@ function restoreNames(txt,pairs){
 }
 
 
-export {nerLast, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
+export {nerLast, hiddenPart, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
   variants, validID, ibanOK, luhn, hord, POOL, WORDLIKE, FEM, MASC, fakeName, near1, HOMO, WEAK,
   findNear, mergeSignals, fakeDate, foldEvidence, tokPieces, namePosition, nerReset, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,

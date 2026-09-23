@@ -2443,7 +2443,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
   kindOfLabel(l){ return /^(?:שם|אדם)/.test(l||"")?"NAME":/^גוף/.test(l||"")?"ORG":/^(?:יישוב|מקום)/.test(l||"")?"PLACE":"OTHER"; }
   redactedText(){
-    return this.state.res.preview.filter(b=>!b.part.includes("טקסט חלופי")&&!b.part.includes("קוד שדה"))
+    return this.state.res.preview.filter(b=>!this.state.E.hiddenPart(b.part))
       .map(b=>b.text).join("\n").replace(/\n{3,}/g,"\n\n").trim();
   }
   livePairs(){

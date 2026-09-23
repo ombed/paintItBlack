@@ -83,6 +83,15 @@ const bodyOf = (x) => (x.match(/<w:body>[\s\S]*<\/w:body>/) || [""])[0];
       ok(res.verification.suggest.some((x) => x.value === NAME), `${what}: proposed to her: ${JSON.stringify(res.verification.suggest.map((x) => x.value))}`);
       ok(res.verification.complete === false, `${what}: not reported as complete`);
     }
+    // the rest of H10: WordArt stands alone like a chart label, with no sentence around it
+    {
+      const art = P(`<w:r><w:pict><v:shape type="#_x0000_t136"><v:textpath string="${NAME}"/></v:shape></w:pict></w:r>`);
+      const blocks = await E.readBlocks(zipOf(plain + art));
+      ok(blocks.some((b) => b.text === NAME), "a WordArt shape: the proposal layers can read it");
+      const res = await E.redactDocx(zipOf(plain + art), [], [], NOLIST);
+      ok(res.verification.suggest.some((x) => x.value === NAME), "a WordArt shape: proposed to her: " + JSON.stringify(res.verification.suggest.map((x) => x.value)));
+      ok(res.verification.complete === false, "a WordArt shape: not reported as complete");
+    }
     // review H10: the page-one thumbnail is a picture of the text, and a link inside a field code is
     // a target like any other; both go whatever is on her list
     {
