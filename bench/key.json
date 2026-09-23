@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-20",
+ "generated": "2026-09-23",
  "categories": {
   "P_WORD": "person: name that is also a common word",
   "P_PROSE": "person: only in prose, never before a speech verb",
@@ -46,7 +46,12 @@
   "I_DOB": "pii: date of birth",
   "P_SPEAKERLINE": "person: speaker written on a line of its own (no colon)",
   "P_ROLE_TEACHER": "person: foreign first name only after a care or teaching role word, in child speech",
-  "P_WORD_VERB": "person: everyday word as a first name, before a speech verb (lexicon-aided by design)"
+  "P_WORD_VERB": "person: everyday word as a first name, before a speech verb (lexicon-aided by design)",
+  "S_HEADER": "channel: person only in the page header",
+  "S_FOOTNOTE": "channel: person only in a footnote",
+  "S_ALT": "channel: person only in a picture's alt text",
+  "S_COMMENT": "channel: person only in a comment and as its author (removed by design)",
+  "S_META": "channel: person only in the file's properties (emptied by design)"
  },
  "exemptFromDisjoint": [
   "P_WORD",
@@ -56,6 +61,11 @@
  "expectedFail": [
   "P_PREFIX_ONCE",
   "P_CORRUPT_ONLY"
+ ],
+ "lexiconAided": [
+  "P_WORD",
+  "P_WORD_VERB",
+  "L_TOWN"
  ],
  "docs": [
   {
@@ -144,7 +154,7 @@
      "cat": "T_NUMBERS",
      "kind": "TRAP",
      "must": false,
-     "canonical": "14.5.2026",
+     "canonical": "סעיף 3(א)",
      "surfaces": [
       "סעיף 3(א)"
      ],
@@ -1893,7 +1903,7 @@
      "cat": "T_NUMBERS",
      "kind": "TRAP",
      "must": false,
-     "canonical": "2.3.2026",
+     "canonical": "סעיף 4",
      "surfaces": [
       "סעיף 4"
      ],
@@ -1975,7 +1985,7 @@
      "cat": "T_NUMBERS",
      "kind": "TRAP",
      "must": false,
-     "canonical": "18.8.2025",
+     "canonical": "סעיף 2(ג)",
      "surfaces": [
       "סעיף 2(ג)"
      ],
@@ -2558,7 +2568,7 @@
      "cat": "T_NUMBERS",
      "kind": "TRAP",
      "must": false,
-     "canonical": "12.6.2026",
+     "canonical": "סעיף 5",
      "surfaces": [
       "סעיף 5"
      ],
@@ -2638,7 +2648,7 @@
      "cat": "T_NUMBERS",
      "kind": "TRAP",
      "must": false,
-     "canonical": "30.6.2026",
+     "canonical": "42,000",
      "surfaces": [
       "42,000"
      ],
@@ -2718,7 +2728,7 @@
      "cat": "T_NUMBERS",
      "kind": "TRAP",
      "must": false,
-     "canonical": "12.3.2026",
+     "canonical": "21:14",
      "surfaces": [
       "21:14"
      ],
@@ -2872,7 +2882,7 @@
      "cat": "T_NUMBERS",
      "kind": "TRAP",
      "must": false,
-     "canonical": "15.4.2026",
+     "canonical": "17:40",
      "surfaces": [
       "17:40"
      ],
@@ -3727,6 +3737,213 @@
      "surfaces": [
       "שעה שמונה",
       "8:00"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "s1",
+   "genre": "structure",
+   "title": "תסקיר עם כותרת, הערות ומאפייני קובץ",
+   "file": "corpus/s1.docx",
+   "words": 87,
+   "entities": [
+    {
+     "cat": "S_HEADER",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "אלישבע קרמרמן",
+     "surfaces": [
+      "אלישבע קרמרמן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "S_FOOTNOTE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "רפאל דנגורי",
+     "surfaces": [
+      "רפאל דנגורי"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "S_ALT",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "שולמית אוזרבך",
+     "surfaces": [
+      "שולמית אוזרבך"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "S_COMMENT",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "נתנאל פרוכטר",
+     "surfaces": [
+      "נתנאל פרוכטר"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "S_META",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "פרומה גלעדיאן",
+     "surfaces": [
+      "פרומה גלעדיאן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "משרד הרווחה",
+     "surfaces": [
+      "משרד הרווחה"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "s2",
+   "genre": "structure",
+   "title": "תסקיר עם כותרת, הערות ומאפייני קובץ",
+   "file": "corpus/s2.docx",
+   "words": 87,
+   "entities": [
+    {
+     "cat": "S_HEADER",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "גיטל שפטלוביץ",
+     "surfaces": [
+      "גיטל שפטלוביץ"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "S_FOOTNOTE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "ברוריה מלמדוב",
+     "surfaces": [
+      "ברוריה מלמדוב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "S_ALT",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "צביקה גוטרמן",
+     "surfaces": [
+      "צביקה גוטרמן"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "S_COMMENT",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "שפרינצה פייגנבוים",
+     "surfaces": [
+      "שפרינצה פייגנבוים"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "S_META",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "זלדה רוזנקרנץ",
+     "surfaces": [
+      "זלדה רוזנקרנץ"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "משרד הרווחה",
+     "surfaces": [
+      "משרד הרווחה"
+     ],
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "genre": "structure",
+   "title": "תסקיר עם כותרת, הערות ומאפייני קובץ",
+   "file": "corpus/s3.docx",
+   "words": 87,
+   "entities": [
+    {
+     "cat": "S_HEADER",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "רייזל קוסטיוקוב",
+     "surfaces": [
+      "רייזל קוסטיוקוב"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "S_FOOTNOTE",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "מנחם זילברמינץ",
+     "surfaces": [
+      "מנחם זילברמינץ"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "S_ALT",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "טויבה טרכטנברג",
+     "surfaces": [
+      "טויבה טרכטנברג"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "S_COMMENT",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "שמשון ברקוביצ'ר",
+     "surfaces": [
+      "שמשון ברקוביצ'ר"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "S_META",
+     "kind": "NAME",
+     "must": true,
+     "canonical": "בלומה אופנהיים",
+     "surfaces": [
+      "בלומה אופנהיים"
+     ],
+     "note": ""
+    },
+    {
+     "cat": "O_PUBLIC",
+     "kind": "ORG",
+     "must": false,
+     "canonical": "משרד הרווחה",
+     "surfaces": [
+      "משרד הרווחה"
      ],
      "note": ""
     }

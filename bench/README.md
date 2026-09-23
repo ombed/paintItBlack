@@ -5,7 +5,7 @@ Re-run after every detection change; compare `results.md` in the diff.
 
     npm run bench            # regenerate the corpus, run the chain with the model, write results.md
     npm run bench:nomodel    # the deterministic layers alone, written to results-no-model.md (runs in CI)
-    npm run gate             # compare results-no-model.json with baseline-no-model.json; report-only until GATE_BLOCKING=1
+    npm run gate             # compare results-no-model.json with baseline-no-model.json, entity by entity; CI runs it with GATE_BLOCKING=1
     node bench/sweep.js      # score every tunable at several values, write sweep.md (model on, ~10 minutes)
     node bench/spans.js      # characterise the model's span boundaries against the key, write spans.md
     node bench/from-leak.js report.json   # rebuild a document from a leak report and run the chain on it
@@ -37,6 +37,27 @@ run, every one-tap fix is accepted, the engine replaces again. The model is
 the same q8 artifact the browser loads, run under Node through the engine's
 own chunking, alignment and cleaning. `run.js` is the command; `lib.js` is
 the library, so `sweep.js` can score patched engines side by side.
+
+**The whole file is scored, not the body text.** Since 2026-09-23 (outside
+review, M20) the chain reads a document with the product's own reader
+(`readBlocks`, so charts, SmartArt and settings reach the proposal layers
+as they do in the browser), and a leak is looked for in the whole output
+file: every XML part with its tags removed and its Hebrew attribute values
+kept, the way the final check reads it. Before, it read the flattened body,
+so a name left in the metadata, a comment or an attribute was no leak.
+Three structure documents (`corpus-structure.js`, `S_*` categories) put a
+person in each channel only: the page header, a footnote, a picture's alt
+text, a comment, the file's properties. Comments and properties are removed
+wholesale by design, so for those "gone from the file" is scored as found
+(via `removed`), and "left in it" as a leak.
+
+**The gate compares entities.** Each row is keyed by document, category and
+canonical name, and any entity that newly leaks, is newly missed or gains a
+false positive blocks. It used to compare totals per category, so one fix and
+one new leak in the same category cancelled out (review L19). An entity new
+to the corpus is reported, not blocking; the baseline moves in the same
+change. The key keeps its date while its content is unchanged, and a trap's
+canonical must be one of its surfaces.
 
 ## Reading the columns
 

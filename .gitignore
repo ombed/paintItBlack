@@ -45,3 +45,4 @@ qa-audit/
 
 # Built site, see scripts/build-site.js
 _site/
+coverage/

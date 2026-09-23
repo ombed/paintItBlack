@@ -117,7 +117,7 @@
    "doc": "m1",
    "genre": "meeting",
    "cat": "T_NUMBERS",
-   "canonical": "14.5.2026",
+   "canonical": "סעיף 3(א)",
    "found": null,
    "leaked": null,
    "fp": 0,
@@ -1927,7 +1927,8 @@
    "via": [],
    "matched": [],
    "leakedSurfaces": [
-    "ליעד כץ"
+    "ליעד כץ",
+    "כץ"
    ]
   },
   {
@@ -2191,7 +2192,8 @@
    "via": [],
    "matched": [],
    "leakedSurfaces": [
-    "מתן צח"
+    "מתן צח",
+    "צח"
    ]
   },
   {
@@ -2551,7 +2553,7 @@
    "doc": "h1",
    "genre": "medical",
    "cat": "T_NUMBERS",
-   "canonical": "2.3.2026",
+   "canonical": "סעיף 4",
    "found": null,
    "leaked": null,
    "fp": 0,
@@ -2663,7 +2665,7 @@
    "doc": "h2",
    "genre": "medical",
    "cat": "T_NUMBERS",
-   "canonical": "18.8.2025",
+   "canonical": "סעיף 2(ג)",
    "found": null,
    "leaked": null,
    "fp": 0,
@@ -2728,7 +2730,8 @@
    "via": [],
    "matched": [],
    "leakedSurfaces": [
-    "איה נץ"
+    "איה נץ",
+    "נץ"
    ]
   },
   {
@@ -3078,7 +3081,8 @@
    "via": [],
    "matched": [],
    "leakedSurfaces": [
-    "עלמה כץ"
+    "עלמה כץ",
+    "כץ"
    ]
   },
   {
@@ -3436,7 +3440,7 @@
    "doc": "b2",
    "genre": "bank",
    "cat": "T_NUMBERS",
-   "canonical": "12.6.2026",
+   "canonical": "סעיף 5",
    "found": null,
    "leaked": null,
    "fp": 0,
@@ -3547,7 +3551,7 @@
    "doc": "b3",
    "genre": "bank",
    "cat": "T_NUMBERS",
-   "canonical": "30.6.2026",
+   "canonical": "42,000",
    "found": null,
    "leaked": null,
    "fp": 0,
@@ -3582,7 +3586,8 @@
    "via": [],
    "matched": [],
    "leakedSurfaces": [
-    "מיקי צח"
+    "מיקי צח",
+    "צח"
    ]
   },
   {
@@ -3651,7 +3656,7 @@
    "doc": "c1",
    "genre": "chat",
    "cat": "T_NUMBERS",
-   "canonical": "12.3.2026",
+   "canonical": "21:14",
    "found": null,
    "leaked": null,
    "fp": 0,
@@ -3808,11 +3813,10 @@
    "leaked": false,
    "fp": 0,
    "via": [
-    "flagged",
     "applied"
    ],
    "matched": [
-    "6650912"
+    "050-6650912"
    ],
    "leakedSurfaces": []
   },
@@ -3853,7 +3857,7 @@
    "doc": "c3",
    "genre": "chat",
    "cat": "T_NUMBERS",
-   "canonical": "15.4.2026",
+   "canonical": "17:40",
    "found": null,
    "leaked": null,
    "fp": 0,
@@ -4957,6 +4961,270 @@
    "via": [],
    "matched": [],
    "leakedSurfaces": []
+  },
+  {
+   "doc": "s1",
+   "genre": "structure",
+   "cat": "S_HEADER",
+   "canonical": "אלישבע קרמרמן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "אלישבע קרמרמן"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "s1",
+   "genre": "structure",
+   "cat": "S_FOOTNOTE",
+   "canonical": "רפאל דנגורי",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "רפאל דנגורי"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "s1",
+   "genre": "structure",
+   "cat": "S_ALT",
+   "canonical": "שולמית אוזרבך",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "שולמית אוזרבך"
+   ]
+  },
+  {
+   "doc": "s1",
+   "genre": "structure",
+   "cat": "S_COMMENT",
+   "canonical": "נתנאל פרוכטר",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "removed"
+   ],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "s1",
+   "genre": "structure",
+   "cat": "S_META",
+   "canonical": "פרומה גלעדיאן",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "removed"
+   ],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "s1",
+   "genre": "structure",
+   "cat": "O_PUBLIC",
+   "canonical": "משרד הרווחה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "s2",
+   "genre": "structure",
+   "cat": "S_HEADER",
+   "canonical": "גיטל שפטלוביץ",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "גיטל שפטלוביץ"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "s2",
+   "genre": "structure",
+   "cat": "S_FOOTNOTE",
+   "canonical": "ברוריה מלמדוב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "ברוריה מלמדוב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "s2",
+   "genre": "structure",
+   "cat": "S_ALT",
+   "canonical": "צביקה גוטרמן",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "צביקה גוטרמן"
+   ]
+  },
+  {
+   "doc": "s2",
+   "genre": "structure",
+   "cat": "S_COMMENT",
+   "canonical": "שפרינצה פייגנבוים",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "removed"
+   ],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "s2",
+   "genre": "structure",
+   "cat": "S_META",
+   "canonical": "זלדה רוזנקרנץ",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "removed"
+   ],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "s2",
+   "genre": "structure",
+   "cat": "O_PUBLIC",
+   "canonical": "משרד הרווחה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "s3",
+   "genre": "structure",
+   "cat": "S_HEADER",
+   "canonical": "רייזל קוסטיוקוב",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "רייזל קוסטיוקוב"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "s3",
+   "genre": "structure",
+   "cat": "S_FOOTNOTE",
+   "canonical": "מנחם זילברמינץ",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "suggest",
+    "applied"
+   ],
+   "matched": [
+    "מנחם זילברמינץ"
+   ],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "s3",
+   "genre": "structure",
+   "cat": "S_ALT",
+   "canonical": "טויבה טרכטנברג",
+   "found": false,
+   "leaked": true,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": [
+    "טויבה טרכטנברג"
+   ]
+  },
+  {
+   "doc": "s3",
+   "genre": "structure",
+   "cat": "S_COMMENT",
+   "canonical": "שמשון ברקוביצ'ר",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "removed"
+   ],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "s3",
+   "genre": "structure",
+   "cat": "S_META",
+   "canonical": "בלומה אופנהיים",
+   "found": true,
+   "leaked": false,
+   "fp": 0,
+   "via": [
+    "removed"
+   ],
+   "matched": [],
+   "leakedSurfaces": []
+  },
+  {
+   "doc": "s3",
+   "genre": "structure",
+   "cat": "O_PUBLIC",
+   "canonical": "משרד הרווחה",
+   "found": null,
+   "leaked": null,
+   "fp": 0,
+   "via": [],
+   "matched": [],
+   "leakedSurfaces": []
   }
  ],
  "unlisted": [
@@ -5190,288 +5458,369 @@
    ],
    "why": "",
    "applied": true
+  },
+  {
+   "doc": "s1",
+   "genre": "structure",
+   "value": "תסקיר שהוגש",
+   "sources": [
+    "discover"
+   ],
+   "why": "מופיע אחרי תפקיד ונקודתיים",
+   "applied": true
+  },
+  {
+   "doc": "s1",
+   "genre": "structure",
+   "value": "מתגורר",
+   "sources": [
+    "discover"
+   ],
+   "why": "מופיע אחרי מילת תפקיד בגוף הטקסט",
+   "applied": true
+  },
+  {
+   "doc": "s2",
+   "genre": "structure",
+   "value": "תסקיר שהוגש",
+   "sources": [
+    "discover"
+   ],
+   "why": "מופיע אחרי תפקיד ונקודתיים",
+   "applied": true
+  },
+  {
+   "doc": "s2",
+   "genre": "structure",
+   "value": "מתגורר",
+   "sources": [
+    "discover"
+   ],
+   "why": "מופיע אחרי מילת תפקיד בגוף הטקסט",
+   "applied": true
+  },
+  {
+   "doc": "s3",
+   "genre": "structure",
+   "value": "תסקיר שהוגש",
+   "sources": [
+    "discover"
+   ],
+   "why": "מופיע אחרי תפקיד ונקודתיים",
+   "applied": true
+  },
+  {
+   "doc": "s3",
+   "genre": "structure",
+   "value": "מתגורר",
+   "sources": [
+    "discover"
+   ],
+   "why": "מופיע אחרי מילת תפקיד בגוף הטקסט",
+   "applied": true
   }
  ],
  "perDoc": [
   {
    "id": "m1",
    "genre": "meeting",
-   "ms": 93,
+   "ms": 110,
    "rules": 4,
    "unlisted": 1
   },
   {
    "id": "m2",
    "genre": "meeting",
-   "ms": 34,
+   "ms": 38,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "m3",
    "genre": "meeting",
-   "ms": 18,
+   "ms": 22,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "m4",
    "genre": "meeting",
-   "ms": 22,
+   "ms": 29,
    "rules": 3,
    "unlisted": 1
   },
   {
    "id": "f1",
    "genre": "filing",
-   "ms": 37,
+   "ms": 60,
    "rules": 10,
    "unlisted": 1
   },
   {
    "id": "f2",
    "genre": "filing",
-   "ms": 56,
+   "ms": 72,
    "rules": 13,
    "unlisted": 1
   },
   {
    "id": "f3",
    "genre": "filing",
-   "ms": 22,
+   "ms": 30,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "f4",
    "genre": "filing",
-   "ms": 31,
+   "ms": 39,
    "rules": 8,
    "unlisted": 3
   },
   {
    "id": "t1",
    "genre": "transcript",
-   "ms": 27,
+   "ms": 40,
    "rules": 6,
    "unlisted": 0
   },
   {
    "id": "t2",
    "genre": "transcript",
-   "ms": 20,
+   "ms": 24,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "t3",
    "genre": "transcript",
-   "ms": 23,
+   "ms": 26,
    "rules": 6,
    "unlisted": 1
   },
   {
    "id": "t4",
    "genre": "transcript",
-   "ms": 26,
+   "ms": 32,
    "rules": 8,
    "unlisted": 1
   },
   {
    "id": "w1",
    "genre": "welfare",
-   "ms": 15,
+   "ms": 18,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "w2",
    "genre": "welfare",
-   "ms": 19,
+   "ms": 23,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "w3",
    "genre": "welfare",
-   "ms": 15,
+   "ms": 17,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "w4",
    "genre": "welfare",
-   "ms": 25,
+   "ms": 23,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "h1",
    "genre": "medical",
-   "ms": 25,
+   "ms": 31,
    "rules": 6,
    "unlisted": 2
   },
   {
    "id": "h2",
    "genre": "medical",
-   "ms": 20,
+   "ms": 23,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "h3",
    "genre": "medical",
-   "ms": 18,
+   "ms": 21,
    "rules": 3,
    "unlisted": 3
   },
   {
    "id": "p1",
    "genre": "police",
-   "ms": 21,
+   "ms": 24,
    "rules": 2,
    "unlisted": 1
   },
   {
    "id": "p2",
    "genre": "police",
-   "ms": 17,
+   "ms": 20,
    "rules": 3,
    "unlisted": 1
   },
   {
    "id": "p3",
    "genre": "police",
-   "ms": 11,
+   "ms": 17,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "p4",
    "genre": "police",
-   "ms": 16,
+   "ms": 27,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "b1",
    "genre": "bank",
-   "ms": 18,
+   "ms": 30,
    "rules": 5,
    "unlisted": 2
   },
   {
    "id": "b2",
    "genre": "bank",
-   "ms": 9,
+   "ms": 8,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "b3",
    "genre": "bank",
-   "ms": 10,
+   "ms": 17,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "c1",
    "genre": "chat",
-   "ms": 9,
+   "ms": 16,
    "rules": 1,
    "unlisted": 0
   },
   {
    "id": "c2",
    "genre": "chat",
-   "ms": 13,
+   "ms": 18,
    "rules": 2,
    "unlisted": 1
   },
   {
    "id": "c3",
    "genre": "chat",
-   "ms": 9,
-   "rules": 2,
+   "ms": 14,
+   "rules": 1,
    "unlisted": 0
   },
   {
    "id": "c4",
    "genre": "chat",
-   "ms": 14,
+   "ms": 15,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "x1",
    "genre": "position",
-   "ms": 28,
+   "ms": 37,
    "rules": 5,
    "unlisted": 1
   },
   {
    "id": "x2",
    "genre": "position",
-   "ms": 16,
+   "ms": 29,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "x3",
    "genre": "position",
-   "ms": 22,
+   "ms": 30,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "a1",
    "genre": "audio",
-   "ms": 12,
+   "ms": 15,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "a2",
    "genre": "audio",
-   "ms": 16,
+   "ms": 26,
    "rules": 5,
    "unlisted": 0
   },
   {
    "id": "a3",
    "genre": "audio",
-   "ms": 26,
+   "ms": 38,
    "rules": 7,
    "unlisted": 1
   },
   {
    "id": "a4",
    "genre": "audio",
-   "ms": 12,
+   "ms": 25,
    "rules": 4,
    "unlisted": 0
   },
   {
    "id": "v1",
    "genre": "interview",
-   "ms": 16,
+   "ms": 20,
    "rules": 2,
    "unlisted": 0
   },
   {
    "id": "v2",
    "genre": "interview",
-   "ms": 16,
+   "ms": 23,
    "rules": 3,
    "unlisted": 0
   },
   {
    "id": "v3",
    "genre": "interview",
-   "ms": 10,
+   "ms": 16,
    "rules": 2,
    "unlisted": 0
+  },
+  {
+   "id": "s1",
+   "genre": "structure",
+   "ms": 30,
+   "rules": 4,
+   "unlisted": 2
+  },
+  {
+   "id": "s2",
+   "genre": "structure",
+   "ms": 23,
+   "rules": 4,
+   "unlisted": 2
+  },
+  {
+   "id": "s3",
+   "genre": "structure",
+   "ms": 24,
+   "rules": 4,
+   "unlisted": 2
   }
  ]
 }
