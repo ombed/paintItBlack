@@ -1329,7 +1329,7 @@ class Component extends DCLogic {
     this.setState({err:"", screen:"busy", busyT:"קורא את ה-PDF…"});
     try{
       const {pdfToText} = await import("./pdf-text.js");
-      const {text, pages, scanned} = await pdfToText(raw);
+      const {text, pages, scanned, imagePages} = await pdfToText(raw);
       if(scanned || !text){
         this.setState({screen:"entry", err:"ב-PDF הזה כמעט אין טקסט — כנראה מסמך סרוק או צילום. הכלי עובד על טקסט בלבד, ולכן אין בו מה להחליף. אפשר להריץ המרה ל-Word עם זיהוי תווים, ואז להעלות את הקובץ."});
         return;
@@ -1340,6 +1340,10 @@ class Component extends DCLogic {
       this.setState({screen:"entry", buf, name:f.name, pending:true, nerAsk:false, fileErr:"", err:"",
         origBlocks:blocks.map(b=>({part:b.part, text:b.text})),
         pendMeta:`${pages===1?"עמוד אחד":pages+" עמודים"} · ${blocks.length} פסקאות · טקסט חולץ מ-PDF`});
+      // עמוד שהוא תמונה בתוך PDF של טקסט (עמוד חתום שנסרק): מה שכתוב בו לא נקרא ולא יוחלף
+      const img=imagePages||[];
+      if(img.length){ this.log.add("pdf-image-pages",{n:img.length, of:pages});
+        this.setState({notice:(img.length===1?`עמוד ${img[0]} ב-PDF הוא תמונה`:`עמודים ${img.join(", ")} ב-PDF הם תמונה`)+" — מה שכתוב שם לא נקרא ולא יוחלף. כדאי לבדוק אותם בעין.", noticeUndo:false}); }
     }catch(e){
       this.setState({screen:"entry", err:"קריאת ה-PDF נכשלה ("+String(e.message||e).slice(0,60)+"). אפשר להמיר ל-Word ולהעלות שוב."});
     }
