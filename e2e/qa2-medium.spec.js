@@ -444,3 +444,21 @@ test("L19: the restore box has a label, and the version chip sits in a landmark"
   await page.getByRole("button", { name: "החזרת שמות מתשובת AI" }).click();
   await expect(page.getByRole("textbox", { name: "תשובת ה-AI" })).toBeVisible();
 });
+
+/* Found by CI on the review batches: "a valid file clears the error" failed now and then because
+   its first file arrived before the engine module had loaded, and load() returned on !E without a
+   word. For her, on a slow line, a file chosen right after the page opened did nothing at all. A
+   file that arrives early is now held and read once the engine is there. */
+test("a file chosen before the engine has loaded is read once it has", async ({ page }) => {
+  await H.serveEngineWithStub(page);
+  // after the stub's route, so it runs first: the engine arrives a moment late
+  await page.route("**/redact-engine.js", async (route) => { await new Promise((r) => setTimeout(r, 1500)); await route.fallback(); });
+  await page.addInitScript(() => {
+    try { localStorage.setItem("redact-intro-seen", "1"); localStorage.setItem("redact-tour-seen", "*"); } catch (_) {}
+  });
+  await page.goto("/index.html");
+  await expect(page.locator("#dc-root")).toBeAttached({ timeout: 60000 });
+  expect(await page.evaluate(() => !!(window.__pib && window.__pib.state().E))).toBe(false);
+  await page.locator('input[type="file"][accept*=".docx"]').setInputFiles("e2e/fixtures/case-empty.docx");
+  await expect(page.locator("[data-file-err]")).toBeVisible({ timeout: 20000 });
+});
