@@ -1069,7 +1069,7 @@ class Component extends DCLogic {
     aiIn:"", aiWarn:"", aiCopyLabel:"העתקת טקסט מושחר",
     rvIn:"", rvOut:"", rvCopyLabel:"העתקת הטקסט המשוחזר",
     copyLabel:"העתקה ל-AI", busyT:"מעבד…", err:"",
-    geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, popup:null, tip:null, repDraft:"", peoKept:[], peoNotSame:[], inline:null, inlineDraft:"",
+    geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, popup:null, tip:null, repDraft:"", sent:{}, peoKept:[], peoNotSame:[], inline:null, inlineDraft:"",
     // הפרופיל של התיק נשמר בדפדפן אחרי כל שינוי; lastProfile הוא מה שנמצא בכניסה
     caseName:"", lastProfile:null, profileDirty:false, removed:[], leaks:[], cases:[], copied:false, feedbackMail:"", logCopyLabel:""
   };
@@ -2536,6 +2536,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.log.add("copy-result",{ok});
     // שלב 2 מתוך 3 מתקדם רק כשההעתקה באמת הצליחה (UX #18)
     if(!ok) return;
+    this.markSent();
     this.setState({copied:true});
     const n=this.pendingReview().blocking;
     if(n) this.setState({err:`הועתק, אבל ${n===1?"פריט אחד":n+" פריטים"} בלי החלטה — הם יגיעו ל-AI כמו שהם.`});
@@ -2567,6 +2568,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const RES=this.state.res; if(!RES) return; if(this.tourBlocks("download")) return;
     if(!this.exportGuard("download")) return;
     this.log.add("download",{open:this.pendingReview().blocking});
+    this.markSent();
     const u=URL.createObjectURL(RES.blob), a=document.createElement("a");
     const name=this.safeBase()+".docx";
     a.href=u; a.download=name;
@@ -2625,10 +2627,23 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const live=new Set([...(this.state.rules||[]).map(r=>n(r.value)), ...(this.state.allow||[]).map(n)]);
     return (this.state.removed||[]).filter(v=>v&&!live.has(n(v))); }
   wasRemoved(v){ const E=this.state.E, n=x=>E.norm(String(x||"")).trim(); return this.removedNow().some(x=>n(x)===n(v)); }
+  /* כל כינוי שיצא מהכלי — הועתק או ירד — נזכר לאדם שלו (סבב QA 1, H1). כינוי ששונה אחרי
+     ההעתקה נשמט מהמפה, והתשובה לטקסט שכבר נשלח חזרה בערבוב של כינוי ושם אמיתי ("יוסי שטרן",
+     אף אחד) עם הודעת הצלחה. התיק שומר את זה, כך שגם תשובה שחוזרת ביום אחר מוחזרת. */
+  markSent(){
+    const s={...(this.state.sent||{})};
+    for(const [real,fake] of Object.entries(this.currentMap())){ const a=s[real]||[]; if(fake&&!a.includes(fake)) s[real]=[...a,fake]; }
+    this.setState({sent:s});
+  }
+  sentAll(){
+    const out={}, add=o=>{ for(const [r,a] of Object.entries(o||{})) for(const p of a||[]) (out[r]=out[r]||[]).includes(p)||out[r].push(p); };
+    add(this.state.profile&&this.state.profile.sent); add(this.state.sent);
+    return out;
+  }
   profileObj(){
     return {v:1, created:(this.state.profile&&this.state.profile.created)||new Date().toISOString(), updated:new Date().toISOString(),
       name:this.state.caseName||"", mode:this.state.mode, rules:this.state.rules, allow:this.state.allow, map:this.currentMap(),
-      removed:this.removedNow(),
+      removed:this.removedNow(), sent:this.sentAll(),
       // הבחירה על מספרים ועל תאריכים היא של התיק, לא של הלשונית (Q1 בגרסה 5)
       styles:{num:this.state.o.numStyle||"blank", date:this.state.o.dateStyle||"name"}};
   }
@@ -3396,6 +3411,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           const m=new RegExp(pat,"u").exec(orig); return m?m[0]:real;
         };
         const pairs=Object.entries(map).map(([real,fake])=>[surface(real),fake]);
+        // כינויים שיצאו קודם ושונו מאז חוזרים גם הם לאדם שלהם (H1); כינוי שכבר במפה לא נכפל
+        for(const [real,arr] of Object.entries(this.sentAll())) for(const fake of arr) if(!pairs.some(p=>p[1]===fake)) pairs.push([surface(real),fake]);
         const r=E.restoreNames(S.rvIn, pairs);
         this.log.add("restore",{count:r.count});
         // כינוי שמשותף ליותר מאדם אחד אינו "לא נמצא" — הוא נמצא ולא הוחזר, וזה מה שנאמר (M3)
@@ -3471,7 +3488,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           // ותשובת ה-AI עם השמות האמיתיים שלו חיכתה במסך ההחזרה. tests/state_t.js בודק שכל מפתח ב-state
           // מתאפס כאן או רשום שם כשייך לסשן.
           origBlocks:[], removed:[], leaks:[], rvIn:"", rvOut:"", aiIn:"", aiWarn:"", cands:[], nerUsed:false, peoIn:"", peoNote:"", hot:null, addK:"NAME",
-          geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, tip:null, repDraft:"", peoNotSame:[], inlineDraft:""},
+          geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, tip:null, repDraft:"", sent:{}, peoNotSame:[], inlineDraft:""},
           ()=>{ try{ scrollTo(0,0); }catch(_){} });
         this._undo=[]; this._redo=[]; this._modelFound=null; this._lastScan=null;
         this.log.add("new-doc",{}); },
