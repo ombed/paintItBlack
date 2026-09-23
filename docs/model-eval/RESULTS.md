@@ -239,3 +239,67 @@ today's model). Every step ran. The comparison is `compare.js`. The finalists' i
   - The whole chain absorbs this: parse-base-ft and base-q8-ft find 33 of 33 on her documents.
   - The model-level score on her documents does not. So her model-level numbers are not a
     decision input, as PLAN.md already says.
+
+**Checkpoint 2 decision (owner, 23.9):** finalists **parse-base-ft** and **base-q8-ft**.
+
+## Browser check (Phase 5) and checkpoint 3
+
+`bench/model-eval/browser/`: the repository's real page in Chromium, with its real engine
+(`nerRun`), on the 43 synthetic documents. The page runs on one thread, since it is not
+cross-origin isolated, the same as on GitHub Pages. Test-only patches:
+- the pinned weights hash becomes the candidate's own, so the page's hash check still runs;
+- `nerLoad` is wrapped to record each chunk's raw output;
+- the model files come from a local server, and the hub URLs redirect to it;
+- the page's CSP is bypassed for that redirect only.
+
+`browser/compare.js` runs each chunk again in Node, token by token, and replays the page's
+outputs through the whole Node chain:
+
+| Model | Chunks | Tokens with another label than Node | Largest score gap | Found browser / Node | Leaked browser / Node | Entities that differ | Rule 5 | ms per 1k words (vs today) | Peak MB (vs today) | Load ms |
+|---|---|---|---|---|---|---|---|---|---|---|
+| base-q8 | 43 | 13 of 4816 | 3.8e-1 | 261 / 262 | 9 / 7 | 3 | baseline | 10985 (1.00×) | 1735 (1.00×) | 6069 |
+| base-q8-ft | 43 | 6 of 4805 | 2.8e-1 | 264 / 264 | 5 / 5 | 0 | PASS | 11160 (1.02×) | 1874 (1.08×) | 5548 |
+| parse-base-ft | 43 | 15 of 4805 | 3.8e-1 | 265 / 265 | 3 / 3 | 0 | PASS | 11100 (1.01×) | 1871 (1.08×) | 5773 |
+
+- **Today's model drifts in the browser.**
+  - 13 of 4,816 tokens get another label in WASM than in Node.
+  - Over the whole chain it leaks 9 synthetic entities in the browser against 7 in Node.
+  - The two entities that flip (p2's town, b2's company) are already in the noise band from
+    uint8. `noise.js` now includes the browser run, and the band is unchanged.
+- **Both finalists give exactly the Node result in the browser:** same found, same leaked,
+  no entity different. So rule 5 passes.
+- **Speed (rule 3):**
+  - both finalists are within 1.02× of today's model in the browser, which is green;
+  - Node's 1.2× for parse-base does not carry over to WASM;
+  - today's model measures 10,985 ms per 1k words, matching the plan's 10.5 s.
+- **Memory:**
+  - the peak working set of all of Playwright's Chromium processes is 1.08× today's model's;
+  - this method counts the whole browser, so today's model measures 1,735 MB;
+  - one tab's memory is not isolated, so the 1.5 GB tab limit is judged relative to today's
+    model: same architecture, +8%.
+
+### The rule as written (checkpoint 3)
+
+| Rule | parse-base-ft | base-q8-ft |
+|---|---|---|
+| 1. No new leaks (noise band incl. q8/uint8 and Node/browser) | **PASS**: 0 new on either set; leaked 7 → 3 and 3 → 0, missed 6 → 3 and 1 → 0 | **FAIL, net safety gain**: c3's surname newly leaks on the synthetic set; leaked 7 → 5 and 3 → 1 |
+| 2a. Better reading (97.5%) | **PASS**: +0.123 [0.100, 0.146] untyped, +0.073 [0.047, 0.101] PER | not a significance finalist until the owner lifts rule 1 (95%: +0.078 [0.063, 0.096]) |
+| 2b. Her time | FAIL: model-only junk on her documents 4 → 14 | FAIL: 4 → 12 |
+| 3. Budget | **PASS**: 185 MB, 1.01× browser time, memory 1.08× | **PASS**: same weights as today, 1.02×, 1.08× |
+| 4. Licence | **PASS**: CC-BY-4.0 | **PASS**: CC-BY-4.0 |
+| 5. Browser = Node | **PASS**: no drift (the baseline drifts 1 found, 2 leaked) | **PASS**: no drift |
+| **Verdict** | **passes all five** (rule 2 on 2a) | blocked on rule 1: the owner's explicit call |
+
+**What a switch involves (Phase 6, not started):**
+- **Hosting.** The page loads its model from `onnx-community/dictabert-ner-ONNX` on the Hugging
+  Face hub, but parse-base's ONNX export exists only here (`model-cache/parse-base`, sha256 in
+  `registry.exports.json`). It needs a public host the page may fetch from: the hub (a repo
+  under the owner's account, CC-BY with attribution) is the natural one. GitHub Pages cannot
+  hold a file over 100 MB.
+- **Engine changes:**
+  - `NER_SPEC` (repo, revision, weights hash);
+  - the faithful tokenizer rewrite in the page (tokfix.js's two functions next to fixTokJSON);
+  - the cache migration for the new repo;
+  - the "180MB" text.
+- **The same release should carry the `nerAlign` fix** (the lost place after a nikud word). Then
+  run the whole-chain comparison again before the release.

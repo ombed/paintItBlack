@@ -12,6 +12,12 @@
    "worse": 6,
    "better": 1,
    "entities": 5
+  },
+  {
+   "against": "base-q8:browser",
+   "worse": 3,
+   "better": 0,
+   "entities": 2
   }
  ],
  "entities": [
