@@ -58,7 +58,7 @@ const WORDS = new Set([
   "s", "e", "type", "must", "cat", "ent", "contamination", "key", "repo", "revision", "dtype",
   "file", "sha256", "bytes", "localPath", "labelScheme", "labelMap", "tokenizer", "shippable",
   "tier", "trainedOn", "notes", "model", "set", "stage", "threshold", "spans", "score",
-  "health", "unmappedLabels", "chunksOver510", "chunkErrors", "alignFailTokens",
+  "health", "unmappedLabels", "chunksOver510", "chunkErrors", "alignFailTokens", "offMissed", "unlocated",
   "alignFailEntityTokens", "entityTokens", "tokens", "timing", "loadMs", "scanMs", "words", "match", "micro",
   "macro", "perType", "perCat", "perDoc", "perFixture", "fixture", "fixtures", "baseline",
   "candidate", "raw", "cleaned", "word-exact", "overlap-typed", "overlap-untyped",

@@ -257,6 +257,17 @@ console.log("\n— compare —");
   const big = C.build(inp, { registry: [{ key: "tiny-parse", bytes: 500e6, licence: "none", shippable: false }], resamples: 200 });
   ok(big.rules["tiny-parse"].r3.st === "FAIL" && big.rules["tiny-parse"].r4.st === "FAIL" && big.rules["tiny-parse"].verdict === "FAIL", "a red download and no licence fail");
 
+  // alignment losses: one the baseline shares is the engine's; one beyond it is this row's harness
+  const withLoss = (bl, cl) => ({ golds: inp.golds, scores: [], preds: [
+    { model: "base-q8", set: "protocol", stage: "raw", docs: base, health: { unmappedLabels: 0, chunksOver510: 0, chunkErrors: 0, alignFailEntityTokens: bl, entityTokens: 1000 } },
+    { model: "tiny-parse", set: "protocol", stage: "raw", docs: cand, health: { unmappedLabels: 0, chunksOver510: 0, chunkErrors: 0, alignFailEntityTokens: cl, entityTokens: 1000 } }] });
+  const shared = C.build(withLoss(19, 19), { resamples: 100 }).rules["tiny-parse"].health;
+  ok(shared.st === "PASS" && /share the baseline/.test(shared.why), "a 1.9% loss the baseline has too passes, and is named: " + shared.why);
+  const worse = C.build(withLoss(19, 30), { resamples: 100 }).rules["tiny-parse"].health;
+  ok(worse.st === "FAIL", "1.1 points beyond the baseline's loss fails: " + worse.why);
+  const alone = C.build(withLoss(0, 6), { resamples: 100 }).rules["tiny-parse"].health;
+  ok(alone.st === "FAIL", "0.6% where the baseline loses nothing fails");
+
   // private: counts per category only, through the real privacy gate
   const T = "דני כהן אמר. רון בא.";
   const pdocs = [{ id: "r9-interview-2026-01-01", text: T, mentions: [M(T, "דני כהן", "PER", { must: true, cat: "P_HEB", ent: "a" }), M(T, "רון", "PER", { must: false, cat: "T_PLONI", ent: "b" })] }];

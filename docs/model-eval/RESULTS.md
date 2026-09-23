@@ -159,3 +159,83 @@ decides nothing.
   - tiny-parse is 5× faster, but less precise on protocol.txt.
 
 To rerun: `node bench/model-eval/known-cases.js`, then `node bench/model-eval/smoke.js`.
+
+**Checkpoint 1 decision (owner, 23.9):** all nine models go to the full run, each DictaBERT-family
+one with both tokenizers (16 rows). The owner does not judge: Claude judges the model suggestions on
+her documents (decision 2), and only counts leave the machine.
+
+## Full run (run order 4) and checkpoint 2
+
+`full.js` ran 16 rows. Each row covers the synthetic tune and test halves, `protocol.txt`, NEMO
+test, BMC test 1, Knesset UD, the known cases, her gold set (model level, counts only) and the
+whole chain on the synthetic set and hers (`product.js` through `wrap.js`, which is exact for
+today's model). Every step ran. The comparison is `compare.js`. The finalists' intervals are at
+97.5% (Bonferroni for two).
+
+**Judging (decision 2):** 637 suggestions on her documents matched nothing in her key.
+- 319 were a second span on a keyed name.
+- Claude judged the other 318, plus 12 whole-chain values, by the key's own categories:
+  - pseudonyms count as names;
+  - banks and private organisations count as names;
+  - insurers and public bodies are not names (the key's traps);
+  - when unsure, not a name.
+- Labels and her text stay in `private-bench/model-eval/judge/`.
+
+**The table** (`decision.js`). The noise band is from run order 2. Her counts only.
+
+| Model | Synthetic found / missed / leaked / fp | New leaks outside the band | Hers found / missed / leaked / fp | New leaks outside the band | 1. Safety | 2a. Held-out recall gain, untyped [interval] | 2b. Her model-only junk (today 4) | Known cases | MB | Node ms / 1k words |
+|---|---|---|---|---|---|---|---|---|---|---|
+| base-q8 (today) | 262 / 6 / 7 / 4 | – | 32 / 1 / 3 / 3 | – | – | – | 4 | 26/33 | 185 | 761 |
+| parse-base-ft | 265 / 3 / 3 / 5 | 0 | 33 / 0 / 0 / 4 | 0 | PASS | +0.123 [0.100, 0.146] at 97.5% | 14 (FAIL) | 29/33 | 185 | 906 |
+| tiny-parse-ft | 262 / 6 / 7 / 7 | 2 | 33 / 0 / 2 / 4 | 0 | FAIL | +0.116 [0.093, 0.139] at 95.0% | 30 (FAIL) | 28/33 | 45 | 114 |
+| parse-base | 263 / 5 / 6 / 4 | 2 | 33 / 0 / 0 / 4 | 0 | FAIL | +0.111 [0.092, 0.130] at 95.0% | 6 (FAIL) | 29/33 | 185 | 882 |
+| aleph | 264 / 4 / 4 / 6 | 1 | 33 / 0 / 3 / 4 | 1 | FAIL | +0.100 [0.079, 0.119] at 95.0% | 15 (FAIL) | 28/33 | 127 | 951 |
+| msperka-dicta-ft | 261 / 7 / 9 / 4 | 5 | 33 / 0 / 1 / 4 | 0 | FAIL | +0.100 [0.078, 0.121] at 95.0% | 14 (FAIL) | 29/33 | 185 | 883 |
+| tiny-parse | 264 / 4 / 4 / 6 | 1 | 31 / 2 / 2 / 5 | 2 | FAIL | +0.098 [0.079, 0.117] at 95.0% | 23 (FAIL) | 28/33 | 45 | 117 |
+| joint-base-ft | 263 / 5 / 4 / 4 | 0 | 31 / 2 / 2 / 4 | 1 | FAIL | +0.091 [0.069, 0.113] at 97.5% | 12 (FAIL) | 29/33 | 185 | 881 |
+| msperka-dicta | 261 / 7 / 9 / 4 | 5 | 33 / 0 / 1 / 4 | 0 | FAIL | +0.085 [0.062, 0.107] at 95.0% | 11 (FAIL) | 29/33 | 185 | 868 |
+| base-q8-ft | 264 / 4 / 5 / 4 | 1 | 33 / 0 / 1 / 4 | 0 | FAIL | +0.078 [0.063, 0.096] at 95.0% | 12 (FAIL) | 27/33 | 185 | 770 |
+| joint-base | 262 / 6 / 5 / 4 | 2 | 31 / 2 / 2 / 4 | 1 | FAIL | +0.076 [0.060, 0.093] at 95.0% | 5 (FAIL) | 29/33 | 185 | 874 |
+| large-q8-ft | 264 / 4 / 4 / 6 | 1 | 30 / 3 / 5 / 3 | 2 | FAIL | +0.066 [0.049, 0.085] at 95.0% | 13 (FAIL) | 28/33 | 437 | 2824 |
+| iahlt-base-ft | 265 / 3 / 4 / 6 | 1 | 33 / 0 / 1 / 5 | 0 | FAIL | +0.037 [0.015, 0.058] at 95.0% | 15 (FAIL) | 28/33 | 185 | 864 |
+| iahlt-base | 263 / 5 / 8 / 4 | 5 | 32 / 1 / 2 / 4 | 0 | FAIL | +0.028 [0.008, 0.050] at 95.0% | 15 (FAIL) | 28/33 | 185 | 861 |
+| large-q8 | 257 / 11 / 12 / 5 | 9 | 32 / 1 / 3 / 3 | 1 | FAIL | +0.005 [-0.010, 0.018] at 95.0% | 11 (FAIL) | 26/33 | 437 | 2829 |
+| golem | 258 / 10 / 17 / 8 | 11 | 32 / 1 / 4 / 3 | 1 | FAIL | -0.382 [-0.419, -0.347] at 95.0% | 24 (FAIL) | 21/33 | 279 | 1512 |
+
+- **Safety (rule 1):** only **parse-base-ft** has no new leak or miss outside the noise band on
+  both sets, and its totals go down on both.
+  - Synthetic: leaked 7 → 3, missed 6 → 3.
+  - Hers: leaked 3 → 0, missed 1 → 0.
+  - joint-base-ft opens one of her entities (a surname in speech).
+  - base-q8-ft opens one synthetic surname (c3).
+  - Every other row opens more.
+- **Better reading (rule 2a):** parse-base-ft passes at 97.5%. Pooled untyped gain +0.123
+  [0.100, 0.146], PER +0.073 [0.047, 0.101], raw at its tuned cut-off 0.30.
+  - At the product's own stage (cleaned, 0.6) the gain is smaller:
+    - BMC +0.099 [0.072, 0.126];
+    - NEMO +0.066 [0.037, 0.103];
+    - Knesset +0.042 (interval crosses 0);
+    - protocol +0.008.
+  - Precision is 1–4 points lower.
+- **Her time (rule 2b):** every candidate fails. Today's model leaves 4 model-only junk
+  suggestions on her five documents, and parse-base-ft leaves 14.
+  - Her documents were produced with today's model, which biases this count toward it (PLAN.md,
+    "what each set can prove").
+  - Rule 2 needs (a) or (b), so parse-base-ft passes rule 2 on (a).
+- **Budget (rule 3):** 185 MB, green. In Node it scans about 1.2× slower than today's model;
+  the browser time is Phase 5.
+- **Licence (rule 4):** CC-BY-4.0.
+- **Browser (rule 5):** Phase 5.
+- **Harness health:** the alignment losses are the same for today's model and every
+  DictaBERT-family row, so `compare.js` now fails a row only for a loss beyond the baseline's.
+  Only aleph fails.
+
+**Found on the way (product bugs, not model choice):**
+- **`nerAlign` loses its place after a word with nikud:** every later token in the sentence goes
+  unplaced ("מִיקָה בת חמש, ומסרבת..."), so whatever the model finds there is dropped. It hits
+  today's model too.
+- **The tokenizer fix changes span edges** on two-letter names after a prefix letter (ו or ל
+  before a two-letter name).
+  - The whole chain absorbs this: parse-base-ft and base-q8-ft find 33 of 33 on her documents.
+  - The model-level score on her documents does not. So her model-level numbers are not a
+    decision input, as PLAN.md already says.

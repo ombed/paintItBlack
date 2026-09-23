@@ -146,13 +146,25 @@ function build(inp, opt) {
     // alignment losses count on gold-entity tokens only, below 0.5%; without the denominator the
     // check cannot be made, which is not the same as passing it
     const hs = inp.preds.filter((p) => p.model === m && p.health);
-    const alignBad = hs.filter((p) => p.health.alignFailEntityTokens > 0 && p.health.entityTokens && p.health.alignFailEntityTokens / p.health.entityTokens >= 0.005);
+    /* A loss the baseline has too on the same set is the engine's (E.nerAlign cannot place a
+       token the tokenizer lower-cased or stripped of nikud; every DictaBERT-family row loses the
+       same tokens), not this row's harness: it is reported, and fails only when this row loses
+       0.5 points more than the baseline there. Without a baseline file the absolute 0.5% holds. */
+    const share = (p) => p.health.alignFailEntityTokens / p.health.entityTokens;
+    const baseShare = (p) => {
+      const b = inp.preds.find((q) => q.model === o.baseline && q.set === p.set && q.stage === p.stage && q.health && q.health.entityTokens);
+      return b ? share(b) : 0;
+    };
+    const lossy = hs.filter((p) => p.health.alignFailEntityTokens > 0 && p.health.entityTokens && share(p) >= 0.005);
+    const alignBad = lossy.filter((p) => share(p) - baseShare(p) >= 0.005);
+    const alignShared = lossy.length - alignBad.length;
     const alignUnk = hs.filter((p) => p.health.alignFailEntityTokens > 0 && !p.health.entityTokens);
     R.health = hbad.length ? { st: "FAIL", why: `${hbad.length} prediction file(s) with unmapped labels, chunks over 510 or chunk errors; no score counts` }
-      : alignBad.length ? { st: "FAIL", why: `${alignBad.length} prediction file(s) lose 0.5% or more of gold-entity tokens in alignment` }
+      : alignBad.length ? { st: "FAIL", why: `${alignBad.length} prediction file(s) lose 0.5% or more of gold-entity tokens in alignment, 0.5 points or more beyond the baseline on the same set` }
       : !hs.length ? { st: "PENDING", why: "no health block in the prediction files" }
       : alignUnk.length ? { st: "PENDING", why: `${alignUnk.length} prediction file(s) have alignment failures on gold-entity tokens but give no entity-token count to judge 0.5% against` }
-      : { st: "PASS", why: "no unmapped labels, over-long chunks, chunk errors, or alignment losses over 0.5% of gold-entity tokens" };
+      : { st: "PASS", why: "no unmapped labels, over-long chunks or chunk errors, and no alignment loss beyond the baseline's" +
+        (alignShared ? `; ${alignShared} prediction file(s) share the baseline's own loss of 0.5% or more (the engine's, reported in the health table)` : "") };
 
     // 1: product-level and noise band are other parts' outputs; show the model-level losses meanwhile
     const safety = rowsOf((s, r) => r.stage === "raw" && r.diff && (/^synthetic-(test|tune|all)$/.test(s.name) || s.gold.licence === "private"));

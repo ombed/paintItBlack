@@ -35,7 +35,10 @@ const KIND_TYPE = { NAME: "PER", ORG: "ORG", PLACE: "PLACE" };
 /* A trap has no NER type of its own; the negative takes the type a model would
    most likely give it by mistake, so a typed score counts the mistake too. */
 const TRAP_TYPE = { T_PLONI: "PER", T_IDIOM: "PER", T_FORMLABEL: "PER", T_TZSPLIT: "PER",
-  T_UNDERSIGNED: "PER", O_ROLEWORD: "PER", T_GAZWORD: "PLACE", T_NUMBERS: "ORG" };
+  T_UNDERSIGNED: "PER", O_ROLEWORD: "PER", T_GAZWORD: "PLACE", T_NUMBERS: "ORG",
+  // the private fixtures' traps (gold-private.js): a role word left by a phrase, a WhatsApp
+  // part marker and timestamp, public bodies and companies
+  T_PHRASE_REMNANT: "PER", T_WHATSAPP_SPLIT: "ORG", T_PUBLIC_BODY: "ORG", T_PUBLIC_COMPANY: "ORG" };
 // comments and file properties are not in readBlocks' text by design (lib.js REMOVED_BY_DESIGN)
 const NOT_IN_TEXT = new Set(["S_COMMENT", "S_META"]);
 // the engine's prefix sets (SING and DBL in redact-engine.js); two letters tried first

@@ -23,6 +23,7 @@ const PRIVATE = require("../private.js");
 const { compare } = require("../gate.js");
 const { getSpec, seed } = require("./load.js");
 const privacy = require("./privacy.js");
+const { wrapPipe } = require("./wrap.js");
 
 const arg = (n, d) => { const a = process.argv.find((x) => x.startsWith(`--${n}=`)); return a ? a.slice(n.length + 3) : d; };
 const MODEL = arg("model", "base-q8"), TAG = arg("tag", "a"), AGAINST = arg("against", "");
@@ -54,11 +55,13 @@ const readJson = (f) => (fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8"
   if (!TODAY && MODEL === "base-q8") seed(getSpec(MODEL), TODAY_FILE);
   const B = makeBench(E);
   const t0 = Date.now();
-  const pipe = TODAY ? await loadModel() : await loadModel(MODEL, { tok: TOK });
+  // every registry row goes through the adapter (wrap.js); today's loader hands the raw pipeline
+  const pipe = TODAY ? await loadModel() : wrapPipe(await loadModel(MODEL, { tok: TOK }), getSpec(MODEL));
   const loadMs = Date.now() - t0;
 
   // the synthetic corpus: invented text, so ids and names may be printed
   const S = await B.runAll(pipe);
+  if (pipe.unmapped) { console.error(`harness error: ${pipe.unmapped} labels with no mapping`); process.exitCode = 2; }
   fs.mkdirSync(OUT, { recursive: true });
   const sFile = path.join(OUT, `${MODEL}-${TAG}.json`);
   fs.writeFileSync(sFile, JSON.stringify({ model: MODEL, tag: TAG, rows: S.rows, unlisted: S.unlisted, totals: S.totals }, null, 1) + "\n");

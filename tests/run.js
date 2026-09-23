@@ -31,7 +31,7 @@ const SUITES = [
   "t.js", "e2e.js", "edge.js", "ner_t.js", "tok_t.js",
   "align_t.js", "diag_t.js", "org_t.js", "case.js", "version_t.js", "design_t.js", "engine_t.js", "pagelogic_t.js", "regex_t.js", "places_t.js", "numbers_t.js", "private_t.js", "allow_t.js", "omit_t.js", "orgs_t.js", "atlas_t.js", "merge_t.js", "phrase_t.js", "r3_t.js", "site_t.js", "r5_t.js", "shapes_t.js", "prcheck_t.js", "structure_t.js", "harvest_t.js", "logreport_t.js", "state_t.js", "runner_t.js", "passes_t.js", "benchlib_t.js", "license_t.js", "failopen_t.js", "gate_t.js", "vendor_t.js", "lintpage_t.js", "gender_t.js", "chain_t.js", "bindings_t.js", "sweep_t.js", "diffruntime_t.js", "complexity_t.js",
   // the model-eval harness (bench/model-eval, docs/model-eval/PLAN.md): offline, invented text only
-  "me_adapters_t.js", "me_convert_t.js", "me_exports_t.js", "me_goldsynth_t.js", "me_known_t.js", "me_noise_t.js", "me_predict_t.js", "me_privacy_t.js", "me_score_t.js", "me_tokfix_t.js",
+  "me_adapters_t.js", "me_convert_t.js", "me_exports_t.js", "me_goldsynth_t.js", "me_known_t.js", "me_noise_t.js", "me_predict_t.js", "me_privacy_t.js", "me_score_t.js", "me_tokfix_t.js", "me_wrap_t.js",
 ];
 const BLOCKED = [
   ["flow.js", 26], ["theme_t.js", 13], ["race_t.js", 6], ["ui.js", 0],
