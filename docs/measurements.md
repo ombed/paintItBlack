@@ -2,11 +2,29 @@
 
 Decisions that were settled with data, recorded so nobody re-runs them.
 
+**What can be reproduced from this repository (checked 2026-09-23, outside review M12).**
+Not every instrument cited below is in the repository. Each section says where its
+evidence is; in short:
+
+- *Model size and quantization*: **not reproducible from the repo.** The harness,
+  `exp/ner_experiment.py`, was run outside it and was never committed (it is in no commit
+  on any ref), and neither are the two synthetic documents or the ground truth. Only the
+  Knesset transcript, `tests/protocol.txt`, is here. The table is a record of a run, not
+  something the repo can re-create.
+- *Parameter sweep*: the instrument, `bench/sweep.js`, is here. The table was read from the
+  sweep committed at `e7dd25e`; `bench/sweep.md` holds the re-run after the adopted values
+  (`0d94212`, v14, restored from git). Both ran on the 30-document corpus of that day, model
+  on; the corpus has grown since, so a re-run today gives different numbers.
+- *Span boundaries*, the benchmark rows, and the gate: `bench/spans.js`, `bench/run.js` and
+  `bench/gate.js` are here and re-run on the current corpus.
+- *Anything measured on her real documents*: not reproducible by design. Her files never
+  enter the repo; only shapes and counts are recorded.
+
 ## Model size and quantization, 2026-09-05
 
 **Question.** Are the Hebrew NER model's misses a quantization problem (H1) or a capacity problem (H3)? The shipped model is `onnx-community/dictabert-ner-ONNX` at `dtype:"q8"`.
 
-**Method.** `ner exp/ner_experiment.py` over three documents: the real Knesset transcript (`tests/protocol.txt`, 46 people), and two synthetic ones, a meeting summary and a court filing, with injected transcription typos. Same documents, same ground truth, three variants. Runs used native onnxruntime and PyTorch on CPU, not WebAssembly, so the speed column is comparable between rows and not to the browser.
+**Method.** A Python harness, `exp/ner_experiment.py`, run outside the repository and never committed, over three documents: the real Knesset transcript (`tests/protocol.txt`, 46 people), and two synthetic ones, a meeting summary and a court filing, with injected transcription typos. Same documents, same ground truth, three variants. Runs used native onnxruntime and PyTorch on CPU, not WebAssembly, so the speed column is comparable between rows and not to the browser.
 
 | variant | PER recall | false positives | typo robustness | size | sec/1k words |
 |---|---|---|---|---|---|
@@ -36,7 +54,7 @@ A name that appears in the document only in its corrupted form, never cleanly. T
 
 **Question.** Several numbers in the detection layer were set by feel: the model confidence floor (0.7), which letter pairs count as confusable and which insertions as matres lectionis in the near-miss scan, the shortest name fragment replaced alone, the prefix-peeling lengths. Which of them move leaks?
 
-**Method.** `bench/sweep.js`: every parameter at several values, the whole 30-document corpus at each point, model on, product options. The engine is patched textually per point (`bench/engine.js` `load`), never edited. Full surface in `bench/sweep.md`.
+**Method.** `bench/sweep.js`: every parameter at several values, the whole 30-document corpus at each point, model on, product options. The engine is patched textually per point (`bench/engine.js` `load`), never edited. The table below was read from the sweep committed at `e7dd25e` (`git show e7dd25e:bench/sweep.md`; the raw rows are `git show e7dd25e:bench/sweep.json`), when the shipped values were still 0.7, 3 and verb layer off. `bench/sweep.md` now holds the re-run made right after adopting them (`0d94212`, v14), same corpus, model on: it shows the adopted values and was restored from git after a later `--only` re-run had cut the file to one section (review M13). That later re-run, model off on 37 documents, is at `git show a91b246:bench/sweep.md`; its one parameter was flat too.
 
 | parameter | shipped | finding | decision |
 |---|---|---|---|
