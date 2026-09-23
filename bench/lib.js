@@ -40,11 +40,14 @@ const REMOVED_BY_DESIGN = new Set(["S_COMMENT", "S_META"]);
 const strip = (s) => String(s || "").replace(/[֑-ׇ]/g, "");
 const rx = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/* The model the page ships (engine NER_SPEC, models/<id>/), loaded the way the page loads it:
-   the weights joined from their parts and checked against the pinned SHA-256, and tokenizer.json
-   put through the page's own fixTokJSON (which writes \w as the model's tokenizer meant it). The
-   joined copy is kept in node_modules/.cache/, rebuilt when the pinned hash changes. */
-async function loadModel() {
+/* No spec: the model the page ships (engine NER_SPEC, models/<id>/), loaded the way the page
+   loads it: the weights joined from their parts and checked against the pinned SHA-256, and
+   tokenizer.json put through the page's own fixTokJSON (which writes \w as the model's tokenizer
+   meant it). The joined copy is kept in node_modules/.cache/, rebuilt when the pinned hash changes.
+   A registry key or entry goes through the model-eval loader instead (bench/model-eval/load.js:
+   pinned revision, own cache, sha256 checked), as the model evaluation ran every candidate. */
+async function loadModel(spec, opt) {
+  if (spec) return require("./model-eval/load.js").loadModel(spec, opt);
   const E = require("./engine.js");
   const crypto = require("crypto");
   const S = E.NER_SPEC;

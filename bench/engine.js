@@ -36,8 +36,9 @@ const SRC = path.join(__dirname, "..", "redact-engine.js");
 // nerAlign and nerGroup mirror nerRun's per-chunk steps; KNOWN_FIRST is the
 // union the generator must stay disjoint from; the rest feed the reports.
 const EXTRA = ["nerAlign", "nerGroup", "KNOWN_FIRST", "COMMON", "VRB", "GF", "GM", "WORDLIKE", "STOP", "HOMO", "WEAK", "cleanName", "anchorOK", "trimEdges", "anchored",
-  // the shipped model and the page's tokenizer repair, so bench/lib.js loads the model as the page does
-  "NER_SPEC", "fixTokJSON"];
+  // the shipped model and the page's tokenizer repair (bench/lib.js loads the model as the page does),
+  // and the pattern helpers the model-eval tokenizer parity check reads
+  "NER_SPEC", "fixTokJSON", "rxBad", "rxClean"];
 
 function build(patches, outName) {
   // LF throughout, so a multi-line patch matches whatever the checkout's line endings are

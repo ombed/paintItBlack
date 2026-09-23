@@ -1,0 +1,2003 @@
+{
+ "name": "known-cases",
+ "source": "bench/model-eval/gold/known-cases.json",
+ "licence": "repo",
+ "split": "all",
+ "passRules": {
+  "exact-or-prefix-cut": "Every must mention has a predicted span with the same end and a start that is the mention's start, or one letter later when that letter is a prefix letter (מבלוהשכ: cut only by a prefix letter). Glued fails (PLAN.md 4.5): a span that starts earlier, including one that takes in the recorded prefix letter (bench/spans.js counts that glued-left; docs/measurements.md: 37 such spans the cleaner could not peel), or that runs into another word or punctuation. A span glued only by the recorded prefix is reported apart as glued-prefix, so the table can be read both ways, but it does not pass. No predicted span may overlap a must:false mention. The span's type is not checked; a kind mismatch is reported apart.",
+  "covers-core": "Some predicted span covers the mention's core (the identifying words) and lies inside the mention plus its recorded prefix. No predicted span may overlap a must:false mention.",
+  "no-span": "No predicted span overlaps any must:false mention."
+ },
+ "docs": [
+  {
+   "id": "r3-bank-pseudonym",
+   "genre": "leak",
+   "text": "ההעברות החודשיות מגיעות לחשבון בבנק רמת ארזים, והאם מושכת מהן את דמי המזונות.\nלפי דפי החשבון של בנק רמת ארזים, ההפקדה האחרונה נעשתה לפני שבועיים.\nהמבקשת מסרה שבנק רמת ארזים סירב לפרוס את החוב, ולכן פנתה לגישור.",
+   "pass": "covers-core",
+   "control": false,
+   "what": "A bank whose name is a place's head word and a place, like the r3 leak: the one real leak a better model could close.",
+   "mentions": [
+    {
+     "s": 32,
+     "e": 45,
+     "type": "ORG",
+     "must": true,
+     "surface": "בנק רמת ארזים",
+     "core": {
+      "s": 36,
+      "e": 45
+     },
+     "prefix": "ב",
+     "cat": "leak",
+     "ent": "r3-bank-pseudonym#must"
+    },
+    {
+     "s": 96,
+     "e": 109,
+     "type": "ORG",
+     "must": true,
+     "surface": "בנק רמת ארזים",
+     "core": {
+      "s": 100,
+      "e": 109
+     },
+     "cat": "leak",
+     "ent": "r3-bank-pseudonym#must"
+    },
+    {
+     "s": 159,
+     "e": 172,
+     "type": "ORG",
+     "must": true,
+     "surface": "בנק רמת ארזים",
+     "core": {
+      "s": 163,
+      "e": 172
+     },
+     "prefix": "ש",
+     "cat": "leak",
+     "ent": "r3-bank-pseudonym#must"
+    }
+   ]
+  },
+  {
+   "id": "r4-town-variants",
+   "genre": "control",
+   "text": "המשפחה עברה לקריית אלונה בקיץ שעבר.\nבית הספר בקרית אלונה קיבל את הילד באמצע השנה.\nהאם עובדת בקריית אלונה, ליד הבית, והאב נשאר בקרית אלונה עד החורף.",
+   "pass": "exact-or-prefix-cut",
+   "control": true,
+   "what": "A small town written in two spellings, like the r4 leak. The leak was in matching the variant, not in finding the town.",
+   "mentions": [
+    {
+     "s": 13,
+     "e": 24,
+     "type": "PLACE",
+     "must": true,
+     "surface": "קריית אלונה",
+     "prefix": "ל",
+     "cat": "control",
+     "ent": "r4-town-variants#must"
+    },
+    {
+     "s": 46,
+     "e": 56,
+     "type": "PLACE",
+     "must": true,
+     "surface": "קרית אלונה",
+     "prefix": "ב",
+     "cat": "control",
+     "ent": "r4-town-variants#must"
+    },
+    {
+     "s": 93,
+     "e": 104,
+     "type": "PLACE",
+     "must": true,
+     "surface": "קריית אלונה",
+     "prefix": "ב",
+     "cat": "control",
+     "ent": "r4-town-variants#must"
+    },
+    {
+     "s": 127,
+     "e": 137,
+     "type": "PLACE",
+     "must": true,
+     "surface": "קרית אלונה",
+     "prefix": "ב",
+     "cat": "control",
+     "ent": "r4-town-variants#must"
+    }
+   ]
+  },
+  {
+   "id": "r5-two-letter-prefix",
+   "genre": "control",
+   "text": "האם מסרה שהיא הסבירה לרז את ההסדר החדש.\nאחר כך נסעו האב ורז לבית הסבתא.\nאמרתי לרז שנתראה שוב בשבוע הבא.",
+   "pass": "exact-or-prefix-cut",
+   "control": true,
+   "what": "A two-letter first name seen only with a prefix letter, like the r5 leak. The leak was in the rules for short names.",
+   "mentions": [
+    {
+     "s": 22,
+     "e": 24,
+     "type": "PER",
+     "must": true,
+     "surface": "רז",
+     "prefix": "ל",
+     "cat": "control",
+     "ent": "r5-two-letter-prefix#must"
+    },
+    {
+     "s": 57,
+     "e": 59,
+     "type": "PER",
+     "must": true,
+     "surface": "רז",
+     "prefix": "ו",
+     "cat": "control",
+     "ent": "r5-two-letter-prefix#must"
+    },
+    {
+     "s": 79,
+     "e": 81,
+     "type": "PER",
+     "must": true,
+     "surface": "רז",
+     "prefix": "ל",
+     "cat": "control",
+     "ent": "r5-two-letter-prefix#must"
+    }
+   ]
+  },
+  {
+   "id": "v28-teacher",
+   "genre": "leak",
+   "text": "מי המורה שלך השנה?\nהמורה אוקסנה.\nומה אוקסנה אומרת על השיעורים?\nאוקסנה אומרת שאני משתדלת. לפעמים אוקסנה כועסת.\nעל מי היא כועסת?\nעל הבנים. אוקסנה אמרה להם לשבת בשקט.\nואת אוהבת את אוקסנה?\nכן. סיפרתי לאוקסנה על הכלב שלנו.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "A teacher's foreign first name in a child's transcript, every occurrence found at full confidence and then lost downstream (v28). The model part: every occurrence, exact.",
+   "mentions": [
+    {
+     "s": 25,
+     "e": 31,
+     "type": "PER",
+     "must": true,
+     "surface": "אוקסנה",
+     "cat": "leak",
+     "ent": "v28-teacher#must"
+    },
+    {
+     "s": 37,
+     "e": 43,
+     "type": "PER",
+     "must": true,
+     "surface": "אוקסנה",
+     "cat": "leak",
+     "ent": "v28-teacher#must"
+    },
+    {
+     "s": 63,
+     "e": 69,
+     "type": "PER",
+     "must": true,
+     "surface": "אוקסנה",
+     "cat": "leak",
+     "ent": "v28-teacher#must"
+    },
+    {
+     "s": 96,
+     "e": 102,
+     "type": "PER",
+     "must": true,
+     "surface": "אוקסנה",
+     "cat": "leak",
+     "ent": "v28-teacher#must"
+    },
+    {
+     "s": 137,
+     "e": 143,
+     "type": "PER",
+     "must": true,
+     "surface": "אוקסנה",
+     "cat": "leak",
+     "ent": "v28-teacher#must"
+    },
+    {
+     "s": 177,
+     "e": 183,
+     "type": "PER",
+     "must": true,
+     "surface": "אוקסנה",
+     "cat": "leak",
+     "ent": "v28-teacher#must"
+    },
+    {
+     "s": 197,
+     "e": 203,
+     "type": "PER",
+     "must": true,
+     "surface": "אוקסנה",
+     "prefix": "ל",
+     "cat": "leak",
+     "ent": "v28-teacher#must"
+    }
+   ]
+  },
+  {
+   "id": "v39-glued-full-name",
+   "genre": "leak",
+   "text": "הבקשה הוגשה בעניינה של גב' נחמה ברקת אלמוג (להלן: נחמה) ביום ראשון.\nנפגשה הח\"מ עם נחמה בביתה, בנוכחות בתה.\nנחמה ברקת אלמוג מסרה כי היא מבינה את ההליך ומסכימה לו.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "A client's full name that the model glued to the next word (v39): rejecting the span allow-listed the name inside it. Glued fails.",
+   "mentions": [
+    {
+     "s": 27,
+     "e": 42,
+     "type": "PER",
+     "must": true,
+     "surface": "נחמה ברקת אלמוג",
+     "cat": "leak",
+     "ent": "v39-glued-full-name#must"
+    },
+    {
+     "s": 50,
+     "e": 54,
+     "type": "PER",
+     "must": true,
+     "surface": "נחמה",
+     "cat": "leak",
+     "ent": "v39-glued-full-name#must"
+    },
+    {
+     "s": 82,
+     "e": 86,
+     "type": "PER",
+     "must": true,
+     "surface": "נחמה",
+     "cat": "leak",
+     "ent": "v39-glued-full-name#must"
+    },
+    {
+     "s": 107,
+     "e": 122,
+     "type": "PER",
+     "must": true,
+     "surface": "נחמה ברקת אלמוג",
+     "cat": "leak",
+     "ent": "v39-glued-full-name#must"
+    }
+   ]
+  },
+  {
+   "id": "v39-infinitive",
+   "genre": "leak",
+   "text": "מהאמור לעיל סבורה הח\"מ כי דין הבקשה למינוי אפוטרופוס לנחמה להידחות.\nנחמה ציינה כי היא מבינה את ההחלטה. נחמה חזרה על כך פעמיים.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "An infinitive after a prefixed first name taken as a surname (v39): the word that decides the sentence is swallowed.",
+   "mentions": [
+    {
+     "s": 54,
+     "e": 58,
+     "type": "PER",
+     "must": true,
+     "surface": "נחמה",
+     "prefix": "ל",
+     "cat": "leak",
+     "ent": "v39-infinitive#must"
+    },
+    {
+     "s": 59,
+     "e": 66,
+     "type": "PER",
+     "must": false,
+     "surface": "להידחות",
+     "cat": "leak",
+     "ent": "v39-infinitive#להידחות"
+    },
+    {
+     "s": 68,
+     "e": 72,
+     "type": "PER",
+     "must": true,
+     "surface": "נחמה",
+     "cat": "leak",
+     "ent": "v39-infinitive#must"
+    },
+    {
+     "s": 103,
+     "e": 107,
+     "type": "PER",
+     "must": true,
+     "surface": "נחמה",
+     "cat": "leak",
+     "ent": "v39-infinitive#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-01",
+   "genre": "leak-16.9",
+   "text": "דליה אמרה שהיא לא מרוצה מההסדר.\nאחר כך דליה סיפרה על הלילה ההוא.\nדליה ביקשה לדבר עם העובדת לבד.\nכשסיימנו דליה הודתה שהיא עייפה.\nדליה הוסיפה שהיא תבוא שוב.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; before speech verbs.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 4,
+     "type": "PER",
+     "must": true,
+     "surface": "דליה",
+     "cat": "leak-16.9",
+     "ent": "leak169-01#must"
+    },
+    {
+     "s": 39,
+     "e": 43,
+     "type": "PER",
+     "must": true,
+     "surface": "דליה",
+     "cat": "leak-16.9",
+     "ent": "leak169-01#must"
+    },
+    {
+     "s": 65,
+     "e": 69,
+     "type": "PER",
+     "must": true,
+     "surface": "דליה",
+     "cat": "leak-16.9",
+     "ent": "leak169-01#must"
+    },
+    {
+     "s": 105,
+     "e": 109,
+     "type": "PER",
+     "must": true,
+     "surface": "דליה",
+     "cat": "leak-16.9",
+     "ent": "leak169-01#must"
+    },
+    {
+     "s": 128,
+     "e": 132,
+     "type": "PER",
+     "must": true,
+     "surface": "דליה",
+     "cat": "leak-16.9",
+     "ent": "leak169-01#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-02",
+   "genre": "leak-16.9",
+   "text": "כאמור נאוה לא הגיעה לפגישה הקודמת.\nמשכך נאוה ביקשה מועד חדש.\nלדבריה נאוה לא קיבלה את ההזמנה.\nלפיכך נאוה תוזמן בשנית.\nעם זאת נאוה מסרה את מספר הטלפון שלה.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; after discourse words.",
+   "mentions": [
+    {
+     "s": 6,
+     "e": 10,
+     "type": "PER",
+     "must": true,
+     "surface": "נאוה",
+     "cat": "leak-16.9",
+     "ent": "leak169-02#must"
+    },
+    {
+     "s": 40,
+     "e": 44,
+     "type": "PER",
+     "must": true,
+     "surface": "נאוה",
+     "cat": "leak-16.9",
+     "ent": "leak169-02#must"
+    },
+    {
+     "s": 68,
+     "e": 72,
+     "type": "PER",
+     "must": true,
+     "surface": "נאוה",
+     "cat": "leak-16.9",
+     "ent": "leak169-02#must"
+    },
+    {
+     "s": 99,
+     "e": 103,
+     "type": "PER",
+     "must": true,
+     "surface": "נאוה",
+     "cat": "leak-16.9",
+     "ent": "leak169-02#must"
+    },
+    {
+     "s": 124,
+     "e": 128,
+     "type": "PER",
+     "must": true,
+     "surface": "נאוה",
+     "cat": "leak-16.9",
+     "ent": "leak169-02#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-03",
+   "genre": "leak-16.9",
+   "text": "רונה הגיעה מוקדם.\nהסברתי לרונה מה יקרה בדיון.\nהאב ורונה ישבו בחוץ.\nהילד ביקש שרונה תישאר.\nקיבלנו מכתב מרונה ביום שני.\nהפגישה עם רונה נמשכה שעה.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; with one prefix letter.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 4,
+     "type": "PER",
+     "must": true,
+     "surface": "רונה",
+     "cat": "leak-16.9",
+     "ent": "leak169-03#must"
+    },
+    {
+     "s": 26,
+     "e": 30,
+     "type": "PER",
+     "must": true,
+     "surface": "רונה",
+     "prefix": "ל",
+     "cat": "leak-16.9",
+     "ent": "leak169-03#must"
+    },
+    {
+     "s": 51,
+     "e": 55,
+     "type": "PER",
+     "must": true,
+     "surface": "רונה",
+     "prefix": "ו",
+     "cat": "leak-16.9",
+     "ent": "leak169-03#must"
+    },
+    {
+     "s": 78,
+     "e": 82,
+     "type": "PER",
+     "must": true,
+     "surface": "רונה",
+     "prefix": "ש",
+     "cat": "leak-16.9",
+     "ent": "leak169-03#must"
+    },
+    {
+     "s": 103,
+     "e": 107,
+     "type": "PER",
+     "must": true,
+     "surface": "רונה",
+     "prefix": "מ",
+     "cat": "leak-16.9",
+     "ent": "leak169-03#must"
+    },
+    {
+     "s": 128,
+     "e": 132,
+     "type": "PER",
+     "must": true,
+     "surface": "רונה",
+     "cat": "leak-16.9",
+     "ent": "leak169-03#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-04",
+   "genre": "leak-16.9",
+   "text": "סיגל מתגוררת עם הילדים.\nהאם ולסיגל יש הסכם בעל פה.\nכשסיגל חזרה, הילדים כבר ישנו.\nומסיגל לא התקבלה תשובה.\nהבית שסיגל שכרה קטן מדי.\nסיגל חתמה על הטופס.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; with two prefix letters.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 4,
+     "type": "PER",
+     "must": true,
+     "surface": "סיגל",
+     "cat": "leak-16.9",
+     "ent": "leak169-04#must"
+    },
+    {
+     "s": 30,
+     "e": 34,
+     "type": "PER",
+     "must": true,
+     "surface": "סיגל",
+     "prefix": "ול",
+     "cat": "leak-16.9",
+     "ent": "leak169-04#must"
+    },
+    {
+     "s": 53,
+     "e": 57,
+     "type": "PER",
+     "must": true,
+     "surface": "סיגל",
+     "prefix": "כש",
+     "cat": "leak-16.9",
+     "ent": "leak169-04#must"
+    },
+    {
+     "s": 83,
+     "e": 87,
+     "type": "PER",
+     "must": true,
+     "surface": "סיגל",
+     "prefix": "ומ",
+     "cat": "leak-16.9",
+     "ent": "leak169-04#must"
+    },
+    {
+     "s": 111,
+     "e": 115,
+     "type": "PER",
+     "must": true,
+     "surface": "סיגל",
+     "prefix": "ש",
+     "cat": "leak-16.9",
+     "ent": "leak169-04#must"
+    },
+    {
+     "s": 130,
+     "e": 134,
+     "type": "PER",
+     "must": true,
+     "surface": "סיגל",
+     "cat": "leak-16.9",
+     "ent": "leak169-04#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-05",
+   "genre": "leak-16.9",
+   "text": "האם אילה מסרה את גרסתה.\nהמטפלת אילה המליצה על טיפול רגשי.\nהעובדת הסוציאלית אילה ביקרה בבית.\nהשכנה אילה שמעה צעקות.\nאילה לא הוסיפה דבר.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; after role words.",
+   "mentions": [
+    {
+     "s": 4,
+     "e": 8,
+     "type": "PER",
+     "must": true,
+     "surface": "אילה",
+     "cat": "leak-16.9",
+     "ent": "leak169-05#must"
+    },
+    {
+     "s": 31,
+     "e": 35,
+     "type": "PER",
+     "must": true,
+     "surface": "אילה",
+     "cat": "leak-16.9",
+     "ent": "leak169-05#must"
+    },
+    {
+     "s": 75,
+     "e": 79,
+     "type": "PER",
+     "must": true,
+     "surface": "אילה",
+     "cat": "leak-16.9",
+     "ent": "leak169-05#must"
+    },
+    {
+     "s": 98,
+     "e": 102,
+     "type": "PER",
+     "must": true,
+     "surface": "אילה",
+     "cat": "leak-16.9",
+     "ent": "leak169-05#must"
+    },
+    {
+     "s": 115,
+     "e": 119,
+     "type": "PER",
+     "must": true,
+     "surface": "אילה",
+     "cat": "leak-16.9",
+     "ent": "leak169-05#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-06",
+   "genre": "leak-16.9",
+   "text": "מירב הגיעה עם בנה.\nאמרתי למירב שהדיון נדחה.\nהאב ומירב לא דיברו מאז.\nמירב טוענת שהיא לא קיבלה הודעה.\nביקשנו ממירב מסמכים נוספים.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; a name that starts with a prefix letter (מ).",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 4,
+     "type": "PER",
+     "must": true,
+     "surface": "מירב",
+     "cat": "leak-16.9",
+     "ent": "leak169-06#must"
+    },
+    {
+     "s": 26,
+     "e": 30,
+     "type": "PER",
+     "must": true,
+     "surface": "מירב",
+     "prefix": "ל",
+     "cat": "leak-16.9",
+     "ent": "leak169-06#must"
+    },
+    {
+     "s": 49,
+     "e": 53,
+     "type": "PER",
+     "must": true,
+     "surface": "מירב",
+     "prefix": "ו",
+     "cat": "leak-16.9",
+     "ent": "leak169-06#must"
+    },
+    {
+     "s": 68,
+     "e": 72,
+     "type": "PER",
+     "must": true,
+     "surface": "מירב",
+     "cat": "leak-16.9",
+     "ent": "leak169-06#must"
+    },
+    {
+     "s": 108,
+     "e": 112,
+     "type": "PER",
+     "must": true,
+     "surface": "מירב",
+     "prefix": "מ",
+     "cat": "leak-16.9",
+     "ent": "leak169-06#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-07",
+   "genre": "leak-16.9",
+   "text": "הילדים נשארו עם גליה.\nגליה, כך נמסר, לא ידעה על כך.\nנכחו בפגישה האב והסבתא (גליה).\nהאם שאלה: \"איפה גליה?\"\nהכול נאמר לגליה; היא לא הגיבה.\nהבית שייך לגליה!",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; before punctuation and at sentence ends.",
+   "mentions": [
+    {
+     "s": 16,
+     "e": 20,
+     "type": "PER",
+     "must": true,
+     "surface": "גליה",
+     "cat": "leak-16.9",
+     "ent": "leak169-07#must"
+    },
+    {
+     "s": 22,
+     "e": 26,
+     "type": "PER",
+     "must": true,
+     "surface": "גליה",
+     "cat": "leak-16.9",
+     "ent": "leak169-07#must"
+    },
+    {
+     "s": 76,
+     "e": 80,
+     "type": "PER",
+     "must": true,
+     "surface": "גליה",
+     "cat": "leak-16.9",
+     "ent": "leak169-07#must"
+    },
+    {
+     "s": 99,
+     "e": 103,
+     "type": "PER",
+     "must": true,
+     "surface": "גליה",
+     "cat": "leak-16.9",
+     "ent": "leak169-07#must"
+    },
+    {
+     "s": 117,
+     "e": 121,
+     "type": "PER",
+     "must": true,
+     "surface": "גליה",
+     "prefix": "ל",
+     "cat": "leak-16.9",
+     "ent": "leak169-07#must"
+    },
+    {
+     "s": 148,
+     "e": 152,
+     "type": "PER",
+     "must": true,
+     "surface": "גליה",
+     "prefix": "ל",
+     "cat": "leak-16.9",
+     "ent": "leak169-07#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-08",
+   "genre": "leak-16.9",
+   "text": "הילד קרא לה \"יפעת\" ולא אמא.\nלדבריו, \"יפעת תמיד מאחרת\".\nבהודעה נכתב: ״יפעת תאסוף אותם״.\nיפעת אישרה את הדברים.\nהוא חזר ואמר \"יפעת, יפעת\" כשבכה.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; inside quotation marks.",
+   "mentions": [
+    {
+     "s": 13,
+     "e": 17,
+     "type": "PER",
+     "must": true,
+     "surface": "יפעת",
+     "cat": "leak-16.9",
+     "ent": "leak169-08#must"
+    },
+    {
+     "s": 37,
+     "e": 41,
+     "type": "PER",
+     "must": true,
+     "surface": "יפעת",
+     "cat": "leak-16.9",
+     "ent": "leak169-08#must"
+    },
+    {
+     "s": 69,
+     "e": 73,
+     "type": "PER",
+     "must": true,
+     "surface": "יפעת",
+     "cat": "leak-16.9",
+     "ent": "leak169-08#must"
+    },
+    {
+     "s": 87,
+     "e": 91,
+     "type": "PER",
+     "must": true,
+     "surface": "יפעת",
+     "cat": "leak-16.9",
+     "ent": "leak169-08#must"
+    },
+    {
+     "s": 123,
+     "e": 127,
+     "type": "PER",
+     "must": true,
+     "surface": "יפעת",
+     "cat": "leak-16.9",
+     "ent": "leak169-08#must"
+    },
+    {
+     "s": 129,
+     "e": 133,
+     "type": "PER",
+     "must": true,
+     "surface": "יפעת",
+     "cat": "leak-16.9",
+     "ent": "leak169-08#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-09",
+   "genre": "leak-16.9",
+   "text": "עינב: אני לא מסכימה עם זה.\nהעובדת: למה?\nעינב: כי הוא לא מגיע בזמן.\nהעובדת: ומה עינב מציעה?\nעינב: שיאסוף אותם בשבת בבוקר.\nהעובדת: תודה, עינב.\nעינב: בבקשה.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; as a speaker at the start of a line.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 4,
+     "type": "PER",
+     "must": true,
+     "surface": "עינב",
+     "cat": "leak-16.9",
+     "ent": "leak169-09#must"
+    },
+    {
+     "s": 40,
+     "e": 44,
+     "type": "PER",
+     "must": true,
+     "surface": "עינב",
+     "cat": "leak-16.9",
+     "ent": "leak169-09#must"
+    },
+    {
+     "s": 79,
+     "e": 83,
+     "type": "PER",
+     "must": true,
+     "surface": "עינב",
+     "cat": "leak-16.9",
+     "ent": "leak169-09#must"
+    },
+    {
+     "s": 91,
+     "e": 95,
+     "type": "PER",
+     "must": true,
+     "surface": "עינב",
+     "cat": "leak-16.9",
+     "ent": "leak169-09#must"
+    },
+    {
+     "s": 135,
+     "e": 139,
+     "type": "PER",
+     "must": true,
+     "surface": "עינב",
+     "cat": "leak-16.9",
+     "ent": "leak169-09#must"
+    },
+    {
+     "s": 141,
+     "e": 145,
+     "type": "PER",
+     "must": true,
+     "surface": "עינב",
+     "cat": "leak-16.9",
+     "ent": "leak169-09#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-10",
+   "genre": "leak-16.9",
+   "text": "המבקשת (להלן: רעות) הגישה את הבקשה ביום 3.4.\nרעות, 34, עובדת במשמרות.\nביום 15 רעות לא הגיעה.\nרעות (האם) שילמה 400 ש\"ח.\nסעיף 7 חל על רעות בלבד.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; beside numbers and parentheses.",
+   "mentions": [
+    {
+     "s": 14,
+     "e": 18,
+     "type": "PER",
+     "must": true,
+     "surface": "רעות",
+     "cat": "leak-16.9",
+     "ent": "leak169-10#must"
+    },
+    {
+     "s": 45,
+     "e": 49,
+     "type": "PER",
+     "must": true,
+     "surface": "רעות",
+     "cat": "leak-16.9",
+     "ent": "leak169-10#must"
+    },
+    {
+     "s": 78,
+     "e": 82,
+     "type": "PER",
+     "must": true,
+     "surface": "רעות",
+     "cat": "leak-16.9",
+     "ent": "leak169-10#must"
+    },
+    {
+     "s": 93,
+     "e": 97,
+     "type": "PER",
+     "must": true,
+     "surface": "רעות",
+     "cat": "leak-16.9",
+     "ent": "leak169-10#must"
+    },
+    {
+     "s": 132,
+     "e": 136,
+     "type": "PER",
+     "must": true,
+     "surface": "רעות",
+     "cat": "leak-16.9",
+     "ent": "leak169-10#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-11",
+   "genre": "leak-16.9",
+   "text": "שקמה ביקשה לדחות את הדיון.\nהצעתי לשקמה להגיש תצהיר.\nביקשתי משקמה להתייצב בזמן.\nלשקמה לא היה עורך דין.\nשקמה הסכימה.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; a name that starts with ש, before an infinitive.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 4,
+     "type": "PER",
+     "must": true,
+     "surface": "שקמה",
+     "cat": "leak-16.9",
+     "ent": "leak169-11#must"
+    },
+    {
+     "s": 34,
+     "e": 38,
+     "type": "PER",
+     "must": true,
+     "surface": "שקמה",
+     "prefix": "ל",
+     "cat": "leak-16.9",
+     "ent": "leak169-11#must"
+    },
+    {
+     "s": 60,
+     "e": 64,
+     "type": "PER",
+     "must": true,
+     "surface": "שקמה",
+     "prefix": "מ",
+     "cat": "leak-16.9",
+     "ent": "leak169-11#must"
+    },
+    {
+     "s": 80,
+     "e": 84,
+     "type": "PER",
+     "must": true,
+     "surface": "שקמה",
+     "prefix": "ל",
+     "cat": "leak-16.9",
+     "ent": "leak169-11#must"
+    },
+    {
+     "s": 102,
+     "e": 106,
+     "type": "PER",
+     "must": true,
+     "surface": "שקמה",
+     "cat": "leak-16.9",
+     "ent": "leak169-11#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-12",
+   "genre": "leak-16.9",
+   "text": "ענבר אמא של שני ילדים.\nענבר בעלת הדירה ביקשה לפנות אותה.\nענבר מורה בבית ספר יסודי.\nלדברי ענבר אחות של האב, הילדים מוזנחים.\nענבר דודה של הקטין.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; before a word that could be read as a surname.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 4,
+     "type": "PER",
+     "must": true,
+     "surface": "ענבר",
+     "cat": "leak-16.9",
+     "ent": "leak169-12#must"
+    },
+    {
+     "s": 23,
+     "e": 27,
+     "type": "PER",
+     "must": true,
+     "surface": "ענבר",
+     "cat": "leak-16.9",
+     "ent": "leak169-12#must"
+    },
+    {
+     "s": 57,
+     "e": 61,
+     "type": "PER",
+     "must": true,
+     "surface": "ענבר",
+     "cat": "leak-16.9",
+     "ent": "leak169-12#must"
+    },
+    {
+     "s": 89,
+     "e": 93,
+     "type": "PER",
+     "must": true,
+     "surface": "ענבר",
+     "cat": "leak-16.9",
+     "ent": "leak169-12#must"
+    },
+    {
+     "s": 123,
+     "e": 127,
+     "type": "PER",
+     "must": true,
+     "surface": "ענבר",
+     "cat": "leak-16.9",
+     "ent": "leak169-12#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-13",
+   "genre": "leak-16.9",
+   "text": "יונה סירבה להגיע.\nההודעה נשלחה ל-יונה ביום חמישי.\nהאב ו-יונה לא נפגשו.\nהזימון נמסר ל־יונה ביד.\nיונה חתמה על קבלתו.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; after a hyphen or a maqaf.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 4,
+     "type": "PER",
+     "must": true,
+     "surface": "יונה",
+     "cat": "leak-16.9",
+     "ent": "leak169-13#must"
+    },
+    {
+     "s": 33,
+     "e": 37,
+     "type": "PER",
+     "must": true,
+     "surface": "יונה",
+     "prefix": "ל-",
+     "cat": "leak-16.9",
+     "ent": "leak169-13#must"
+    },
+    {
+     "s": 56,
+     "e": 60,
+     "type": "PER",
+     "must": true,
+     "surface": "יונה",
+     "prefix": "ו-",
+     "cat": "leak-16.9",
+     "ent": "leak169-13#must"
+    },
+    {
+     "s": 85,
+     "e": 89,
+     "type": "PER",
+     "must": true,
+     "surface": "יונה",
+     "prefix": "ל־",
+     "cat": "leak-16.9",
+     "ent": "leak169-13#must"
+    },
+    {
+     "s": 95,
+     "e": 99,
+     "type": "PER",
+     "must": true,
+     "surface": "יונה",
+     "cat": "leak-16.9",
+     "ent": "leak169-13#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-14",
+   "genre": "leak-16.9",
+   "text": "זיוה\nהגיעה לפגישה בשעה תשע.\nהעובדת שוחחה עם זיוה\nזיוה\nלא הוסיפה דבר.\nבסוף הפגישה נפרדנו מזיוה\nזיוה",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; alone on a line, at line starts and ends.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 4,
+     "type": "PER",
+     "must": true,
+     "surface": "זיוה",
+     "cat": "leak-16.9",
+     "ent": "leak169-14#must"
+    },
+    {
+     "s": 44,
+     "e": 48,
+     "type": "PER",
+     "must": true,
+     "surface": "זיוה",
+     "cat": "leak-16.9",
+     "ent": "leak169-14#must"
+    },
+    {
+     "s": 49,
+     "e": 53,
+     "type": "PER",
+     "must": true,
+     "surface": "זיוה",
+     "cat": "leak-16.9",
+     "ent": "leak169-14#must"
+    },
+    {
+     "s": 89,
+     "e": 93,
+     "type": "PER",
+     "must": true,
+     "surface": "זיוה",
+     "prefix": "מ",
+     "cat": "leak-16.9",
+     "ent": "leak169-14#must"
+    },
+    {
+     "s": 94,
+     "e": 98,
+     "type": "PER",
+     "must": true,
+     "surface": "זיוה",
+     "cat": "leak-16.9",
+     "ent": "leak169-14#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-15",
+   "genre": "leak-16.9",
+   "text": "גב' תמרה הגיעה לבדה.\nב\"כ גב' תמרה לא התייצב.\nעו\"ד תמרה ייצגה את האם בדיון הקודם.\nד\"ר תמרה בדקה את הילד.\nתמרה אישרה את הדברים.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; after a title.",
+   "mentions": [
+    {
+     "s": 4,
+     "e": 8,
+     "type": "PER",
+     "must": true,
+     "surface": "תמרה",
+     "cat": "leak-16.9",
+     "ent": "leak169-15#must"
+    },
+    {
+     "s": 29,
+     "e": 33,
+     "type": "PER",
+     "must": true,
+     "surface": "תמרה",
+     "cat": "leak-16.9",
+     "ent": "leak169-15#must"
+    },
+    {
+     "s": 50,
+     "e": 54,
+     "type": "PER",
+     "must": true,
+     "surface": "תמרה",
+     "cat": "leak-16.9",
+     "ent": "leak169-15#must"
+    },
+    {
+     "s": 85,
+     "e": 89,
+     "type": "PER",
+     "must": true,
+     "surface": "תמרה",
+     "cat": "leak-16.9",
+     "ent": "leak169-15#must"
+    },
+    {
+     "s": 104,
+     "e": 108,
+     "type": "PER",
+     "must": true,
+     "surface": "תמרה",
+     "cat": "leak-16.9",
+     "ent": "leak169-15#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-16",
+   "genre": "leak-16.9",
+   "text": "נכחו: חגית, האב והסבתא.\nחגית, האב והילדים ישבו יחד.\nהאב ביקש שחגית, הסבתא והדוד לא יגיעו.\nהוזמנו הסבתא וחגית.\nחגית הגיעה ראשונה.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; in a list.",
+   "mentions": [
+    {
+     "s": 6,
+     "e": 10,
+     "type": "PER",
+     "must": true,
+     "surface": "חגית",
+     "cat": "leak-16.9",
+     "ent": "leak169-16#must"
+    },
+    {
+     "s": 24,
+     "e": 28,
+     "type": "PER",
+     "must": true,
+     "surface": "חגית",
+     "cat": "leak-16.9",
+     "ent": "leak169-16#must"
+    },
+    {
+     "s": 62,
+     "e": 66,
+     "type": "PER",
+     "must": true,
+     "surface": "חגית",
+     "prefix": "ש",
+     "cat": "leak-16.9",
+     "ent": "leak169-16#must"
+    },
+    {
+     "s": 104,
+     "e": 108,
+     "type": "PER",
+     "must": true,
+     "surface": "חגית",
+     "prefix": "ו",
+     "cat": "leak-16.9",
+     "ent": "leak169-16#must"
+    },
+    {
+     "s": 110,
+     "e": 114,
+     "type": "PER",
+     "must": true,
+     "surface": "חגית",
+     "cat": "leak-16.9",
+     "ent": "leak169-16#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-17",
+   "genre": "leak-16.9",
+   "text": "הבית של אסנת נמצא ליד הגן.\nהילדים שוהים אצל אסנת בסופי שבוע.\nהאב דיבר עם אסנת בטלפון.\nבלי אסנת אין מי שיאסוף אותם.\nאסנת מסכימה להסדר.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; with possessive and preposition words.",
+   "mentions": [
+    {
+     "s": 8,
+     "e": 12,
+     "type": "PER",
+     "must": true,
+     "surface": "אסנת",
+     "cat": "leak-16.9",
+     "ent": "leak169-17#must"
+    },
+    {
+     "s": 44,
+     "e": 48,
+     "type": "PER",
+     "must": true,
+     "surface": "אסנת",
+     "cat": "leak-16.9",
+     "ent": "leak169-17#must"
+    },
+    {
+     "s": 73,
+     "e": 77,
+     "type": "PER",
+     "must": true,
+     "surface": "אסנת",
+     "cat": "leak-16.9",
+     "ent": "leak169-17#must"
+    },
+    {
+     "s": 90,
+     "e": 94,
+     "type": "PER",
+     "must": true,
+     "surface": "אסנת",
+     "cat": "leak-16.9",
+     "ent": "leak169-17#must"
+    },
+    {
+     "s": 115,
+     "e": 119,
+     "type": "PER",
+     "must": true,
+     "surface": "אסנת",
+     "cat": "leak-16.9",
+     "ent": "leak169-17#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-18",
+   "genre": "leak-16.9",
+   "text": "רחלי הגישה בקשה נוספת.\nרחלי ביקשה דחייה.\nאמרתי שרחלי תגיע מחר.\nעל רחלי להגיש את התצהיר עד יום ראשון.\nרחלי נכנסה והתיישבה.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; before verbs that could be read as surnames.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 4,
+     "type": "PER",
+     "must": true,
+     "surface": "רחלי",
+     "cat": "leak-16.9",
+     "ent": "leak169-18#must"
+    },
+    {
+     "s": 23,
+     "e": 27,
+     "type": "PER",
+     "must": true,
+     "surface": "רחלי",
+     "cat": "leak-16.9",
+     "ent": "leak169-18#must"
+    },
+    {
+     "s": 48,
+     "e": 52,
+     "type": "PER",
+     "must": true,
+     "surface": "רחלי",
+     "prefix": "ש",
+     "cat": "leak-16.9",
+     "ent": "leak169-18#must"
+    },
+    {
+     "s": 66,
+     "e": 70,
+     "type": "PER",
+     "must": true,
+     "surface": "רחלי",
+     "cat": "leak-16.9",
+     "ent": "leak169-18#must"
+    },
+    {
+     "s": 101,
+     "e": 105,
+     "type": "PER",
+     "must": true,
+     "surface": "רחלי",
+     "cat": "leak-16.9",
+     "ent": "leak169-18#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-19",
+   "genre": "leak-16.9",
+   "text": "מלכה טלפנה בבוקר.\nומלכה הוסיפה שהיא חוששת.\nכשמלכה הגיעה, הדלת הייתה נעולה.\nהילדים מחכים למלכה.\nמלכה תעדכן אותנו.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; a name that starts with מ, with ו and כש.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 4,
+     "type": "PER",
+     "must": true,
+     "surface": "מלכה",
+     "cat": "leak-16.9",
+     "ent": "leak169-19#must"
+    },
+    {
+     "s": 19,
+     "e": 23,
+     "type": "PER",
+     "must": true,
+     "surface": "מלכה",
+     "prefix": "ו",
+     "cat": "leak-16.9",
+     "ent": "leak169-19#must"
+    },
+    {
+     "s": 45,
+     "e": 49,
+     "type": "PER",
+     "must": true,
+     "surface": "מלכה",
+     "prefix": "כש",
+     "cat": "leak-16.9",
+     "ent": "leak169-19#must"
+    },
+    {
+     "s": 89,
+     "e": 93,
+     "type": "PER",
+     "must": true,
+     "surface": "מלכה",
+     "prefix": "ל",
+     "cat": "leak-16.9",
+     "ent": "leak169-19#must"
+    },
+    {
+     "s": 95,
+     "e": 99,
+     "type": "PER",
+     "must": true,
+     "surface": "מלכה",
+     "cat": "leak-16.9",
+     "ent": "leak169-19#must"
+    }
+   ]
+  },
+  {
+   "id": "leak169-20",
+   "genre": "leak-16.9",
+   "text": "ציפי הגיעה לפגישה באיחור. ציפי הסבירה שהאוטובוס לא הגיע, וציפי התנצלה. אחרי שציפי התיישבה, העובדת שאלה את ציפי על הילדים. ציפי סיפרה שהם בסדר, אבל שציפי דואגת לבן הגדול. בסוף הפגישה ציפי ביקשה עוד מועד, וציפי קיבלה אותו.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "The 16.9 leak shape: one four-letter word as a name, many occurrences; many occurrences in one long paragraph.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 4,
+     "type": "PER",
+     "must": true,
+     "surface": "ציפי",
+     "cat": "leak-16.9",
+     "ent": "leak169-20#must"
+    },
+    {
+     "s": 26,
+     "e": 30,
+     "type": "PER",
+     "must": true,
+     "surface": "ציפי",
+     "cat": "leak-16.9",
+     "ent": "leak169-20#must"
+    },
+    {
+     "s": 58,
+     "e": 62,
+     "type": "PER",
+     "must": true,
+     "surface": "ציפי",
+     "prefix": "ו",
+     "cat": "leak-16.9",
+     "ent": "leak169-20#must"
+    },
+    {
+     "s": 77,
+     "e": 81,
+     "type": "PER",
+     "must": true,
+     "surface": "ציפי",
+     "prefix": "ש",
+     "cat": "leak-16.9",
+     "ent": "leak169-20#must"
+    },
+    {
+     "s": 106,
+     "e": 110,
+     "type": "PER",
+     "must": true,
+     "surface": "ציפי",
+     "cat": "leak-16.9",
+     "ent": "leak169-20#must"
+    },
+    {
+     "s": 122,
+     "e": 126,
+     "type": "PER",
+     "must": true,
+     "surface": "ציפי",
+     "cat": "leak-16.9",
+     "ent": "leak169-20#must"
+    },
+    {
+     "s": 148,
+     "e": 152,
+     "type": "PER",
+     "must": true,
+     "surface": "ציפי",
+     "prefix": "ש",
+     "cat": "leak-16.9",
+     "ent": "leak169-20#must"
+    },
+    {
+     "s": 182,
+     "e": 186,
+     "type": "PER",
+     "must": true,
+     "surface": "ציפי",
+     "cat": "leak-16.9",
+     "ent": "leak169-20#must"
+    },
+    {
+     "s": 204,
+     "e": 208,
+     "type": "PER",
+     "must": true,
+     "surface": "ציפי",
+     "prefix": "ו",
+     "cat": "leak-16.9",
+     "ent": "leak169-20#must"
+    }
+   ]
+  },
+  {
+   "id": "fp-discourse-glued",
+   "genre": "false-positive",
+   "text": "כאמור יהונתן לא הגיע לדיון.\nמשכך יהונתן ביקש לדחות את המועד.\nלדבריו יהונתן לא קיבל את ההזמנה.\nיוזכר כי יהונתן התחייב לשלם.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "A discourse word before a name: a span that takes the word in with the name fails.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 5,
+     "type": "PER",
+     "must": false,
+     "surface": "כאמור",
+     "cat": "false-positive",
+     "ent": "fp-discourse-glued#כאמור"
+    },
+    {
+     "s": 6,
+     "e": 12,
+     "type": "PER",
+     "must": true,
+     "surface": "יהונתן",
+     "cat": "false-positive",
+     "ent": "fp-discourse-glued#must"
+    },
+    {
+     "s": 28,
+     "e": 32,
+     "type": "PER",
+     "must": false,
+     "surface": "משכך",
+     "cat": "false-positive",
+     "ent": "fp-discourse-glued#משכך"
+    },
+    {
+     "s": 33,
+     "e": 39,
+     "type": "PER",
+     "must": true,
+     "surface": "יהונתן",
+     "cat": "false-positive",
+     "ent": "fp-discourse-glued#must"
+    },
+    {
+     "s": 61,
+     "e": 67,
+     "type": "PER",
+     "must": false,
+     "surface": "לדבריו",
+     "cat": "false-positive",
+     "ent": "fp-discourse-glued#לדבריו"
+    },
+    {
+     "s": 68,
+     "e": 74,
+     "type": "PER",
+     "must": true,
+     "surface": "יהונתן",
+     "cat": "false-positive",
+     "ent": "fp-discourse-glued#must"
+    },
+    {
+     "s": 94,
+     "e": 99,
+     "type": "PER",
+     "must": false,
+     "surface": "יוזכר",
+     "cat": "false-positive",
+     "ent": "fp-discourse-glued#יוזכר"
+    },
+    {
+     "s": 103,
+     "e": 109,
+     "type": "PER",
+     "must": true,
+     "surface": "יהונתן",
+     "cat": "false-positive",
+     "ent": "fp-discourse-glued#must"
+    }
+   ]
+  },
+  {
+   "id": "fp-role-word",
+   "genre": "false-positive",
+   "text": "כתב עמדה מטעם האפוטרופא לדין.\nהאפוטרופוס לדין ממליץ על הרחבת השהות.\nהאפטרופא ביקשה להגיש השלמה.\nאפוטרופסית לדין תמונה בהקדם.\nהמגשרת והח\"מ נפגשו עם שני ההורים.",
+   "pass": "no-span",
+   "control": false,
+   "what": "Role words in any spelling, with no name beside them.",
+   "mentions": [
+    {
+     "s": 15,
+     "e": 23,
+     "type": "PER",
+     "must": false,
+     "surface": "אפוטרופא",
+     "prefix": "ה",
+     "cat": "false-positive",
+     "ent": "fp-role-word#אפוטרופא"
+    },
+    {
+     "s": 31,
+     "e": 40,
+     "type": "PER",
+     "must": false,
+     "surface": "אפוטרופוס",
+     "prefix": "ה",
+     "cat": "false-positive",
+     "ent": "fp-role-word#אפוטרופוס"
+    },
+    {
+     "s": 69,
+     "e": 76,
+     "type": "PER",
+     "must": false,
+     "surface": "אפטרופא",
+     "prefix": "ה",
+     "cat": "false-positive",
+     "ent": "fp-role-word#אפטרופא"
+    },
+    {
+     "s": 96,
+     "e": 106,
+     "type": "PER",
+     "must": false,
+     "surface": "אפוטרופסית",
+     "cat": "false-positive",
+     "ent": "fp-role-word#אפוטרופסית"
+    },
+    {
+     "s": 126,
+     "e": 131,
+     "type": "PER",
+     "must": false,
+     "surface": "מגשרת",
+     "prefix": "ה",
+     "cat": "false-positive",
+     "ent": "fp-role-word#מגשרת"
+    }
+   ]
+  },
+  {
+   "id": "fp-verb-as-name",
+   "genre": "false-positive",
+   "text": "יוזכר כי הח\"מ שמשה בעבר מגשרת בתיק.\nהאב גילה כי הילד לא הגיע לבית הספר.\nהילדה שרה בחוג בכל יום שלישי.\nהוועדה דנה בבקשה בישיבתה האחרונה.\nהאם שמחה לשמוע שהילד מסתדר.",
+   "pass": "no-span",
+   "control": false,
+   "what": "Verbs whose letters are also a first name, or a prefix letter and a first name.",
+   "mentions": [
+    {
+     "s": 14,
+     "e": 18,
+     "type": "PER",
+     "must": false,
+     "surface": "שמשה",
+     "cat": "false-positive",
+     "ent": "fp-verb-as-name#שמשה"
+    },
+    {
+     "s": 40,
+     "e": 44,
+     "type": "PER",
+     "must": false,
+     "surface": "גילה",
+     "cat": "false-positive",
+     "ent": "fp-verb-as-name#גילה"
+    },
+    {
+     "s": 78,
+     "e": 81,
+     "type": "PER",
+     "must": false,
+     "surface": "שרה",
+     "cat": "false-positive",
+     "ent": "fp-verb-as-name#שרה"
+    },
+    {
+     "s": 109,
+     "e": 112,
+     "type": "PER",
+     "must": false,
+     "surface": "דנה",
+     "cat": "false-positive",
+     "ent": "fp-verb-as-name#דנה"
+    },
+    {
+     "s": 140,
+     "e": 144,
+     "type": "PER",
+     "must": false,
+     "surface": "שמחה",
+     "cat": "false-positive",
+     "ent": "fp-verb-as-name#שמחה"
+    }
+   ]
+  },
+  {
+   "id": "fp-public-body-prefix",
+   "genre": "false-positive",
+   "text": "העניין הועבר לכנסת ולוועדה שלה.\nבמשרד הבריאות לא ידעו על הפנייה.\nהתקבלה החלטה מבית המשפט המחוזי בשבוע שעבר.\nהמוסד לביטוח לאומי אישר את הקצבה.\nומשטרת ישראל לא פתחה בחקירה.",
+   "pass": "no-span",
+   "control": false,
+   "what": "Public bodies with a prefix letter: the letter is left out of the negative, and any span touching it fails.",
+   "mentions": [
+    {
+     "s": 14,
+     "e": 18,
+     "type": "ORG",
+     "must": false,
+     "surface": "כנסת",
+     "prefix": "ל",
+     "cat": "false-positive",
+     "ent": "fp-public-body-prefix#כנסת"
+    },
+    {
+     "s": 33,
+     "e": 45,
+     "type": "ORG",
+     "must": false,
+     "surface": "משרד הבריאות",
+     "prefix": "ב",
+     "cat": "false-positive",
+     "ent": "fp-public-body-prefix#משרד הבריאות"
+    },
+    {
+     "s": 79,
+     "e": 95,
+     "type": "ORG",
+     "must": false,
+     "surface": "בית המשפט המחוזי",
+     "prefix": "מ",
+     "cat": "false-positive",
+     "ent": "fp-public-body-prefix#בית המשפט המחוזי"
+    },
+    {
+     "s": 109,
+     "e": 126,
+     "type": "ORG",
+     "must": false,
+     "surface": "מוסד לביטוח לאומי",
+     "prefix": "ה",
+     "cat": "false-positive",
+     "ent": "fp-public-body-prefix#מוסד לביטוח לאומי"
+    },
+    {
+     "s": 143,
+     "e": 154,
+     "type": "ORG",
+     "must": false,
+     "surface": "משטרת ישראל",
+     "prefix": "ו",
+     "cat": "false-positive",
+     "ent": "fp-public-body-prefix#משטרת ישראל"
+    }
+   ]
+  },
+  {
+   "id": "fp-bare-number",
+   "genre": "false-positive",
+   "text": "נמסרו 33 מסמכים לעיון.\nלפי סעיף 12 להסכם, ההוצאות יחולו על האב.\nהדיון נקבע לאולם 214.\nהמשפחה גרה בבניין 7 מזה 4 שנים.",
+   "pass": "no-span",
+   "control": false,
+   "what": "Bare numbers that a model can read as an organisation.",
+   "mentions": [
+    {
+     "s": 6,
+     "e": 8,
+     "type": "ORG",
+     "must": false,
+     "surface": "33",
+     "cat": "false-positive",
+     "ent": "fp-bare-number#33"
+    },
+    {
+     "s": 32,
+     "e": 34,
+     "type": "ORG",
+     "must": false,
+     "surface": "12",
+     "cat": "false-positive",
+     "ent": "fp-bare-number#12"
+    },
+    {
+     "s": 81,
+     "e": 84,
+     "type": "ORG",
+     "must": false,
+     "surface": "214",
+     "cat": "false-positive",
+     "ent": "fp-bare-number#214"
+    },
+    {
+     "s": 104,
+     "e": 105,
+     "type": "ORG",
+     "must": false,
+     "surface": "7",
+     "cat": "false-positive",
+     "ent": "fp-bare-number#7"
+    },
+    {
+     "s": 110,
+     "e": 111,
+     "type": "ORG",
+     "must": false,
+     "surface": "4",
+     "cat": "false-positive",
+     "ent": "fp-bare-number#4"
+    }
+   ]
+  },
+  {
+   "id": "nikud-first-name",
+   "genre": "script",
+   "text": "הילדה אֲבִיגַיִל הגיעה עם אמה.\nאביגיל סיפרה על בית הספר ועל החברות.\nלַאֲבִיגַיִל יש אח קטן, ואביגיל שומרת עליו.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "A first name with nikud on some occurrences; the span includes its marks.",
+   "mentions": [
+    {
+     "s": 6,
+     "e": 16,
+     "type": "PER",
+     "must": true,
+     "surface": "אֲבִיגַיִל",
+     "cat": "script",
+     "ent": "nikud-first-name#must"
+    },
+    {
+     "s": 31,
+     "e": 37,
+     "type": "PER",
+     "must": true,
+     "surface": "אביגיל",
+     "cat": "script",
+     "ent": "nikud-first-name#must"
+    },
+    {
+     "s": 70,
+     "e": 80,
+     "type": "PER",
+     "must": true,
+     "surface": "אֲבִיגַיִל",
+     "prefix": "לַ",
+     "cat": "script",
+     "ent": "nikud-first-name#must"
+    },
+    {
+     "s": 93,
+     "e": 99,
+     "type": "PER",
+     "must": true,
+     "surface": "אביגיל",
+     "prefix": "ו",
+     "cat": "script",
+     "ent": "nikud-first-name#must"
+    }
+   ]
+  },
+  {
+   "id": "nikud-full-name",
+   "genre": "script",
+   "text": "העד יְהוֹנָתָן קַרְמִי מסר עדות בבית המשפט.\nקרמי אמר שראה את הרכב.\nלדברי קַרְמִי, זה קרה בשעות הערב.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "A full name with nikud, then the surname alone.",
+   "mentions": [
+    {
+     "s": 4,
+     "e": 22,
+     "type": "PER",
+     "must": true,
+     "surface": "יְהוֹנָתָן קַרְמִי",
+     "cat": "script",
+     "ent": "nikud-full-name#must"
+    },
+    {
+     "s": 44,
+     "e": 48,
+     "type": "PER",
+     "must": true,
+     "surface": "קרמי",
+     "cat": "script",
+     "ent": "nikud-full-name#must"
+    },
+    {
+     "s": 73,
+     "e": 80,
+     "type": "PER",
+     "must": true,
+     "surface": "קַרְמִי",
+     "cat": "script",
+     "ent": "nikud-full-name#must"
+    }
+   ]
+  },
+  {
+   "id": "latin-name",
+   "genre": "script",
+   "text": "העובדת הסוציאלית Anna Kowalski נפגשה עם המשפחה.\nלדברי Kowalski, הילד מסתגל היטב.\nAnna המליצה על המשך הליווי.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "A name in Latin letters with a capital, inside Hebrew text.",
+   "mentions": [
+    {
+     "s": 17,
+     "e": 30,
+     "type": "PER",
+     "must": true,
+     "surface": "Anna Kowalski",
+     "cat": "script",
+     "ent": "latin-name#must"
+    },
+    {
+     "s": 54,
+     "e": 62,
+     "type": "PER",
+     "must": true,
+     "surface": "Kowalski",
+     "cat": "script",
+     "ent": "latin-name#must"
+    },
+    {
+     "s": 81,
+     "e": 85,
+     "type": "PER",
+     "must": true,
+     "surface": "Anna",
+     "cat": "script",
+     "ent": "latin-name#must"
+    }
+   ]
+  },
+  {
+   "id": "latin-caps",
+   "genre": "script",
+   "text": "המסמך נחתם על ידי SERGEI PETRENKO בנוכחות עד.\nPETRENKO לא הגיע לדיון.\nהודעה נשלחה ל-PETRENKO בדואר רשום.",
+   "pass": "exact-or-prefix-cut",
+   "control": false,
+   "what": "A name in Latin capitals, inside Hebrew text.",
+   "mentions": [
+    {
+     "s": 18,
+     "e": 33,
+     "type": "PER",
+     "must": true,
+     "surface": "SERGEI PETRENKO",
+     "cat": "script",
+     "ent": "latin-caps#must"
+    },
+    {
+     "s": 46,
+     "e": 54,
+     "type": "PER",
+     "must": true,
+     "surface": "PETRENKO",
+     "cat": "script",
+     "ent": "latin-caps#must"
+    },
+    {
+     "s": 84,
+     "e": 92,
+     "type": "PER",
+     "must": true,
+     "surface": "PETRENKO",
+     "prefix": "ל-",
+     "cat": "script",
+     "ent": "latin-caps#must"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,2750 @@
+{
+ "name": "synthetic-tune",
+ "source": "bench/key.json",
+ "licence": "repo",
+ "split": "tune",
+ "docs": [
+  {
+   "id": "m1",
+   "genre": "meeting",
+   "text": "סיכום פגישה מיום 14.5.2026\nנפגשתי היום עם סאמר קעדאן במשרד. קעדאן הגיע עם אחותו ובלי הילדים. הוא סיפר שחיים סבג לא העביר מזונות כבר שלושה חודשים, ושהמצב בבית קשה.\nבחיים לא ראיתי תיק כזה. חיים מסרב לשתף פעולה, ולפי סעיף 3(א) להסכם עליו להודיע מראש על כל שינוי.\nשוחחתי בטלפון עם עו\"ד יערה ליפשיץ ממשרד עמותת שביל הלב, והיא אישרה שהמשפחה מוכרת לשביל הלב מאז 2024. דסטה טספאיי משביל הלב דיווח על ירידה בתפקוד.\nעמיחי אלמגור, המדריך בקבוצה, סיפר שתספאיי מתקשה להגיע לפגישות. לדבריו ליפשיץ תעדכן בכתב.\nהמשפחה גרה בנוף הגליל, והאב עבר לאחרונה לדירה שכורה. סיכמנו שאפנה ללשכה בעניין הקצבה.",
+   "mentions": [
+    {
+     "s": 42,
+     "e": 52,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ARABIC",
+     "ent": "m1#0"
+    },
+    {
+     "s": 60,
+     "e": 65,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ARABIC",
+     "ent": "m1#0"
+    },
+    {
+     "s": 103,
+     "e": 111,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "m1#1",
+     "prefix": "ש",
+     "offMissed": true
+    },
+    {
+     "s": 163,
+     "e": 177,
+     "type": "PER",
+     "must": false,
+     "cat": "T_IDIOM",
+     "ent": "m1#9"
+    },
+    {
+     "s": 187,
+     "e": 191,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "m1#1",
+     "offMissed": true
+    },
+    {
+     "s": 214,
+     "e": 223,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "m1#7"
+    },
+    {
+     "s": 282,
+     "e": 293,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TITLE",
+     "ent": "m1#2"
+    },
+    {
+     "s": 300,
+     "e": 314,
+     "type": "ORG",
+     "must": true,
+     "cat": "O_PRIVATE",
+     "ent": "m1#5"
+    },
+    {
+     "s": 342,
+     "e": 350,
+     "type": "ORG",
+     "must": true,
+     "cat": "O_PRIVATE",
+     "ent": "m1#5",
+     "prefix": "ל"
+    },
+    {
+     "s": 361,
+     "e": 372,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TWO_SPELL",
+     "ent": "m1#3",
+     "offMissed": true
+    },
+    {
+     "s": 374,
+     "e": 382,
+     "type": "ORG",
+     "must": true,
+     "cat": "O_PRIVATE",
+     "ent": "m1#5",
+     "prefix": "מ"
+    },
+    {
+     "s": 406,
+     "e": 418,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SPLITRUN",
+     "ent": "m1#4",
+     "offMissed": true
+    },
+    {
+     "s": 441,
+     "e": 447,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TWO_SPELL",
+     "ent": "m1#3",
+     "prefix": "ש",
+     "offMissed": true
+    },
+    {
+     "s": 476,
+     "e": 482,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TITLE",
+     "ent": "m1#2"
+    },
+    {
+     "s": 507,
+     "e": 516,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_TOWN",
+     "ent": "m1#6",
+     "prefix": "ב"
+    }
+   ]
+  },
+  {
+   "id": "m3",
+   "genre": "meeting",
+   "text": "סיכום פגישה — הסדרי שהות\nמורן רוזנטל ונמרוד רוזנטל הגיעו יחד. מורן סיפרה שהילדים, מיקה ועומרי, מתקשים במעברים. מִיקָה בת חמש, ומסרבת ללכת לגן בימי ראשון.\nהפסיכולוג איגור וולקוב ממליץ על הסדרי שהות מצומצמים. וולקוב ציין שפגש בהילי פעם אחת בלבד. רוזנטל טוען שההמלצה מוטה.\nעומרי גן, אביו של האב, מוכן לסייע כלכלית. הפניה למשרד הרווחה נעשתה בשבוע שעבר, ומיקה תתחיל טיפול רגשי בחודש הבא.\nסיכמנו שאעביר את חוות הדעת של וולקוב לצד השני, ושהפגישה הבאה תתקיים בנוכחות מורן בלבד.",
+   "mentions": [
+    {
+     "s": 25,
+     "e": 36,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SHARED_SURNAME",
+     "ent": "m3#0"
+    },
+    {
+     "s": 38,
+     "e": 50,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SHARED_SURNAME",
+     "ent": "m3#1",
+     "prefix": "ו",
+     "offMissed": true
+    },
+    {
+     "s": 62,
+     "e": 66,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SHARED_SURNAME",
+     "ent": "m3#0"
+    },
+    {
+     "s": 82,
+     "e": 86,
+     "type": "PER",
+     "must": true,
+     "cat": "P_NIKUD",
+     "ent": "m3#3",
+     "offMissed": true
+    },
+    {
+     "s": 88,
+     "e": 93,
+     "type": "PER",
+     "must": true,
+     "cat": "P_LOOKS_ORG",
+     "ent": "m3#5",
+     "prefix": "ו",
+     "derived": true,
+     "offMissed": true
+    },
+    {
+     "s": 111,
+     "e": 117,
+     "type": "PER",
+     "must": true,
+     "cat": "P_NIKUD",
+     "ent": "m3#3",
+     "offMissed": true
+    },
+    {
+     "s": 164,
+     "e": 176,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "m3#2"
+    },
+    {
+     "s": 207,
+     "e": 213,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "m3#2"
+    },
+    {
+     "s": 224,
+     "e": 229,
+     "type": "PER",
+     "must": true,
+     "cat": "P_PREFIX_ONCE",
+     "ent": "m3#4",
+     "offMissed": true
+    },
+    {
+     "s": 244,
+     "e": 250,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SHARED_SURNAME",
+     "ent": "m3#1",
+     "offMissed": true
+    },
+    {
+     "s": 270,
+     "e": 278,
+     "type": "PER",
+     "must": true,
+     "cat": "P_LOOKS_ORG",
+     "ent": "m3#5",
+     "offMissed": true
+    },
+    {
+     "s": 319,
+     "e": 330,
+     "type": "ORG",
+     "must": false,
+     "cat": "O_PUBLIC",
+     "ent": "m3#6",
+     "prefix": "ל"
+    },
+    {
+     "s": 350,
+     "e": 354,
+     "type": "PER",
+     "must": true,
+     "cat": "P_NIKUD",
+     "ent": "m3#3",
+     "prefix": "ו",
+     "offMissed": true
+    },
+    {
+     "s": 413,
+     "e": 419,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "m3#2"
+    },
+    {
+     "s": 459,
+     "e": 463,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SHARED_SURNAME",
+     "ent": "m3#0"
+    }
+   ]
+  },
+  {
+   "id": "f1",
+   "genre": "filing",
+   "text": "בבית המשפט לענייני משפחה בירושלים\nתלה\"מ 12345-06-24\nהתובעת סיון נבון, מרחוב התאנה 4, בית זית\nהנתבע צור אסולין, באמצעות ב\"כ עו\"ד יערה ליפשיץ\n1. התובעת והנתבע נישאו ביום 3.6.2026 ולהם שני ילדים. אריאל הורוביץ, אחיה של התובעת, נכח בדיון הקודם.\n2. נתנאל וייסמן, המומחה מטעם בית המשפט, קבע כי הילדים לומדים בבית ספר ניצני הגליל. ויסמן המליץ על מסגרת טיפולית.\n3. הפסיכולוגית נטליה פטרובה ציינה כי הורוביץ מהווה דמות תומכת. אריאל הצהיר כי יסייע ככל שיידרש.\n4. אסולין לא העביר מזונות, בניגוד לסעיף 7(ב) להסכם. פטרובה תמכה בעמדת התובעת.\n5. פלונית, שכנה, מסרה תצהיר. פלוני נוסף סירב להעיד. המוסד לביטוח לאומי אישר קצבה.\n6. ב\"כ התובעת ליפשיץ מבקשת מבית המשפט הנכבד לקבל את התביעה. נבון תישא בהוצאות ככל שתידחה.",
+   "mentions": [
+    {
+     "s": 1,
+     "e": 24,
+     "type": "ORG",
+     "must": false,
+     "cat": "O_PUBLIC",
+     "ent": "f1#7",
+     "prefix": "ב"
+    },
+    {
+     "s": 26,
+     "e": 33,
+     "type": "PLACE",
+     "must": false,
+     "cat": "L_PUBLIC",
+     "ent": "f1#gap0",
+     "prefix": "ב",
+     "gap": true
+    },
+    {
+     "s": 34,
+     "e": 51,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "f1#12"
+    },
+    {
+     "s": 59,
+     "e": 68,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_NOCOLON",
+     "ent": "f1#0"
+    },
+    {
+     "s": 71,
+     "e": 83,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_STREET",
+     "ent": "f1#10",
+     "prefix": "מ"
+    },
+    {
+     "s": 85,
+     "e": 92,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_TOWN",
+     "ent": "f1#9"
+    },
+    {
+     "s": 99,
+     "e": 109,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_NOCOLON",
+     "ent": "f1#1"
+    },
+    {
+     "s": 128,
+     "e": 139,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TITLE",
+     "ent": "f1#2"
+    },
+    {
+     "s": 193,
+     "e": 206,
+     "type": "PER",
+     "must": true,
+     "cat": "P_FORMS",
+     "ent": "f1#3",
+     "offMissed": true
+    },
+    {
+     "s": 244,
+     "e": 256,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TWO_SPELL",
+     "ent": "f1#4",
+     "offMissed": true
+    },
+    {
+     "s": 303,
+     "e": 322,
+     "type": "ORG",
+     "must": true,
+     "cat": "O_PRIVATE",
+     "ent": "f1#6",
+     "prefix": "ב"
+    },
+    {
+     "s": 324,
+     "e": 329,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TWO_SPELL",
+     "ent": "f1#4",
+     "offMissed": true
+    },
+    {
+     "s": 369,
+     "e": 381,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "f1#5"
+    },
+    {
+     "s": 391,
+     "e": 398,
+     "type": "PER",
+     "must": true,
+     "cat": "P_FORMS",
+     "ent": "f1#3",
+     "offMissed": true
+    },
+    {
+     "s": 417,
+     "e": 422,
+     "type": "PER",
+     "must": true,
+     "cat": "P_FORMS",
+     "ent": "f1#3",
+     "offMissed": true
+    },
+    {
+     "s": 453,
+     "e": 459,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_NOCOLON",
+     "ent": "f1#1"
+    },
+    {
+     "s": 485,
+     "e": 494,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "f1#12",
+     "prefix": "ל"
+    },
+    {
+     "s": 502,
+     "e": 508,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "f1#5"
+    },
+    {
+     "s": 531,
+     "e": 537,
+     "type": "PER",
+     "must": false,
+     "cat": "T_PLONI",
+     "ent": "f1#11"
+    },
+    {
+     "s": 557,
+     "e": 562,
+     "type": "PER",
+     "must": false,
+     "cat": "T_PLONI",
+     "ent": "f1#11"
+    },
+    {
+     "s": 580,
+     "e": 598,
+     "type": "ORG",
+     "must": false,
+     "cat": "O_PUBLIC",
+     "ent": "f1#8"
+    },
+    {
+     "s": 624,
+     "e": 630,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TITLE",
+     "ent": "f1#2"
+    },
+    {
+     "s": 670,
+     "e": 674,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_NOCOLON",
+     "ent": "f1#0"
+    }
+   ]
+  },
+  {
+   "id": "f3",
+   "genre": "filing",
+   "text": "תסקיר משרד הרווחה — לשכת הרווחה\nהמבקשת אלה בן-רביב הגישה בקשה להסדרי שהות. מורן אביטן, האם, מתגוררת במבוא חורון עם עומרי. ינון אביתן, אחיה של האם, מתגורר בסמוך.\nאביטן ואביתן הם שני אנשים שונים, ויש להיזהר בניסוח. משפחת בוזגלו השכנים מסרו כי עומרי משחק אצלם אחר הצהריים.\nויקטור סמירנוב, האב, נפגש עם עומרי פעם בשבועיים. סמירנוב ביקש להרחיב את ההסדר. הפנייה לרויטל נעשתה ביום 22.1.2026.\nלפי סעיף 14 לחוק, המוסד לביטוח לאומי משלם קצבת ילדים לאם. בוזגלו דיווחו על מריבות קולניות. בן-רביב תעדכן את הלשכה.\nהמלצה: הרחבה הדרגתית של ההסדר עם ויקטור, בליווי אביתן. עומרי בן שש וחצי.",
+   "mentions": [
+    {
+     "s": 6,
+     "e": 17,
+     "type": "ORG",
+     "must": false,
+     "cat": "O_PUBLIC",
+     "ent": "f3#7"
+    },
+    {
+     "s": 39,
+     "e": 50,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_NOCOLON",
+     "ent": "f3#2"
+    },
+    {
+     "s": 75,
+     "e": 85,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ED1_PAIR",
+     "ent": "f3#0",
+     "offMissed": true
+    },
+    {
+     "s": 101,
+     "e": 111,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_TOWN",
+     "ent": "f3#9",
+     "prefix": "ב"
+    },
+    {
+     "s": 115,
+     "e": 120,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR",
+     "ent": "f3#4"
+    },
+    {
+     "s": 122,
+     "e": 132,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ED1_PAIR",
+     "ent": "f3#1"
+    },
+    {
+     "s": 161,
+     "e": 166,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ED1_PAIR",
+     "ent": "f3#0",
+     "offMissed": true
+    },
+    {
+     "s": 168,
+     "e": 173,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ED1_PAIR",
+     "ent": "f3#1",
+     "prefix": "ו"
+    },
+    {
+     "s": 213,
+     "e": 225,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TITLE",
+     "ent": "f3#3"
+    },
+    {
+     "s": 241,
+     "e": 246,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR",
+     "ent": "f3#4"
+    },
+    {
+     "s": 270,
+     "e": 284,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SPLITRUN",
+     "ent": "f3#6"
+    },
+    {
+     "s": 299,
+     "e": 304,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR",
+     "ent": "f3#4"
+    },
+    {
+     "s": 319,
+     "e": 326,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SPLITRUN",
+     "ent": "f3#6",
+     "derived": true
+    },
+    {
+     "s": 356,
+     "e": 362,
+     "type": "PER",
+     "must": true,
+     "cat": "P_PREFIX_ONCE",
+     "ent": "f3#5",
+     "offMissed": true
+    },
+    {
+     "s": 389,
+     "e": 396,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "f3#10"
+    },
+    {
+     "s": 403,
+     "e": 421,
+     "type": "ORG",
+     "must": false,
+     "cat": "O_PUBLIC",
+     "ent": "f3#8"
+    },
+    {
+     "s": 443,
+     "e": 449,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TITLE",
+     "ent": "f3#3"
+    },
+    {
+     "s": 476,
+     "e": 483,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_NOCOLON",
+     "ent": "f3#2"
+    },
+    {
+     "s": 533,
+     "e": 539,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SPLITRUN",
+     "ent": "f3#6",
+     "derived": true
+    },
+    {
+     "s": 548,
+     "e": 553,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ED1_PAIR",
+     "ent": "f3#1"
+    },
+    {
+     "s": 555,
+     "e": 560,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR",
+     "ent": "f3#4"
+    }
+   ]
+  },
+  {
+   "id": "t1",
+   "genre": "transcript",
+   "text": "תמלול דיון — פרוטוקול\nהשופטת: אנחנו בדיון בעניין אריאל הורוביץ. הנתבע צור אסולין נוכח. מי מייצג?\nדור רביב: אני. הורוביץ הוא הלקוח שלי. אני רוצה להתייחס למה שאמר פלוני בדיון הקודם.\nהשופטת: מר שר, אתה מבקש להגיב?\nאלישע שר: כן. משרד הרווחה ושר הרווחה עצמו הבטיחו תקציב. במקרה של ענבר זה לא הגיע. אריאל ביקש הבהרה בכתב.\nאנסטסיה קוזלוב: אני העובדת הסוציאלית. אמא של ענבר פנתה אליי, ובשביל ענבר פתחנו תיק. דור יודע את זה.\nדור רביב: קוזלוב, המשפחה עברה לאלון שבות לפני שנה. זו משפחה מדור שלישי בעיר, ואסולין לא ביקר שם אף פעם.\nהשופטת: הורוביץ יגיש תצהיר. דור, תעדכן את קוזלוב. הדיון נדחה.",
+   "mentions": [
+    {
+     "s": 49,
+     "e": 62,
+     "type": "PER",
+     "must": true,
+     "cat": "P_FORMS",
+     "ent": "t1#2",
+     "offMissed": true
+    },
+    {
+     "s": 70,
+     "e": 80,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_NOCOLON",
+     "ent": "t1#5"
+    },
+    {
+     "s": 97,
+     "e": 105,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "t1#0"
+    },
+    {
+     "s": 112,
+     "e": 119,
+     "type": "PER",
+     "must": true,
+     "cat": "P_FORMS",
+     "ent": "t1#2",
+     "offMissed": true
+    },
+    {
+     "s": 161,
+     "e": 166,
+     "type": "PER",
+     "must": false,
+     "cat": "T_PLONI",
+     "ent": "t1#8"
+    },
+    {
+     "s": 191,
+     "e": 193,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "t1#1"
+    },
+    {
+     "s": 211,
+     "e": 219,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "t1#1"
+    },
+    {
+     "s": 225,
+     "e": 236,
+     "type": "ORG",
+     "must": false,
+     "cat": "O_PUBLIC",
+     "ent": "t1#6"
+    },
+    {
+     "s": 238,
+     "e": 247,
+     "type": "PER",
+     "must": false,
+     "cat": "T_IDIOM",
+     "ent": "t1#9",
+     "prefix": "ו"
+    },
+    {
+     "s": 276,
+     "e": 280,
+     "type": "PER",
+     "must": true,
+     "cat": "P_PROSE",
+     "ent": "t1#3"
+    },
+    {
+     "s": 293,
+     "e": 298,
+     "type": "PER",
+     "must": true,
+     "cat": "P_FORMS",
+     "ent": "t1#2",
+     "offMissed": true
+    },
+    {
+     "s": 316,
+     "e": 330,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "t1#4"
+    },
+    {
+     "s": 361,
+     "e": 365,
+     "type": "PER",
+     "must": true,
+     "cat": "P_PROSE",
+     "ent": "t1#3"
+    },
+    {
+     "s": 384,
+     "e": 388,
+     "type": "PER",
+     "must": true,
+     "cat": "P_PROSE",
+     "ent": "t1#3"
+    },
+    {
+     "s": 400,
+     "e": 403,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "t1#0"
+    },
+    {
+     "s": 416,
+     "e": 424,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "t1#0"
+    },
+    {
+     "s": 426,
+     "e": 432,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "t1#4"
+    },
+    {
+     "s": 447,
+     "e": 456,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_TOWN",
+     "ent": "t1#7",
+     "prefix": "ל"
+    },
+    {
+     "s": 477,
+     "e": 486,
+     "type": "PER",
+     "must": false,
+     "cat": "T_IDIOM",
+     "ent": "t1#9",
+     "prefix": "מ"
+    },
+    {
+     "s": 494,
+     "e": 500,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_NOCOLON",
+     "ent": "t1#5",
+     "prefix": "ו"
+    },
+    {
+     "s": 528,
+     "e": 535,
+     "type": "PER",
+     "must": true,
+     "cat": "P_FORMS",
+     "ent": "t1#2",
+     "offMissed": true
+    },
+    {
+     "s": 548,
+     "e": 551,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "t1#0"
+    },
+    {
+     "s": 562,
+     "e": 568,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "t1#4"
+    }
+   ]
+  },
+  {
+   "id": "t3",
+   "genre": "transcript",
+   "text": "תמלול דיון — פרוטוקול\nהשופט: ניר אסולין, אתה העד הראשון. אור בוזגלו יעיד אחריך.\nניר אסולין: מורן אביטן היא הלקוחה שלי. ינון אביתן, שכן, הגיש תלונה. אביטן ואביתן זה לא אותו אדם, ואני מבקש שהפרוטוקול ישקף את זה.\nהשופט: אור בוזגלו, מה ראית?\nאור בוזגלו: בחיים לא ראיתי דבר כזה. באור יום, בשכונת הדקלים, טיטו ווארקו צעק על הילדה. מיקה עמדה ליד השער ובכתה.\nניר אסולין: מִיקָה בת חמש. היא בשילה ואופק בבוקר, ואחר הצהריים בעמותת שביל הלב. שביל הלב כתבה מכתב.\nהשופט: אור, ניר, תודה. אביתן יעיד בדיון הבא. הדקלים תיבדק על ידי קצין המבחן.\nניר אסולין: אני מבקש שגם אביטן תוזמן. טיטו לא ענה לטלפונים.",
+   "mentions": [
+    {
+     "s": 29,
+     "e": 39,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "t3#0"
+    },
+    {
+     "s": 57,
+     "e": 67,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "t3#1"
+    },
+    {
+     "s": 80,
+     "e": 90,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "t3#0"
+    },
+    {
+     "s": 92,
+     "e": 102,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ED1_PAIR",
+     "ent": "t3#2",
+     "offMissed": true
+    },
+    {
+     "s": 119,
+     "e": 129,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ED1_PAIR",
+     "ent": "t3#3",
+     "offMissed": true
+    },
+    {
+     "s": 148,
+     "e": 153,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ED1_PAIR",
+     "ent": "t3#2",
+     "offMissed": true
+    },
+    {
+     "s": 155,
+     "e": 160,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ED1_PAIR",
+     "ent": "t3#3",
+     "prefix": "ו",
+     "offMissed": true
+    },
+    {
+     "s": 217,
+     "e": 227,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "t3#1"
+    },
+    {
+     "s": 238,
+     "e": 248,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "t3#1"
+    },
+    {
+     "s": 250,
+     "e": 264,
+     "type": "PER",
+     "must": false,
+     "cat": "T_IDIOM",
+     "ent": "t3#9"
+    },
+    {
+     "s": 275,
+     "e": 282,
+     "type": "PER",
+     "must": false,
+     "cat": "T_IDIOM",
+     "ent": "t3#9",
+     "prefix": "ב"
+    },
+    {
+     "s": 285,
+     "e": 297,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_NEIGHBOURHOOD",
+     "ent": "t3#8",
+     "prefix": "ב"
+    },
+    {
+     "s": 299,
+     "e": 310,
+     "type": "PER",
+     "must": true,
+     "cat": "P_CORRUPT_ONLY",
+     "ent": "t3#4",
+     "offMissed": true
+    },
+    {
+     "s": 325,
+     "e": 329,
+     "type": "PER",
+     "must": true,
+     "cat": "P_NIKUD",
+     "ent": "t3#5",
+     "offMissed": true
+    },
+    {
+     "s": 351,
+     "e": 361,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "t3#0"
+    },
+    {
+     "s": 363,
+     "e": 369,
+     "type": "PER",
+     "must": true,
+     "cat": "P_NIKUD",
+     "ent": "t3#5",
+     "offMissed": true
+    },
+    {
+     "s": 383,
+     "e": 393,
+     "type": "ORG",
+     "must": true,
+     "cat": "O_LOOKS_PERSON",
+     "ent": "t3#7",
+     "prefix": "ב"
+    },
+    {
+     "s": 415,
+     "e": 429,
+     "type": "ORG",
+     "must": true,
+     "cat": "O_PRIVATE",
+     "ent": "t3#6",
+     "prefix": "ב"
+    },
+    {
+     "s": 431,
+     "e": 439,
+     "type": "ORG",
+     "must": true,
+     "cat": "O_PRIVATE",
+     "ent": "t3#6"
+    },
+    {
+     "s": 458,
+     "e": 461,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "t3#1"
+    },
+    {
+     "s": 463,
+     "e": 466,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "t3#0"
+    },
+    {
+     "s": 474,
+     "e": 479,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ED1_PAIR",
+     "ent": "t3#3",
+     "offMissed": true
+    },
+    {
+     "s": 496,
+     "e": 502,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_NEIGHBOURHOOD",
+     "ent": "t3#8"
+    },
+    {
+     "s": 528,
+     "e": 538,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD",
+     "ent": "t3#0"
+    },
+    {
+     "s": 553,
+     "e": 558,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ED1_PAIR",
+     "ent": "t3#2",
+     "offMissed": true
+    },
+    {
+     "s": 566,
+     "e": 570,
+     "type": "PER",
+     "must": true,
+     "cat": "P_CORRUPT_ONLY",
+     "ent": "t3#4",
+     "derived": true,
+     "offMissed": true
+    }
+   ]
+  },
+  {
+   "id": "w1",
+   "genre": "welfare",
+   "text": "תסקיר סעד — משרד הרווחה, לשכת הרווחה\nבעניין הקטינה אגם, בת ליעד כץ, ת\"ז 314277062. האב כץ מתגורר בכפר האורנים ומספר הטלפון שלו 052-6613874.\nעו\"ס שיראל שטרית ביקרה בבית ביום 11.2.2026. לדבריה אגם משתפת פעולה, אך מסרבת לדבר על האב. כץ טוען שהאם מסיתה נגדו.\nשטרית ממליצה על הסדרי שהות מודרגים לפי סעיף 3 להסכם. אגם תמשיך בטיפול רגשי. כץ יעודכן בכתב.\nהמלצה: ליווי של עו\"ס משפחה במשך שישה חודשים, ודיווח חוזר ללשכה.",
+   "mentions": [
+    {
+     "s": 12,
+     "e": 23,
+     "type": "ORG",
+     "must": false,
+     "cat": "O_PUBLIC",
+     "ent": "w1#6"
+    },
+    {
+     "s": 51,
+     "e": 54,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR_ANCH",
+     "ent": "w1#1"
+    },
+    {
+     "s": 59,
+     "e": 66,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "w1#0",
+     "offMissed": true
+    },
+    {
+     "s": 87,
+     "e": 89,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "w1#0",
+     "offMissed": true
+    },
+    {
+     "s": 98,
+     "e": 109,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_TOWN",
+     "ent": "w1#5",
+     "prefix": "ב"
+    },
+    {
+     "s": 145,
+     "e": 156,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TITLE",
+     "ent": "w1#2",
+     "offMissed": true
+    },
+    {
+     "s": 191,
+     "e": 194,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR_ANCH",
+     "ent": "w1#1"
+    },
+    {
+     "s": 230,
+     "e": 232,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "w1#0",
+     "offMissed": true
+    },
+    {
+     "s": 255,
+     "e": 260,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TITLE",
+     "ent": "w1#2",
+     "offMissed": true
+    },
+    {
+     "s": 294,
+     "e": 300,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "w1#7"
+    },
+    {
+     "s": 308,
+     "e": 311,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR_ANCH",
+     "ent": "w1#1"
+    },
+    {
+     "s": 331,
+     "e": 333,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "w1#0",
+     "offMissed": true
+    }
+   ]
+  },
+  {
+   "id": "w3",
+   "genre": "welfare",
+   "text": "דוח ביקור בית — 7.7.2026\nביקרתי אצל מרווה עבאס (205549611, טלפון 054-9920317). עבאס גרה עם בן זוגה מתן צח ועם שני ילדיה.\nסלים מנסור וחנין מנסור, ההורים של עבאס, מתגוררים בקומה מעל. סלים מסייע בהסעות, מנסור שומרת על הילדים.\nצח עובד במשמרות. לדברי עבאס הוא מעורב, אבל מנסור מסרה תמונה אחרת. לפי סעיף 12 לנוהל יש לתעד.\nהמוסד לביטוח לאומי משלם קצבת ילדים. צח מבקש שהקצבה תועבר אליו. סיכמנו ביקור נוסף בעוד חודש.",
+   "mentions": [
+    {
+     "s": 36,
+     "e": 46,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ARABIC",
+     "ent": "w3#0"
+    },
+    {
+     "s": 79,
+     "e": 83,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ARABIC",
+     "ent": "w3#0"
+    },
+    {
+     "s": 99,
+     "e": 105,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "w3#1",
+     "offMissed": true
+    },
+    {
+     "s": 121,
+     "e": 131,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SHARED_SURNAME",
+     "ent": "w3#2",
+     "offMissed": true
+    },
+    {
+     "s": 133,
+     "e": 143,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SHARED_SURNAME",
+     "ent": "w3#3",
+     "prefix": "ו",
+     "offMissed": true
+    },
+    {
+     "s": 155,
+     "e": 159,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ARABIC",
+     "ent": "w3#0"
+    },
+    {
+     "s": 181,
+     "e": 185,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SHARED_SURNAME",
+     "ent": "w3#2",
+     "offMissed": true
+    },
+    {
+     "s": 200,
+     "e": 205,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SHARED_SURNAME",
+     "ent": "w3#3",
+     "offMissed": true
+    },
+    {
+     "s": 223,
+     "e": 225,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "w3#1",
+     "offMissed": true
+    },
+    {
+     "s": 246,
+     "e": 250,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ARABIC",
+     "ent": "w3#0"
+    },
+    {
+     "s": 266,
+     "e": 271,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SHARED_SURNAME",
+     "ent": "w3#3",
+     "offMissed": true
+    },
+    {
+     "s": 293,
+     "e": 300,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "w3#7"
+    },
+    {
+     "s": 316,
+     "e": 334,
+     "type": "ORG",
+     "must": false,
+     "cat": "O_PUBLIC",
+     "ent": "w3#6"
+    },
+    {
+     "s": 352,
+     "e": 354,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "w3#1",
+     "offMissed": true
+    }
+   ]
+  },
+  {
+   "id": "h1",
+   "genre": "medical",
+   "text": "מרפאת נוף הים — סיכום ביקור מיום 2.3.2026\nהמטופלת: אבישג, ילידת 14.6.2019, ת.ז. 338120470. ליווי: האם, טלפון 050-2278461.\nד\"ר אביתר יפרח בדק את אבישג ומצא שיפור בתפקוד. יפרח ממליץ על המשך מעקב בנוף הים אחת לחודש.\nלפי סעיף 4 לחוזר משרד הבריאות, הדיווח הועבר ללשכה. אבישג תוזמן לבדיקה חוזרת.\nחתימה: יפרח, רופא ילדים.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 13,
+     "type": "ORG",
+     "must": true,
+     "cat": "O_PRIVATE",
+     "ent": "h1#5"
+    },
+    {
+     "s": 51,
+     "e": 56,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR",
+     "ent": "h1#1",
+     "offMissed": true
+    },
+    {
+     "s": 126,
+     "e": 136,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TITLE",
+     "ent": "h1#0"
+    },
+    {
+     "s": 144,
+     "e": 149,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR",
+     "ent": "h1#1",
+     "offMissed": true
+    },
+    {
+     "s": 169,
+     "e": 173,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TITLE",
+     "ent": "h1#0"
+    },
+    {
+     "s": 194,
+     "e": 201,
+     "type": "ORG",
+     "must": true,
+     "cat": "O_PRIVATE",
+     "ent": "h1#5",
+     "prefix": "ב"
+    },
+    {
+     "s": 217,
+     "e": 223,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "h1#7"
+    },
+    {
+     "s": 230,
+     "e": 242,
+     "type": "ORG",
+     "must": false,
+     "cat": "O_PUBLIC",
+     "ent": "h1#6"
+    },
+    {
+     "s": 264,
+     "e": 269,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR",
+     "ent": "h1#1",
+     "offMissed": true
+    },
+    {
+     "s": 297,
+     "e": 301,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TITLE",
+     "ent": "h1#0"
+    }
+   ]
+  },
+  {
+   "id": "h3",
+   "genre": "medical",
+   "text": "מכון שורשים — חוות דעת פסיכולוגית\nהנבדק: יונס גטהון, יליד 9.11.2014. ההורים: ולריה קוזנצוב (טלפון 053-7761120) ואיה נץ. פלונית, המורה, מסרה שאלון.\nגטהון שיתף פעולה במבחנים. קוזנצוב תיארה קשיי שינה. נץ מסר כי הילד רגוע אצלו.\nנץ וקוזנצוב חלוקים על המסגרת. גטהון מבטא רצון להישאר בבית הספר הנוכחי. שורשים ממליץ על טיפול דיאדי.\nחתימה: פסיכולוגית קלינית, שורשים.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 11,
+     "type": "ORG",
+     "must": true,
+     "cat": "O_PRIVATE",
+     "ent": "h3#5",
+     "offMissed": true
+    },
+    {
+     "s": 41,
+     "e": 51,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ETHIOPIAN",
+     "ent": "h3#1",
+     "offMissed": true
+    },
+    {
+     "s": 77,
+     "e": 90,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "h3#0",
+     "offMissed": true
+    },
+    {
+     "s": 112,
+     "e": 118,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "h3#2",
+     "prefix": "ו",
+     "offMissed": true
+    },
+    {
+     "s": 120,
+     "e": 126,
+     "type": "PER",
+     "must": false,
+     "cat": "T_PLONI",
+     "ent": "h3#6"
+    },
+    {
+     "s": 147,
+     "e": 152,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ETHIOPIAN",
+     "ent": "h3#1",
+     "offMissed": true
+    },
+    {
+     "s": 173,
+     "e": 180,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "h3#0",
+     "offMissed": true
+    },
+    {
+     "s": 198,
+     "e": 200,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "h3#2",
+     "offMissed": true
+    },
+    {
+     "s": 224,
+     "e": 226,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "h3#2",
+     "offMissed": true
+    },
+    {
+     "s": 228,
+     "e": 235,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "h3#0",
+     "prefix": "ו",
+     "offMissed": true
+    },
+    {
+     "s": 254,
+     "e": 259,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ETHIOPIAN",
+     "ent": "h3#1",
+     "offMissed": true
+    },
+    {
+     "s": 295,
+     "e": 301,
+     "type": "ORG",
+     "must": true,
+     "cat": "O_PRIVATE",
+     "ent": "h3#5",
+     "offMissed": true
+    },
+    {
+     "s": 350,
+     "e": 356,
+     "type": "ORG",
+     "must": true,
+     "cat": "O_PRIVATE",
+     "ent": "h3#5",
+     "offMissed": true
+    }
+   ]
+  },
+  {
+   "id": "p1",
+   "genre": "police",
+   "text": "משטרת ישראל — הודעת עד, תיק 4471/26\nהעד פיראס חטיב, ת\"ז 301988226, טלפון 052-3390047, מוסר:\nביום 23.5.2026 בשעה 21:30 ראיתי רכב מספר 34-712-58 חונה ברחוב הדקל 7. ארטיום מורוזוב יצא מהרכב וצעק על אישה.\nאני מכיר את מורוזב מהשכונה. הוא גר בהדקל כבר שנים. חטיב מוסיף שהאישה ברחה לכיוון הגינה.\nזו הודעתי, ואני חותם עליה. חטיב.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 11,
+     "type": "ORG",
+     "must": false,
+     "cat": "O_PUBLIC",
+     "ent": "p1#6"
+    },
+    {
+     "s": 24,
+     "e": 35,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "p1#7"
+    },
+    {
+     "s": 40,
+     "e": 50,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_NOCOLON",
+     "ent": "p1#0"
+    },
+    {
+     "s": 149,
+     "e": 160,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_STREET",
+     "ent": "p1#5",
+     "prefix": "ב"
+    },
+    {
+     "s": 162,
+     "e": 176,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TWO_SPELL",
+     "ent": "p1#1",
+     "offMissed": true
+    },
+    {
+     "s": 213,
+     "e": 219,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TWO_SPELL",
+     "ent": "p1#1",
+     "offMissed": true
+    },
+    {
+     "s": 237,
+     "e": 241,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_STREET",
+     "ent": "p1#5",
+     "prefix": "ב"
+    },
+    {
+     "s": 252,
+     "e": 256,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_NOCOLON",
+     "ent": "p1#0"
+    },
+    {
+     "s": 316,
+     "e": 320,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_NOCOLON",
+     "ent": "p1#0"
+    }
+   ]
+  },
+  {
+   "id": "p3",
+   "genre": "police",
+   "text": "הודעת חשוד — תיק 118/26\nדניס וסילייב, טלפון 058-6104477, דוא\"ל denis.v@outlook.com, נחקר באזהרה:\nשאלה: האם הרכב 92-118-34 שלך? תשובה: כן. שאלה: מה הקשר שלך לעלמה כץ? תשובה: כץ היא גרושתי.\nוסילייב מכחיש שאיים. לדבריו כץ התקשרה אליו ראשונה. לפי סעיף 2 לתלונה, השיחה נמשכה עשר דקות.\nוסילייב חתם על ההודעה. כץ תוזמן לעימות.",
+   "mentions": [
+    {
+     "s": 13,
+     "e": 23,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "p3#5"
+    },
+    {
+     "s": 24,
+     "e": 36,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "p3#0"
+    },
+    {
+     "s": 157,
+     "e": 164,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "p3#1",
+     "prefix": "ל",
+     "offMissed": true
+    },
+    {
+     "s": 173,
+     "e": 175,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "p3#1",
+     "offMissed": true
+    },
+    {
+     "s": 188,
+     "e": 195,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "p3#0"
+    },
+    {
+     "s": 216,
+     "e": 218,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "p3#1",
+     "offMissed": true
+    },
+    {
+     "s": 243,
+     "e": 249,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "p3#5"
+    },
+    {
+     "s": 280,
+     "e": 287,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "p3#0"
+    },
+    {
+     "s": 303,
+     "e": 305,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "p3#1",
+     "offMissed": true
+    }
+   ]
+  },
+  {
+   "id": "b1",
+   "genre": "bank",
+   "text": "דף חשבון — סניף 612\nבעל החשבון: ירדן ברזילי, ת\"ז 299174060, שדרות הברוש 21. דוא\"ל: yarden.brz@gmail.com. חשבון 5521907.\n31.3.2026 — העברה לברזילי 1,250.00 ש\"ח. הערה: מזונות.\nירדן ביקשה לעדכן את הכתובת. ברזילי תקבל אישור בדוא\"ל.\nיתרה לסוף התקופה: ראו נספח.",
+   "mentions": [
+    {
+     "s": 32,
+     "e": 43,
+     "type": "PER",
+     "must": true,
+     "cat": "P_FORMS",
+     "ent": "b1#0"
+    },
+    {
+     "s": 60,
+     "e": 74,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_STREET",
+     "ent": "b1#4"
+    },
+    {
+     "s": 139,
+     "e": 145,
+     "type": "PER",
+     "must": true,
+     "cat": "P_FORMS",
+     "ent": "b1#0",
+     "prefix": "ל"
+    },
+    {
+     "s": 146,
+     "e": 154,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "b1#5"
+    },
+    {
+     "s": 174,
+     "e": 178,
+     "type": "PER",
+     "must": true,
+     "cat": "P_FORMS",
+     "ent": "b1#0"
+    },
+    {
+     "s": 202,
+     "e": 208,
+     "type": "PER",
+     "must": true,
+     "cat": "P_FORMS",
+     "ent": "b1#0"
+    }
+   ]
+  },
+  {
+   "id": "b3",
+   "genre": "bank",
+   "text": "אישור יתרה ליום 30.6.2026\nאולג איוונוב, בית אריה. טלפון 055-8823910, דוא\"ל oleg.ivanov77@mail.ru.\nחשבון 7710265: יתרת זכות 42,000 ש\"ח. איוונוב ביקש את האישור לצורך הליך משפטי.\nהאישור ניתן לבקשת איוונוב ואינו מהווה התחייבות.",
+   "mentions": [
+    {
+     "s": 26,
+     "e": 38,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "b3#0"
+    },
+    {
+     "s": 40,
+     "e": 48,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_TOWN",
+     "ent": "b3#4"
+    },
+    {
+     "s": 123,
+     "e": 129,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "b3#5"
+    },
+    {
+     "s": 135,
+     "e": 142,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "b3#0"
+    },
+    {
+     "s": 194,
+     "e": 201,
+     "type": "PER",
+     "must": true,
+     "cat": "P_RUSSIAN",
+     "ent": "b3#0"
+    }
+   ]
+  },
+  {
+   "id": "c1",
+   "genre": "chat",
+   "text": "[12.3.2026, 21:14] מיקי צח: את לוקחת את טרקה מחר?\n[12.3.2026, 21:15] אמא: כן, ואת צליל גם. תשלח לי את המספר של המורה, 052-7715803?\n[12.3.2026, 21:17] מיקי צח: שלחתי. צח לא יכול ביום חמישי, יש לו משמרת בנופית.\n[12.3.2026, 21:20] אמא: בסדר. טרקה ישן אצלי. בשביל צליל תביא את התיק.",
+   "mentions": [
+    {
+     "s": 12,
+     "e": 17,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "c1#5"
+    },
+    {
+     "s": 19,
+     "e": 26,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "c1#0",
+     "offMissed": true
+    },
+    {
+     "s": 40,
+     "e": 44,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR",
+     "ent": "c1#1",
+     "offMissed": true
+    },
+    {
+     "s": 82,
+     "e": 86,
+     "type": "PER",
+     "must": true,
+     "cat": "P_PROSE",
+     "ent": "c1#4"
+    },
+    {
+     "s": 150,
+     "e": 157,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "c1#0",
+     "offMissed": true
+    },
+    {
+     "s": 166,
+     "e": 168,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SUR2",
+     "ent": "c1#0",
+     "offMissed": true
+    },
+    {
+     "s": 202,
+     "e": 207,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_TOWN",
+     "ent": "c1#3",
+     "prefix": "ב",
+     "offMissed": true
+    },
+    {
+     "s": 239,
+     "e": 243,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR",
+     "ent": "c1#1",
+     "offMissed": true
+    },
+    {
+     "s": 260,
+     "e": 264,
+     "type": "PER",
+     "must": true,
+     "cat": "P_PROSE",
+     "ent": "c1#4"
+    }
+   ]
+  },
+  {
+   "id": "c3",
+   "genre": "chat",
+   "text": "[15.4.2026, 17:40] ברהאנה וורקנה: ראיתי את הרכב שלך 45-903-16 ברחוב הנרקיס 9. גפן הייתה שם?\n[15.4.2026, 17:42] אבא: כן, לקחתי אותה מהחוג. תתקשרי ל050-6650912 אם יש בעיה.\n[15.4.2026, 17:45] ברהאנה וורקנה: העו\"ס כתבה על הקטינה גפן בדוח. וורקנה לא מסכימה שתישן בהנרקיס.\n[15.4.2026, 17:50] אבא: נדבר על זה בפגישה. גפן רוצה להישאר.",
+   "mentions": [
+    {
+     "s": 12,
+     "e": 17,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "c3#5"
+    },
+    {
+     "s": 19,
+     "e": 32,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ETHIOPIAN",
+     "ent": "c3#0",
+     "offMissed": true
+    },
+    {
+     "s": 63,
+     "e": 76,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_STREET",
+     "ent": "c3#4",
+     "prefix": "ב"
+    },
+    {
+     "s": 78,
+     "e": 81,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR_ANCH",
+     "ent": "c3#1"
+    },
+    {
+     "s": 189,
+     "e": 202,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ETHIOPIAN",
+     "ent": "c3#0",
+     "offMissed": true
+    },
+    {
+     "s": 225,
+     "e": 228,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR_ANCH",
+     "ent": "c3#1"
+    },
+    {
+     "s": 235,
+     "e": 241,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ETHIOPIAN",
+     "ent": "c3#0",
+     "offMissed": true
+    },
+    {
+     "s": 259,
+     "e": 265,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_STREET",
+     "ent": "c3#4",
+     "prefix": "ב"
+    },
+    {
+     "s": 310,
+     "e": 313,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR_ANCH",
+     "ent": "c3#1"
+    }
+   ]
+  },
+  {
+   "id": "x1",
+   "genre": "position",
+   "text": "כתב עמדה מטעם האפוטרופא לדין\nהתובע:  נופר .....(להלן: גם האב)\nנ ג ד -\nהנתבעת:  טוהר(להלן: גם האם)\nמועד המצאת ההחלטה: ...........\nמועד אחרון לתגובה: ............\nבעניין הקטין ליעד, יליד 2015, המתגורר בבית האב בבית אריה יחד עם האח אביתר, כאשר אביתר משרת שירות צבאי.\nכאמור ליעד שיתף את הח\"מ וציין כי מועדי השהות אינם קבועים. משכך ליעד מבקש גמישות בהחלפת זמני השהות שלו עם האם.\nהח\"מ סבורה כי פניות למשטרה אינן הדרך. כל ניסיונות הח\"מ להשיג את האם לא צלחו. מהמידע שהובא בפני הח\"מ עולה כי האם אינה מגיעה במועדים שנקבעו ותחת זאת נוצרו שינויים.\nיוזכר כי הח\"מ גם שמשה אפטרופא לדין של הקטין ליעד בהליך הקודם. האפוטרופא לדין ממליצה על הרחבת השהות אצל האב.\nלשם הבהרה: האב ביקש להתקדם קדימה בהסדר, וחבר של המשפחה הציע לסייע. מיטב המאמצים הושקעו.",
+   "mentions": [
+    {
+     "s": 15,
+     "e": 28,
+     "type": "PER",
+     "must": false,
+     "cat": "O_ROLEWORD",
+     "ent": "x1#8",
+     "prefix": "ה"
+    },
+    {
+     "s": 37,
+     "e": 41,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_COLON",
+     "ent": "x1#0"
+    },
+    {
+     "s": 79,
+     "e": 83,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_COLON",
+     "ent": "x1#1"
+    },
+    {
+     "s": 98,
+     "e": 115,
+     "type": "PER",
+     "must": false,
+     "cat": "T_FORMLABEL",
+     "ent": "x1#5"
+    },
+    {
+     "s": 129,
+     "e": 146,
+     "type": "PER",
+     "must": false,
+     "cat": "T_FORMLABEL",
+     "ent": "x1#5"
+    },
+    {
+     "s": 174,
+     "e": 178,
+     "type": "PER",
+     "must": true,
+     "cat": "P_AFTER_LEAD",
+     "ent": "x1#2"
+    },
+    {
+     "s": 209,
+     "e": 217,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_TOWN",
+     "ent": "x1#4",
+     "prefix": "ב"
+    },
+    {
+     "s": 229,
+     "e": 234,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR_ANCH",
+     "ent": "x1#3",
+     "offMissed": true
+    },
+    {
+     "s": 241,
+     "e": 246,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR_ANCH",
+     "ent": "x1#3",
+     "offMissed": true
+    },
+    {
+     "s": 270,
+     "e": 274,
+     "type": "PER",
+     "must": true,
+     "cat": "P_AFTER_LEAD",
+     "ent": "x1#2"
+    },
+    {
+     "s": 327,
+     "e": 331,
+     "type": "PER",
+     "must": true,
+     "cat": "P_AFTER_LEAD",
+     "ent": "x1#2"
+    },
+    {
+     "s": 344,
+     "e": 355,
+     "type": "PER",
+     "must": false,
+     "cat": "T_TZSPLIT",
+     "ent": "x1#6"
+    },
+    {
+     "s": 374,
+     "e": 384,
+     "type": "PER",
+     "must": false,
+     "cat": "T_UNDERSIGNED",
+     "ent": "x1#7"
+    },
+    {
+     "s": 424,
+     "e": 434,
+     "type": "PER",
+     "must": false,
+     "cat": "T_UNDERSIGNED",
+     "ent": "x1#7"
+    },
+    {
+     "s": 469,
+     "e": 478,
+     "type": "PER",
+     "must": false,
+     "cat": "T_UNDERSIGNED",
+     "ent": "x1#7"
+    },
+    {
+     "s": 505,
+     "e": 520,
+     "type": "PER",
+     "must": false,
+     "cat": "T_TZSPLIT",
+     "ent": "x1#6"
+    },
+    {
+     "s": 558,
+     "e": 565,
+     "type": "PER",
+     "must": false,
+     "cat": "O_ROLEWORD",
+     "ent": "x1#8"
+    },
+    {
+     "s": 580,
+     "e": 584,
+     "type": "PER",
+     "must": true,
+     "cat": "P_AFTER_LEAD",
+     "ent": "x1#2"
+    },
+    {
+     "s": 599,
+     "e": 612,
+     "type": "PER",
+     "must": false,
+     "cat": "O_ROLEWORD",
+     "ent": "x1#8",
+     "prefix": "ה"
+    },
+    {
+     "s": 644,
+     "e": 647,
+     "type": "PLACE",
+     "must": false,
+     "cat": "T_GAZWORD",
+     "ent": "x1#9"
+    },
+    {
+     "s": 671,
+     "e": 676,
+     "type": "PLACE",
+     "must": false,
+     "cat": "T_GAZWORD",
+     "ent": "x1#9"
+    },
+    {
+     "s": 685,
+     "e": 688,
+     "type": "PLACE",
+     "must": false,
+     "cat": "T_GAZWORD",
+     "ent": "x1#9",
+     "prefix": "ו"
+    },
+    {
+     "s": 711,
+     "e": 715,
+     "type": "PLACE",
+     "must": false,
+     "cat": "T_GAZWORD",
+     "ent": "x1#9"
+    }
+   ]
+  },
+  {
+   "id": "x3",
+   "genre": "position",
+   "text": "עמדת האפוטרופא לדין\nהתובעת:  אלינה\nהנתבע:  ארטיום\nנושא: משמורת\nמועד הגשה: ............\nהח\"מ נפגשה עם הקטין יונס פעמיים. ואולם יונס מסרב לדבר על האב. יצוין יונס מתגורר עם האחות מייסא, ומייסא מסייעת לו.\nהח\"מ מציעה הסדר הדרגתי. ברכישת זכויות בדירה אין כדי לשנות את המסקנה, והצעת זמנים חדשה תוגש בנפרד.\nהאפוטרופא ממליצה כי אפוטרופוס לדין ימשיך ללוות את ההליך.\nדברת האם נרשמה בפרוטוקול. שקף ההסבר הוצג, ולשם הזהירות צורף נספח.",
+   "mentions": [
+    {
+     "s": 5,
+     "e": 14,
+     "type": "PER",
+     "must": false,
+     "cat": "O_ROLEWORD",
+     "ent": "x3#7"
+    },
+    {
+     "s": 29,
+     "e": 34,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_COLON",
+     "ent": "x3#0"
+    },
+    {
+     "s": 43,
+     "e": 49,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_COLON",
+     "ent": "x3#1"
+    },
+    {
+     "s": 50,
+     "e": 54,
+     "type": "PER",
+     "must": false,
+     "cat": "T_FORMLABEL",
+     "ent": "x3#4"
+    },
+    {
+     "s": 63,
+     "e": 72,
+     "type": "PER",
+     "must": false,
+     "cat": "T_FORMLABEL",
+     "ent": "x3#4"
+    },
+    {
+     "s": 87,
+     "e": 97,
+     "type": "PER",
+     "must": false,
+     "cat": "T_UNDERSIGNED",
+     "ent": "x3#6"
+    },
+    {
+     "s": 107,
+     "e": 111,
+     "type": "PER",
+     "must": true,
+     "cat": "P_AFTER_LEAD",
+     "ent": "x3#2",
+     "offMissed": true
+    },
+    {
+     "s": 126,
+     "e": 130,
+     "type": "PER",
+     "must": true,
+     "cat": "P_AFTER_LEAD",
+     "ent": "x3#2",
+     "offMissed": true
+    },
+    {
+     "s": 155,
+     "e": 159,
+     "type": "PER",
+     "must": true,
+     "cat": "P_AFTER_LEAD",
+     "ent": "x3#2",
+     "offMissed": true
+    },
+    {
+     "s": 176,
+     "e": 181,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR_ANCH",
+     "ent": "x3#3"
+    },
+    {
+     "s": 184,
+     "e": 189,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR_ANCH",
+     "ent": "x3#3",
+     "prefix": "ו"
+    },
+    {
+     "s": 201,
+     "e": 211,
+     "type": "PER",
+     "must": false,
+     "cat": "T_UNDERSIGNED",
+     "ent": "x3#6"
+    },
+    {
+     "s": 225,
+     "e": 238,
+     "type": "PER",
+     "must": false,
+     "cat": "T_TZSPLIT",
+     "ent": "x3#5"
+    },
+    {
+     "s": 271,
+     "e": 281,
+     "type": "PER",
+     "must": false,
+     "cat": "T_TZSPLIT",
+     "ent": "x3#5",
+     "prefix": "ו"
+    },
+    {
+     "s": 299,
+     "e": 308,
+     "type": "PER",
+     "must": false,
+     "cat": "O_ROLEWORD",
+     "ent": "x3#7"
+    },
+    {
+     "s": 319,
+     "e": 333,
+     "type": "PER",
+     "must": false,
+     "cat": "O_ROLEWORD",
+     "ent": "x3#7"
+    },
+    {
+     "s": 356,
+     "e": 360,
+     "type": "PLACE",
+     "must": false,
+     "cat": "T_GAZWORD",
+     "ent": "x3#8"
+    },
+    {
+     "s": 382,
+     "e": 385,
+     "type": "PLACE",
+     "must": false,
+     "cat": "T_GAZWORD",
+     "ent": "x3#8"
+    },
+    {
+     "s": 399,
+     "e": 402,
+     "type": "PLACE",
+     "must": false,
+     "cat": "T_GAZWORD",
+     "ent": "x3#8",
+     "prefix": "ו"
+    }
+   ]
+  },
+  {
+   "id": "a1",
+   "genre": "audio",
+   "text": "נופר\nאתם שתהיו בריאים. איך זה קרה בכלל, אני לא מבינה עד היום.\nבוסקילה השתלט על החשבון, וזה מה שהיה. הוא לא הסכים לדבר איתי בכלל.\nאמרתי לו, אביתר, אתה לא יכול ככה. הוא אמר לי שזה לא ענייני.\nאחר כך בושקילה הביא את הניירות, וגם אביטר חתם עליהם, וזהו.\nאצל צליל זה היה אחרת לגמרי. בשביל צליל זה היה פשוט יותר.\nהבנתי. ומה עם הדירה? הדירה נשארה על שמו, לפי מה שאמרו לי.\nעורך הדין וסיליב טיפל בזה, ואני לא יודעת מה קרה שם.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 4,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SPEAKERLINE",
+     "ent": "a1#0"
+    },
+    {
+     "s": 62,
+     "e": 69,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TWO_SPELL",
+     "ent": "a1#1",
+     "offMissed": true
+    },
+    {
+     "s": 139,
+     "e": 144,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TWO_SPELL",
+     "ent": "a1#2",
+     "offMissed": true
+    },
+    {
+     "s": 196,
+     "e": 203,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TWO_SPELL",
+     "ent": "a1#1",
+     "offMissed": true
+    },
+    {
+     "s": 225,
+     "e": 230,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TWO_SPELL",
+     "ent": "a1#2",
+     "offMissed": true
+    },
+    {
+     "s": 252,
+     "e": 256,
+     "type": "PER",
+     "must": true,
+     "cat": "P_PROSE",
+     "ent": "a1#3"
+    },
+    {
+     "s": 282,
+     "e": 286,
+     "type": "PER",
+     "must": true,
+     "cat": "P_PROSE",
+     "ent": "a1#3"
+    },
+    {
+     "s": 373,
+     "e": 379,
+     "type": "PER",
+     "must": true,
+     "cat": "P_CORRUPT_ONLY",
+     "ent": "a1#4",
+     "offMissed": true
+    }
+   ]
+  },
+  {
+   "id": "a3",
+   "genre": "audio",
+   "text": "טוהר\nתגידי לי, מה קרה שם בסוף? אני שמעתי גרסה אחרת לגמרי.\nקוזנצוב סיפרה לי הכול, ואני האמנתי לה. היא לא הייתה משקרת בדבר כזה.\nיונס אגבריה וסוהא אגבריה הגיעו ביחד, ושניהם אמרו את אותו הדבר בדיוק.\nיונס דיבר ראשון, ואחר כך אגבריה הוסיפה מה שהיא ראתה.\nפיראס\nאני לא הייתי שם, אבל מה שסיפרו לי מתאים למה שאת אומרת עכשיו.\nקוזנצב התקשרה אליי אחר כך ובכתה בטלפון, וזה היה קשה לשמוע.\nבסוף הכול הסתדר, אבל לקח לזה הרבה זמן ולא היה פשוט.",
+   "mentions": [
+    {
+     "s": 0,
+     "e": 4,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SPEAKERLINE",
+     "ent": "a3#0"
+    },
+    {
+     "s": 58,
+     "e": 65,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TWO_SPELL",
+     "ent": "a3#2"
+    },
+    {
+     "s": 126,
+     "e": 137,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SHARED_SURNAME",
+     "ent": "a3#3"
+    },
+    {
+     "s": 139,
+     "e": 150,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SHARED_SURNAME",
+     "ent": "a3#4",
+     "prefix": "ו",
+     "offMissed": true
+    },
+    {
+     "s": 195,
+     "e": 199,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SHARED_SURNAME",
+     "ent": "a3#3"
+    },
+    {
+     "s": 220,
+     "e": 226,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SHARED_SURNAME",
+     "ent": "a3#4",
+     "offMissed": true
+    },
+    {
+     "s": 248,
+     "e": 253,
+     "type": "PER",
+     "must": true,
+     "cat": "P_SPEAKERLINE",
+     "ent": "a3#1"
+    },
+    {
+     "s": 315,
+     "e": 321,
+     "type": "PER",
+     "must": true,
+     "cat": "P_TWO_SPELL",
+     "ent": "a3#2"
+    }
+   ]
+  },
+  {
+   "id": "v1",
+   "genre": "interview",
+   "text": "מה זאת אומרת, זה לא נורא?\nמה?\nלא נורא שעברת בית ספר. את מסתדרת?\nכן.\nאז מי המורה שלך עכשיו? אמרת לי בפעם הקודמת, תהל, ושכחתי.\nלמורה אנטונינה. כן, אנטונינה.\nאה, אנטונינה. זה שם יפה. והיא נחמדה אלייך?\nכן. היא נותנת לנו שוקו בהפסקה.\nומי החברה שלך בכיתה? אור?\nכן. אור אמרה שאני יכולה לשבת לידה. אור גרה קרוב.\nוואי, ממש מפנקים אתכם. ובכיתה ג יש עוד חברות?\nעוד לא. רק התחלתי.\nואיפה בית הספר, בכפר האורנים? קרוב לבית של אבא?\nלא, זה רחוק. אבא לוקח אותי באוטו.\nטוב תהל, אני שמחה בשבילך. נדבר עוד שבועיים.\nבסדר.",
+   "mentions": [
+    {
+     "s": 112,
+     "e": 115,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR",
+     "ent": "v1#1",
+     "offMissed": true
+    },
+    {
+     "s": 131,
+     "e": 139,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_TEACHER",
+     "ent": "v1#0"
+    },
+    {
+     "s": 145,
+     "e": 153,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_TEACHER",
+     "ent": "v1#0"
+    },
+    {
+     "s": 159,
+     "e": 167,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_TEACHER",
+     "ent": "v1#0"
+    },
+    {
+     "s": 250,
+     "e": 253,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD_VERB",
+     "ent": "v1#2"
+    },
+    {
+     "s": 259,
+     "e": 262,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD_VERB",
+     "ent": "v1#2"
+    },
+    {
+     "s": 290,
+     "e": 293,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD_VERB",
+     "ent": "v1#2"
+    },
+    {
+     "s": 329,
+     "e": 335,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "v1#4",
+     "prefix": "וב"
+    },
+    {
+     "s": 386,
+     "e": 397,
+     "type": "PLACE",
+     "must": true,
+     "cat": "L_TOWN",
+     "ent": "v1#3",
+     "prefix": "ב"
+    },
+    {
+     "s": 455,
+     "e": 458,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR",
+     "ent": "v1#1",
+     "offMissed": true
+    }
+   ]
+  },
+  {
+   "id": "v3",
+   "genre": "interview",
+   "text": "בוקר טוב לינוי. איך היה בגן היום?\nטוב.\nמי הייתה איתכם היום?\nהגננת לריסה. לריסה הייתה כל היום.\nובחצר, עם מי שיחקת?\nעם אושר. אושר אמר שאני החברה שלו.\nאיזה יופי. ובשעה שמונה אבא הביא אותך?\nכן, ב-8:00.\nתודה לינוי. נדבר שוב בשבוע הבא.\nביי.",
+   "mentions": [
+    {
+     "s": 9,
+     "e": 14,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR",
+     "ent": "v3#2",
+     "offMissed": true
+    },
+    {
+     "s": 66,
+     "e": 71,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_TEACHER",
+     "ent": "v3#0"
+    },
+    {
+     "s": 73,
+     "e": 78,
+     "type": "PER",
+     "must": true,
+     "cat": "P_ROLE_TEACHER",
+     "ent": "v3#0"
+    },
+    {
+     "s": 117,
+     "e": 121,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD_VERB",
+     "ent": "v3#1"
+    },
+    {
+     "s": 123,
+     "e": 127,
+     "type": "PER",
+     "must": true,
+     "cat": "P_WORD_VERB",
+     "ent": "v3#1"
+    },
+    {
+     "s": 161,
+     "e": 170,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "v3#3",
+     "prefix": "וב"
+    },
+    {
+     "s": 192,
+     "e": 196,
+     "type": "ORG",
+     "must": false,
+     "cat": "T_NUMBERS",
+     "ent": "v3#3"
+    },
+    {
+     "s": 203,
+     "e": 208,
+     "type": "PER",
+     "must": true,
+     "cat": "P_MINOR",
+     "ent": "v3#2",
+     "offMissed": true
+    }
+   ]
+  },
+  {
+   "id": "s1",
+   "genre": "structure",
+   "text": "תסקיר סוציאלי בעניין הסדרי שהות.\nהקטין מתגורר עם אמו, ולומד בכיתה ד. הוא מגיע לבית הספר באופן סדיר, ומתפקד היטב מבחינה לימודית.\nבמהלך התקופה נפגשנו עם שני ההורים, ועם הצוות החינוכי, ובדקנו את המלצות משרד הרווחה.\nהקטין סיפר שהוא נהנה מהביקורים אצל אביו, ושהוא מבקש שיימשכו גם בחופשות.\nהמלצת הצוות מפורטת להלן. ההמלצה סופית.\nשולמית אוזרבך בפגישה במרכז הקשר\nתמונה 1\nבעניין הקטין — תסקיר שהוגש לבקשת אלישבע קרמרמן\nעל פי שיחה עם רפאל דנגורי מהצוות החינוכי.",
+   "mentions": [
+    {
+     "s": 199,
+     "e": 210,
+     "type": "ORG",
+     "must": false,
+     "cat": "O_PUBLIC",
+     "ent": "s1#5"
+    },
+    {
+     "s": 323,
+     "e": 336,
+     "type": "PER",
+     "must": true,
+     "cat": "S_ALT",
+     "ent": "s1#2",
+     "offMissed": true
+    },
+    {
+     "s": 396,
+     "e": 409,
+     "type": "PER",
+     "must": true,
+     "cat": "S_HEADER",
+     "ent": "s1#0"
+    },
+    {
+     "s": 424,
+     "e": 435,
+     "type": "PER",
+     "must": true,
+     "cat": "S_FOOTNOTE",
+     "ent": "s1#1"
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "genre": "structure",
+   "text": "תסקיר סוציאלי בעניין הסדרי שהות.\nהקטין מתגורר עם אמו, ולומד בכיתה ד. הוא מגיע לבית הספר באופן סדיר, ומתפקד היטב מבחינה לימודית.\nבמהלך התקופה נפגשנו עם שני ההורים, ועם הצוות החינוכי, ובדקנו את המלצות משרד הרווחה.\nהקטין סיפר שהוא נהנה מהביקורים אצל אביו, ושהוא מבקש שיימשכו גם בחופשות.\nהמלצת הצוות מפורטת להלן. ההמלצה סופית.\nטויבה טרכטנברג בפגישה במרכז הקשר\nתמונה 3\nבעניין הקטין — תסקיר שהוגש לבקשת רייזל קוסטיוקוב\nעל פי שיחה עם מנחם זילברמינץ מהצוות החינוכי.",
+   "mentions": [
+    {
+     "s": 199,
+     "e": 210,
+     "type": "ORG",
+     "must": false,
+     "cat": "O_PUBLIC",
+     "ent": "s3#5"
+    },
+    {
+     "s": 323,
+     "e": 337,
+     "type": "PER",
+     "must": true,
+     "cat": "S_ALT",
+     "ent": "s3#2",
+     "offMissed": true
+    },
+    {
+     "s": 397,
+     "e": 412,
+     "type": "PER",
+     "must": true,
+     "cat": "S_HEADER",
+     "ent": "s3#0"
+    },
+    {
+     "s": 427,
+     "e": 441,
+     "type": "PER",
+     "must": true,
+     "cat": "S_FOOTNOTE",
+     "ent": "s3#1"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,204 @@
+{
+ "generated": "2026-09-23",
+ "split": {
+  "tune": [
+   "m1",
+   "m3",
+   "f1",
+   "f3",
+   "t1",
+   "t3",
+   "w1",
+   "w3",
+   "h1",
+   "h3",
+   "p1",
+   "p3",
+   "b1",
+   "b3",
+   "c1",
+   "c3",
+   "x1",
+   "x3",
+   "a1",
+   "a3",
+   "v1",
+   "v3",
+   "s1",
+   "s3"
+  ],
+  "test": [
+   "m2",
+   "m4",
+   "f2",
+   "f4",
+   "t2",
+   "t4",
+   "w2",
+   "w4",
+   "h2",
+   "p2",
+   "p4",
+   "b2",
+   "c2",
+   "c4",
+   "x2",
+   "a2",
+   "a4",
+   "v2",
+   "s2"
+  ]
+ },
+ "counts": {
+  "tune": {
+   "docs": 24,
+   "mentions": 303,
+   "must": 238,
+   "negatives": 65,
+   "PER": 209,
+   "ORG": 12,
+   "PLACE": 17,
+   "offMissed": 97,
+   "prefixed": 48,
+   "derived": 4,
+   "gap": 1
+  },
+  "test": {
+   "docs": 19,
+   "mentions": 258,
+   "must": 223,
+   "negatives": 35,
+   "PER": 189,
+   "ORG": 14,
+   "PLACE": 20,
+   "offMissed": 75,
+   "prefixed": 39,
+   "derived": 2,
+   "gap": 0
+  },
+  "all": {
+   "docs": 43,
+   "mentions": 561,
+   "must": 461,
+   "negatives": 100,
+   "PER": 398,
+   "ORG": 26,
+   "PLACE": 37,
+   "offMissed": 172,
+   "prefixed": 87,
+   "derived": 6,
+   "gap": 1
+  }
+ },
+ "offMissedMentions": 172,
+ "unlocated": [
+  {
+   "doc": "s1",
+   "ent": "s1#4",
+   "cat": "S_META",
+   "surface": "פרומה גלעדיאן",
+   "bare": "פרומה גלעדיאן",
+   "reason": "not in the model's text by design"
+  },
+  {
+   "doc": "s1",
+   "ent": "s1#3",
+   "cat": "S_COMMENT",
+   "surface": "נתנאל פרוכטר",
+   "bare": "נתנאל פרוכטר",
+   "reason": "not in the model's text by design"
+  },
+  {
+   "doc": "s2",
+   "ent": "s2#3",
+   "cat": "S_COMMENT",
+   "surface": "שפרינצה פייגנבוים",
+   "bare": "שפרינצה פייגנבוים",
+   "reason": "not in the model's text by design"
+  },
+  {
+   "doc": "s2",
+   "ent": "s2#4",
+   "cat": "S_META",
+   "surface": "זלדה רוזנקרנץ",
+   "bare": "זלדה רוזנקרנץ",
+   "reason": "not in the model's text by design"
+  },
+  {
+   "doc": "s3",
+   "ent": "s3#3",
+   "cat": "S_COMMENT",
+   "surface": "שמשון ברקוביצ'ר",
+   "bare": "שמשון ברקוביצ'ר",
+   "reason": "not in the model's text by design"
+  },
+  {
+   "doc": "s3",
+   "ent": "s3#4",
+   "cat": "S_META",
+   "surface": "בלומה אופנהיים",
+   "bare": "בלומה אופנהיים",
+   "reason": "not in the model's text by design"
+  }
+ ],
+ "partlyClaimed": [],
+ "lostEntities": [],
+ "added": [
+  {
+   "doc": "m3",
+   "ent": "m3#5",
+   "cat": "P_LOOKS_ORG",
+   "text": "עומרי",
+   "s": 88,
+   "gap": false
+  },
+  {
+   "doc": "m4",
+   "ent": "m4#2",
+   "cat": "P_CORRUPT_ONLY",
+   "text": "טיטו",
+   "s": 562,
+   "gap": false
+  },
+  {
+   "doc": "f1",
+   "ent": "f1#gap0",
+   "cat": "L_PUBLIC",
+   "text": "ירושלים",
+   "s": 26,
+   "gap": true
+  },
+  {
+   "doc": "f3",
+   "ent": "f3#6",
+   "cat": "P_SPLITRUN",
+   "text": "סמירנוב",
+   "s": 319,
+   "gap": false
+  },
+  {
+   "doc": "f3",
+   "ent": "f3#6",
+   "cat": "P_SPLITRUN",
+   "text": "ויקטור",
+   "s": 533,
+   "gap": false
+  },
+  {
+   "doc": "t2",
+   "ent": "t2#2",
+   "cat": "P_TWO_SPELL",
+   "text": "דסטה",
+   "s": 406,
+   "gap": false
+  },
+  {
+   "doc": "t3",
+   "ent": "t3#4",
+   "cat": "P_CORRUPT_ONLY",
+   "text": "טיטו",
+   "s": 566,
+   "gap": false
+  }
+ ]
+}
