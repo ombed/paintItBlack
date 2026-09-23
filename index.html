@@ -767,7 +767,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <sc-if value="{{ legendDate }}"><span data-legend-date><span style="background:var(--accent-soft);color:var(--accent-ink);border-bottom:2px dotted var(--accent);padding:0 4px;border-radius:3px">12.3.26</span> תאריך מוזז — המקורי חוזר בהחזרה</span></sc-if>
         <span style="color:var(--ink3)">לחיצה על סימון פותחת עריכה במקום</span>
       </div>
-      <div ref="{{ sheetRef }}" onMouseUp="{{ onSheetSelect }}" onKeyUp="{{ onSheetKey }}" style="background:var(--panel2);max-height:max(300px, calc(100vh - var(--bar-h, 64px) - 186px));overflow:auto;padding:22px 0 40px">
+      <div ref="{{ sheetRef }}" onMouseUp="{{ onSheetSelect }}" style="background:var(--panel2);max-height:max(300px, calc(100vh - var(--bar-h, 64px) - 186px));overflow:auto;padding:22px 0 40px">
         <div data-paper style="width:min(720px,calc(100% - 44px));margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 18px 40px -30px rgba(0,0,0,.5);padding:56px 60px;font-size:16px;line-height:1.95;font-family:var(--doc-font)">
           <sc-for list="{{ sheet }}" as="blk" hint-placeholder-count="8">
             <sc-if value="{{ blk.head }}">
@@ -1244,8 +1244,8 @@ class Component extends DCLogic {
         if(S.popup){ e.preventDefault(); this.setState({popup:null}); return; }
         if(S.tip){ this.setState({tip:null}); return; }
         if(S.exportAsk){ this.setState({exportAsk:""}); return; }
-        // הסיור נסגר גם ב-Escape, כמו כל שכבה אחרת מעל המסך (ביקורת M32)
-        if(S.tour){ e.preventDefault(); this.tourClose(); return; }
+        /* Escape אינו סוגר את הסיור (ביקורת M32 ביקשה שכן): e2e/unruly.spec.js נועל שמקש תועה
+           אינו מחליף לה מסך, והכרטיס אינו מודאלי. היציאה מהמקלדת היא כפתור ✕ שבכרטיס */
       }
       if(e.key==="Tab"&&S.intro&&!S.tour){
         const box=document.querySelector("[data-intro]");
@@ -1272,6 +1272,11 @@ class Component extends DCLogic {
       else if((k==="z"&&e.shiftKey)||k==="y"){ e.preventDefault(); this.redo(); }
     };
     document.addEventListener("keydown", this._keys);
+    /* ביקורת L29: בחירה ב-Shift וחיצים פותחת את אותה חלונית כמו בחירה בעכבר. הפוקוס בדרך כלל על
+       הדף ולא בתוך המסמך, ולכן ההאזנה כאן ולא על המסמך עצמו */
+    this._selKeys = e => { if(!(e.shiftKey||e.key==="Shift")||!this.sheetEl) return;
+      const s=getSelection(); if(s&&s.anchorNode&&this.sheetEl.contains(s.anchorNode)) this.onSheetSelect({target:this.sheetEl}); };
+    document.addEventListener("keyup", this._selKeys);
     /* H5 בביקורת השנייה: רענון, "אחורה" בדפדפן וסגירת הלשונית מחקו את המסמך, את
        ההחלטות ואת היומן בלי מילה, בזמן ש"מסמך חדש" לבדו שאל. כשיש מסמך (ולא
        הסיור): הדפדפן שואל לפני רענון או סגירה, ו"אחורה" נתפס — בטעינת המסמך
@@ -1319,7 +1324,7 @@ class Component extends DCLogic {
     this._scNudge=()=>this.scheduleSelfCheck();
     addEventListener("scroll", this._scNudge, {capture:true, passive:true}); addEventListener("resize", this._scNudge);
   }
-  componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); removeEventListener("resize", this._resize);
+  componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); document.removeEventListener("keyup", this._selKeys); removeEventListener("resize", this._resize);
     removeEventListener("beforeunload", this._unload); removeEventListener("popstate", this._pop);
     removeEventListener("scroll", this._follow, true); removeEventListener("resize", this._follow); removeEventListener("animationend", this._follow, true); removeEventListener("transitionend", this._follow, true);
     removeEventListener("scroll", this._scNudge, {capture:true}); removeEventListener("resize", this._scNudge); if(this._scT) clearTimeout(this._scT); removeEventListener("storage", this._storage); removeEventListener("error", this._pageErr); removeEventListener("unhandledrejection", this._pageErr);
@@ -3595,9 +3600,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onAdd:()=>this.addRule(S.addV, S.addK, S.addR),
       kindChips:KINDS.map(([k,l])=>({label:this.kindLabel(l), style:chip(S.addK===k), onClick:()=>this.setState({addK:k})})),
       sheetRef:el=>{this.sheetEl=el}, listRef:el=>{this.listEl=el},
-      onSheetSelect:this.onSheetSelect,
-      // ביקורת L29: בחירה ב-Shift וחיצים פותחת את אותה חלונית כמו בחירה בעכבר
-      onSheetKey:e=>{ if(e.shiftKey||e.key==="Shift") this.onSheetSelect(e); }
+      onSheetSelect:this.onSheetSelect
     };
 
     if(!v.isWork) return v;

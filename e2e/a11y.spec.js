@@ -111,7 +111,7 @@ test("M31: an English answer runs left to right on the restore screen", async ({
   expect(await box.evaluate((el) => getComputedStyle(el).direction)).toBe("ltr");
 });
 
-test("M32: Escape ends the tour, and a key press outside the lit area is stopped like a click", async ({ page }) => {
+test("M32: the tour is a dialog left by keyboard, and a key press outside the lit area is stopped like a click", async ({ page }) => {
   test.info().annotations.push({ type: "no-self-check" }); // the tour's sample document is not hers
   // a first visit, the way e2e/tour.spec.js starts it: the intro offers the tour
   await H.serveEngineWithStub(page);
@@ -127,7 +127,12 @@ test("M32: Escape ends the tour, and a key press outside the lit area is stopped
   await page.keyboard.press("Enter");
   expect(await dark()).toBe(before);
   await expect(page.locator("[data-tour-nudge]")).toBeVisible();
+  // the way out by keyboard is the card's close button; a stray Escape does not end the tour
+  // (e2e/unruly.spec.js pins that a stray key never changes her screen)
   await page.keyboard.press("Escape");
+  await expect(card).toBeVisible();
+  await card.getByRole("button", { name: "סגירת הסיור" }).focus();
+  await page.keyboard.press("Enter");
   await expect(card).toHaveCount(0);
 });
 
@@ -188,4 +193,23 @@ test("M27: an input's border is at least 3:1 against its background", async ({ p
     return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
   });
   expect(r).toBeGreaterThanOrEqual(3);
+});
+
+test("L29: a selection made with the keyboard opens the same popup as one made with the mouse", async ({ page }) => {
+  await toWork(page);
+  // a word of plain text in the document, selected, and the selection extended with Shift+arrow
+  const ok = await page.evaluate(() => {
+    const sheet = [...document.querySelectorAll("p[dir='auto']")].find((p) => /הגעתי/.test(p.textContent));
+    if (!sheet) return false;
+    const walker = document.createTreeWalker(sheet, NodeFilter.SHOW_TEXT);
+    let n; while ((n = walker.nextNode()) && !/הגעתי/.test(n.data));
+    if (!n) return false;
+    const i = n.data.indexOf("הגעתי"), r = document.createRange();
+    r.setStart(n, i); r.setEnd(n, i + 5);
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    return true;
+  });
+  expect(ok).toBe(true);
+  await page.keyboard.press("Shift+ArrowLeft");
+  await expect.poll(() => page.evaluate(() => !!window.__pib.state().popup)).toBe(true);
 });
