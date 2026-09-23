@@ -1450,9 +1450,7 @@ class Component extends DCLogic {
     }
     const v=RES.verification;
     const st=RES.structural;
-    const clean=[["טקסט שנמחק במעקב שינויים",st.del],["שינויים שהתקבלו",st.ins],["סימוני הערות",st.cm],
-      ["חלקים שהוסרו",st.dropped.length],["שדות מטא-דאטה",st.meta.length],["קישורים שנוטרלו",st.rels.length],
-      ["מזהי עריכה",st.rsid],["נתונים נסתרים שהוסרו",st.hidden],["החלפות אחידות",st.sweep]].filter(x=>x[1]);
+    const clean=this.cleanStats(st);
     const modeName={real:"שם חלופי",label:"פלוני א׳",block:"███"}[S.mode];
     return `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
 <title>דוח השחרה — ${esc(S.name)}</title>
@@ -2550,6 +2548,14 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      ו"בכל זאת". הצבע האדום היה ההגנה היחידה, וההורדה לא נשאה אפילו אותו. */
   /* אימות שנכשל עוצר גם הוא (ביקורת H2): הפס האדום אמר "אין לשלוח ואין להעתיק", וההורדה
      יצאה בלי שאלה, כי השומר ספר רק פריטים בלי החלטה ולא הסתכל על תוצאת האימות. */
+  /* מה נוקה מהקובץ: רשימה אחת לפאנל ולדוח שיורד. היו שתי העתקות שלה, וכל שורה חדשה
+     הייתה צריכה להיכנס לשתיהן */
+  cleanStats(st){
+    return [["טקסט שנמחק במעקב שינויים",st.del],["שינויים שהתקבלו",st.ins],["סימוני הערות",st.cm],
+      ["חלקים שהוסרו",(st.dropped||[]).length],["שדות מטא-דאטה",(st.meta||[]).length],["קישורים שנוטרלו",(st.rels||[]).length],
+      ["מזהי עריכה",st.rsid],["נתונים נסתרים שהוסרו",st.hidden],["החלפות אחידות",st.sweep],
+      ["חלקים שהכלי אינו קורא, שנוקו מערכים מהרשימה",(st.residue||[]).length]].filter(x=>x[1]);
+  }
   verifyFailed(){ const v=this.state.res&&this.state.res.verification; return !!(v&&v.passed===false&&(v.leaks||[]).length); }
   /* שכבת חיפוש שלא הסתיימה (ביקורת M25) שואלת לפני ייצוא, כמו אימות שנכשל: היא לא יכולה
      לתקן את זה בעצמה, ולכן השאלה מאפשרת להמשיך ביודעין ולא נועלת אותה בחוץ */
@@ -3824,12 +3830,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       this.setState({aiIn:r.text, aiWarn:bits.join(". ")+"."});
     };
 
-    const st=RES.structural, stats=[];
-    const add=(l,n)=>{ if(n) stats.push({label:l, value:n}); };
-    add("טקסט שנמחק במעקב שינויים", st.del); add("שינויים שהתקבלו", st.ins);
-    add("סימוני הערות", st.cm); add("חלקים שהוסרו", st.dropped.length);
-    add("שדות מטא-דאטה", st.meta.length); add("קישורים שנוטרלו", st.rels.length);
-    add("מזהי עריכה", st.rsid); add("נתונים נסתרים שהוסרו", st.hidden); add("החלפות אחידות", st.sweep);
+    const stats=this.cleanStats(RES.structural).map(([label,value])=>({label, value}));
     v.stats = stats.length?stats:[{label:"לא נמצא מה לנקות", value:"—"}];
 
     v.onReport = this.downloadReport;

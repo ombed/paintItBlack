@@ -93,6 +93,15 @@ const S = {
     body: P('<w:pPr><w:pStyle w:val="Client"/></w:pPr>' + R("המורה אמרה.")),
     parts: [{ name: "word/styles.xml", body: part("styles", `<w:style w:type="paragraph" w:styleId="Client"><w:name w:val="${NAME}"/><w:aliases w:val="${NAME} ישן"/></w:style>`) }],
   },
+  // a part the pipeline does not walk at all: the last pass replaces a listed value in whatever is left
+  "a font named after the person": {
+    body: P(R("המורה אמרה.")),
+    parts: [{ name: "word/fontTable.xml", body: part("fonts", `<w:font w:name="${NAME}"><w:altName w:val="${NAME}"/></w:font>`) }],
+  },
+  "a part no version of the tool has seen": {
+    body: P(R("המורה אמרה.")),
+    parts: [{ name: "word/vendorData.xml", body: `<?xml version="1.0"?><data><client>${NAME}</client><note label="תיק ${NAME}"/></data>` }],
+  },
   "a glossary building block": {
     body: P(R("המורה אמרה.")),
     parts: [{ name: "word/glossary/document.xml", body: doc(P(R(NAME))) }],

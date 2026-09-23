@@ -179,6 +179,31 @@ function stripRsid(doc){let n=0;
   return n}
 const LEAK=/Target="(mailto:[^"]+|file:[^"]+|[A-Za-z]:\\[^"]+|\\\\[^"]+)"/g;
 
+/* המעבר האחרון. חלק XML שהצינור אינו קורא — טבלת גופנים, ערכת נושא, חלק של תוכנה אחרת,
+   חלק שעוד לא ראינו — ובו ערך מהרשימה, נכשל באימות, והיא לא יכלה לעשות דבר: הערך אינו
+   במסמך שהיא רואה (שאר H10, כמשפחה ולא ערוץ אחרי ערוץ). כאן כל ערך מהרשימה שנשאר בחלק כזה
+   מוחלף בכינוי שלו, ובלי כינוי ב"[הוסר]". מה שנשאר גם אחרי זה — שם שמפוצל בין תגיות, או
+   בתוך קובץ מוטמע — האימות עדיין תופס, וזה נכון: שם הוא לא יכול לנקות. */
+const XESC=v=>String(v).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;").split("'").join("&apos;");
+function residuePass(files,walked,subs,applied){
+  const repOf=new Map();
+  const put=(v,r)=>{for(const k of [String(v||"").trim(),norm(String(v||"")).trim()]) if(k.length>=2&&!repOf.has(k))repOf.set(k,r)};
+  for(const r of applied)put(r.base||r.value,r.baseRep||r.rep||"");
+  for(const s of subs)put(s.value,s.replacement||"[הוסר]");
+  const vals=[...repOf.keys()].sort((a,b)=>b.length-a.length);
+  const done=[];
+  for(const f of files){
+    if(walked.has(f.name)||!f.name.endsWith(".xml")||f.name==="[Content_Types].xml"||f.name==="docProps/core.xml"||f.name==="docProps/app.xml")continue;
+    const o=TXT.decode(f.data); let s=o;
+    for(const v of vals){
+      const r=XESC(repOf.get(v));
+      for(const form of new Set([v,XESC(v)]))
+        s=s.replace(new RegExp("(?<![א-ת])"+esc(form)+"(?![א-ת])","gu"),()=>r);
+    }
+    if(s!==o){f.data=ENC.encode(s);done.push(f.name)}
+  }
+  return done}
+
 async function redactDocx(buf,subs,allow,opt){
   const files=await unzip(buf);
   const rep={ins:0,del:0,cm:0,rsid:0,hidden:0,dropped:[],meta:[],rels:[],sweep:0};
@@ -374,6 +399,7 @@ async function redactDocx(buf,subs,allow,opt){
       ctx:ctxHTML(hit.text,mm.index,mm.index+pa.p.length),review:true,src:"partAmbig"});
   }
   for(const dd of docs) dd.f.data=ENC.encode(serXML(dd.doc,dd.orig));
+  rep.residue=residuePass(keep,new Set(docs.map(d=>d.f.name)),subs,applied);
 
   // תצוגה
   const origAll=blocks.map(b=>b.text).join("\n");

@@ -61,6 +61,16 @@ const bodyOf = (x) => (x.match(/<w:body>[\s\S]*<\/w:body>/) || [""])[0];
     ok(/<w:body>/.test(docOut) && docOut.includes("פרוטוקול הדיון"), `${name}: the document body did not survive`);
   }
 
+  // the last pass says where it had to reach, so the report can show it
+  {
+    const c = S["a part no version of the tool has seen"];
+    const res = await E.redactDocx(mkzip([...base, { name: "word/document.xml", body: doc(c.body) }, ...c.parts]), SUBS, [], OPT);
+    ok((res.structural.residue || []).includes("word/vendorData.xml"), "the part the last pass cleaned is named: " + JSON.stringify(res.structural.residue));
+    ok(res.verification.passed, "and the final check passes");
+    const out = TXT.decode((await E.unzip(await res.blob.arrayBuffer())).find((f) => f.name === "word/vendorData.xml").data);
+    ok(out.includes("יעל כהן"), "the value became its pseudonym there too: " + out.replace(/[א-ת]/g, "x").slice(0, 80));
+  }
+
   /* Review C2. Every case above supplies the rule itself, so it proves the apply layer and
      says nothing about who would have proposed the name. These run with an empty list, the
      way a document arrives: the name must either be gone from the file, or be put in front

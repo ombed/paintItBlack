@@ -45,12 +45,13 @@ test("a failed verification stops the download until she says so", async ({ page
   const { mkzip } = require("../tests/mkzip.js");
   const L = require("../tests/structure-lib.js");
   const NAME = L.NAME;
-  // numbering.xml was this part until the pipeline learnt to clear list text (the rest of H10);
-  // a font table is still read by the final check and left alone by the pipeline
-  const fonts = `<?xml version="1.0"?><w:fonts ${L.WNS}><w:font w:name="${NAME}"/></w:fonts>`;
+  // numbering.xml was this part until the pipeline learnt to clear list text, and every XML part
+  // it does not walk is now cleared by a last pass (the rest of H10). An embedded object, written
+  // as UTF-16 the way Word's OLE streams are, is read by the final check and cleaned by nothing.
+  const ole = Buffer.from("OLE " + NAME + " END", "utf16le");
   const file = Buffer.from(new Uint8Array(mkzip([...L.base,
     { name: "word/document.xml", body: L.doc(L.P(L.R(`${NAME}: אני מבקשת לפתוח.`)) + L.P(L.R("אבנר שטרן: בבקשה.")) + L.P(L.R(`${NAME}: תודה.`)) + L.P(L.R("אבנר שטרן: נכון."))) },
-    { name: "word/fontTable.xml", body: fonts }])));
+    { name: "word/embeddings/oleObject1.bin", body: ole }])));
   await H.serveEngineWithStub(page);
   await H.boot(page);
   await page.getByRole("checkbox").first().uncheck();
