@@ -12,7 +12,7 @@
  "design_t.js": 2,
  "engine_t.js": 2,
  "pagelogic_t.js": 41,
- "regex_t.js": 43,
+ "regex_t.js": 44,
  "places_t.js": 68,
  "numbers_t.js": 12,
  "private_t.js": 7,
@@ -39,5 +39,6 @@
  "gate_t.js": 6,
  "vendor_t.js": 14,
  "sweep_t.js": 11,
- "diffruntime_t.js": 5
+ "diffruntime_t.js": 5,
+ "complexity_t.js": 8
 }

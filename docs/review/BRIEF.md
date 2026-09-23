@@ -27,6 +27,17 @@ things in it were wrong or incomplete, and the review proved each one:
   `.jsx` or `.tsx` URL, and the repository has none.
 - **Section 9, API surface.** The engine has 83 exports, not 81.
 
+Added 2026-09-23, with the documentation batch of the triage:
+
+- **Section 9, complexity, now from a committed command.** `node scripts/complexity.js`
+  measures the bundle, `page-logic.js`, `scripts/harvest-shapes.js` and the app script inside
+  `index.html`, and fails on a file it cannot parse instead of skipping it
+  (`tests/complexity_t.js`). At v53 it gives, highest first: `renderVals` 186 (index.html),
+  `redactDocx` 184, `bodyNames` 113, `nerClean` 110, `showPeople` 73 (index.html), the engine
+  class constructor 69, `selfCheck` 55 (index.html), `flatten` 51, `anchored` 49, `repFor` 48.
+  35 functions above 12 in the linted files, 74 with `index.html`. These are v53 numbers; the
+  review's 155 and 173 were v48's.
+
 The review also found the brief too hard on itself in one place: about 88% of the comments state
 the rule the code keeps, and none narrates a bug without it.
 

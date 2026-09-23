@@ -98,6 +98,13 @@ command, a test, or a document that triggers it.
 4. **No fabrication.** If something could not be verified, say so and mark the
    finding as a suspicion.
 
+### Commands behind the brief's measurements
+
+- **Complexity**: `node scripts/complexity.js` (`--top=N` for a longer list). The
+  bundle, `page-logic.js`, `scripts/harvest-shapes.js` and the app script inside
+  `index.html`; eslint `complexity` above 12 and `max-depth` above 4. A file that
+  does not parse is an error, not a skip.
+
 ## 5. Lenses
 
 Each lens is a separate pass with its own checklist. The checklists are in
