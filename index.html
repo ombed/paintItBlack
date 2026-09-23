@@ -1687,7 +1687,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
           if(f.prefixOf&&f.fold==="yes") continue;
           // הוסר בתיק: לא חוזר ככלל מאחורי גבה; guardModel מעלה אותו כהצעה במסך הבדיקה (H11)
           if(this.wasRemoved(f.value)) continue;
-          rules.push({value:f.value, kind:f.kind||"NAME", replacement:"", auto:true, g:null, review:!!f.review});
+          rules.push(this.mkRule({value:f.value, kind:f.kind, auto:true, review:!!f.review}));
           late++;
         }
         this.log.add("model-late",{found:found.length, added:late, screen:this.state.screen});
@@ -1742,7 +1742,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const known=[...(this.state.rules||[]), ...this.profileRules()];
     const pm=(this.state.profile&&this.state.profile.map)||{};
     const out=list.map(p=>{
-      const r={value:p.value, kind:p.kind||"NAME", replacement:"", auto:true, g:p.g, sameAs:p.sameAs||undefined};
+      const r=this.mkRule({value:p.value, kind:p.kind, auto:true, g:p.g, sameAs:p.sameAs||undefined});
       const old=known.find(x=>x&&n(x.value)===n(p.value)&&(x.kind||"NAME")===r.kind);
       const rep=(old&&old.replacement)||pm[p.value]||"";
       if(rep) r.replacement=rep;
@@ -1852,7 +1852,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const rules=[...this.state.rules];
     if(!rules.some(r=>n(r.value)===n(value))){
       const k=(this.state.peoKept||[]).find(x=>n(x.value)===n(value));
-      rules.push({value, kind:(k&&k.kind)||"NAME", replacement:"", auto:true, g:(k&&k.g)||null});
+      rules.push(this.mkRule({value, kind:k&&k.kind, auto:true, g:k&&k.g}));
     }
     this.setState({allow:this.state.allow.filter(a=>a!==value), rules,
       peoKept:(this.state.peoKept||[]).filter(x=>n(x.value)!==n(value))}, ()=>this.rerun()); };
@@ -2093,7 +2093,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
          ולא זה שהיא בחרה כאן. */
       const ex=rules.find(r=>En(r.value)===En(m.from));
       if(ex){ ex.replacement=to; ex.kind="PLACE"; }
-      else rules.push({value:m.from, kind:"PLACE", replacement:to, auto:false});
+      else rules.push(this.mkRule({value:m.from, kind:"PLACE", replacement:to}));
     });
     // היישובים שמחוץ למפה: רק מה שסומן להחלפה. מקום מהרשימה שהסימון שלו הוסר
     // כאן — ההחלטה החדשה מנצחת: הכלל יוצא, והמקום נשאר כמו שהוא (UX #10)
@@ -2102,7 +2102,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const to=String(x.to||"").trim();
       const ex=rules.find(r=>En(r.value)===En(x.name));
       if(x.on && to && ex) ex.replacement=to;
-      else if(x.on && to && !ex) rules.push({value:x.name, kind:"PLACE", replacement:to, auto:false});
+      else if(x.on && to && !ex) rules.push(this.mkRule({value:x.name, kind:"PLACE", replacement:to}));
       else if(!x.on && x.listed){
         for(let i=rules.length-1;i>=0;i--) if(rules[i].value===x.name) rules.splice(i,1);
         if(!allow.includes(x.name)) allow=[...allow, x.name];
@@ -2328,7 +2328,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const allowGone=this.state.allow.filter(a=>nrm(a)===nrm(value));
     if(allowGone.length) this.log.add("conflict",{won:"rule"});
     this.setState({removed:(this.state.removed||[]).filter(x=>E.norm(x).trim()!==E.norm(value).trim()),
-      rules:[...this.state.rules, {value, kind:kind||"NAME", replacement:(rep||"").trim(), auto:false}],
+      rules:[...this.state.rules, this.mkRule({value, kind, replacement:rep})],
       allow:this.state.allow.filter(a=>nrm(a)!==nrm(value)),
       notice:allowGone.length?`«${value}» יוחלף; ההיתר «אל תחליף» שהיה עליו הוסר.`:"",
       addV:"", addR:"", popup:null, err:""}, ()=>this.rerun());
@@ -2368,7 +2368,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const E=this.state.E, n=x=>E.norm(String(x||"")).trim();
     const rules=[...this.state.rules];
     let r=rules.find(x=>n(x.value)===n(base||v)||n(x.value)===n(v));
-    if(!r){ r={value:v, kind:kind||"OTHER", replacement:"", auto:false}; rules.push(r); }
+    if(!r){ r=this.mkRule({value:v, kind:kind||"OTHER"}); rules.push(r); }
     const prev=r.style||null; r.style=style; const facts=this.logFacts(v, base);
     this.setState({rules}, ()=>this.rerun().then(()=>this.log.add("set-style",{...facts, style, from:prev||"default", changed:prev!==style, kind:r.kind})));
   };
@@ -2391,7 +2391,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     // הכינוי שהיא ראתה: שלה, או זה שהכלי בחר
     const seen=(r&&r.replacement)||((this.state.res&&this.state.res.applied.find(a=>want.includes(n(a.base||a.value))))||{}).baseRep||"";
     const facts={...this.logFacts(v, base), ...this.repFacts(seen, rep), was:!r?"none":(r.pinned||!r.replacement)?"auto":"hers"};
-    if(r){ r.replacement=rep.trim(); delete r.pinned; } else rules.push({value:v, kind:"NAME", replacement:rep.trim()});
+    if(r){ r.replacement=rep.trim(); delete r.pinned; } else rules.push(this.mkRule({value:v, replacement:rep}));
     this.setState({rules}, ()=>this.rerun().then(()=>{
       const after=this.state.res?this.state.res.applied.length:-1;
       this.log.add("set-rep",{...facts, matched:!!r, changed:prev!==rep.trim(), appliedBefore:before, appliedAfter:after});
@@ -2555,7 +2555,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(!target||n(from)===n(target.value)) return;
     this.pushHistory();
     let src=rules.find(r=>n(r.value)===n(from));
-    if(!src){ src={value:from, kind:"NAME", replacement:"", auto:false}; rules.push(src); }
+    if(!src){ src=this.mkRule({value:from}); rules.push(src); }
     const i=rules.indexOf(src);
     rules[i]={...src, replacement:"", sameAs:target.value};
     this.log.add("merge",{origin:"card", effect:true});
@@ -2728,6 +2728,12 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const out={}, add=o=>{ for(const [r,a] of Object.entries(o||{})) for(const p of a||[]) (out[r]=out[r]||[]).includes(p)||out[r].push(p); };
     add(this.state.profile&&this.state.profile.sent); add(this.state.sent);
     return out;
+  }
+  /* כלל אחד, צורה אחת (ביקורת M17): הכלל נבנה בעשרה מקומות, שדה אחרי שדה, עם ברירות מחדל שונות —
+     אחד בלי auto, אחד בלי g. מי שקורא כלל יודע עכשיו אילו שדות יש לו. kind ברירת מחדל NAME; מי
+     שרוצה אחר אומר זאת במפורש */
+  mkRule({value, kind, replacement, auto, g, ...rest}){
+    return {value:String(value), kind:kind||"NAME", replacement:String(replacement||"").trim(), auto:!!auto, g:g||null, ...rest};
   }
   profileObj(){
     return {v:1, created:(this.state.profile&&this.state.profile.created)||new Date().toISOString(), updated:new Date().toISOString(),
@@ -3021,7 +3027,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         if(!value||!replacement||goneP.has(nn(value))) continue;
         const ex=rules.find(r=>r.value===value);
         if(ex){ if(!ex.replacement) ex.replacement=replacement; }
-        else rules.push({value, kind:/^\[|^[\d\s+()-]+$/.test(replacement)?"OTHER":"NAME", replacement, auto:true});
+        else rules.push(this.mkRule({value, kind:/^\[|^[\d\s+()-]+$/.test(replacement)?"OTHER":"NAME", replacement, auto:true}));
       }
       const mode = prof.mode || this.state.mode;
       const st=prof.styles||{};
