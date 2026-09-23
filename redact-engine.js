@@ -2911,32 +2911,12 @@ function fixTokJSON(txt){
   try{JSON.parse(out)}catch(_){console.warn("התיקון יצא פגום, מחזירים מקור");return txt}
   return out;
 }
-// עותק שכבר יושב במטמון לא עובר דרך fetch, ולכן מתקנים אותו במקום
+// תשובה שנבנית מטקסט JSON מתוקן: לוו ה-fetch ולעותק שנכתב למטמון. (nerFixCached, שתיקנה עותק
+// שמור במקום, לא נקראה מאף מקום והוסרה: ביקורת L8; nerPrepTokenizer עושה את זה)
 let jsonRes=body=>new Response(body,{status:200,statusText:"OK",
   headers:{"Content-Type":"application/json"}});
 const TOK_URL=()=>HUB(NER_REV,"tokenizer.json");
 let RAW_FETCH=null;
-async function nerFixCached(){
-  let n=0;
-  try{
-    if(!nerEnv().canCache)return 0;
-    const c=await caches.open(NER_CACHE);
-    for(const req of await c.keys()){
-      if(!/tokenizer\.json/.test(req.url))continue;
-      const res=await c.match(req); if(!res)continue;
-      let txt; try{txt=await res.clone().text()}catch(_){await c.delete(req);continue}
-      const fixed=fixTokJSON(txt);
-      if(fixed===txt)continue;
-      await c.put(req,jsonRes(fixed));
-      // אימות: קוראים בחזרה ומוודאים שזה באמת JSON תקין
-      let ok=false;
-      try{const back=await c.match(req); JSON.parse(await back.text()); ok=true}catch(_){}
-      if(ok)n++;
-      else{await c.delete(req);console.warn("העותק השמור נמחק; יירד מחדש מתוקן")}
-    }
-  }catch(e){console.warn("תיקון המטמון נכשל",e)}
-  return n;
-}
 let FETCH_HOOKED=false;
 function nerHookFetch(){
   if(FETCH_HOOKED)return; FETCH_HOOKED=true;

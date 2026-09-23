@@ -1066,7 +1066,7 @@ class Component extends DCLogic {
     rules:[], allow:[], res:null, profile:null,
     sel:null, filter:"all", cat:"", open:null, pane:"doc", hot:null,
     addV:"", addR:"", addK:"NAME",
-    aiIn:"", aiWarn:"", aiCopyLabel:"העתקת טקסט מושחר",
+
     rvIn:"", rvOut:"", rvCopyLabel:"העתקת הטקסט המשוחזר",
     copyLabel:"העתקה ל-AI", busyT:"מעבד…", err:"",
     geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, popup:null, tip:null, repDraft:"", sent:{}, peoKept:[], peoNotSame:[], inline:null, inlineDraft:"",
@@ -2400,12 +2400,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     return this.state.res.preview.filter(b=>!this.state.E.hiddenPart(b.part))
       .map(b=>b.text).join("\n").replace(/\n{3,}/g,"\n\n").trim();
   }
-  livePairs(){
-    const p=[]; const RES=this.state.res;
-    if(RES) for(const r of RES.applied) if(r.rep && r.value) p.push([r.value, r.rep]);
-    for(const r of this.state.rules) if(r.replacement) p.push([r.value, r.replacement]);
-    return p;
-  }
+
   currentMap(){
     const m={}, RES=this.state.res, E=this.state.E, n=v=>E?E.norm(String(v||"")).trim():String(v||"");
     // "זה אותו אחד כמו" (M3 בביקורת השנייה): המקור שמוזג חולק כינוי עם היעד. זוג
@@ -3487,7 +3482,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           // כל מה ששייך למסמך ולא לסשן מתאפס כאן (ביקורת H1): דוח הדליפה של לקוח אחד יצא בחבילה של הבא,
           // ותשובת ה-AI עם השמות האמיתיים שלו חיכתה במסך ההחזרה. tests/state_t.js בודק שכל מפתח ב-state
           // מתאפס כאן או רשום שם כשייך לסשן.
-          origBlocks:[], removed:[], leaks:[], rvIn:"", rvOut:"", aiIn:"", aiWarn:"", cands:[], nerUsed:false, peoIn:"", peoNote:"", hot:null, addK:"NAME",
+          origBlocks:[], removed:[], leaks:[], rvIn:"", rvOut:"", cands:[], nerUsed:false, peoIn:"", peoNote:"", hot:null, addK:"NAME",
           geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, tip:null, repDraft:"", sent:{}, peoNotSame:[], inlineDraft:""},
           ()=>{ try{ scrollTo(0,0); }catch(_){} });
         this._undo=[]; this._redo=[]; this._modelFound=null; this._lastScan=null;
@@ -3787,23 +3782,6 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       kinds:KINDS.map(([k,l])=>({label:l, onClick:e=>{ e.stopPropagation(); this.addRule(g.value,k,""); }}))
     }));
 
-    v.aiIn=S.aiIn; v.aiWarn=S.aiWarn; v.aiCopyLabel=S.aiCopyLabel;
-    v.onAiIn=e=>this.setState({aiIn:e.target.value});
-    v.onAiCopy=()=>{ this.copyTo(this.redactedText(), "aiCopyLabel", "העתקת טקסט מושחר");
-      const bits=[];
-      if(sug.length) bits.push(sug.length+" שמות בגוף המסמך אינם ברשימה");
-      else if(near.length) bits.push(near.length+" מילים נכתבו כמעט כמו שם שהוחלף");
-      else if(!ver.complete) bits.push("נשארו ממצאים שלא הוחלפו");
-      this.setState({aiWarn:bits.length?"לפני ההדבקה: "+bits.join(". ")+".":""}); };
-    v.onAiGo=()=>{
-      if(!S.aiIn.trim()) return;
-      const r=E.restoreNames(S.aiIn, this.livePairs());
-      const bits=["הוחזרו "+r.count+" מופעים"];
-      if(r.missing.length) bits.push(r.missing.length+" שמות חלופיים לא הופיעו בתשובה");
-      if(r.conflict.length) bits.push(r.conflict.length+" שמות חלופיים משמשים יותר מאדם אחד ולכן לא הוחזרו");
-      this.setState({aiIn:r.text, aiWarn:bits.join(". ")+"."});
-    };
-
     const stats=this.cleanStats(RES.structural).map(([label,value])=>({label, value}));
     v.stats = stats.length?stats:[{label:"לא נמצא מה לנקות", value:"—"}];
 
@@ -3854,7 +3832,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.barErr=S.err||""; v.barOk=!S.err; v.onClearErr=()=>this.setState({err:""});
     // שלושת השלבים בסרגל: הנוכחי מודגש
     const stepOn="padding:3px 8px;border-radius:10px;background:var(--accent-soft);color:var(--accent-ink);font-weight:500", stepOff="padding:3px 8px;border-radius:10px;color:var(--ink3)";
-    v.copied=!!S.copied; v.step1Style=stepOff; v.step2Style=S.copied?stepOff:stepOn; v.step3Style=S.copied?stepOn:stepOff; v.step2Mark=S.copied?" ✓":"";
+    v.step1Style=stepOff; v.step2Style=S.copied?stepOff:stepOn; v.step3Style=S.copied?stepOn:stepOff; v.step2Mark=S.copied?" ✓":"";
     v.copyLabel=S.copyLabel;
     v.copyBtnStyle="padding:11px 20px;border-radius:10px;font-weight:500;font-size:14px;white-space:nowrap;color:var(--panel);background:"+(kind==="ok"?"var(--accent)":kind==="warn"?"var(--warn)":"var(--bad)");
     v.onCopyAi=this.copyAi; v.onDownload=this.download;
@@ -3870,8 +3848,6 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.onExportShow=()=>{ this.log.add("export-ask",{act:"show"}); this.setState({exportAsk:"", open:this.openWith("review"), pane:"find"}); };
     v.onExportAnyway=()=>{ const w=S.exportAsk; this.log.add("export-ask",{act:"anyway", what:w}); if(w==="download") this.download(); else this.copyAi(); };
     v.onExportCancel=()=>this.setState({exportAsk:""});
-    v.hasReview = PR.count>0 && S.open!=="review";
-    v.onOpenReview=()=>this.setState({open:this.openWith("review"), pane:"find"});
 
     // כמה מקטעים פתוחים יחד; "לבדיקה" נפתח מעצמו כשיש מה לבדוק. אקורדיון שסוגר
     // מקטע כשפותחים אחר החביא את הרשימה שהיא צריכה לעבור עליה.

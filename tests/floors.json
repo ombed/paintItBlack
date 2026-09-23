@@ -30,7 +30,7 @@
  "structure_t.js": 113,
  "harvest_t.js": 21,
  "logreport_t.js": 26,
- "state_t.js": 94,
+ "state_t.js": 90,
  "runner_t.js": 5,
  "passes_t.js": 17,
  "benchlib_t.js": 4,
@@ -41,6 +41,7 @@
  "lintpage_t.js": 5,
  "gender_t.js": 7,
  "chain_t.js": 3,
+ "bindings_t.js": 2,
  "sweep_t.js": 11,
  "diffruntime_t.js": 5,
  "complexity_t.js": 8

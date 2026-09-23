@@ -55,7 +55,7 @@ const SESSION = {
   mode: "a setting", o: "her settings", nerOff: "the environment cannot run the model", nerHint: "the same",
   nerMsg: "progress text, rewritten by every scan", nerPct: "the same", nerBox: "the same", scanning: "the same", busyT: "the same",
   open: "which rail sections are open, set by every run", pane: "which pane is showing, set by every run",
-  aiCopyLabel: "a button label", rvCopyLabel: "a button label", logCopyLabel: "a button label",
+  rvCopyLabel: "a button label", logCopyLabel: "a button label",
   feedbackMail: "where she sends packages", numStyle: "a setting",
 };
 
