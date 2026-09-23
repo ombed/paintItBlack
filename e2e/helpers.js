@@ -14,6 +14,7 @@ const DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.doc
      error        -> nerRun rejects with this message
      env          -> object nerEnv returns                (default: the real one)
      cached       -> what nerCached resolves to           (default: the real one)
+     failedChunks, chunks -> a model that could not read some chunks
 
    env and cached are read at mount, so set them with addInitScript. The
    rest are read per call, so page.evaluate after boot is fine. Every other
@@ -37,7 +38,9 @@ async function serveEngineWithStub(page) {
       "  if (onProgress) onProgress(5);",
       "  await new Promise((r) => setTimeout(r, cfg.delay ? cfg.delay(text) : 0));",
       "  if (cfg.error) throw new Error(cfg.error);",
-      "  return (cfg.names ? cfg.names(text) : []).map((v) => ({ value: v, kind: 'NAME', n: cfg.n ? cfg.n(v) : 1, score: 0.95 }));",
+      "  const out = (cfg.names ? cfg.names(text) : []).map((v) => ({ value: v, kind: 'NAME', n: cfg.n ? cfg.n(v) : 1, score: 0.95 }));",
+      "  if (cfg.failedChunks) { out.failedChunks = cfg.failedChunks; out.chunks = cfg.chunks; }",
+      "  return out;",
       "};",
       "",
     ].join("\n");

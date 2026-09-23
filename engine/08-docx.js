@@ -460,6 +460,9 @@ async function redactDocx(buf,subs,allow,opt){
   ver.near=near;
   // הרשת האחרונה: שם שהיא לא רשמה, שיושב בגוף הטקסט ולא נגענו בו.
   // לא מחליפים אותו מאחורי גבה — שואלים.
+  /* שכבה שנשברה אינה שכבה שלא מצאה כלום (ביקורת M25). סריקה שזרקה השאירה רשימה ריקה,
+     והפס נעשה ירוק. עכשיו התוצאה אומרת איזו שכבה לא הסתיימה, והמסך מציג את זה. */
+  const incomplete=[];
   let suggest=[];
   try{
     if(opt.body===false)throw {skip:1};
@@ -468,7 +471,7 @@ async function redactDocx(buf,subs,allow,opt){
     suggest=bodyNames(ORIG.filter(b=>!hiddenPart(b.part)),known)
       .filter(x=>!near.some(nm=>norm(nm.value).trim()===norm(x.value).trim()))
       .slice(0,12);
-  }catch(e){if(!e||!e.skip)console.warn("סריקת גוף הטקסט נכשלה",e)}
+  }catch(e){if(!e||!e.skip){console.warn("סריקת גוף הטקסט נכשלה",e);incomplete.push("body")}}
   ver.suggest=suggest;
   /* תווית בגרף או בתרשים עומדת לבדה, בלי משפט סביבה, ולכן סריקת הגוף — ששוקלת הקשר — אינה
      יכולה להציע אותה, וגם המודל כבוי לפעמים. תווית קצרה שכל מילה בה נראית כמו שם מוצעת
@@ -487,10 +490,11 @@ async function redactDocx(buf,subs,allow,opt){
       knownN.add(t);
       suggest.push({value:t,score:0,count:1,why:"תווית בגרף או בתרשים שנראית כמו שם",ctx:ctxHTML(b.text,0,b.text.length),part:partName(b.part)});
     }
-  }catch(e){console.warn("סריקת התוויות נכשלה",e)}
+  }catch(e){console.warn("סריקת התוויות נכשלה",e);incomplete.push("labels")}
+  ver.incomplete=incomplete;
   // ירוק רק כשאין דליפות, אין ממצאים פתוחים, ואין ערוץ שלא נותח
   ver.complete=ver.passed&&!remaining.length&&!ver.embedded.length&&
-    !near.length&&!suggest.length;
+    !near.length&&!suggest.length&&!incomplete.length;
   return {blob,applied,flagged,preview,structural:rep,verification:ver,map:eng.map};
 }
 const PARTN={"document.xml":"גוף המסמך","footnotes.xml":"הערות שוליים","endnotes.xml":"הערות סיום"};
@@ -957,12 +961,12 @@ async function nerRun(blocks,onProgress){
   const pipe=await nerLoad();
   const text=blocks.map(b=>b.text).join("\n");
   const parts=nerChunks(text);
-  const ents=[]; let raw=0,withOff=0;
+  const ents=[]; let raw=0,withOff=0,failed=0;
   for(let i=0;i<parts.length;i++){
     const {t,off}=parts[i];
     let res;
     try{res=await pipe(t,{ignore_labels:[]})}
-    catch(e){console.warn("קטע נכשל",e);continue}
+    catch(e){console.warn("קטע נכשל",e);failed++;continue}
     if(!Array.isArray(res))res=res?[res]:[];
     if(!raw&&res.length)console.log("מבנה חיזוי גולמי:",JSON.stringify(res[0]));
     raw+=res.length;
@@ -974,8 +978,13 @@ async function nerRun(blocks,onProgress){
       await new Promise(r=>setTimeout(r,0));
     }
   }
+  /* קטע שנכשל דולג בשקט, וחלק מהמסמך לא נקרא בידי המודל בלי שדבר במסך אמר זאת (ביקורת M25,
+     אותה משפחה). מודל שלא קרא אף קטע נכשל, כדי שהמסך יציג כישלון ולא רשימה ריקה; מודל שקרא
+     חלק מוסר כמה קטעים לא נקראו, והמסך אומר זאת. */
+  if(parts.length&&failed===parts.length)throw new Error("המודל לא הצליח לקרוא אף קטע מהמסמך");
   NER_LAST=ents.map(e=>({type:e.type,score:e.score,s:e.s,e:e.e}));
   const out=nerClean(ents,text);
+  out.chunks=parts.length; out.failedChunks=failed;
   await foldEvidence(pipe,out,text);
   const chars=parts.reduce((a,p)=>a+p.t.length,0);
   console.log(`זיהוי: ${parts.length} קטעים (${chars}/${text.length} תווים) · `+

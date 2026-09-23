@@ -1617,6 +1617,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       // מה שהמודל מצא נשמר בנפרד מהרשימה: זה מה שמאפשר לוודא, בכל ריצה, ששם
       // שנמצא פעמיים ומעלה לא יוצא בלי שהיא החליטה עליו (guardModel)
       this._modelFound=found;
+      // קטע שהמודל לא הצליח לקרוא (ביקורת M25): חלק מהמסמך לא נסרק בידי המודל, והיא צריכה לדעת
+      if(found.failedChunks){ this.log.add("model-partial",{failed:found.failedChunks, of:found.chunks||0});
+        this.setState({notice:`המודל לא הצליח לקרוא ${found.failedChunks} מתוך ${found.chunks} קטעים של המסמך. ייתכנו שמות שלא נמצאו שם — כדאי לעבור על הטקסט בעין.`, noticeUndo:false}); }
       // יומן: כמה זמן, כמה נמצא מכל סוג, ואיך הוודאות של כל המקטעים הגולמיים מתפלגת — כדי לדעת
       // אם סף אחר היה מוצא את מה שהיא הוסיפה בעצמה, או חוסך את מה שהיא הסירה
       try{
@@ -2112,7 +2115,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       // "לבדיקה" נפתח כשיש מה להחליט — כולל שמות שמחכים כ"לאישור" (UX #13) — או כשיש שם שהושאר
       const toReview=(res.verification.near||[]).length+(res.verification.suggest||[]).length+(this.state.allow||[]).length+
         res.flagged.filter(f=>f.src!=="near"&&f.src!=="nohit"&&f.src!=="collide").length;
-      this.log.add("run",{applied:res.applied.length, flagged:res.flagged.length, near:(res.verification.near||[]).length, suggest:(res.verification.suggest||[]).length, passed:!!res.verification.passed});
+      this.log.add("run",{applied:res.applied.length, flagged:res.flagged.length, near:(res.verification.near||[]).length, suggest:(res.verification.suggest||[]).length, passed:!!res.verification.passed, incomplete:(res.verification.incomplete||[]).join(",")});
       // יומן: מאיזו שכבה הגיע כל מה שהוחלף וכל מה שמחכה, כדי לראות מה עולה לה בזמן
       { const cnt=(arr,f)=>arr.filter(f).length, A=res.applied, F=res.flagged;
         this.log.add("run-src",{aList:cnt(A,r=>r.src==="list"), aSweep:cnt(A,r=>r.src==="sweep"), aPattern:cnt(A,r=>r.src==="pattern"),
@@ -2545,10 +2548,18 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   /* אימות שנכשל עוצר גם הוא (ביקורת H2): הפס האדום אמר "אין לשלוח ואין להעתיק", וההורדה
      יצאה בלי שאלה, כי השומר ספר רק פריטים בלי החלטה ולא הסתכל על תוצאת האימות. */
   verifyFailed(){ const v=this.state.res&&this.state.res.verification; return !!(v&&v.passed===false&&(v.leaks||[]).length); }
+  /* שכבת חיפוש שלא הסתיימה (ביקורת M25) שואלת לפני ייצוא, כמו אימות שנכשל: היא לא יכולה
+     לתקן את זה בעצמה, ולכן השאלה מאפשרת להמשיך ביודעין ולא נועלת אותה בחוץ */
+  scanIncomplete(){ const v=this.state.res&&this.state.res.verification; return !!(v&&(v.incomplete||[]).length); }
+  scanIncompleteText(){
+    const L={body:"החיפוש אחר שמות שלא ברשימה", labels:"החיפוש בתוויות של גרפים ותרשימים"};
+    const v=this.state.res.verification;
+    return v.incomplete.map(k=>L[k]||k).join(" ו")+" נכשל באמצע";
+  }
   exportGuard(what){
-    const p=this.pendingReview(), failed=this.verifyFailed();
-    if((!p.blocking&&!failed)||this.state.exportAsk===what) { if(this.state.exportAsk) this.setState({exportAsk:""}); return true; }
-    this.log.add("export-ask",{what, open:p.blocking, verifyFailed:failed});
+    const p=this.pendingReview(), failed=this.verifyFailed(), partial=this.scanIncomplete();
+    if((!p.blocking&&!failed&&!partial)||this.state.exportAsk===what) { if(this.state.exportAsk) this.setState({exportAsk:""}); return true; }
+    this.log.add("export-ask",{what, open:p.blocking, verifyFailed:failed, incomplete:partial});
     this.setState({exportAsk:what});
     return false;
   }
@@ -3826,6 +3837,10 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     if(!ver.passed){ kind="bad";
       title="האימות נכשל — ערכים מזהים עדיין בקובץ";
       text=ver.leaks.slice(0,3).map(l=>l.value+" בתוך "+l.part).join(" · ")+(ver.leaks.length>3?" ועוד":"")+". אין לשלוח ואין להעתיק.";
+    } else if(this.scanIncomplete()){ kind="bad";
+      // שכבה שנשברה אינה שכבה שלא מצאה כלום (ביקורת M25): בלי זה הפס היה ירוק
+      title="הבדיקה האחרונה לא הושלמה";
+      text=this.scanIncompleteText()+". ייתכנו שמות שלא הוצעו — כדאי לקרוא את המסמך בעין לפני שליחה.";
     } else if(PR.blocking){ kind="bad";
       title=(PR.count===1?"פריט אחד ממתין":PR.count+" פריטים ממתינים")+" להחלטה בפאנל «לבדיקה»";
       // אנשים קודם, ספקות ברמת המילה בסוף
@@ -3855,9 +3870,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.onCopyAi=this.copyAi; v.onDownload=this.download;
     // השאלה לפני ייצוא כשיש ממתינים (UX #18, #23)
     const vFail=this.verifyFailed(), vLeaks=vFail?S.res.verification.leaks:[];
-    v.exportAsk=!!S.exportAsk&&(PR.blocking>0||vFail);
+    const vPartial=this.scanIncomplete();
+    v.exportAsk=!!S.exportAsk&&(PR.blocking>0||vFail||vPartial);
     v.exportAskText=vFail
       ? "האימות נכשל: "+(vLeaks.length===1?"ערך מזהה אחד":vLeaks.length+" ערכים מזהים")+" עדיין בקובץ ("+[...new Set(vLeaks.map(l=>E.partName(l.part)))].slice(0,3).join(", ")+"). קובץ שיוצא עכשיו נושא אותם."
+      : vPartial&&!PR.blocking ? this.scanIncompleteText()+", ולכן ייתכנו שמות שלא הוצעו לך."
       : (PR.blocking===1?"פריט אחד עדיין בלי החלטה":PR.blocking+" פריטים עדיין בלי החלטה")+" — "+listNames([...PR.people.map(x=>x.value), ...PR.numbers.map(x=>x.value), ...PR.sug.map(x=>x.value), ...PR.near.map(x=>x.value)]);
     v.exportAnyLabel=S.exportAsk==="download"?"להוריד בכל זאת":"להעתיק בכל זאת";
     v.onExportShow=()=>{ this.log.add("export-ask",{act:"show"}); this.setState({exportAsk:"", open:this.openWith("review"), pane:"find"}); };

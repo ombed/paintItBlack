@@ -34,5 +34,6 @@
  "runner_t.js": 5,
  "passes_t.js": 17,
  "benchlib_t.js": 4,
- "license_t.js": 2
+ "license_t.js": 2,
+ "failopen_t.js": 11
 }
