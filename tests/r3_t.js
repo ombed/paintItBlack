@@ -1,4 +1,5 @@
 /* Release 3 engine rules, from the second real session (14.9 and 15.9).
+   Every Q number in this file is one of release 3's questions (CHANGELOG v33).
 
    Short names: "לשי" survived four times because a two-letter name's prefixed
    forms only waited for review (Q3). Prefixed chips: "שארסן" got its own fake

@@ -1,7 +1,7 @@
 /* Places by kind, and the reviewed taxonomy matched before distance.
 
    On the real session a neighbourhood came out as "[מקום א׳]" and a town
-   could be swapped for any town at the right distance. Her decisions (Q11):
+   could be swapped for any town at the right distance. Her decisions (Q11 of release 2, CHANGELOG v29):
    a place keeps its kind (a neighbourhood gets a neighbourhood name, a
    street a street name, a moshav a moshav), a generic town is the fallback
    and a label never is; and the distance map matches on coarse attributes

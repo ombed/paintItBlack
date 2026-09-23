@@ -24,6 +24,12 @@ three and four; its facts are summarised, never quoted with identifiers.
 | Q15 | transcription errors | ask her for two or three cleaned transcripts with the typos left in; build the near-miss measurement from those |
 | Q16 | session log | always on, local only, no text; exported by a button next to the leak report; nothing leaves the machine unless she exports |
 
+**Numbering.** There is no Q4 or Q5 in this table. `Q<n>` is not one scheme across the
+repository: this table is one; each release built from her real use numbered its own
+questions again from Q1 (`CHANGELOG.md`: release 2 in v29, release 3 in v33, release 5 in
+v39). Comments name the source: "PLAN-v18 Q13" for this table, "Q11 בגרסה 2" or "Q14 of
+release 2" for a release's. A bare Q number inside a CHANGELOG section is that section's.
+
 ## What the questionnaire changed
 
 - She does this almost daily, on several documents in parallel: meeting
