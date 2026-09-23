@@ -9,6 +9,9 @@ const AxeBuilder = require("@axe-core/playwright").default;
    Google Fonts stylesheet is turned off (preload), since the page's policy rightly refuses it. */
 
 const DOC = ["פרוטוקול", "רחל פרידמן: אני מבקשת לפתוח.", "אבנר שטרן: הגעתי מחיפה.", "רחל פרידמן: תודה.", "אבנר שטרן: נכון."].join("\n");
+// the axe run also needs a name with a prefix letter ("לאבנר"): its dimmed letter failed contrast
+// on the live site, and no axe run had seen one (live smoke test of v54)
+const DOC_PRE = [DOC, "רחל פרידמן: שלחתי לאבנר שטרן את המסמך."].join("\n");
 const settle = (page) => page.evaluate(async () => {
   const t0 = Date.now();
   while (document.getAnimations().some((a) => a.playState === "running") && Date.now() - t0 < 3000) await new Promise((r) => setTimeout(r, 50));
@@ -17,6 +20,26 @@ async function axe(page, where) {
   await settle(page);
   const r = await new AxeBuilder({ page }).options({ preload: false }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
   expect(r.violations.map((v) => `${where}: ${v.id} (${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(" | ")})`)).toEqual([]);
+}
+/* axe leaves a one-letter text "incomplete" ("too short to determine if it is actual text"), so a
+   prefix letter such as ל is never judged by it. This measures one element's contrast the way
+   WCAG does: its colour, faded by its own and its ancestors' opacity, over the first opaque
+   background behind it. The light theme, whose backgrounds are opaque. */
+async function contrastOf(locator) {
+  return locator.evaluate((el) => {
+    const rgb = (s) => (s.match(/[\d.]+/g) || []).map(Number);
+    const lum = (c) => c.slice(0, 3).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; })
+      .reduce((a, v, i) => a + v * [0.2126, 0.7152, 0.0722][i], 0);
+    let bgEl = el, bg = getComputedStyle(el).backgroundColor;
+    while (bgEl && /rgba\(0, 0, 0, 0\)|transparent/.test(bg)) { bgEl = bgEl.parentElement; bg = bgEl ? getComputedStyle(bgEl).backgroundColor : "rgb(255, 255, 255)"; }
+    let a = 1;
+    for (let e = el; e && e !== bgEl; e = e.parentElement) a *= Number(getComputedStyle(e).opacity);
+    const f = rgb(getComputedStyle(el).color), b = rgb(bg);
+    const fa = (f.length > 3 ? f[3] : 1) * a;
+    const seen = f.slice(0, 3).map((v, i) => fa * v + (1 - fa) * b[i]);
+    const [hi, lo] = [lum(seen), lum(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  });
 }
 async function toPeople(page) {
   await H.serveEngineWithStub(page);
@@ -40,14 +63,20 @@ test("axe: entry, people, places and work screens, a selected card and the inlin
   await H.boot(page);
   await axe(page, "entry");
   await page.getByRole("checkbox").first().uncheck();
-  await H.upload(page, "case.docx", DOC);
+  await H.upload(page, "case.docx", DOC_PRE);
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   await axe(page, "people");
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) { await axe(page, "places"); await run.click(); }
+  if (await run.isVisible()) {
+    await axe(page, "places");
+    // a place left out was dimmed with opacity, under the contrast minimum
+    const keep = page.locator("[data-extra-toggle] input").first();
+    if (await keep.count()) { await keep.uncheck(); await axe(page, "places, a place left out"); await keep.check(); }
+    await run.click();
+  }
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   await axe(page, "work");
   // a selected card shows "the same person as", which had no name (L27)
@@ -56,6 +85,22 @@ test("axe: entry, people, places and work screens, a selected card and the inlin
   await page.locator("[data-mark]").first().click();
   await expect(page.locator("[data-inline]")).toBeVisible();
   await axe(page, "work, the inline editor");
+  // the prefix letter: on the mark, on the card's form buttons and in the inline editor
+  await page.locator("[data-inline]").getByRole("button", { name: "סגירה" }).click();
+  await expect(page.locator("[data-inline]")).toHaveCount(0);
+  const pre = page.locator('[data-mark][data-val="לאבנר שטרן"]').first();
+  await expect(pre.locator("[data-pre]")).toHaveText("ל");
+  expect(await contrastOf(pre.locator("[data-pre]"))).toBeGreaterThanOrEqual(4.5);
+  await page.locator("[data-group]", { hasText: "אבנר" }).first().click();
+  const form = page.locator("[data-form]", { hasText: "לאבנר" }).first();
+  await expect(form.locator("span").first()).toHaveText("ל");
+  expect(await contrastOf(form.locator("span").first())).toBeGreaterThanOrEqual(4.5);
+  await axe(page, "work, a card with a prefixed form");
+  await pre.click();
+  const inlinePre = page.locator("[data-inline] [data-inline-pre]").first();
+  await expect(inlinePre).toHaveText("ל");
+  expect(await contrastOf(inlinePre)).toBeGreaterThanOrEqual(4.5);
+  await axe(page, "work, the inline editor on a prefixed name");
 });
 
 test("M28: what changes while she works is announced", async ({ page }) => {
