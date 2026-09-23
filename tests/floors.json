@@ -40,6 +40,7 @@
  "vendor_t.js": 14,
  "lintpage_t.js": 5,
  "gender_t.js": 7,
+ "chain_t.js": 3,
  "sweep_t.js": 11,
  "diffruntime_t.js": 5,
  "complexity_t.js": 8

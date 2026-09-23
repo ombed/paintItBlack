@@ -2416,11 +2416,17 @@ async function redactDocx(buf,subs,allow,opt){
     sweep[p]={rep:[...g.to][0],of:[...g.of][0],wordy:g.wordy};
   }
   let blocks2=[];for(const dd of docs)blocks2=blocks2.concat(flatten(dd.doc,dd.f.name));
+  /* כינוי שכבר נכתב אינו טקסט של המסמך, והסריקה לא נוגעת בו (סבב QA 1, M1). כינוי שהיא הקלידה
+     ושהוא שם של אדם אמיתי אחר במסמך הוחלף שוב, בכינוי של האדם האחר — שרשרת — וכך גם כינוי
+     שמכיל שם משפחה אמיתי של מישהו אחר */
+  const pseudoWritten=[...new Set(applied.map(r=>norm(String(r.rep||"")).trim()).filter(w=>w.length>=2))];
   for(const blk of blocks2){
     const n=norm(blk.text),reps=[];
     const zones=[];
     for(const rx0 of eng.allow){rx0.lastIndex=0;let z;
       while((z=rx0.exec(n)))zones.push([z.index,z.index+z[0].length])}
+    for(const w of pseudoWritten){let i=n.indexOf(w);
+      while(i>=0){zones.push([i,i+w.length]);i=n.indexOf(w,i+1)}}
     for(const [o,inf] of Object.entries(sweep)){
       if(!n.includes(o))continue;
       const nw=inf.rep;
