@@ -49,6 +49,23 @@ reproduced here, got a test that fails on the old code, and was fixed in its own
 | L15 | README prose pointed at a line number and a label that do not exist | names the string and «מודל זיהוי עברי מקומי» | v54 (pending) |
 | L21 | `T_GAZWORD` prices the harmful gazetteer change lightly | measured and recorded in `measurements.md`: judge by the per-entity diff | v54 (pending) |
 | Nits 2, 8, 9 | eight vs twelve; three restating comments; two scripts that crash opaquely | comments; `log-report.js` and `diff-runtime.js` with tests | v54 (pending) |
+| M25 | A scan layer that threw read as "found nothing" (body scan, labels, model chunks) | `verification.incomplete`, a red bar and an export question; `tests/failopen_t.js` | v53 |
+| H10 (rest) | WordArt, list-number text and style names were not walked | read and cleared; a last pass clears listed values from every unwalked XML part | v53 |
+| M21, M22 | The leak report read engine names the browser did not have, and counted with its own matcher | the engine exports them; counts use the engine's NW, flex, variants | v53 |
+| L7 | Three mutators skipped the undo history | each is a step | v53 |
+| L12 | Two silent caps (spelling check, self-check log), and a twelve-suggestion cap on the body scan | both report; the body-scan cap is gone | v53 |
+| Suspicions | Restore rewrote the inside of a longer number; a case's "פלוני א׳" collided with the open document's | whole-number boundary; `restorePairs` lets the document win | v53 |
+| Suspicion | A scanned PDF with a printed header passed as text | pages judged by their own text; picture pages named | v53 |
+| M20 | The benchmark measured body text only | the product's reader, the whole output file, three structure documents | v53 |
+| L19, L4, M6, L10, L5, L20, L23 | Gate netted within a category; two flow assertions; PR check accepted a missing file; from-leak wrote into the corpus (and read "digits(9)" with a lost backslash); coverage measured no engine; lexicon-aided marker; trap canonicals | entity gate; ported; file must exist; temp folder, fixed regex, guard extended to bench/ and scripts/; command corrected; marker list; generator refuses | v53 |
+| H14, M4, M2, L6 | Libraries that see the document came from a CDN unchecked; model unpinned; nothing evicted the model; log guard was a value filter | self-hosted (`scripts/vendor.js`), runtime WebAssembly checked by SHA-256, model pinned and verified, a CSP, "delete the model", a value schema | v53 |
+| — | A file, pasted text or the tour started before the engine loaded did nothing | queued until it loads | v53 |
+| M26–M32, L26–L30 | Accessibility (zoom, contrast, announcements, keyboard, direction, the tour, motion, names, states, selection, errors) | `e2e/a11y.spec.js` with axe; Escape does not end the tour, by the contract `e2e/unruly.spec.js` pins | v54 (pending) |
+| M5 | `index.html` was linted by nothing | `scripts/lint-page.js`, `tests/lintpage_t.js` | v54 (pending) |
+| QA 1 H1 | A pseudonym changed after copying did not restore | every pseudonym that left is remembered, by the case too | v54 (pending) |
+| QA 1 M1 | A typed pseudonym that is another real person was replaced again | the sweep skips written pseudonyms | v54 (pending) |
+| QA 1 M2 | Girls' names outside the lists got men's pseudonyms | the role word decides for a full name; short names ending in ה | v54 (pending) |
+| Nit 3, M15 in index.html | A dated comment; bare Q references in the page | dated; qualified | v54 (pending) |
 | Nit 4 | HANDOVER says MIT | the dated note at its top, with L14 | v51 |
 
 **Looked at and deliberately left.** A finishing re-run closes an inline editor opened while it ran
@@ -73,20 +90,18 @@ counterpart), and M6 below.
 path is dead and nothing evicts `transformers-cache`), L6 (the session log's guard is a
 value filter, like the leak report's was), and H14 below.
 
-**Batch D — accessibility.** M26 (200% zoom collapses the document pane), M27 (control
-borders at 1.3:1), M28 (nothing is announced), M29, M30, M31 (no `dir="auto"`, so English
-AI answers render right-to-left), M32 (the tour and assistive use), L26–L30.
+**Batch D — accessibility.** Done (v54).
 
-**Batch E — decisions and documents.** What is left of it: L12 (two silent caps), L20 (the
-`(lexicon-aided)` marker for `L_TOWN`), L23 (seven traps with a wrong `canonical`), nits 3, 5, 6,
-7 and 10, and the bare `Q<n>` references inside `index.html` and its generated
-`design/redact.dc.html` (Q6, Q9, Q12, Q14, Q15, Q16 and Q2), left because this batch did not
-touch `index.html`. Nit 3 is also in `index.html`.
+**Batch E — decisions and documents.** What is left of it: nits 5, 6, 7 and 10.
 
 **Batch F — structure.** M16 (engine sections share one namespace), M17 (the UI builds
-rules field by field at 20 sites and knows 35 engine exports), M21 and M22 (`page-logic.js`
-re-implements `classify` and the word boundary, and both diverge from the engine in the
-browser), M5 (`index.html` is linted by nothing), L8, L9 (dead code).
+rules field by field at 20 sites and knows 35 engine exports), L8, L9 (dead code). M21, M22 and
+M5 are done.
+
+**Found on the way, for the detection batch.** A surname that begins with ה (הורוביץ) is
+never proposed by the body scan, by design, to keep definite nouns out; it needs a lexicon and
+both benchmarks. A name only in a picture's alt text is proposed only when its first name is a
+known one (the benchmark's names are disjoint from the lists, so it shows as 3 leaks there).
 
 ## Needs the owner's decision
 
