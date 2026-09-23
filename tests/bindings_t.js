@@ -17,7 +17,8 @@ ok(assigned.size > 20, "the view's assignments are found: " + assigned.size);
 ok(dead.length === 0, "every v.<name> the view sets is read by the template; not read: " + dead.join(", "));
 
 // review M17: a rule is built in one place, mkRule, so every rule has the same fields
-const literals = [...app.matchAll(/\{value[:,][^}]*replacement/g)].map((m) => m[0].slice(0, 60)).filter((s) => !s.startsWith("{value:String(value)"));
+// (the argument handed to mkRule, and mkRule's own parameter list and return, are the factory itself)
+const literals = [...app.matchAll(/(?<!mkRule\()\{value[:,][^}]*replacement/g)].map((m) => m[0].slice(0, 60)).filter((s) => !s.startsWith("{value:String(value)"));
 ok(literals.length === 0, "rules are built by mkRule only; literal rules found: " + JSON.stringify(literals));
 
 console.log(`\n${pass} passed, ${fail} failed`);
