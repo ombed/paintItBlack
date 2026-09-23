@@ -3084,6 +3084,11 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         if(!handled.some(h=>covers(h,v)||h===v)) add("listed-not-handled", r.value);
       }
       for(const f of S.res.flagged.filter(r=>r.src==="nohit")) if(present(f.value)&&!allowed.has(n(f.value))) add("nohit-but-present", f.value);
+      // הבטחה 4: שני אנשים אינם חולקים כינוי. אם כן, התשובה מה-AI אינה יכולה לחזור אליהם
+      // (restoreNames מוותר על כינוי משותף). אותה מפה שמסך ההחזרה משתמש בה; מיזוג "אותו אדם" כבר יצא ממנה.
+      const byPseudo=new Map();
+      for(const [v,p] of Object.entries(this.currentMap())){ const k=n(p); if(!k) continue;
+        if(byPseudo.has(k)&&n(byPseudo.get(k))!==n(v)) add("pseudonym-shared", byPseudo.get(k)+" / "+v); else byPseudo.set(k,v); }
     }
     // שכבות צמודות למה שהן מצביעות עליו
     const near=(a,b)=>Math.abs(a-b)<=1.5;

@@ -163,3 +163,12 @@ test("a self-check log that is full says so once", async ({ page }) => {
   expect(evs.filter((e) => e === "self-check-full")).toHaveLength(1);
   expect(evs).not.toContain("self-check");
 });
+
+// review, ranked 20th: promise 4 — two people never share a pseudonym, or the answer cannot come back
+test("two people with one pseudonym are reported", async ({ page }) => {
+  await toWork(page);
+  const prof = { v: 1, name: "", mode: "real", allow: [], removed: [], map: {},
+    rules: [{ value: "רחל פרידמן", kind: "NAME", replacement: "דנה כהן", auto: true }, { value: "אבנר שטרן", kind: "NAME", replacement: "דנה כהן", auto: true }] };
+  await page.locator('input[type="file"][accept*="json"]').setInputFiles({ name: "case.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(prof)) });
+  await expect.poll(() => rules(page)).toContain("pseudonym-shared");
+});
