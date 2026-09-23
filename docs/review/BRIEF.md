@@ -24,7 +24,10 @@ things in it were wrong or incomplete, and the review proved each one:
   `@huggingface/transformers` and `pdfjs-dist`, because a bare dynamic `import()` cannot carry
   one. `CHARTER.md` section 6.6 repeats the same mistake as "No Subresource Integrity".
 - **Section 9, payload.** Babel is never fetched. It is reachable only through an import of a
-  `.jsx` or `.tsx` URL, and the repository has none.
+  `.jsx` or `.tsx` URL, and the repository has none. The rest of "React, Babel, d3 and the fonts
+  come from CDNs" needs the same care (added 2026-09-23): d3, topojson and the world-atlas
+  shapes load only when the map is opened; React and ReactDOM load on every page, from unpkg on
+  the first visit and after each version bump, and from the service worker's cache otherwise.
 - **Section 9, API surface.** The engine has 83 exports, not 81.
 
 Added 2026-09-23, with the documentation batch of the triage:
