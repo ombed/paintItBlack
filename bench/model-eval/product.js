@@ -1,7 +1,7 @@
 /* The whole chain with a registry model (PLAN.md run order 1 and 2: parity, noise band).
 
      node bench/model-eval/product.js [--model=base-q8] [--tag=a] [--against=baseline|<tag>|<model>:<tag>]
-          [--loader=today]
+          [--loader=today] [--tok=product|faithful]
 
    Runs bench/lib.js runAll, unchanged, on the synthetic corpus and, when they are present,
    on her fixtures, with the model loaded through the model-eval loader (pinned revision,
@@ -29,6 +29,9 @@ const MODEL = arg("model", "base-q8"), TAG = arg("tag", "a"), AGAINST = arg("aga
 // --loader=today: the same model through today's bench loader, to tell a loader difference
 // from a fixture that changed since the committed baseline was run
 const TODAY = arg("loader", "") === "today";
+// --tok=faithful: the same model with its tokenizer as trained (load.js, tokfix.js)
+const TOK = arg("tok", "product");
+if (TODAY && TOK !== "product") throw new Error("--loader=today has the product tokenizer only");
 if (TODAY && MODEL !== "base-q8") throw new Error("--loader=today loads base-q8 only");
 if (!/^[a-z0-9.-]+$/.test(TAG) || (AGAINST && !/^(?:[a-z0-9.-]+:)?[a-z0-9.-]+$/.test(AGAINST))) throw new Error("--tag and --against are short lower-case names");
 // --against=<tag> is this model's earlier run; <model>:<tag> another model's (q8 against uint8)
@@ -51,7 +54,7 @@ const readJson = (f) => (fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8"
   if (!TODAY && MODEL === "base-q8") seed(getSpec(MODEL), TODAY_FILE);
   const B = makeBench(E);
   const t0 = Date.now();
-  const pipe = TODAY ? await loadModel() : await loadModel(MODEL);
+  const pipe = TODAY ? await loadModel() : await loadModel(MODEL, { tok: TOK });
   const loadMs = Date.now() - t0;
 
   // the synthetic corpus: invented text, so ids and names may be printed

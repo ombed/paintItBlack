@@ -149,7 +149,25 @@ async function loadModel(spec, opt) {
     if (!fs.existsSync(file)) throw new Error("model file for " + s.key + " is not where the cache should put it: " + file);
     checkFile(s, file);
   }
+  if (o.tok === "faithful") pipe.tokenizer = await faithfulTokenizer(T, s);
+  else if (o.tok && o.tok !== "product") throw new Error("tok must be product or faithful");
   return pipe;
+}
+
+/* opt.tok "faithful": the same model with its tokenizer as it was trained (tokfix.js), swapped
+   into the pipeline. The default, "product", is the tokenizer as the page has it. The rewritten
+   copy lives in model-cache/faithful-tok/<key>/, rebuilt on every load from the row's own files. */
+async function faithfulTokenizer(T, s) {
+  const { faithfulTokJSON, TOK_FILES } = require("./tokfix.js");
+  const E = require("../engine.js");
+  const from = path.dirname(path.dirname(modelFile(s)));
+  const to = path.join(MODEL_CACHE, "faithful-tok", s.key);
+  fs.mkdirSync(to, { recursive: true });
+  for (const f of TOK_FILES) if (fs.existsSync(path.join(from, f))) fs.copyFileSync(path.join(from, f), path.join(to, f));
+  fs.writeFileSync(path.join(to, "tokenizer.json"), faithfulTokJSON(fs.readFileSync(path.join(from, "tokenizer.json"), "utf8"), E));
+  T.env.allowLocalModels = true;
+  T.env.localModelPath = path.dirname(to);
+  return T.AutoTokenizer.from_pretrained(path.basename(to), { local_files_only: true });
 }
 
 module.exports = { loadModel, readRegistry, getSpec, validate, modelFile, sha256File, seed, MODEL_CACHE, HF_CACHE, ROOT, DTYPE_SUFFIX };
