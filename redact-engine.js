@@ -248,7 +248,9 @@ function gender(v,hint){
   if(MASC.has(first)||MALE_HE.has(first))return "m";
   // סיומת -יה (נריה, עזריה) היא תאופורית וזכרית; -ית/-את/-ה אחרת נקבית
   if(/יה$/.test(first)&&first.length>=4)return "m";
-  if(/(?:ית|את|ה)$/.test(first)&&first.length>=4)return "f";
+  // שם בן שלוש אותיות שמסתיים ב-ה ("ליה", "גלה") נקבי כמו שם ארוך ממנו (סבב QA 1, M2); שם
+  // זכרי קצר ב-ה ("משה") יושב ברשימות ומוכרע למעלה
+  if(/(?:ית|את|ה)$/.test(first)&&first.length>=3)return "f";
   return "m"}
 function hash32(s){let h=0x811c9dc5;
   for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}
@@ -1829,7 +1831,9 @@ class Engine{
       const FEMCTX=new Set(["הקטינה","הילדה","הבת","האחות","האם","הסבתא","הדודה","גב'","הגב'","גברת","התובעת","הנתבעת","המבקשת","המשיבה","המנוחה","הפעוטה","התינוקת","הנערה"]);
       const nt=norm(docText); let m;
       while((m=FCTX.exec(nt))){ const w=m[2]; if(STOP.has(w)||COMMON.has(w)||VRB.has(w))continue; this.firstish.add(w);
-        for(const s of subs) if(s.kind==="NAME"&&!this.gmap[s.value]&&norm(s.value).trim()===w) this.gmap[s.value]=FEMCTX.has(m[1])?"f":"m"; }
+        // השם הפרטי של שם מלא נקבע גם הוא מההקשר: "הקטינה ליה לוי" (סבב QA 1, M2). קודם רק ערך
+        // בן מילה אחת קיבל אותו, וכל ילדה ששמה לא ברשימות קיבלה כינוי של בן
+        for(const s of subs) if(s.kind==="NAME"&&!this.gmap[s.value]&&norm(s.value).trim().split(/\s+/)[0]===w) this.gmap[s.value]=FEMCTX.has(m[1])?"f":"m"; }
     }
     this.used=new Set();
     // פרופיל שכופה "יעל רוזן" על מישהי, כשיעל רוזן אמיתית מופיעה במסמך
