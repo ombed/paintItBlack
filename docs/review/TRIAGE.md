@@ -36,6 +36,20 @@ reproduced here, got a test that fails on the old code, and was fixed in its own
 | H10 | Field codes, table alt text and the page-one thumbnail were not walked | hidden blocks, link scrub in field codes, thumbnail dropped | v51 |
 | L14 | Three files named three licences | PolyForm Shield 1.0.0, pinned by `tests/license_t.js` (owner's decision) | v51 |
 | H15, L16–L18 | The brief and the charter were wrong in four places | a corrections section in `BRIEF.md` | v51 |
+| M14 | Four places stated a gazetteer rule the code stopped keeping | comments in `06-model.js`, `07-gazetteer.js`, `build-gazetteer.js`; PLAN-v18 marks its rule superseded | v54 (pending) |
+| M15 | `Q<n>` meant several numbering schemes | bare references name their source; a numbering note in PLAN-v18. Not `index.html` (see Batch E) | v54 (pending) |
+| M13 | A partial sweep re-run rewrote the whole `bench/sweep.md` | `--only` merges, per-section provenance, `tests/sweep_t.js`; the last full sweep restored from git | v54 (pending) |
+| M12 | `measurements.md` cited an instrument that is not in the repo | it says what can and cannot be reproduced, and traces the sweep table to its run | v54 (pending) |
+| H15 | The complexity list had no command behind it | `scripts/complexity.js`, `tests/complexity_t.js`, pinned in the charter; v53 top ten in the brief | v54 (pending) |
+| L16 | "Commands are in the charter"; the churn window | the charter lists the commands and the numbers with none | v54 (pending) |
+| L17, L18 | Which CDN loads happen when; "No Subresource Integrity" in the charter | brief corrections; the charter states the five-of-seven | v54 (pending) |
+| L22, L24 | "4 false positives" without the junk; 63% of the checks one matrix | brief corrections, with today's measured numbers | v54 (pending) |
+| L11 | `bodyNames`' 3/2/1 scale and cutoff documented nowhere | a comment in `05-bodynames.js` | v54 (pending) |
+| L13 | Stale counts and tolerance in `QUALITY-PLAN.md` | dated counts, 1.5 px | v54 (pending) |
+| L15 | README prose pointed at a line number and a label that do not exist | names the string and «מודל זיהוי עברי מקומי» | v54 (pending) |
+| L21 | `T_GAZWORD` prices the harmful gazetteer change lightly | measured and recorded in `measurements.md`: judge by the per-entity diff | v54 (pending) |
+| Nits 2, 8, 9 | eight vs twelve; three restating comments; two scripts that crash opaquely | comments; `log-report.js` and `diff-runtime.js` with tests | v54 (pending) |
+| Nit 4 | HANDOVER says MIT | the dated note at its top, with L14 | v51 |
 
 **Looked at and deliberately left.** A finishing re-run closes an inline editor opened while it ran
 (found by CI, not by the review). Her two real sessions show re-runs of 0.14–0.2 s, 0.42 s at most,
@@ -63,10 +77,11 @@ value filter, like the leak report's was), and H14 below.
 borders at 1.3:1), M28 (nothing is announced), M29, M30, M31 (no `dir="auto"`, so English
 AI answers render right-to-left), M32 (the tour and assistive use), L26–L30.
 
-**Batch E — decisions and documents.** M14 (four places state a gazetteer rule the code
-stopped keeping), M15 (`Q<n>` means three numbering schemes), M12, M13 (`bench/sweep.md`
-destroyed by a partial re-run), L11–L18, L20–L24, H15 and the other corrections to
-`docs/review/BRIEF.md`, the ten nits.
+**Batch E — decisions and documents.** What is left of it: L12 (two silent caps), L20 (the
+`(lexicon-aided)` marker for `L_TOWN`), L23 (seven traps with a wrong `canonical`), nits 3, 5, 6,
+7 and 10, and the bare `Q<n>` references inside `index.html` and its generated
+`design/redact.dc.html` (Q6, Q9, Q12, Q14, Q15, Q16 and Q2), left because this batch did not
+touch `index.html`. Nit 3 is also in `index.html`.
 
 **Batch F — structure.** M16 (engine sections share one namespace), M17 (the UI builds
 rules field by field at 20 sites and knows 35 engine exports), M21 and M22 (`page-logic.js`
