@@ -303,3 +303,25 @@ outputs through the whole Node chain:
   - the "180MB" text.
 - **The same release should carry the `nerAlign` fix** (the lost place after a nikud word). Then
   run the whole-chain comparison again before the release.
+
+**Checkpoint 3 decision (owner, 23.9):** switch to **parse-base-ft**, hosted in the app's own site
+rather than on Hugging Face.
+
+## Phase 6: the switch (v56, PR #72)
+
+- The model sits in `models/dictabert-parse-ner-37f4d6f/`.
+  - Dicta's files are there as published.
+  - The q8 export is in four parts under 50 MB each.
+  - NOTICE.md gives the CC BY 4.0 credit.
+- The page joins the parts in its fetch hook and checks the joined file against the pinned
+  SHA-256. It deletes every cached file that is not this model's.
+- The CSP no longer lists Hugging Face.
+- The page's `fixTokJSON` writes `\w` as the Unicode classes: the tokenizer fix, for any
+  tokenizer.
+- `nerAlign` aligns on text normalised as the tokenizer normalises it, and refuses a jump ahead:
+  the nikud fix.
+- **Verification:**
+  - The product's own bench, with the old `nerAlign`, reproduces this evaluation's parse-base-ft
+    numbers exactly: synthetic 265/3/3/5/33, hers 33/0/0/4/94.
+  - With the `nerAlign` fix, the synthetic set gives 266/2/2/5/33. That recovers m3's "הילי",
+    which the lost run had dropped. Hers are unchanged.
