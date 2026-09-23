@@ -32,6 +32,62 @@ console.log("\n— a new log is read in full —");
   ok(t.includes("seconds between corrections: median 3"), "the pace of corrections");
 }
 
+console.log("\n— the v53 events are summarised, not lumped under 'other' —");
+{
+  const t = report({ v: "v53", ms: 600000, events: [
+    { t: 1000, ev: "pdf-image-pages", n: 2, of: 9 },
+    { t: 2000, ev: "model-partial", failed: 1, of: 6 },
+    { t: 3000, ev: "file-early" },
+    { t: 4000, ev: "run", applied: 10, flagged: 2, near: 1, suggest: 3, passed: false, incomplete: "body,labels" },
+    { t: 5000, ev: "run", applied: 11, flagged: 0, near: 0, suggest: 0, passed: true, incomplete: "" },
+    { t: 6000, ev: "export-ask", what: "download", open: 2, verifyFailed: true, incomplete: true },
+    { t: 7000, ev: "export-ask", act: "anyway", what: "download" },
+    { t: 7500, ev: "export-ask", act: "show" },
+    { t: 8000, ev: "self-check-full", screen: "work" },
+    { t: 9000, ev: "model-forget" },
+  ] });
+  const line = (p) => t.split("\n").find((l) => l.startsWith(p)) || "none";
+  ok(t.includes("Runs: 2 · verification passed 1/2 · incomplete on 1: body (1) · labels (1)"), "the run line: " + line("Runs"));
+  ok(t.includes("model could not read 1 of 6 chunks"), "a partial model run");
+  ok(t.includes("PDF pages that are images: 2 of 9"), "image pages in a PDF");
+  ok(t.includes("file chosen before the tool was ready: 1"), "an early file");
+  ok(t.includes("Export asked: 1 (download (1)) · open items 1 · verification failed 1 · scan incomplete 1 · then: anyway (1) · show (1)"), "the export question: " + line("Export"));
+  ok(t.includes("the self-check stopped listing new breaks (40 distinct) on work"), "a full self-check");
+  ok(t.includes("model deleted from the computer: 1"), "the model forgotten");
+  const other = line("Other events");
+  ok(!/run|export-ask|model-partial|pdf-image|file-early|self-check-full|model-forget/.test(other), "none of them left under other: " + other);
+}
+
+console.log("\n— one page load, several documents —");
+{
+  const t = report({ v: "v53", ms: 900000, events: [
+    { t: 60000, ev: "screen", to: "work", from: "people" },
+    { t: 120000, ev: "allow", src: "m" }, { t: 130000, ev: "set-rep", src: "m" },
+    { t: 300000, ev: "new-doc" }, { t: 300000, ev: "screen", to: "entry", from: "work" },
+    { t: 360000, ev: "screen", to: "work", from: "entry" },
+    { t: 400000, ev: "allow", src: "b" },
+  ] });
+  ok(t.includes("Documents: 2 · doc 1 5.0 min, 2 corrections, 80% on work · doc 2 10.0 min, 1 correction, 90% on work"), "per document: " + (t.split("\n").find((l) => l.startsWith("Documents")) || "none"));
+}
+
+console.log("\n— a package is read with its leak report —");
+{
+  const fs = require("fs"), os = require("os"), path = require("path");
+  const { mkzip } = require("./mkzip.js");
+  const { readPackage } = require("../scripts/log-report.js");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pib-pkg-"));
+  try {
+    const f = path.join(dir, "paintItBlack-package-2026-01-01");
+    const leak = { tool: "paintItBlack", v: "v53", count: 1, shapes: [{ kind: "NAME", words: 1, lens: [4], before: "title", after: "verb" }] };
+    fs.writeFileSync(f, Buffer.from(mkzip([{ name: "session-log.json", body: JSON.stringify({ v: "v53", ms: 1, events: [] }) }, { name: "leak-report.json", body: JSON.stringify(leak) }])));
+    const p = typeof readPackage === "function" ? readPackage(f) : {};
+    ok(p.log && p.log.v === "v53" && p.leaks && p.leaks.shapes.length === 1, "the log and the leak report come out of one zip");
+    const g = path.join(dir, "no-leaks");
+    fs.writeFileSync(g, Buffer.from(mkzip([{ name: "session-log.json", body: JSON.stringify({ v: "v53", ms: 1, events: [] }) }])));
+    ok(typeof readPackage === "function" && readPackage(g).leaks === null, "a package without a leak report says so");
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+}
+
 console.log("\n— it refuses to print text —");
 {
   let threw = false;

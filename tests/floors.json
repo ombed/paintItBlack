@@ -29,7 +29,7 @@
  "prcheck_t.js": 16,
  "structure_t.js": 113,
  "harvest_t.js": 21,
- "logreport_t.js": 12,
+ "logreport_t.js": 23,
  "state_t.js": 93,
  "runner_t.js": 5,
  "passes_t.js": 17,
