@@ -17,7 +17,8 @@ const listed = new Set(SITE_FILES);
 // README deployment table
 const md = read("README.md");
 const table = md.split("## פריסה")[1].split("\n## ")[0].split("\n").filter((l) => l.startsWith("|")).join("\n");
-const inTable = [...table.matchAll(/`([^`]+\.[a-z]+)`/g)].map((m) => m[1]).filter((f) => !f.startsWith("file:") && !f.startsWith("import"));
+// an extension may end in digits: the model's weights ship as model_quantized.onnx.part1 …
+const inTable = [...table.matchAll(/`([^`]+\.[a-z][a-z0-9]*)`/g)].map((m) => m[1]).filter((f) => !f.startsWith("file:") && !f.startsWith("import"));
 for (const f of inTable) ok("README lists " + f + " but the site does not", listed.has(f));
 for (const f of SITE_FILES) ok("site ships " + f + " but the README table does not list it", inTable.includes(f));
 

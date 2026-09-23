@@ -23,6 +23,20 @@ setTimeout(async()=>{
  ok(j.pre_tokenizer.pretokenizers[1].pattern.Regex===GOODRX,"תבנית תקינה אחרת לא נגעו בה");
  ok(j.model.type==="WordPiece"&&j.version==="1.0","שאר הקובץ נשמר כמו שהוא");
 
+ // \w ב-JavaScript הוא ASCII בלבד; המודל אומן עם \w של Rust, שכולל עברית (בדיקת המודלים)
+ console.log("\n— \\w כמו שהמודל הכיר אותו —");
+ const cut=(s)=>(s.match(new RegExp(got,"gu"))||[]).join("|");
+ ok(!/\\w|\\W/.test(got),"לא נשאר \\w בתבנית: "+got.slice(-40));
+ ok(cut("ביום שלישי.")==="ביום|שלישי|.","מילה עברית והנקודה אחריה נפרדות, כמו בפייתון: "+cut("ביום שלישי."));
+ ok(cut("מלכה-אזולאי")==="מלכה|-|אזולאי","שם משפחה כפול נחתך במקף: "+cut("מלכה-אזולאי"));
+ ok(cut("שָׁלוֹם")==="שָׁלוֹם","ניקוד נשאר בתוך המילה");
+ ok(cut("Dana, 2020.")==="Dana|,|2020|.","ואנגלית ומספרים כמו קודם");
+ const onlyW=JSON.stringify({pattern:{Regex:String.raw`\w+|[^\w\s]+`}});
+ const ow=JSON.parse(ev(`fixTokJSON(${JSON.stringify(onlyW)})`)).pattern.Regex;
+ ok(ow==="[\\p{L}\\p{M}\\p{Nd}\\p{Pc}]+|[^\\p{L}\\p{M}\\p{Nd}\\p{Pc}\\s]+","גם תבנית שנבנית בלי תיקון נכתבת מחדש כש-\\w בתוכה: "+ow);
+ const inW=JSON.stringify({pattern:{Regex:String.raw`[\W\d]+`}});
+ ok(ev(`fixTokJSON(${JSON.stringify(inW)})`)===inW,"\\W בתוך מחלקת תווים נשאר כמו שהוא (אין לו כתיבה שקולה)");
+
  console.log("\n— תבנית תקינה לא משתנה —");
  const good=JSON.stringify({pattern:{Regex:"\\\\w+|\\\\p{P}"}});
  ok(ev(`fixTokJSON(${JSON.stringify(good)})`)===good,"קובץ ללא בעיה מוחזר זהה");

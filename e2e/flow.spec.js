@@ -115,7 +115,7 @@ test.describe("what the user is told about the model", () => {
     await expect(box).toBeDisabled();
     await expect(box).not.toBeChecked();
     await expect(page.getByText(/מקובץ מקומי המודל לא נטען/)).toBeVisible();
-    // ported from tests/flow.js (review L4): a load fails at once, instead of starting a 180 MB
+    // ported from tests/flow.js (review L4): a load fails at once, instead of starting a 185 MB
     // download that cannot finish
     const r = await page.evaluate(async () => {
       const E = await import("./redact-engine.js");
@@ -140,7 +140,7 @@ test.describe("what the user is told about the model", () => {
     await page.addInitScript(() => { window.__ner = { env: { local: false, canCache: true, canRun: true }, cached: false }; });
     await H.boot(page);
     await expect(page.getByRole("checkbox").first()).toBeEnabled();
-    await expect(page.getByText(/180MB/)).toBeVisible();
+    await expect(page.getByText(/185MB/)).toBeVisible();
   });
 });
 

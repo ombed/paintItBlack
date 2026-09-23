@@ -8,10 +8,10 @@
 <meta name="theme-color" content="#1F5B44">
 <meta name="referrer" content="no-referrer">
 <!-- מדיניות אבטחת התוכן (ביקורת H14): לאן העמוד רשאי לפנות. connect-src הוא העיקר: גם קוד זר
-     שירוץ כאן לא יוכל לשלוח את המסמך או את מפת השמות לשום כתובת שאינה ברשימה. המודל: huggingface.co
-     והשרתים שהוא מפנה אליהם (hf.co). ה-CDN: ספריית ההרצה של המודל, נבדקת ב-SHA-256, ומפת העולם.
+     שירוץ כאן לא יוכל לשלוח את המסמך או את מפת השמות לשום כתובת שאינה ברשימה. המודל יושב באתר
+     עצמו (models/), ולכן אין לו כתובת כאן. ה-CDN: ספריית ההרצה של המודל, נבדקת ב-SHA-256, ומפת העולם.
      'unsafe-eval' נדרש לשכבת ההרצה (התבנית מוערכת ב-new Function) ול-WebAssembly. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://unpkg.com; worker-src 'self' blob:; connect-src 'self' https://huggingface.co https://*.huggingface.co https://*.hf.co https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://unpkg.com; worker-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <script>/* ערכת הצבעים לפני הציור הראשון: בלי זה טעינה מחדש במצב לילה הבהבה ביום עד שהממשק עלה */try{var t=localStorage.getItem("redact-theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}</script>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -130,7 +130,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v55");
+  console.log("השחרת מסמכים — גרסה v56");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -168,9 +168,9 @@ button:disabled{opacity:.55;cursor:not-allowed}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v55") return;
+        if(served==="v56") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v55 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v56 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -333,7 +333,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
       </sc-if>
       <sc-if value="{{ nerAsk }}">
         <div data-ner-ask role="group" aria-label="הורדת מודל הזיהוי" style="grid-column:1/-1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-size:13.5px;line-height:1.5">
-          <span style="flex:1 1 240px">להוריד את מודל הזיהוי? כ-180MB, פעם אחת, ואחר כך הוא נשמר בטלפון. הוא מוצא יותר שמות; על חבילת גלישה עדיף Wi-Fi.</span>
+          <span style="flex:1 1 240px">להוריד את מודל הזיהוי? כ-185MB, פעם אחת, ואחר כך הוא נשמר בטלפון. הוא מוצא יותר שמות; על חבילת גלישה עדיף Wi-Fi.</span>
           <button onClick="{{ onNerAskYes }}" style="padding:9px 14px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500">להוריד את המודל</button>
           <button onClick="{{ onNerAskNo }}" style="padding:9px 14px;border-radius:9px;border:1px solid var(--line);font-size:13px">בלי המודל</button>
         </div>
@@ -1145,7 +1145,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
 </div>
 </x-dc>
-<footer><div id="ver">גרסה v55</div></footer>
+<footer><div id="ver">גרסה v56</div></footer>
 <script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
@@ -1404,7 +1404,7 @@ class Component extends DCLogic {
     this.log.add("model-forget",{});
     try{ await E.nerForget(); }catch(_){}
     try{ const c=navigator.serviceWorker&&navigator.serviceWorker.controller; if(c) c.postMessage("refresh"); }catch(_){}
-    this.setState({nerHave:false, nerHint:"המודל נמחק מהמחשב. בהפעלה הבאה יורדים כ-180MB.", notice:"המודל והקבצים השמורים נמחקו מהמחשב.", noticeUndo:false});
+    this.setState({nerHave:false, nerHint:"המודל נמחק מהמחשב. בהפעלה הבאה יורדים כ-185MB.", notice:"המודל והקבצים השמורים נמחקו מהמחשב.", noticeUndo:false});
   };
   async nerStatus(E){
     const env = E.nerEnv();
@@ -1416,7 +1416,7 @@ class Component extends DCLogic {
     const has = await E.nerCached();
     this.setState({nerOff:false, nerHave:!!has, nerHint: has
       ? "המודל שמור במחשב. אין הורדה נוספת, וזה עובד גם בלי אינטרנט."
-      : "בהפעלה הראשונה יורדים כ-180MB. אחר כך המודל נשאר במחשב."});
+      : "בהפעלה הראשונה יורדים כ-185MB. אחר כך המודל נשאר במחשב."});
   }
 
   /* ── קליטת קובץ ── */
@@ -1548,7 +1548,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     }catch(e){ this.setState({err:"הכנת הטקסט נכשלה: "+(e.message||e)}); }
   };
 
-  /* UX #2: טלפון או "חיסכון בנתונים" — לא מורידים 180MB בלי שאלה.
+  /* UX #2: טלפון או "חיסכון בנתונים" — לא מורידים 185MB בלי שאלה.
      במחשב נשאר כמו שהיה: המשתמשת עובדת במחשב, והתלונה העיקרית שלה היא שמות
      שלא נמצאו, והמודל הוא מה שמוצא אותם. לכן גם בטלפון אין ברירת מחדל שקטה
      של "בלי מודל" — שואלים, עם שתי תשובות שוות. */

@@ -39,10 +39,25 @@ const wasmKeys = Object.keys(JSON.parse("{" + (eng.match(/const ORT_WASM=\{([^}]
 ok(wasmKeys.length === 2 && wasmKeys.every((k) => LOADERS[k + ".mjs"]), "every WebAssembly the engine pins has its loader in vendor: " + wasmKeys.join(", "));
 ok(Object.values(JSON.parse("{" + (eng.match(/const ORT_WASM=\{([^}]*)\}/) || ["", ""])[1] + "}")).every((v) => /^[A-Za-z0-9+/]{43}=$/.test(v)), "and each has a SHA-256 in base64");
 
-// the model is pinned to a commit and its weights to a hash, not to "main"
-ok(/const NER_REV="[0-9a-f]{40}"/.test(eng), "the model revision is a commit, not a branch");
-ok(/sha256:"[0-9a-f]{64}"/.test(eng), "the weights carry a SHA-256");
-ok(!/resolve\/main\//.test(eng.replace(/rev==="main"/g, "")), "nothing loads from resolve/main");
+// the model: served by the site from models/<id>/, its source pinned to a commit, its weights
+// to a hash; the parts in the repository join to exactly that file (scripts/model-parts.js)
+const spec = eng.match(/const NER_SPEC=\{\s*id:"([^"]+)",\s*source:"([^"]+)",\s*weights:\{file:"([^"]+)",bytes:(\d+),\s*sha256:"([0-9a-f]{64})",\s*parts:\[([^\]]+)\]\}/);
+ok(!!spec, "the engine names its model in one NER_SPEC");
+if (spec) {
+  const [, id, source, file, bytes, sha, partsRaw] = spec;
+  const parts = [...partsRaw.matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+  const dir = path.join("models", id);
+  ok(/^[\w.-]+\/[\w.-]+@[0-9a-f]{40}$/.test(source), "the model's source is a repository at a commit: " + source);
+  ok(parts.length > 1 && parts.every((p) => p.startsWith(file + ".part")), "the weights are in parts named after the file");
+  const sizes = parts.map((p) => (fs.existsSync(path.join(ROOT, dir, p)) ? fs.statSync(path.join(ROOT, dir, p)).size : -1));
+  ok(sizes.every((s) => s > 0 && s < 50e6), "each part is in the repository and under GitHub's 50 MB warning: " + sizes.join(", "));
+  const joined = Buffer.concat(parts.map((p) => read(path.join(dir, p))));
+  ok(joined.length === Number(bytes) && hex(joined) === sha, "the parts join to the pinned size and SHA-256");
+  for (const f of ["config.json", "tokenizer.json", "tokenizer_config.json"]) ok(fs.existsSync(path.join(ROOT, dir, f)), `models/${id}/${f} is there`);
+  const notice = fs.existsSync(path.join(ROOT, dir, "NOTICE.md")) ? read(path.join(dir, "NOTICE.md")).toString() : "";
+  ok(/CC BY 4\.0/.test(notice) && /Dicta/.test(notice) && notice.includes(source.split("@")[1]) && notice.includes(sha), "NOTICE.md gives the credit, the licence, the source commit and the hash");
+}
+ok(!/huggingface\.co/.test(eng), "nothing is loaded from Hugging Face any more");
 // and nothing that sees the document is imported from a CDN any more
 ok(!/cdn\.jsdelivr\.net\/npm\/@huggingface\/transformers/.test(eng), "transformers.js is not loaded from the CDN");
 ok(!/cdn\.jsdelivr\.net\/npm\/pdfjs-dist/.test(read("pdf-text.js").toString()), "pdf.js is not loaded from the CDN");

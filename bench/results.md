@@ -9,10 +9,10 @@
 | person: Arabic name | 10 | 0 | 0 | 0 |
 | person: name that is also a common word (lexicon-aided) | 7 | 0 | 0 | 0 |
 | person: title attached | 8 | 0 | 0 | 0 |
-| person: same person, one clean and one corrupted spelling | 12 | 0 | 1 | 0 |
+| person: same person, one clean and one corrupted spelling | 12 | 0 | 0 | 0 |
 | person: name split across two runs mid-word | 3 | 0 | 0 | 0 |
-| org: private body, must be redacted | 9 | 1 | 1 | 0 |
-| place: town (lexicon-aided) | 13 | 0 | 0 | 0 |
+| org: private body, must be redacted | 10 | 0 | 1 | 0 |
+| place: town (lexicon-aided) | 12 | 1 | 0 | 0 |
 | trap: case numbers, dates, section references | – | – | – | 1 |
 | pii: full date (omitted by default) | 18 | 0 | 0 | 0 |
 | trap: idiom or public title beside a same-word name | – | – | – | 1 |
@@ -25,16 +25,16 @@
 | person: two people sharing a surname | 10 | 0 | 0 | 0 |
 | person: Russian name | 8 | 0 | 0 | 0 |
 | person: nikud on one occurrence | 3 | 0 | 0 | 0 |
-| person: once, only with a prefix letter (expected to fail) | 2 | 1 | 1 | 0 |
+| person: once, only with a prefix letter (expected to fail) | 3 | 0 | 0 | 0 |
 | person: name that reads like a body's | 3 | 0 | 0 | 0 |
 | org: public body, must not be redacted | – | – | – | 0 |
 | person: two people edit-distance 1 apart (must not merge) | 6 | 0 | 0 | 0 |
 | person: only in corrupted form, never cleanly (expected to fail) | 4 | 0 | 0 | 0 |
 | person: hyphenated surname, elsewhere with a space | 5 | 0 | 0 | 0 |
-| person: minor, first name only | 8 | 2 | 2 | 0 |
+| person: minor, first name only | 10 | 0 | 0 | 0 |
 | place: street | 8 | 0 | 0 | 0 |
 | trap: פלוני / פלונית | – | – | – | 0 |
-| person: two-letter surname | 4 | 1 | 1 | 0 |
+| person: two-letter surname | 5 | 0 | 0 | 0 |
 | person: minor introduced by הקטין / הקטינה | 7 | 0 | 0 | 0 |
 | pii: ID number | 10 | 0 | 0 | 0 |
 | pii: mobile phone | 10 | 0 | 0 | 0 |
@@ -47,7 +47,7 @@
 | trap: form label with a colon (not a speaker) | – | – | – | 0 |
 | trap: word ending in ת before a word starting with ז (not ת"ז) | – | – | – | 0 |
 | trap: הח"מ before a verb (not a name) | – | – | – | 0 |
-| trap: role word in any spelling (אפוטרופא, אפוטרופוס) | – | – | – | 0 |
+| trap: role word in any spelling (אפוטרופא, אפוטרופוס) | – | – | – | 1 |
 | trap: ordinary word that is also a locality name (קדימה, לשם, גבעות) | – | – | – | 2 |
 | person: speaker written on a line of its own (no colon) | 5 | 0 | 0 | 0 |
 | person: foreign first name only after a care or teaching role word, in child speech | 3 | 0 | 0 | 0 |
@@ -62,49 +62,46 @@
 
 | genre | found | missed | leaked | false positives |
 |---|---|---|---|---|
-| meeting | 26 | 1 | 1 | 0 |
+| meeting | 27 | 0 | 0 | 0 |
 | filing | 39 | 0 | 0 | 2 |
-| transcript | 32 | 1 | 1 | 0 |
+| transcript | 33 | 0 | 0 | 0 |
 | welfare | 27 | 0 | 0 | 0 |
-| medical | 17 | 2 | 2 | 0 |
-| police | 23 | 0 | 0 | 0 |
-| bank | 18 | 0 | 0 | 0 |
+| medical | 19 | 0 | 0 | 0 |
+| police | 22 | 1 | 0 | 0 |
+| bank | 18 | 0 | 1 | 0 |
 | chat | 23 | 0 | 0 | 0 |
-| position | 13 | 0 | 0 | 2 |
-| audio | 19 | 1 | 2 | 0 |
+| position | 13 | 0 | 0 | 3 |
+| audio | 20 | 0 | 0 | 0 |
 | interview | 11 | 0 | 0 | 0 |
 | structure | 14 | 1 | 1 | 0 |
 
-## Unlisted suggestions (match nothing in the key; one tap each) — 31 in total
+## Unlisted suggestions (match nothing in the key; one tap each) — 33 in total
 
 Counted, not optimised for: the list is read, accept-all is not how the tool is used.
 
-- **meeting** (2, 2 applied): בקבוצה [discover; מופיע אחרי מילת תפקיד טיפולית או חינוכית] **applied** · נוער [suggest] **applied**
+- **meeting** (3, 2 applied): בקבוצה [discover; מופיע אחרי מילת תפקיד טיפולית או חינוכית] **applied** · גן [model+flagged] · נוער [suggest] **applied**
 - **filing** (6, 6 applied): נישאו [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · ירושלים [model] **applied** · ומצא סימני [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · תצהיר [discover; פסקה שכולה שם, ואחריה דיבור] **applied** · תצהירי [near+flagged] **applied** · עלי [flagged] **applied**
 - **transcript** (3, 3 applied): במרפאת עין [suggest] **applied** · הראשון [discover; מופיע אחרי תואר] **applied** · יו"ר [discover; פותח תור דיבור בתמלול] **applied**
 - **welfare** (1, 1 applied): לסדרי [discover; מופיע אחרי מילת תפקיד טיפולית או חינוכית] **applied**
-- **medical** (5, 5 applied): המטופלת [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · הנבדק [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · קלינית [suggest] **applied**
-- **police** (2, 2 applied): ראיתי רכב [suggest] **applied** · המתלוננת [discover; פותח תור דיבור בתמלול] **applied**
+- **medical** (6, 6 applied): המטופלת [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · מחלקת [model] **applied** · הנבדק [discover; פותח תור דיבור בתמלול] **applied** · חתימה [discover; פותח תור דיבור בתמלול] **applied** · קלינית [suggest] **applied**
+- **police** (3, 3 applied): ראיתי רכב [suggest] **applied** · המתלוננת [discover; פותח תור דיבור בתמלול] **applied** · תחנת גבעת [model] **applied**
 - **bank** (2, 2 applied): החשבון [discover; פותח תור דיבור בתמלול] **applied** · יתרה לסוף התקופה [discover; פותח תור דיבור בתמלול] **applied**
 - **chat** (1, 1 applied): בגן [discover; מופיע אחרי מילת תפקיד טיפולית או חינוכית] **applied**
-- **position** (2, 2 applied): הבהרה [discover; פותח תור דיבור בתמלול] **applied** · משה [model] **applied**
+- **position** (1, 1 applied): הבהרה [discover; פותח תור דיבור בתמלול] **applied**
 - **audio** (1, 1 applied): ושניהם [suggest] **applied**
 - **structure** (6, 6 applied): תסקיר שהוגש [discover; מופיע אחרי תפקיד ונקודתיים] **applied** · מתגורר [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · תסקיר שהוגש [discover; מופיע אחרי תפקיד ונקודתיים] **applied** · מתגורר [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · תסקיר שהוגש [discover; מופיע אחרי תפקיד ונקודתיים] **applied** · מתגורר [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied**
 
 ## Missed and leaked, by document
 
-- m3 · person: once, only with a prefix letter · הילי: missed, **leaked**: הילי, בהילי
-- t2 · person: minor, first name only · אופק: missed, **leaked**: אופק
-- h3 · person: two-letter surname · איה נץ: missed, **leaked**: איה נץ, נץ
-- h3 · org: private body, must be redacted · מכון שורשים: missed, **leaked**: מכון שורשים, שורשים
-- a2 · person: same person, one clean and one corrupted spelling · אלמליח: found via suggest as «אתמול ואלמליך», **leaked**: אלמליח, אלמליך
-- a2 · person: minor, first name only · אסיף: missed, **leaked**: אסיף
+- p2 · place: town · גבעת עדה: missed
+- b2 · org: private body, must be redacted · חברת קו הזהב הובלות: found via model+applied as «קו הזהב הובלות», **leaked**: קו הזהב
 - s1 · channel: person only in a picture's alt text · שולמית אוזרבך: missed, **leaked**: שולמית אוזרבך
 
 ## Traps and public bodies touched
 
 - f2 · trap: case numbers, dates, section references · סעיף 2: suggested as «ת"פ 4471-02-26 [flagged]»; altered: ת"פ 4471-02-26
 - f2 · trap: idiom or public title beside a same-word name · בגיל 8: altered: עם שחר
+- x1 · trap: role word in any spelling (אפוטרופא, אפוטרופוס) · אפוטרופא לדין: suggested as «לדין [model]»; altered: אפוטרופא לדין
 - x1 · trap: ordinary word that is also a locality name (קדימה, לשם, גבעות) · לשם: suggested as «קדימה [flagged]»; altered: קדימה
 - x2 · trap: ordinary word that is also a locality name (קדימה, לשם, גבעות) · אורה: suggested as «עלי [flagged]»; altered: עלי
 
@@ -112,46 +109,46 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 211 | 10 | 1 |
-| m2 | meeting | 123 | 12 | 0 |
-| m3 | meeting | 90 | 6 | 0 |
-| m4 | meeting | 113 | 7 | 1 |
-| f1 | filing | 159 | 14 | 2 |
-| f2 | filing | 174 | 16 | 1 |
-| f3 | filing | 104 | 8 | 0 |
-| f4 | filing | 140 | 10 | 3 |
-| t1 | transcript | 115 | 8 | 0 |
-| t2 | transcript | 113 | 12 | 1 |
-| t3 | transcript | 123 | 11 | 1 |
-| t4 | transcript | 107 | 14 | 1 |
-| w1 | welfare | 84 | 4 | 0 |
-| w2 | welfare | 75 | 5 | 0 |
-| w3 | welfare | 99 | 6 | 0 |
-| w4 | welfare | 87 | 6 | 1 |
-| h1 | medical | 89 | 7 | 2 |
-| h2 | medical | 77 | 4 | 0 |
-| h3 | medical | 78 | 5 | 3 |
-| p1 | police | 83 | 5 | 1 |
-| p2 | police | 71 | 4 | 1 |
-| p3 | police | 87 | 2 | 0 |
-| p4 | police | 64 | 3 | 0 |
-| b1 | bank | 76 | 6 | 2 |
-| b2 | bank | 57 | 3 | 0 |
-| b3 | bank | 50 | 3 | 0 |
-| c1 | chat | 69 | 4 | 0 |
-| c2 | chat | 95 | 5 | 1 |
-| c3 | chat | 75 | 3 | 0 |
-| c4 | chat | 88 | 5 | 0 |
-| x1 | position | 143 | 8 | 2 |
-| x2 | position | 91 | 5 | 0 |
-| x3 | position | 79 | 5 | 0 |
-| a1 | audio | 84 | 7 | 0 |
-| a2 | audio | 83 | 6 | 0 |
-| a3 | audio | 92 | 8 | 1 |
-| a4 | audio | 73 | 6 | 0 |
-| v1 | interview | 90 | 3 | 0 |
-| v2 | interview | 93 | 5 | 0 |
-| v3 | interview | 56 | 3 | 0 |
-| s1 | structure | 87 | 4 | 2 |
-| s2 | structure | 101 | 5 | 2 |
-| s3 | structure | 90 | 6 | 2 |
+| m1 | meeting | 332 | 9 | 1 |
+| m2 | meeting | 190 | 12 | 1 |
+| m3 | meeting | 127 | 7 | 0 |
+| m4 | meeting | 192 | 9 | 1 |
+| f1 | filing | 253 | 15 | 2 |
+| f2 | filing | 314 | 16 | 1 |
+| f3 | filing | 178 | 8 | 0 |
+| f4 | filing | 195 | 11 | 3 |
+| t1 | transcript | 163 | 8 | 0 |
+| t2 | transcript | 165 | 13 | 1 |
+| t3 | transcript | 179 | 11 | 1 |
+| t4 | transcript | 151 | 12 | 1 |
+| w1 | welfare | 130 | 4 | 0 |
+| w2 | welfare | 108 | 5 | 0 |
+| w3 | welfare | 148 | 6 | 0 |
+| w4 | welfare | 136 | 6 | 1 |
+| h1 | medical | 117 | 6 | 2 |
+| h2 | medical | 113 | 5 | 1 |
+| h3 | medical | 132 | 7 | 3 |
+| p1 | police | 123 | 5 | 1 |
+| p2 | police | 119 | 4 | 2 |
+| p3 | police | 106 | 2 | 0 |
+| p4 | police | 74 | 3 | 0 |
+| b1 | bank | 111 | 6 | 2 |
+| b2 | bank | 88 | 3 | 0 |
+| b3 | bank | 92 | 3 | 0 |
+| c1 | chat | 113 | 4 | 0 |
+| c2 | chat | 130 | 5 | 1 |
+| c3 | chat | 119 | 2 | 0 |
+| c4 | chat | 118 | 5 | 0 |
+| x1 | position | 176 | 8 | 1 |
+| x2 | position | 132 | 6 | 0 |
+| x3 | position | 120 | 5 | 0 |
+| a1 | audio | 134 | 7 | 0 |
+| a2 | audio | 118 | 7 | 0 |
+| a3 | audio | 127 | 8 | 1 |
+| a4 | audio | 117 | 6 | 0 |
+| v1 | interview | 144 | 3 | 0 |
+| v2 | interview | 123 | 5 | 0 |
+| v3 | interview | 92 | 3 | 0 |
+| s1 | structure | 137 | 4 | 2 |
+| s2 | structure | 124 | 5 | 2 |
+| s3 | structure | 119 | 5 | 2 |

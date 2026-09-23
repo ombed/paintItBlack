@@ -2777,7 +2777,8 @@ let nerCached=async function(){
     if(!nerEnv().canCache)return false;
     const c=await caches.open(NER_CACHE);
     const k=await c.keys();
-    return k.some(r=>r.url.includes("dictabert")&&/\.onnx(_data)?$/.test(r.url));
+    // רק עותק של המודל הנוכחי נחשב: עותק ישן (dictabert-ner מ-Hugging Face) נמחק בטעינה הבאה
+    return k.some(r=>r.url===MODEL_URL(NER_SPEC.weights.file));
   }catch(_){return false}
 };
 async function nerPersist(){
@@ -2804,11 +2805,23 @@ const ORT_V="1.24.0-dev.20251116-b39e144322";
 const ORT_CDN="https://cdn.jsdelivr.net/npm/onnxruntime-web@"+ORT_V+"/dist/";
 const ORT_WASM={"ort-wasm-simd-threaded.asyncify":"ijj2sXOzrwSfS0ib7b4dolPO7XoXIPls3vYD8oNrZlw=",
   "ort-wasm-simd-threaded":"v3jjoRtGXpqh51bCDtQG3dbP8trXwt8NCNhytDbVTio="};
-const NER_MODEL="onnx-community/dictabert-ner-ONNX";
-// המאגר לא השתנה מאז 2025-01-06 (lastModified ב-API של Hugging Face), ולכן עותק של main
-// ששמור אצלה הוא הגרסה הזאת בדיוק; nerMigrateCache מעביר אותו במקום להוריד 185MB מחדש
-const NER_REV="4f0aabf58566526df6f3fb548e0fd2619fbf2b1d";
-const NER_WEIGHTS={file:"onnx/model_quantized.onnx",sha256:"fd7ac841768f11197e1d46ea6bbfe82d9cd9e21289be8761af63dbc996a32007"};
+/* המודל, במקום אחד (בדיקת המודלים, ספטמבר 2026): DictaBERT-parse, ראש הישויות
+   בלבד, מיוצא ל-ONNX ב-8 ביט. היחיד מבין תשעה מודלים שלא פתח אף דליפה חדשה בקורפוס ובמסמכים
+   שלה, וקורא טוב יותר בכל ארבעת הקבצים הציבוריים. הוא יושב באתר עצמו, models/<id>/, ולא
+   ב-Hugging Face: העמוד לא פונה לשום אתר אחר כדי לטעון אותו. GitHub אינו מחזיק קובץ מעל
+   100MB, ולכן המשקולות בארבעה חלקים (scripts/model-parts.js); nerJoinParts מחבר אותם, והקובץ
+   המחובר נבדק מול ה-SHA-256 שלמטה, כמו קודם. הקרדיט והרישיון: models/<id>/NOTICE.md. */
+const NER_SPEC={
+  id:"dictabert-parse-ner-37f4d6f",
+  source:"dicta-il/dictabert-parse@37f4d6fd556766f15e955fe5bd0f16942b46853e",
+  weights:{file:"onnx/model_quantized.onnx",bytes:184983343,
+    sha256:"71e519f3151eb78b73bfcaf02538cbdca1f69593235186b7b246b208c62e70ca",
+    parts:["onnx/model_quantized.onnx.part1","onnx/model_quantized.onnx.part2",
+      "onnx/model_quantized.onnx.part3","onnx/model_quantized.onnx.part4"]}
+};
+// כתובת מלאה ליד הדף; בלי כתובת בסיס (about:blank בבדיקות jsdom) — הנתיב היחסי
+const NER_BASE=()=>{ try{ return new URL("./models/",location.href).href; }catch(_){ return "./models/"; } };
+const MODEL_URL=file=>NER_BASE()+NER_SPEC.id+"/"+file;
 const NER_OK_KEY="redact-model-verified";
 let NERP=null,NERSTATE="off";
 async function sha256(buf,enc){
@@ -2830,32 +2843,52 @@ async function nerRuntime(t){
   o.wasm.wasmPaths={mjs:new URL("./vendor/ort-"+ORT_V+"/"+v+".mjs",location.href).href};
   o.wasm.wasmBinary=buf;
 }
-const HUB=(rev,file)=>"https://huggingface.co/"+NER_MODEL+"/resolve/"+rev+"/"+file;
-// עותק ששמור תחת main עובר לכתובת של הגרסה הנעולה, ועותקים של כל גרסה אחרת נמחקים (ביקורת M2:
-// דבר לא פינה את המטמון הזה, ו-185MB נשארו אחרי כל שינוי)
+// כל מה שבמטמון המודל ואינו של המודל הנוכחי נמחק: המודל הקודם (dictabert-ner מ-Hugging Face,
+// 185MB) ועותקים של גרסאות אחרות (ביקורת M2: דבר לא פינה את המטמון הזה, והוא נשאר אחרי כל שינוי)
 async function nerMigrateCache(){
   if(!nerEnv().canCache)return 0;
-  const c=await caches.open(NER_CACHE); let moved=0;
-  const mine="https://huggingface.co/"+NER_MODEL+"/resolve/";
-  for(const req of await c.keys()){
-    if(!req.url.startsWith(mine))continue;
-    const rest=req.url.slice(mine.length), slash=rest.indexOf("/"), rev=rest.slice(0,slash), file=rest.slice(slash+1);
-    if(rev===NER_REV)continue;
-    if(rev==="main"&&!(await c.match(HUB(NER_REV,file)))){ const r=await c.match(req); if(r){await c.put(HUB(NER_REV,file),r);moved++} }
-    await c.delete(req);
-  }
-  return moved;
+  const c=await caches.open(NER_CACHE), mine=MODEL_URL(""); let dropped=0;
+  for(const req of await c.keys())
+    if(!req.url.startsWith(mine)){ await c.delete(req); dropped++; }
+  return dropped;
+}
+// קובץ המשקולות, מחובר מחלקיו. transformers.js מבקש קובץ אחד; העמוד מוריד את החלקים בזה אחר
+// זה ומגיש אותם כזרם אחד, עם האורך הכולל (לפס ההתקדמות ולבדיקה). חלק שלא ירד — שגיאה בקול.
+function nerIsWeights(url){
+  try{ return new URL(url,location.href).href.split("?")[0]===MODEL_URL(NER_SPEC.weights.file); }catch(_){ return false; }
+}
+function nerJoinParts(){
+  const f=RAW_FETCH||window.fetch.bind(window), parts=NER_SPEC.weights.parts.map(MODEL_URL);
+  let i=-1, reader=null;
+  const next=async()=>{
+    i++; if(i>=parts.length)return false;
+    const r=await f(parts[i]);
+    if(!r.ok||!r.body)throw new Error("חלק "+(i+1)+" של קובץ המודל לא ירד ("+r.status+")");
+    reader=r.body.getReader(); return true;
+  };
+  const body=new globalThis.ReadableStream({async pull(ctl){
+    try{
+      for(;;){
+        if(!reader&&!(await next())){ctl.close();return}
+        const {done,value}=await reader.read();
+        if(!done){ctl.enqueue(value);return}
+        reader=null;
+      }
+    }catch(e){ctl.error(e)}
+  }});
+  return new Response(body,{status:200,statusText:"OK",
+    headers:{"Content-Type":"application/octet-stream","Content-Length":String(NER_SPEC.weights.bytes)}});
 }
 // המשקולות נבדקות פעם אחת מול ה-SHA-256 הנעול (185MB, שנייה או שתיים), והבדיקה נזכרת לפי
 // גודל העותק השמור. עותק שאינו תואם נמחק, והטעינה נכשלת בקול.
 async function nerVerifyWeights(){
   if(!nerEnv().canCache)return "no-cache";
-  const c=await caches.open(NER_CACHE), url=HUB(NER_REV,NER_WEIGHTS.file);
+  const c=await caches.open(NER_CACHE), url=MODEL_URL(NER_SPEC.weights.file);
   const r=await c.match(url); if(!r)return "not-cached";
-  const tag=NER_REV+":"+(r.headers.get("content-length")||"");
+  const tag=NER_SPEC.id+":"+(r.headers.get("content-length")||"");
   try{ if(localStorage.getItem(NER_OK_KEY)===tag)return "known"; }catch(_){}
   const h=await sha256(await r.arrayBuffer(),"hex");
-  if(h!==NER_WEIGHTS.sha256){ await c.delete(url); try{localStorage.removeItem(NER_OK_KEY)}catch(_){}
+  if(h!==NER_SPEC.weights.sha256){ await c.delete(url); try{localStorage.removeItem(NER_OK_KEY)}catch(_){}
     throw new Error("קובץ המודל שהורד אינו הקובץ הנעול. הוא נמחק מהמחשב; המודל לא נטען."); }
   try{ localStorage.setItem(NER_OK_KEY,tag); }catch(_){}
   return "verified";
@@ -2879,7 +2912,32 @@ const RX_NATIVE=RegExp;
 const RX_OK=/[\^$\\.*+?()\[\]{}|\/dDsSwWbBnrtvfxucpPk0-9]/;
 const rxClean=p=>String(p).replace(/\\(.)/gu,(m,c)=>RX_OK.test(c)?m:c);
 function rxBad(p){ try{new RX_NATIVE(p,"u");return false}catch(_){return true} }
-// מתקנים כל תבנית שלא נבנית, ורק אותה
+/* \w ו-\W בתבנית של טוקנייזר: בספריית ה-tokenizers של Rust, שבה אומן המודל, \w כולל אותיות
+   עבריות; ב-RegExp של JavaScript, גם עם הדגל u, רק ASCII. תבנית החלוקה של DictaBERT נגמרת
+   ב-\w+|\p{P}|[^\w\s]+, ולכן אצלנו מילה עברית נפלה לענף האחרון יחד עם הפיסוק שאחריה: "שלישי."
+   הייתה חתיכה אחת, והנקודה הגיעה למודל כ-##., ושם כפול עם מקף ("מלכה-אזולאי") הגיע כמילה אחת.
+   בבדיקת המודלים רק 6 מ-50 משפטים יצאו כמו בפייתון (AutoTokenizer). כותבים את
+   \w ואת \W כמחלקות היוניקוד שהן מייצגות שם — אותיות, סימנים, ספרות, מחברים — בתוך מחלקת
+   תווים ומחוצה לה; 50 מ-50. \W בתוך מחלקה אינו ניתן לכתיבה כך, ותבנית כזאת נשארת כמו שהיא. */
+const RX_W="\\p{L}\\p{M}\\p{Nd}\\p{Pc}";
+function rxUnicodeW(p){
+  let out="",inClass=false;
+  for(let i=0;i<p.length;i++){
+    const c=p[i];
+    if(c==="\\"&&i+1<p.length){
+      const n=p[i+1];
+      if(n==="w")out+=inClass?RX_W:"["+RX_W+"]";
+      else if(n==="W"){ if(inClass)return p; out+="[^"+RX_W+"]"; }
+      else out+=c+n;
+      i++; continue;
+    }
+    if(c==="["&&!inClass)inClass=true;
+    else if(c==="]"&&inClass)inClass=false;
+    out+=c;
+  }
+  return out;
+}
+// מתקנים כל תבנית שלא נבנית, וכותבים \w כפי שהמודל הכיר אותו
 function fixTokJSON(txt){
   let j=null,repaired=false;
   try{j=JSON.parse(txt)}
@@ -2897,9 +2955,12 @@ function fixTokJSON(txt){
     for(const k of Object.keys(o)){
       const v=o[k];
       if(typeof v==="string"){
-        if((k==="Regex"||k==="pattern")&&rxBad(v)){
-          const f=rxClean(v);
-          if(!rxBad(f)){o[k]=f;n++}
+        if(k==="Regex"||k==="pattern"){
+          let f=v;
+          if(rxBad(f)){ const c=rxClean(f); if(!rxBad(c))f=c; }
+          const u=rxUnicodeW(f);
+          if(u!==f&&!rxBad(u))f=u;
+          if(f!==v){o[k]=f;n++}
         }
       } else walk(v);
     }
@@ -2915,7 +2976,7 @@ function fixTokJSON(txt){
 // שמור במקום, לא נקראה מאף מקום והוסרה: ביקורת L8; nerPrepTokenizer עושה את זה)
 let jsonRes=body=>new Response(body,{status:200,statusText:"OK",
   headers:{"Content-Type":"application/json"}});
-const TOK_URL=()=>HUB(NER_REV,"tokenizer.json");
+const TOK_URL=()=>MODEL_URL("tokenizer.json");
 let RAW_FETCH=null;
 let FETCH_HOOKED=false;
 function nerHookFetch(){
@@ -2923,9 +2984,11 @@ function nerHookFetch(){
   const orig=window.fetch.bind(window);
   RAW_FETCH=orig;
   window.fetch=async function(input,init){
+    const url=typeof input==="string"?input:(input&&input.url)||"";
+    // קובץ המשקולות אינו קיים באתר כקובץ אחד: מחברים את חלקיו
+    if(nerIsWeights(url))return nerJoinParts();
     const res=await orig(input,init);
     try{
-      const url=typeof input==="string"?input:(input&&input.url)||"";
       if(!/tokenizer\.json(\?|$)/.test(url)||!res.ok)return res;
       const txt=await res.clone().text();
       const fixed=fixTokJSON(txt);
@@ -3013,17 +3076,21 @@ let nerLoad=async function(){
     // בלי זה הדפדפן רשאי למחוק את המודל כשהמקום נגמר, והוא יירד שוב
     await nerPersist();
     nerHookFetch();
-    try{ const moved=await nerMigrateCache(); if(moved)console.log("מודל: "+moved+" קבצים הועברו לגרסה הנעולה"); }
-    catch(e){ console.warn('העברת המטמון נכשלה',e); }
+    try{ const dropped=await nerMigrateCache(); if(dropped)console.log("מודל: "+dropped+" קבצים של מודל קודם נמחקו מהמטמון"); }
+    catch(e){ console.warn('ניקוי המטמון נכשל',e); }
     try{ await nerPrepTokenizer(); }
     catch(e){ console.warn('הכנת הטוקנייזר נכשלה',e); }
     const t=await import(/* webpackIgnore: true */ NER_LIB);
+    // המודל נטען מהאתר עצמו, models/<id>/: "מרוחק" מבחינת transformers.js, באותו מקור מבחינתנו
     t.env.allowLocalModels=false;
+    t.env.allowRemoteModels=true;
+    t.env.remoteHost=NER_BASE();
+    t.env.remotePathTemplate="{model}/";
     t.env.useBrowserCache=true;
     await nerRuntime(t);
     const seen={};
-    const pipe=await t.pipeline("token-classification",NER_MODEL,{
-      dtype:"q8", revision:NER_REV,
+    const pipe=await t.pipeline("token-classification",NER_SPEC.id,{
+      dtype:"q8",
       progress_callback:p=>{
         if(p.status==="progress"&&p.file){
           // לפי בייטים, לא ממוצע של קבצים: הקבצים הקטנים נגמרים מיד וממוצע
@@ -3053,16 +3120,39 @@ function nerReset(){
 /* transformers.js לא בהכרח מחזיר היסטי מיקום ולא בהכרח מאחד תת-מילים,
    בניגוד לגרסה בפייתון. אם נסמוך על זה נקבל אפס תוצאות בלי שום שגיאה —
    וזה בדיוק סוג הכשל השקט שהכלי הזה לא יכול להרשות לעצמו.
-   לכן: אם יש היסטים משתמשים בהם, ואם אין מיישרים את הטוקנים לטקסט לבד. */
+   לכן: אם יש היסטים משתמשים בהם, ואם אין מיישרים את הטוקנים לטקסט לבד.
+
+   היישור נעשה על עותק מנורמל של הטקסט, כמו שהטוקנייזר רואה אותו: בלי ניקוד וסימני הטעמה
+   (NFD, בלי סימנים מצטרפים) ובאותיות קטנות, עם מפה חזרה למקום בטקסט המקורי. בלי זה "מיקה"
+   של "מִיקָה" לא נמצאה במקומה אלא בהופעה מאוחרת יותר ("ומיקה תתחיל"), היישור קפץ לשם, וכל
+   טוקן שביניהם לא מוקם: בקורפוס שאר הקטע כולו, וכל מה שהמודל מצא בו אבד (בדיקת המודלים).
+   ואם בכל זאת טוקן נמצא רק רחוק קדימה — מעבר ליותר מילים משמספר הטוקנים שלא מוקמו רצוף לפניו,
+   ועוד שתיים — הוא נשאר בלי מקום, והיישור לא זז. */
+function nerNorm(text){
+  let s=""; const map=[];
+  for(let k=0;k<text.length;){
+    const ch=String.fromCodePoint(text.codePointAt(k));
+    for(const x of ch.normalize("NFD")){
+      if(/\p{M}/u.test(x))continue;
+      for(const y of x.toLowerCase()){ s+=y; map.push(k); }
+    }
+    k+=ch.length;
+  }
+  return {s,map};
+}
+const nerWordsIn=g=>(g.match(/[\p{L}\p{N}]+/gu)||[]).length;
 function nerAlign(text,toks,off){
-  let pos=0;
+  const {s:ns,map}=nerNorm(text);
+  let pos=0,pending=0;
   for(const t of toks){
     if(t.start!=null&&t.end!=null){t._s=off+t.start;t._e=off+t.end;continue}
-    const w=String(t.word||t.token||t.text||"").replace(/^##/,"").trim();
+    const w=nerNorm(String(t.word||t.token||t.text||"").replace(/^##/,"").trim()).s;
     if(!w){t._s=null;continue}
-    const i=text.indexOf(w,pos);
-    if(i<0){t._s=null;continue}
-    t._s=off+i; t._e=off+i+w.length; pos=i+w.length;
+    const i=ns.indexOf(w,pos);
+    if(i<0||nerWordsIn(ns.slice(pos,i))>pending+2){t._s=null;pending++;continue}
+    let e=map[i+w.length-1]+1;
+    while(e<text.length&&/\p{M}/u.test(text[e]))e++;   // הניקוד שאחרי האות האחרונה שייך למילה
+    t._s=off+map[i]; t._e=off+e; pos=i+w.length; pending=0;
   }
 }
 function nerGroup(toks){
