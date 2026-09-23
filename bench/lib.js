@@ -40,10 +40,34 @@ const REMOVED_BY_DESIGN = new Set(["S_COMMENT", "S_META"]);
 const strip = (s) => String(s || "").replace(/[֑-ׇ]/g, "");
 const rx = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+/* The model the page ships (engine NER_SPEC, models/<id>/), loaded the way the page loads it:
+   the weights joined from their parts and checked against the pinned SHA-256, and tokenizer.json
+   put through the page's own fixTokJSON (which writes \w as the model's tokenizer meant it). The
+   joined copy is kept in node_modules/.cache/, rebuilt when the pinned hash changes. */
 async function loadModel() {
+  const E = require("./engine.js");
+  const crypto = require("crypto");
+  const S = E.NER_SPEC;
+  const ROOT = path.join(__dirname, "..");
+  const src = path.join(ROOT, "models", S.id), cacheRoot = path.join(ROOT, "node_modules", ".cache", "paintitblack-model");
+  const dst = path.join(cacheRoot, S.id), weights = path.join(dst, S.weights.file), stamp = weights + ".sha256";
+  fs.mkdirSync(path.dirname(weights), { recursive: true });
+  if (!fs.existsSync(stamp) || fs.readFileSync(stamp, "utf8") !== S.weights.sha256 || fs.statSync(weights).size !== S.weights.bytes) {
+    const joined = Buffer.concat(S.weights.parts.map((p) => fs.readFileSync(path.join(src, p))));
+    if (crypto.createHash("sha256").update(joined).digest("hex") !== S.weights.sha256) throw new Error("the model's parts do not join to the pinned SHA-256");
+    fs.writeFileSync(weights, joined);
+    fs.writeFileSync(stamp, S.weights.sha256);
+  }
+  for (const f of ["config.json", "tokenizer_config.json", "special_tokens_map.json"]) fs.copyFileSync(path.join(src, f), path.join(dst, f));
+  const log = console.log;
+  console.log = () => {}; // fixTokJSON reports its repairs in Hebrew on the console
+  try { fs.writeFileSync(path.join(dst, "tokenizer.json"), E.fixTokJSON(fs.readFileSync(path.join(src, "tokenizer.json"), "utf8"))); }
+  finally { console.log = log; }
   const T = await import("@huggingface/transformers");
-  T.env.allowLocalModels = false;
-  return T.pipeline("token-classification", "onnx-community/dictabert-ner-ONNX", { dtype: "q8" });
+  T.env.allowLocalModels = true;
+  T.env.allowRemoteModels = false;
+  T.env.localModelPath = cacheRoot;
+  return T.pipeline("token-classification", S.id, { dtype: "q8", local_files_only: true });
 }
 
 function makeBench(E, opt) {

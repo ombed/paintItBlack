@@ -22,6 +22,9 @@
 | `vendor/transformers-4.2.0.min.js` | ספריית מודל הזיהוי (transformers.js), מהאתר עצמו ולא מ-CDN |
 | `vendor/ort-1.24.0-dev.20251116-b39e144322/ort-wasm-simd-threaded.asyncify.mjs`, `vendor/ort-1.24.0-dev.20251116-b39e144322/ort-wasm-simd-threaded.mjs` | הטוען של ספריית ההרצה; קובץ ה-WebAssembly שלה יורד מ-CDN ונבדק מול SHA-256 נעול |
 | `vendor/pdfjs-4.6.82/pdf.min.mjs`, `vendor/pdfjs-4.6.82/pdf.worker.min.mjs` | pdf.js, לקריאת PDF |
+| `models/dictabert-parse-ner-37f4d6f/config.json`, `models/dictabert-parse-ner-37f4d6f/tokenizer.json`, `models/dictabert-parse-ner-37f4d6f/tokenizer_config.json`, `models/dictabert-parse-ner-37f4d6f/special_tokens_map.json` | מודל הזיהוי (DictaBERT-parse של Dicta, CC BY 4.0): ההגדרות והטוקנייזר, כמו שהם |
+| `models/dictabert-parse-ner-37f4d6f/onnx/model_quantized.onnx.part1`, `models/dictabert-parse-ner-37f4d6f/onnx/model_quantized.onnx.part2`, `models/dictabert-parse-ner-37f4d6f/onnx/model_quantized.onnx.part3`, `models/dictabert-parse-ner-37f4d6f/onnx/model_quantized.onnx.part4` | המשקולות (185MB) בארבעה חלקים; הדף מחבר אותם ובודק את הקובץ המחובר מול SHA-256 נעול |
+| `models/dictabert-parse-ner-37f4d6f/NOTICE.md` | הקרדיט, הרישיון ומה שונה במודל |
 
 רק הקבצים האלה מתפרסמים: `.github/workflows/pages.yml` בונה איתם תיקייה
 (`node scripts/build-site.js`), מריץ עליה בדיקות דפדפן, ומפרסם אותה ב-GitHub
@@ -84,9 +87,11 @@ GitHub Pages או כל אירוח סטטי מספיק. **כתובת `https` הי
 | מאיפה | מה | מתי |
 |---|---|---|
 | unpkg.com | d3, topojson | רק כשלוחצים «הצגת המפה», ואחר כך מהמטמון |
-| cdn.jsdelivr.net | transformers.js, קובץ הגיאומטריה למפה | בטעינה, ובפעם הראשונה שנפתח מסך המפה |
+| cdn.jsdelivr.net | קובץ ה-WebAssembly של ספריית ההרצה (נבדק מול SHA-256), קובץ הגיאומטריה למפה | כשהמודל נטען לראשונה, ובפעם הראשונה שנפתח מסך המפה |
 | fonts.googleapis.com | Rubik, Noto Serif Hebrew | בכל טעינה, ואחר כך מהמטמון |
-| huggingface.co | משקלי `dictabert-ner-ONNX` | פעם אחת, רק אם «מודל זיהוי עברי מקומי» דלוק |
+
+מודל הזיהוי עצמו (185MB) יורד מהאתר, מ-`models/`, ולא מאתר אחר: פעם אחת, רק אם «מודל זיהוי
+עברי מקומי» דלוק.
 
 אף אחת מהבקשות האלה לא מכילה דבר מהמסמך. ספריות ההרצה נטענות עם
 `integrity`, כך שקובץ שהוחלף בצד ה-CDN לא ירוץ. הביקור הראשון דורש

@@ -23,6 +23,11 @@ const SITE_FILES = [
   "vendor/ort-1.24.0-dev.20251116-b39e144322/ort-wasm-simd-threaded.asyncify.mjs",
   "vendor/ort-1.24.0-dev.20251116-b39e144322/ort-wasm-simd-threaded.mjs",
   "vendor/pdfjs-4.6.82/pdf.min.mjs", "vendor/pdfjs-4.6.82/pdf.worker.min.mjs",
+  // the model, served by the site itself (engine NER_SPEC): its files, the weights in four parts
+  // (GitHub holds no file over 100 MB; the page joins them), and the licence notice
+  ...["config.json", "tokenizer.json", "tokenizer_config.json", "special_tokens_map.json", "NOTICE.md",
+    "onnx/model_quantized.onnx.part1", "onnx/model_quantized.onnx.part2", "onnx/model_quantized.onnx.part3",
+    "onnx/model_quantized.onnx.part4"].map((f) => "models/dictabert-parse-ner-37f4d6f/" + f),
 ];
 const TOP = new Set(SITE_FILES.map((f) => f.split("/")[0]));
 

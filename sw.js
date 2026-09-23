@@ -39,8 +39,9 @@ self.addEventListener("fetch",e=>{
   const u=new URL(e.request.url);
   if(e.request.method!=="GET")return;
 
-  // משקלי המודל מנוהלים ע"י transformers.js במטמון משלו — לא נוגעים
-  if(u.hostname.includes("huggingface.co"))return;
+  // קבצי המודל (models/, 185MB) מנוהלים ע"י transformers.js במטמון משלו — לא נוגעים. עובד השירות
+  // לא שומר אותם גם אצלו: פעמיים 185MB במחשב שלה, ועוד ברשימת הקבצים של ההתקנה
+  if(u.origin===location.origin&&u.pathname.includes("/models/"))return;
 
   // ספריית ההרצה מה-CDN: מטמון קודם. היא נעולה לגרסה מדויקת בכתובת
   // ולכן לא משתנה מתחתינו.

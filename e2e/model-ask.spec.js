@@ -1,7 +1,7 @@
 const { test, expect } = require("./base");
 const H = require("./helpers");
 
-/* UX #2: the 180 MB model download started on "המשך" without a word, phones
+/* UX #2: the 185 MB model download started on "המשך" without a word, phones
    included. On a phone, or with data saver on, the tool now asks first, with
    two equal answers. On a computer nothing changed: the client works on a
    computer, her main complaint is names the tool missed, and the model is
@@ -28,7 +28,7 @@ test.describe("on a phone", () => {
     await open(page);
     await H.startScan(page);
     await expect(ask(page)).toBeVisible();
-    await expect(ask(page)).toContainText("180MB");
+    await expect(ask(page)).toContainText("185MB");
     expect(await calls(page)).toBe(0);
     await expect(page.getByRole("heading", { name: "מי מופיע בתיק" })).toHaveCount(0);
   });

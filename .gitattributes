@@ -6,3 +6,5 @@
 *.zip binary
 *.docx binary
 *.pdf binary
+# the model files exactly as published (models/<id>/NOTICE.md): no line-ending changes, no diffs
+models/** binary
