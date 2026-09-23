@@ -39,5 +39,20 @@ console.log("\n— it refuses to print text —");
   ok(threw, "a Hebrew word in any field stops the report");
 }
 
+console.log("\n— a file under four bytes gets a message, not a RangeError (review nit 9) —");
+{
+  const fs = require("fs"), os = require("os"), path = require("path");
+  const { readLog } = require("../scripts/log-report.js");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pib-log-"));
+  for (const bytes of ["", "{}", "abc"]) {
+    const f = path.join(dir, "short.json");
+    fs.writeFileSync(f, bytes);
+    let err = null;
+    try { readLog(f); } catch (e) { err = e; }
+    ok(err && !(err instanceof RangeError) && /not a session log/.test(err.message), `${bytes.length} bytes: ${err ? err.name + ": " + err.message : "no error"}`);
+  }
+  fs.rmSync(dir, { recursive: true, force: true });
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exitCode = 1;

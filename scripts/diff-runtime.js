@@ -17,6 +17,8 @@ const a = info(HERE);
 console.log(`vendored support.js: ${a.lines} lines, sha256 ${a.hash}`);
 console.log(`origin: dc-runtime (Claude Design), generated build, first vendored 2026-09-04 with the redesign (commit cf934f4)`);
 if (!OTHER) process.exit(0);
+// a mistyped path used to end in an unhandled ENOENT stack (outside review, nit 9)
+if (!fs.existsSync(OTHER) || !fs.statSync(OTHER).isFile()) { console.error(`no such file: ${OTHER}`); process.exit(2); }
 const b = info(OTHER);
 console.log(`candidate:           ${b.lines} lines, sha256 ${b.hash}`);
 if (a.hash === b.hash) { console.log("identical"); process.exit(0); }
