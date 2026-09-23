@@ -186,8 +186,13 @@
       add(ev, data) {
         const d = {}, dropped = [];
         for (const [k, v] of Object.entries(data || {})) {
-          if (typeof v === "number" || typeof v === "boolean") d[k] = v;
-          else if (typeof v === "string" && !/[֐-׿]{3,}/.test(v) && v.length <= 24) d[k] = v;
+          /* the value's shape, not a filter on Hebrew (review L6): a count, a flag, or a code of
+             at most 24 characters with no space, no @, no letter outside Latin and no run of five
+             digits. An address, an ID or a phone as a string, a name in either script, and a
+             number big enough to be an identifier are all dropped, and named. A single Latin
+             word still passes; by shape it cannot be told from a code. */
+          if (typeof v === "boolean" || (typeof v === "number" && Number.isFinite(v) && Math.abs(v) < 1e8)) d[k] = v;
+          else if (typeof v === "string" && /^[A-Za-z0-9_.,:|+<>=?-]{0,24}$/.test(v) && !/\d{5}/.test(v)) d[k] = v;
           // a field the guard refuses leaves its name behind, so a drop is never silent
           else dropped.push(k);
         }
