@@ -31,6 +31,7 @@ x-dc{display:none!important}
   --accent:#1F5B44; --accent-soft:#E6EFE9; --accent-ink:#1F5B44;
   --warn:#9C5511; --warn-soft:#FAF0E2; --bad:#9E2A20; --bad-soft:#FBEAE7;
   --paper:#FFFDF8; --shadow:0 1px 2px rgba(22,33,28,.05),0 8px 24px -16px rgba(22,33,28,.18);
+  --control:#7F8781;
   --rail-w:404px; --doc-font:'Noto Serif Hebrew',serif;
 }
 html.dark{
@@ -39,7 +40,13 @@ html.dark{
   --accent:#79D3A8; --accent-soft:rgba(121,211,168,.13); --accent-ink:#8FE0B8;
   --warn:#E3A458; --warn-soft:rgba(227,164,88,.12); --bad:#EE8177; --bad-soft:rgba(238,129,119,.13);
   --paper:#191E1B; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -16px rgba(0,0,0,.6);
+  --control:#78827C;
 }
+/* ביקורת M27: הגבול של שדה, רשימה וכפתור משני היה הגבול החזותי היחיד שלהם, ביחס 1.3:1. גבול
+   של פקד הוא עכשיו לפחות 3:1 מול הרקע (WCAG 1.4.11); קווי ההפרדה נשארים עדינים */
+input:not([type=checkbox]):not([type=radio]):not([type=file]), select, textarea, button[style*="solid var(--line)"]{border-color:var(--control)!important}
+/* ביקורת L26: מי שביקשה פחות תנועה לא מקבלת הבהוב בכל צעד */
+@media (prefers-reduced-motion: reduce){ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important} }
 html,body{margin:0;padding:0;background:var(--bg)}
 body{color:var(--ink);font-family:Rubik,"Noto Sans Hebrew",system-ui,sans-serif;
   font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -227,14 +234,14 @@ button:disabled{opacity:.55;cursor:not-allowed}
       <div data-tour-block="l" onClick="{{ onTourBlocked }}" style="{{ tourBlockL }}"></div>
       <div data-tour-block="r" onClick="{{ onTourBlocked }}" style="{{ tourBlockR }}"></div>
     </sc-if>
-    <div data-tour style="{{ tourCardStyle }}">
+    <div data-tour role="dialog" aria-label="סיור בכלי" style="{{ tourCardStyle }}">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
         <span style="font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;background:var(--accent-soft);color:var(--accent-ink)">סיור · מסמך לדוגמה</span>
         <span style="font-size:11.5px;color:var(--ink3)">{{ tourPos }}</span>
         <button onClick="{{ onTourClose }}" aria-label="סגירת הסיור" style="margin-inline-start:auto;width:24px;height:24px;border-radius:50%;color:var(--ink3);display:grid;place-items:center">✕</button>
       </div>
-      <b style="display:block;font-weight:500;font-size:15px;margin-bottom:4px">{{ tourTitle }}</b>
-      <p style="margin:0 0 12px;font-size:13px;color:var(--ink2);line-height:1.6">{{ tourText }}</p>
+      <div aria-live="polite"><b style="display:block;font-weight:500;font-size:15px;margin-bottom:4px">{{ tourTitle }}</b>
+      <p style="margin:0 0 12px;font-size:13px;color:var(--ink2);line-height:1.6">{{ tourText }}</p></div>
       <sc-if value="{{ tourNudge }}"><p data-tour-nudge role="status" style="margin:-4px 0 12px;font-size:12.5px;color:var(--warn);line-height:1.5">בסיור אפשר ללחוץ רק באזור המואר. כדי לצאת מהסיור — ✕ למעלה.</p></sc-if>
       <div style="display:flex;gap:7px;align-items:center">
         <button onClick="{{ onTourNext }}" style="padding:8px 16px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500">{{ tourNextLabel }}</button>
@@ -272,7 +279,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
     </div>
   </sc-if>
   <sc-if value="{{ notice }}">
-    <div data-notice style="position:fixed;bottom:calc(var(--bar-h, 64px) + 14px);left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;color:var(--ink)">
+    <div data-notice role="status" aria-live="polite" style="position:fixed;bottom:calc(var(--bar-h, 64px) + 14px);left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;color:var(--ink)">
       <span>{{ notice }}</span>
       <sc-if value="{{ noticeUndo }}"><button onClick="{{ onNoticeUndo }}" style="padding:4px 10px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">ביטול ↶</button></sc-if>
       <button onClick="{{ onNoticeClose }}" aria-label="סגירה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center">✕</button>
@@ -289,7 +296,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
     <p style="margin:0 0 26px;color:var(--ink2);font-size:14.5px;max-width:62ch">מעלים קובץ Word, מאשרים את רשימת האנשים, ומקבלים מסמך מושחר עם דוח מלא של כל החלפה. הזיהוי, ההחלפה והאימות רצים כאן בדפדפן.</p>
 
     <div data-stack style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch">
-      <button data-tour-target="upload" onClick="{{ onPick }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDropFile }}" style="{{ dropStyle }}">
+      <button data-tour-target="upload" aria-describedby="{{ fileErrRef }}" onClick="{{ onPick }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDropFile }}" style="{{ dropStyle }}">
         <span style="width:38px;height:38px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none;font-size:17px">↑</span>
         <span style="text-align:start">
           <b style="display:block;font-weight:500;font-size:15px">בחירת קובץ</b>
@@ -308,10 +315,10 @@ button:disabled{opacity:.55;cursor:not-allowed}
             <button onClick="{{ onPasteGo }}" style="margin-inline-start:auto;padding:9px 16px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500;white-space:nowrap">{{ pasteLabel }}</button>
           </sc-if>
         </div>
-        <textarea value="{{ pasteText }}" onChange="{{ onPasteText }}" placeholder="הדבקת טקסט לבדיקה…" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font:13.5px/1.6 Rubik,sans-serif;min-height:64px;resize:vertical"></textarea>
+        <textarea dir="auto" value="{{ pasteText }}" onChange="{{ onPasteText }}" placeholder="הדבקת טקסט לבדיקה…" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font:13.5px/1.6 Rubik,sans-serif;min-height:64px;resize:vertical"></textarea>
       </div>
       <sc-if value="{{ fileErr }}">
-        <div data-file-err role="alert" style="grid-column:1/-1;padding:11px 14px;border-radius:12px;background:var(--bad-soft);color:var(--bad);font-size:13.5px;line-height:1.5">{{ fileErr }}</div>
+        <div data-file-err id="file-err" role="alert" style="grid-column:1/-1;padding:11px 14px;border-radius:12px;background:var(--bad-soft);color:var(--bad);font-size:13.5px;line-height:1.5">{{ fileErr }}</div>
       </sc-if>
       <sc-if value="{{ hasPending }}">
         <div data-pend style="grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--line)">
@@ -415,9 +422,9 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <div style="font-size:12px;font-weight:500;color:var(--ink3);letter-spacing:.06em;margin-bottom:9px">מה נכנס במקום</div>
         <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:14px 16px">
           <div style="display:flex;gap:6px;background:var(--panel2);border-radius:9px;padding:3px">
-            <button onClick="{{ mReal }}" style="{{ segReal }}">שם חלופי</button>
-            <button onClick="{{ mLabel }}" style="{{ segLabel }}">פלוני א׳</button>
-            <button onClick="{{ mBlock }}" style="{{ segBlock }}">███</button>
+            <button onClick="{{ mReal }}" aria-pressed="{{ segRealOn }}" style="{{ segReal }}">שם חלופי</button>
+            <button onClick="{{ mLabel }}" aria-pressed="{{ segLabelOn }}" style="{{ segLabel }}">פלוני א׳</button>
+            <button onClick="{{ mBlock }}" aria-pressed="{{ segBlockOn }}" style="{{ segBlock }}">███</button>
           </div>
           <p style="margin:12px 0 0;font-size:12.5px;line-height:1.55;color:var(--ink2)">{{ modeNote }}</p>
           <label style="display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line2);font-size:13px">
@@ -485,7 +492,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
           <select onChange="{{ p.onKindSel }}" aria-label="סוג" title="סוג: אדם · גוף · מקום" style="font-size:11px;font-weight:500;color:var(--ink2);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:2px 4px">
             <sc-for list="{{ p.kindOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.value }}" selected="{{ o.sel }}">{{ o.label }}</option></sc-for>
           </select>
-          <span data-tip="1" onMouseEnter="{{ p.onTipIn }}" onMouseLeave="{{ p.onTipOut }}" onClick="{{ p.onTipTap }}" title="{{ p.tipHint }}" style="font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ p.value }}</span>
+          <span data-tip="1" data-kbd tabindex="0" role="button" onMouseEnter="{{ p.onTipIn }}" onMouseLeave="{{ p.onTipOut }}" onClick="{{ p.onTipTap }}" title="{{ p.tipHint }}" style="font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ p.value }}</span>
           <sc-if value="{{ p.note }}"><small style="color:var(--ink2);font-size:11.5px">{{ p.note }}</small></sc-if>
           <sc-if value="{{ p.canTrim }}"><button onClick="{{ p.onTrim }}" aria-label="קיצור השם" title="השם תפס מילה מיותרת? כאן מסירים אותה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:12px" style-hover="background:var(--panel2);color:var(--ink)">✂</button></sc-if>
           <button onClick="{{ p.onDel }}" aria-label="הסרה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:13px" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
@@ -627,7 +634,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
         </sc-if>
         <sc-for list="{{ geoRows }}" as="g" hint-placeholder-count="3">
           <div data-wrap style="display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--line2)">
-            <span data-tip="1" onMouseEnter="{{ g.onTipIn }}" onMouseLeave="{{ g.onTipOut }}" onClick="{{ g.onTipTap }}" title="{{ g.tipHint }}" style="min-width:130px;font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ g.from }}</span>
+            <span data-tip="1" data-kbd tabindex="0" role="button" onMouseEnter="{{ g.onTipIn }}" onMouseLeave="{{ g.onTipOut }}" onClick="{{ g.onTipTap }}" title="{{ g.tipHint }}" style="min-width:130px;font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ g.from }}</span>
             <span style="color:var(--ink3)">←</span>
             <input value="{{ g.to }}" aria-label="היישוב שיבוא במקום {{ g.from }}" onChange="{{ g.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
             <button onClick="{{ g.onRemove }}" title="להשאיר את שם היישוב כמו שהוא" style="font-size:12.5px;color:var(--ink2);padding:7px 11px;border-radius:8px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)">אל תחליף</button>
@@ -656,7 +663,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
         </div>
         <sc-for list="{{ extraRows }}" as="x" hint-placeholder-count="3">
           <div data-wrap style="{{ x.rowStyle }}">
-            <span data-tip="1" onMouseEnter="{{ x.onTipIn }}" onMouseLeave="{{ x.onTipOut }}" onClick="{{ x.onTipTap }}" title="{{ x.tipHint }}" style="min-width:130px;font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ x.name }}</span>
+            <span data-tip="1" data-kbd tabindex="0" role="button" onMouseEnter="{{ x.onTipIn }}" onMouseLeave="{{ x.onTipOut }}" onClick="{{ x.onTipTap }}" title="{{ x.tipHint }}" style="min-width:130px;font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ x.name }}</span>
             <sc-if value="{{ x.note }}"><small style="color:var(--warn);font-size:11.5px;white-space:nowrap">{{ x.note }}</small></sc-if>
             <span style="color:var(--ink3)">←</span>
             <input value="{{ x.to }}" aria-label="היישוב שיבוא במקום {{ x.name }}" onChange="{{ x.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
@@ -704,7 +711,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
       <b style="display:block;font-weight:500;margin-bottom:2px">{{ rvCtxTitle }}</b>
       <span style="color:var(--ink2)">{{ rvCtxText }}</span>
     </div>
-    <textarea value="{{ rvIn }}" onChange="{{ onRvIn }}" rows="8" aria-label="תשובת ה-AI" placeholder="הדבקת תשובת ה-AI…" aria-describedby="rv-help" style="width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;font:14px/1.7 Rubik,sans-serif;resize:vertical"></textarea>
+    <textarea dir="auto" value="{{ rvIn }}" onChange="{{ onRvIn }}" rows="8" aria-label="תשובת ה-AI" placeholder="הדבקת תשובת ה-AI…" aria-describedby="rv-help" style="width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;font:14px/1.7 Rubik,sans-serif;resize:vertical"></textarea>
     <small id="rv-help" style="display:block;margin-top:5px;font-size:12px;color:var(--ink3)">מדביקים כאן את מה שה-AI החזיר (Ctrl+V), ולוחצים «החזרת שמות».</small>
     <div style="display:flex;gap:9px;margin-top:12px;flex-wrap:wrap">
       <button onClick="{{ onRvGo }}" disabled="{{ rvEmpty }}" style="{{ rvGoStyle }}">החזרת שמות</button>
@@ -713,7 +720,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
     <sc-if value="{{ rvErr }}"><div style="margin-top:10px;padding:10px 13px;border-radius:10px;background:var(--bad-soft);color:var(--bad);font-size:13.5px">{{ rvErr }}</div></sc-if>
     <sc-if value="{{ rvOut }}">
       <h2 data-rv-result style="margin:24px 0 8px;font-size:16px;font-weight:500">{{ rvHead }}</h2>
-      <div data-rv-out style="background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;font:15px/1.9 'Noto Serif Hebrew',serif;white-space:pre-wrap">{{ rvOut }}</div>
+      <div data-rv-out dir="auto" style="background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;font:15px/1.9 'Noto Serif Hebrew',serif;white-space:pre-wrap">{{ rvOut }}</div>
       <button onClick="{{ onRvCopy }}" style="{{ rvCopyStyle }};margin-top:11px">{{ rvCopyLabel }}</button>
     </sc-if>
   </main>
@@ -743,7 +750,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
           <sc-if value="{{ hasMarks }}">
             <div style="display:flex;align-items:center;gap:2px">
               <button onClick="{{ onPrevMark }}" aria-label="החלפה קודמת" title="ההחלפה הקודמת במסמך" style="width:26px;height:26px;border-radius:7px;color:var(--ink2);font-size:11px" style-hover="background:var(--panel2)">▲</button>
-              <span style="font-size:12px;color:var(--ink3);min-width:52px;text-align:center">{{ markNav }}</span>
+              <span aria-live="polite" aria-atomic="true" style="font-size:12px;color:var(--ink3);min-width:52px;text-align:center">{{ markNav }}</span>
               <button onClick="{{ onNextMark }}" aria-label="החלפה הבאה" title="ההחלפה הבאה במסמך" style="width:26px;height:26px;border-radius:7px;color:var(--ink2);font-size:11px" style-hover="background:var(--panel2)">▼</button>
             </div>
           </sc-if>
@@ -760,7 +767,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <sc-if value="{{ legendDate }}"><span data-legend-date><span style="background:var(--accent-soft);color:var(--accent-ink);border-bottom:2px dotted var(--accent);padding:0 4px;border-radius:3px">12.3.26</span> תאריך מוזז — המקורי חוזר בהחזרה</span></sc-if>
         <span style="color:var(--ink3)">לחיצה על סימון פותחת עריכה במקום</span>
       </div>
-      <div ref="{{ sheetRef }}" onMouseUp="{{ onSheetSelect }}" style="background:var(--panel2);max-height:calc(100vh - var(--bar-h, 64px) - 186px);overflow:auto;padding:22px 0 40px">
+      <div ref="{{ sheetRef }}" onMouseUp="{{ onSheetSelect }}" onKeyUp="{{ onSheetKey }}" style="background:var(--panel2);max-height:max(300px, calc(100vh - var(--bar-h, 64px) - 186px));overflow:auto;padding:22px 0 40px">
         <div data-paper style="width:min(720px,calc(100% - 44px));margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 18px 40px -30px rgba(0,0,0,.5);padding:56px 60px;font-size:16px;line-height:1.95;font-family:var(--doc-font)">
           <sc-for list="{{ sheet }}" as="blk" hint-placeholder-count="8">
             <sc-if value="{{ blk.head }}">
@@ -768,7 +775,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
             </sc-if>
             <div style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:14px;margin-bottom:11px;align-items:baseline">
               <span style="font:400 10.5px/2 Rubik,sans-serif;color:var(--ink3);text-align:end">{{ blk.n }}</span>
-              <p style="margin:0;text-wrap:pretty"><sc-for list="{{ blk.segs }}" as="sg" hint-placeholder-count="3"><sc-if value="{{ sg.plain }}"><span>{{ sg.t }}</span></sc-if><sc-if value="{{ sg.mark }}"><span data-mark="{{ sg.id }}" data-val="{{ sg.val }}" data-badge="{{ sg.badge }}" data-kind="{{ sg.kind }}" tabindex="0" role="button" onClick="{{ sg.onClick }}" title="{{ sg.title }}" style="{{ sg.style }}"><span data-pre style="opacity:.5;font-weight:400">{{ sg.pre }}</span>{{ sg.t }}</span></sc-if></sc-for></p>
+              <p dir="auto" style="margin:0;text-wrap:pretty"><sc-for list="{{ blk.segs }}" as="sg" hint-placeholder-count="3"><sc-if value="{{ sg.plain }}"><span>{{ sg.t }}</span></sc-if><sc-if value="{{ sg.mark }}"><span data-mark="{{ sg.id }}" data-val="{{ sg.val }}" data-badge="{{ sg.badge }}" data-kind="{{ sg.kind }}" tabindex="0" role="button" onClick="{{ sg.onClick }}" title="{{ sg.title }}" style="{{ sg.style }}"><span data-pre style="opacity:.5;font-weight:400">{{ sg.pre }}</span>{{ sg.t }}</span></sc-if></sc-for></p>
             </div>
           </sc-for>
         </div>
@@ -794,7 +801,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
       <sc-for list="{{ sections }}" as="s" hint-placeholder-count="5">
         <div style="{{ s.wrapStyle }}">
-          <button data-section="{{ s.key }}" onClick="{{ s.onToggle }}" style="display:flex;align-items:center;gap:10px;width:100%;padding:13px 15px;text-align:start">
+          <button data-section="{{ s.key }}" onClick="{{ s.onToggle }}" aria-expanded="{{ s.expanded }}" style="display:flex;align-items:center;gap:10px;width:100%;padding:13px 15px;text-align:start">
             <span style="{{ s.dotStyle }}"></span>
             <b style="font-weight:500;font-size:13.5px">{{ s.title }}</b>
             <span style="font-size:12px;color:var(--ink3)">{{ s.count }}</span>
@@ -876,7 +883,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
                 <sc-for list="{{ groups }}" as="g" hint-placeholder-count="6">
                   <div data-group="{{ g.key }}" onClick="{{ g.onClick }}" onMouseEnter="{{ g.onEnter }}" onMouseLeave="{{ g.onLeave }}" style="{{ g.style }}">
                     <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
-                      <span style="font-weight:500;font-size:14px">{{ g.value }}</span>
+                      <span data-kbd tabindex="0" role="button" style="font-weight:500;font-size:14px">{{ g.value }}</span>
                       <span style="color:var(--ink3);font-size:13px">{{ g.arrow }}</span>
                       <span style="{{ g.repStyle }}">{{ g.rep }}</span>
                       <sc-if value="{{ g.review }}"><span style="font-size:10.5px;font-weight:500;padding:2px 7px;border-radius:12px;background:var(--warn-soft);color:var(--warn)">לאישור</span></sc-if>
@@ -1040,7 +1047,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
       </sc-if>
       <sc-if value="{{ barOk }}">
         <span style="{{ statusDot }}">{{ statusIcon }}</span>
-        <div data-bar-text style="flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{ statusText }}"><b style="font-weight:500">{{ statusTitle }}</b><span style="color:var(--ink3)"> · {{ statusText }}</span></div>
+        <div data-bar-text role="status" aria-live="polite" style="flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{ statusText }}"><b style="font-weight:500">{{ statusTitle }}</b><span style="color:var(--ink3)"> · {{ statusText }}</span></div>
       </sc-if>
       <div data-steps style="display:flex;gap:6px;align-items:center;font-size:11.5px;white-space:nowrap" title="שלושת השלבים: השחרה, העתקה או הורדה, החזרת שמות לתשובה">
         <span style="{{ step1Style }}">1 השחרה ✓</span><span style="color:var(--ink3)">›</span>
@@ -1184,7 +1191,7 @@ class Component extends DCLogic {
           }, 2000);
         } else this.setState({nerMsg:t||"", nerPct:p, nerStall:false});
       });
-      this.setState({E, ready:true}, ()=>{ const q=this._early||[]; this._early=null; for(const fn of q) fn(); });
+      this.setState({E, ready:true}, ()=>{ const q=this._early||[]; this._early=null; if(q.length&&this.log) this.log.add("file-early",{n:q.length}); for(const fn of q) fn(); });
       this.nerStatus(E);
     }catch(e){
       // L16 בביקורת השנייה: הודעה טכנית באנגלית, בלי דרך לנסות שוב, ובחירת קובץ שלא עשתה דבר
@@ -1201,7 +1208,7 @@ class Component extends DCLogic {
     let seen=false; try{ const t=localStorage.getItem("redact-tour-seen"); seen = localStorage.getItem("redact-intro-seen")==="1" && (t==="*"||t===this.ver()); }catch(_){}
     let lastProfile=null; try{ const j=localStorage.getItem("redact-profile-last"); const p=j&&JSON.parse(j); if(p&&p.v===1&&(p.rules||[]).length) lastProfile=p; }catch(_){}
     this.setState({theme:th, intro:!seen, lastProfile, cases:this.readCases()});
-    // יומן הסשן (Q16): זמנים ואירועים בלי טקסט, בדפדפן בלבד, מיוצא בכפתור ליד דוח הדליפה
+    // יומן הסשן (PLAN-v18 Q16): זמנים ואירועים בלי טקסט, בדפדפן בלבד, מיוצא בכפתור ליד דוח הדליפה
     const ver=((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"");
     this.log=window.PL?window.PL.sessionLog(ver):{add(){},export(){return "{}"}};
     let feedbackMail=""; try{ feedbackMail=localStorage.getItem("redact-feedback-mail")||""; }catch(_){}
@@ -1237,6 +1244,8 @@ class Component extends DCLogic {
         if(S.popup){ e.preventDefault(); this.setState({popup:null}); return; }
         if(S.tip){ this.setState({tip:null}); return; }
         if(S.exportAsk){ this.setState({exportAsk:""}); return; }
+        // הסיור נסגר גם ב-Escape, כמו כל שכבה אחרת מעל המסך (ביקורת M32)
+        if(S.tour){ e.preventDefault(); this.tourClose(); return; }
       }
       if(e.key==="Tab"&&S.intro&&!S.tour){
         const box=document.querySelector("[data-intro]");
@@ -1248,6 +1257,8 @@ class Component extends DCLogic {
         }
         return;
       }
+      // ביקורת M29, M30: "איפה זה מופיע" ושם הכרטיס פועלים גם מהמקלדת, כמו סימון במסמך
+      if((e.key==="Enter"||e.key===" ")&&e.target&&e.target.matches&&e.target.matches("[data-kbd]")){ e.preventDefault(); e.target.click(); return; }
       if((e.key==="Enter"||e.key===" ")&&e.target&&e.target.matches&&e.target.matches("[data-mark]")){
         // פתיחה מהמקלדת (M5): הפוקוס עובר לחלונית, ו-Escape מחזיר אותו לסימון
         this._inlineByKey=e.target; this._inlineFocused=false;
@@ -2223,7 +2234,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   undo = () => this.stepHistory(true);
   redo = () => this.stepHistory(false);
 
-  /* יומן עשיר (לפני הסשן של 22.9): כל תיקון שלה נרשם עם מה שגרם לו, כדי שנבין למה היא
+  /* יומן עשיר (נוסף ב-v48, לקראת הסשן שלה): כל תיקון שלה נרשם עם מה שגרם לו, כדי שנבין למה היא
      מתקנת בלי לראות מה. רק קודים, מספרים ודגלים — אף מילה מהמסמך, והשומר של היומן דוחה
      כל מילה עברית בכל מקרה.
        src  — מי הציע את הערך: m מודל · h כותרת · s דובר · p פרופיל התיק · t היא הוסיפה ·
@@ -2307,7 +2318,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.log.add("add-rule",{origin:origin||"list", kind:kind||"NAME", words:value.split(/\s+/).length});
     if(this.state.res) this.logMiss(value, kind||"NAME", origin);
     if(origin==="mark"&&this.state.res&&this.state.buf&&window.PL) this.recordLeak(value, kind||"NAME");
-    // סתירה עם היתר קיים (Q6): ההחלטה החדשה מנצחת, וההיתר מוסר עם שורת הודעה
+    // סתירה עם היתר קיים (Q6 בגרסה 3): ההחלטה החדשה מנצחת, וההיתר מוסר עם שורת הודעה
     const nrm=x=>E.norm(String(x||"")).trim();
     const allowGone=this.state.allow.filter(a=>nrm(a)===nrm(value));
     if(allowGone.length) this.log.add("conflict",{won:"rule"});
@@ -2618,7 +2629,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const n=this.pendingReview().blocking;
     if(n) this.setState({err:`הועתק, אבל ${n===1?"פריט אחד":n+" פריטים"} בלי החלטה — הם יגיעו ל-AI כמו שהם.`});
   };
-  // חבילת בדיקה (Q9): המסמך הנקי, יומן הסשן ודוח הדליפה בקובץ zip אחד, ואז
+  // חבילת בדיקה (PLAN-v18 Q9): המסמך הנקי, יומן הסשן ודוח הדליפה בקובץ zip אחד, ואז
   // מייל שנפתח אצלה עם הכתובת מלאה. בלי שרת: היא מצרפת את הקובץ ולוחצת שלח.
   sendPackage = async () => {
     const RES=this.state.res, E=this.state.E; if(!RES) return;
@@ -2755,7 +2766,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       ...(this.state.lastProfile&&this.state.lastProfile.name===name?{lastProfile:null}:{})});
   };
   resumeCase = name => { const p=this.readCases().find(c=>c.name===name); if(!p) return; this.setState({caseName:name, lastProfile:null}); this.applyProfile(p); };
-  /* ── הסיור (Q15) ──
+  /* ── הסיור (Q15 בגרסה 2) ──
      פעם אחת לכל גרסה, על מסמך בדוי שמובנה בכלי, ומסומן ככזה בכותרתו. הסיור
      מנווט בעצמו בין המסכים באותם מסלולים שהיא תלחץ בהם; המודל כבוי כדי שלא
      תחכי להורדה; שום דבר מהמסמך לא נשמר בפרופיל, לא מועתק ולא יורד. */
@@ -2806,9 +2817,11 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     /* לחיצה בעכבר מחוץ ליעד של הצעד נעצרת (דיווח המשתמש, 18.9): החוסמים סביב הזרקור לא הספיקו,
        כי כשהמסמך נגלל אל מתחת לכותרת העליונה, האזור המואר כולל את הכותרת וכפתור "‹ רשימת השמות"
        שבה שבר את הסיור. מותר: היעד עצמו, כרטיס הסיור, חלונית העריכה וחלוניות שנפתחו ממנו.
-       הפעלה מהמקלדת לא נעצרת כאן (detail 0); הכפתורים עצמם מסרבים בסיור כשצריך. */
+       גם הפעלה מהמקלדת (Enter על כפתור, detail 0) נעצרת: עד ביקורת M32 היא עברה, ו-Enter על
+       מתג מצב הלילה מחוץ לאזור המואר החליף ערכת צבעים בלי מילה. לחיצה מתוכנתת (click()) אינה
+       מהימנה ואינה נעצרת. */
     this._tourGuard=e=>{
-      const t=this.state.tour; if(!t||!e.isTrusted||!e.detail) return;
+      const t=this.state.tour; if(!t||!e.isTrusted) return;
       const cur=this.constructor.TOUR[t.i], target=cur&&cur.target?document.querySelector(cur.target):null;
       const el=e.target;
       if(!target||!el||!el.closest) return;
@@ -3332,7 +3345,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onNoticeUndo:()=>{ this.setState({notice:""}); this.undo(); },
       err:S.err, busyT:S.busyT, primaryBtn,
       fileRef:el=>{ if(el) this.fileEl=el; }, profRef:el=>{ if(el) this.profEl=el; },
-      onPick:this.pickFile, onFile:this.onFile, onProfFile:this.onProfFile,
+      onPick:this.pickFile, onFile:this.onFile, onProfFile:this.onProfFile, fileErrRef:S.fileErr?"file-err":"",
       onDragOver:this.onDragOver, onDragLeave:this.onDragLeave, onDropFile:this.onDropFile,
       fileName:S.pending?"":bdi(S.name),
       dropStyle:"display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;text-align:start;"+
@@ -3346,6 +3359,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       mLabel:()=>this.setState({mode:"label"}, ()=>{ if(S.res) this.rerun(); }),
       mBlock:()=>this.setState({mode:"block"}, ()=>{ if(S.res) this.rerun(); }),
       segReal:seg(S.mode==="real"), segLabel:seg(S.mode==="label"), segBlock:seg(S.mode==="block"),
+      segRealOn:String(S.mode==="real"), segLabelOn:String(S.mode==="label"), segBlockOn:String(S.mode==="block"),
       modeNote:MNOTE[S.mode],
       numStyle:S.o.numStyle||"blank", numBlank:(S.o.numStyle||"blank")==="blank", numLabel:S.o.numStyle==="label", numBlack:S.o.numStyle==="black",
       onNumStyle:e=>{ const v=e.target.value; this.log.add("num-style",{}); this.setState({o:{...S.o, numStyle:v}}, ()=>{ if(this.state.res) this.rerun(); }); },
@@ -3426,7 +3440,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       // הרשימה מקובצת: אנשים, גופים, מקומות. הסדר לתצוגה בלבד; המחיקה והחלפת הסוג
       // עובדות על האינדקס המקורי.
       // הרשימה נשארת בסדר ההוספה: מיון לפי סוג הזיז שבב מתחת לאצבע כשהסוג שונה
-      // שני שמות שעשויים להיות אותו אדם: מוצע עם הסיבה, ומתקבל רק בהקשה (Q12)
+      // שני שמות שעשויים להיות אותו אדם: מוצע עם הסיבה, ומתקבל רק בהקשה (Q12 בגרסה 2)
       mergeSugs:(()=>{ const out=[]; const not=new Set(S.peoNotSame||[]);
         for(let i=0;i<S.peo.length;i++)for(let j=i+1;j<S.peo.length;j++){
           const a=S.peo[i], b=S.peo[j]; if(a.sameAs||b.sameAs||(a.kind||"NAME")!=="NAME"||(b.kind||"NAME")!=="NAME")continue;
@@ -3581,7 +3595,9 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onAdd:()=>this.addRule(S.addV, S.addK, S.addR),
       kindChips:KINDS.map(([k,l])=>({label:this.kindLabel(l), style:chip(S.addK===k), onClick:()=>this.setState({addK:k})})),
       sheetRef:el=>{this.sheetEl=el}, listRef:el=>{this.listEl=el},
-      onSheetSelect:this.onSheetSelect
+      onSheetSelect:this.onSheetSelect,
+      // ביקורת L29: בחירה ב-Shift וחיצים פותחת את אותה חלונית כמו בחירה בעכבר
+      onSheetKey:e=>{ if(e.shiftKey||e.key==="Shift") this.onSheetSelect(e); }
     };
 
     if(!v.isWork) return v;
@@ -3662,7 +3678,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           const fl=RES.flagged.find(x=>x.value===m.val)||{};
           segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:b.text.slice(m.s,m.e), badge:"?", pre:"", kind:"flag",
             title:"נמצא ומחכה להחלטה שלך — לחיצה פותחת עריכה במקום",
-            // צורה ולא רק צבע (Q2): קו מקווקו עבה ותג "?" — נראה גם על מסך חיוור
+            // צורה ולא רק צבע (Q2 בגרסה 3): קו מקווקו עבה ותג "?" — נראה גם על מסך חיוור
             style:"cursor:pointer;border-radius:3px;box-decoration-break:clone;padding:1px 2px;"+
               "background:var(--warn-soft);color:var(--warn);border-bottom:2px dashed var(--warn);font-weight:500;",
             onClick:e=>this.setState({sel:fkey, filter:"all", cat:"",
@@ -3689,7 +3705,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         const isDateMark=!!(src&&/^תאריך/.test(src.label||"")&&src.rep&&src.rep!=="███");
         segs.push({plain:false, mark:true, id:pos, val:orig||(src?src.value:""), pre, t:mt.slice(pre.length), badge:"", kind:isDateMark?"date":"",
           title: (isDateMark ? "תאריך מוזז — המקורי «"+(orig||"")+"» חוזר בהחזרת השמות" : (orig ? orig+" ← במקור" : "הוחלף — המקור אינו חד-משמעי"))+" · לחיצה פותחת עריכה במקום",
-          // צורה ולא רק צבע (Q2): קו תחתון מלא, וצבע חזק יותר; תאריך מוזז — קו מנוקד
+          // צורה ולא רק צבע (Q2 בגרסה 3): קו תחתון מלא, וצבע חזק יותר; תאריך מוזז — קו מנוקד
           style:"cursor:pointer;border-radius:3px;box-decoration-break:clone;padding:1px 2px;font-weight:500;"+
             ((selected||S.hot===m.id)
               ? "background:var(--accent);color:var(--panel);border-bottom:2px "+(isDateMark?"dotted":"solid")+" var(--accent);"
@@ -3813,7 +3829,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           onStyleName:set(nameish||isDate?"name":"label"), onStyleBlank:set("blank"), onStyleBlack:set("black"),
           styleNameBtn:btn(cur==="name"||cur==="label"), styleBlankBtn:btn(cur==="blank"), styleBlackBtn:btn(cur==="black"),
           blankWarn:cur==="blank"&&/^שם/.test(g.label||""),
-          // התחליף שהיא בחרה הוא גם שם אמיתי במסמך. הבחירה נשארת, והכרטיס אומר את זה (Q14).
+          // התחליף שהיא בחרה הוא גם שם אמיתי במסמך. הבחירה נשארת, והכרטיס אומר את זה (Q14 בגרסה 2).
           collideWarn:g.collide?`«${g.collide}» מופיע במסמך גם כשם אמיתי, ושני האנשים ייראו כאחד. אפשר לבחור תחליף אחר כאן, או להוסיף את «${g.collide}» האמיתי/ת לרשימה.`:"",
         };
       })(),
@@ -3945,7 +3961,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       ["send","שליחת הסשן אלינו", 0, "plain"]
     ];
     v.sections = secDef.map(([key,title,count,tone])=>({
-      key, title, count:count?count:"", chev:isOpen(key)?"▲":"▼",
+      key, title, count:count?count:"", chev:isOpen(key)?"▲":"▼", expanded:String(isOpen(key)),
       wrapStyle:"background:var(--panel);border:1px solid "+(isOpen(key)?"var(--line)":"var(--line2)")+";border-radius:12px;box-shadow:"+(isOpen(key)?"var(--shadow)":"none")+";overflow:hidden",
       dotStyle:"width:7px;height:7px;border-radius:50%;flex:none;background:"+(tone==="warn"?"var(--warn)":tone==="ok"?"var(--accent)":"var(--ink3)"),
       onToggle:()=>this.setState({open:isOpen(key)?open.filter(k=>k!==key):[...open,key]}),

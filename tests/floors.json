@@ -12,7 +12,7 @@
  "design_t.js": 2,
  "engine_t.js": 2,
  "pagelogic_t.js": 41,
- "regex_t.js": 42,
+ "regex_t.js": 44,
  "places_t.js": 68,
  "numbers_t.js": 12,
  "private_t.js": 7,
@@ -37,5 +37,6 @@
  "license_t.js": 2,
  "failopen_t.js": 15,
  "gate_t.js": 6,
- "vendor_t.js": 14
+ "vendor_t.js": 14,
+ "lintpage_t.js": 5
 }

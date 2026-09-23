@@ -13,7 +13,7 @@
     "build:design": "node scripts/build-design.js",
     "build:atlas": "node scripts/build-atlas-doc.js",
     "build:engine": "node scripts/build-engine.js",
-    "lint": "eslint .",
+    "lint": "eslint . && node scripts/lint-page.js",
     "report": "node tests/report.js",
     "bench": "node bench/generate.js && node bench/run.js",
     "bench:nomodel": "node bench/generate.js && node bench/run.js --no-model",
