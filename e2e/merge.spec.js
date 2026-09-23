@@ -1,7 +1,7 @@
 const { test, expect } = require("./base");
 const H = require("./helpers");
 
-/* Two spellings of one woman on the people screen (Q12).
+/* Two spellings of one woman on the people screen (Q12 of release 2, CHANGELOG v29).
 
    The engine used to merge them silently. Now the people screen offers the
    merge with its reason, and nothing happens until she taps. After the tap

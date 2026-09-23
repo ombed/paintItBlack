@@ -16,6 +16,9 @@ const SRC = { m: "model", h: "header", s: "speaker", p: "profile", t: "typed by 
 
 function readLog(file) {
   const buf = fs.readFileSync(file);
+  // under four bytes readUInt32LE threw a bare RangeError (outside review, nit 9). No file
+  // name in the message: hers may carry a client's name.
+  if (buf.length < 4) throw new Error(`not a session log or a package: the file is ${buf.length} bytes`);
   if (buf.readUInt32LE(0) === 0x04034b50) {
     const { unzip } = require("./harvest-shapes.js");
     const f = unzip(buf).find((x) => /session-log\.json$/.test(x.name));

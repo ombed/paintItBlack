@@ -98,6 +98,28 @@ command, a test, or a document that triggers it.
 4. **No fabrication.** If something could not be verified, say so and mark the
    finding as a suspicion.
 
+### Commands behind the brief's measurements
+
+- **Complexity**: `node scripts/complexity.js` (`--top=N` for a longer list). The
+  bundle, `page-logic.js`, `scripts/harvest-shapes.js` and the app script inside
+  `index.html`; eslint `complexity` above 12 and `max-depth` above 4. A file that
+  does not parse is an error, not a skip.
+- **Churn**, the whole history, generated files excluded:
+  `git log --name-only --format= -- . ':!design/redact.dc.html' ':!redact-engine.js' ':!docs/atlas-tags-he.md' | grep -v '^$' | sort | uniq -c | sort -rn | head`.
+  The repository starts on 2026-09-03, so there is no window to choose; do not add
+  `--since=2026-09-03`, which git reads as that date at the current time of day and
+  which drops that day's earlier commits.
+- **Duplication**: `npx jscpd --min-lines 6 --min-tokens 60` over the source. The
+  ignore set behind the brief's 4.35% was not recorded, so that figure cannot be
+  reproduced exactly; the review found an ignore set giving 4.18% / 69 clones with
+  the same shape (almost all in `e2e/`, one engine clone). Name the ignore set when
+  you quote a number.
+- **Node checks**: `node tests/run.js`, total on its last line; per-suite counts in
+  its table.
+- Not backed by a command here: the engine export count (read the `export {…}`
+  line at the end of `redact-engine.js`), the comment-language counts and the
+  payload sizes, which were counted by hand for the brief.
+
 ## 5. Lenses
 
 Each lens is a separate pass with its own checklist. The checklists are in
@@ -224,7 +246,12 @@ versions are in `docs/review/SOURCES.md`.
   Long Hebrew strings are refused, but what about two-letter words, Latin
   transliteration, numbers, file names, or a value in a field name.
 - Third-party code: React, Babel, d3, topojson, pdf.js, transformers.js, fonts,
-  and the model weights. No Subresource Integrity, no Content-Security-Policy.
+  and the model weights. No Content-Security-Policy. Subresource Integrity is
+  partial: five of the seven executable third-party loads carry a hash through
+  the loader (React, ReactDOM, the Babel constant, d3, topojson); the two that
+  see document text, transformers.js and pdf.js, come in by a bare `import()`
+  and carry none, and the weights have no check at all. (Corrected 2026-09-23;
+  it read "No Subresource Integrity", which the review showed wrong, L18.)
   What is the worst case if one of those CDNs serves something else tomorrow,
   and what would it cost to prevent it.
 - The service worker: what it caches, for how long, whether a poisoned entry

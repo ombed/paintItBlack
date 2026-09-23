@@ -1,4 +1,5 @@
-/* Parameter sweep against the benchmark:  node bench/sweep.js [--no-model]
+/* Parameter sweep against the benchmark:
+     node bench/sweep.js [--no-model] [--only=KEY] [--out=DIR]
 
    Several numbers in the detection layer were set by feel. Each one here is
    scored at several values on the whole corpus, model on, and the surface is
@@ -8,15 +9,23 @@
    fresh. A patch that no longer matches the source throws, so a stale sweep
    fails loudly rather than measuring the wrong thing.
 
+   --only=KEY re-runs one parameter and replaces only its section; every other
+   section of sweep.md, and every other parameter's rows in sweep.json, stay as
+   they were. It used to rewrite the whole file with the one section, which is
+   how a partial re-run cut sweep.md from thirteen sections to one (outside
+   review, M13). Because sections can now come from different runs, each one
+   says for itself whether the model was on, the commit and the date.
+   --out=DIR writes there instead of bench/ (tests/sweep_t.js uses it).
+
    Junk (unlisted suggestions) is reported at every point and never used to
    pick a value: the list is read, accept-all is not how the tool is used. */
 const fs = require("fs");
 const path = require("path");
-const E = require("./engine.js");
-const { makeBench, loadModel } = require("./lib.js");
 
+const arg = (name) => (process.argv.find((a) => a.startsWith(`--${name}=`)) || "").slice(name.length + 3);
 const NO_MODEL = process.argv.includes("--no-model");
-const ONLY = (process.argv.find((a) => a.startsWith("--only=")) || "").slice(7);
+const ONLY = arg("only");
+const OUT = arg("out") || __dirname;
 
 // the shipped source lines the sweep patches; each must match exactly once
 const SRC = {
@@ -66,27 +75,83 @@ const PARAMS = [
     points: [["off", [], { prefixes: "off" }], ["safe", [], { prefixes: "safe" }], ["normal", [], { prefixes: "normal" }]] },
 ];
 
-(async () => {
+const HEADER = ["# Parameter sweep", "",
+  "Whole corpus at every point. Each section says whether the model was on, which commit it measured and when; " +
+  "`--only` re-runs one section and keeps the rest, so sections can come from different runs. " +
+  "The shipped value is marked ◀. Junk is reported, not optimised for.", ""];
+
+// "## key — title" starts a section; everything before the first one is the header
+function splitSections(md) {
+  const out = new Map();
+  let key = null, buf = [];
+  const flush = () => { if (key !== null) out.set(key, buf.join("\n").replace(/\s+$/, "")); };
+  for (const line of String(md || "").split(/\r?\n/)) {
+    const m = /^## (\S+) — /.exec(line);
+    if (m) { flush(); key = m[1]; buf = [line]; } else if (key !== null) buf.push(line);
+  }
+  flush();
+  return out;
+}
+
+/* The new sweep.md: the sections just run replace their namesakes, every other
+   section of the old file is kept. Order follows `order` (the PARAMS keys);
+   a kept section whose key is no longer a parameter goes at the end rather
+   than being dropped. */
+function mergeSweep(oldMd, fresh, order) {
+  const old = splitSections(oldMd), neu = splitSections(fresh);
+  const keys = [...order.filter((k) => neu.has(k) || old.has(k)),
+    ...[...old.keys(), ...neu.keys()].filter((k, i, a) => !order.includes(k) && a.indexOf(k) === i)];
+  const body = keys.map((k) => (neu.has(k) ? neu.get(k) : old.get(k)));
+  return [...HEADER, body.join("\n\n"), ""].join("\n");
+}
+
+// sweep.json: the re-run parameters' rows replace theirs, the rest are kept
+function mergeRows(oldRows, freshRows) {
+  const ran = new Set(freshRows.map((r) => r.param));
+  return [...(oldRows || []).filter((r) => !ran.has(r.param)), ...freshRows];
+}
+
+function commit() {
+  try {
+    const r = require("child_process").spawnSync("git", ["rev-parse", "--short", "HEAD"], { cwd: __dirname, encoding: "utf8" });
+    return r.status === 0 ? r.stdout.trim() : "unknown";
+  } catch { return "unknown"; }
+}
+
+async function main() {
+  const E = require("./engine.js");
+  const { makeBench, loadModel, KEY } = require("./lib.js");
+  if (ONLY && !PARAMS.some((P) => P.key === ONLY)) throw new Error(`--only=${ONLY}: no such parameter`);
   const pipe = NO_MODEL ? null : await loadModel();
   const results = [];
-  const md = [`# Parameter sweep`, "", `Model ${NO_MODEL ? "off" : "on"}, whole corpus at every point. Generated ${new Date().toISOString().slice(0, 10)}. The shipped value is marked ◀. Junk is reported, not optimised for.`, ""];
+  const stamp = `Model ${NO_MODEL ? "off" : "on"}, ${KEY.docs.length} documents, commit ${commit()}, generated ${new Date().toISOString().slice(0, 10)}.`;
+  const md = [];
   for (const P of PARAMS) {
     if (ONLY && P.key !== ONLY) continue;
-    md.push(`## ${P.key} — ${P.title}`, "", "| value | leaks | missed | fp | junk | ms |", "|---|---|---|---|---|---|");
+    md.push(`## ${P.key} — ${P.title}`, "", stamp, "", "| value | leaks | missed | fp | junk | ms |", "|---|---|---|---|---|---|");
     for (const [label, patches, opt] of P.points) {
       const Ev = patches.length ? E.load(patches) : E;
       const B = makeBench(Ev, opt);
       const t0 = Date.now();
       const r = await B.runAll(pipe);
-      const row = { param: P.key, value: label, ...r.totals, ms: Date.now() - t0, current: label === P.current };
+      const row = { param: P.key, value: label, ...r.totals, ms: Date.now() - t0, current: label === P.current, model: !NO_MODEL };
       results.push(row);
       md.push(`| ${label}${row.current ? " ◀" : ""} | ${row.leaked} | ${row.missed} | ${row.fp} | ${row.junk} | ${row.ms} |`);
       process.stderr.write(`${P.key}=${label}: leaks ${row.leaked} missed ${row.missed} fp ${row.fp} junk ${row.junk}\n`);
     }
     md.push("");
   }
-  fs.writeFileSync(path.join(__dirname, "sweep.md"), md.join("\n") + "\n");
-  fs.writeFileSync(path.join(__dirname, "sweep.json"), JSON.stringify(results, null, 1));
+  const mdFile = path.join(OUT, "sweep.md"), jsonFile = path.join(OUT, "sweep.json");
+  const oldMd = fs.existsSync(mdFile) ? fs.readFileSync(mdFile, "utf8") : "";
+  let oldRows = [];
+  try { oldRows = JSON.parse(fs.readFileSync(jsonFile, "utf8")); } catch { oldRows = []; }
+  const merged = mergeSweep(oldMd, md.join("\n"), PARAMS.map((P) => P.key));
+  fs.writeFileSync(mdFile, merged);
+  fs.writeFileSync(jsonFile, JSON.stringify(mergeRows(oldRows, results), null, 1));
   console.log(md.join("\n"));
-})().catch((e) => { console.error(e); process.exit(1); });
+}
+
+module.exports = { mergeSweep, mergeRows, splitSections, PARAMS };
+
+if (require.main === module) main().catch((e) => { console.error(e); process.exit(1); });
 

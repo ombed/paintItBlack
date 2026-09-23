@@ -183,7 +183,7 @@ class Engine{
       if(full)this.alias[short.value]=full.value;
     }
     // "שלוה ליבוביץ" ו"שלווה ליבוביץ": עד כאן מוזגו מעצמם כשכל מילה במרחק
-    // אות-קריאה. ההחלטה שלה (Q12): מיזוג לעולם אינו אוטומטי — מסך השמות מציע
+    // אות-קריאה. ההחלטה שלה (Q12 בגרסה 2): מיזוג לעולם אינו אוטומטי — מסך השמות מציע
     // אותו (mergeSignals) והיא מקישה. מה שאושר מגיע כאן כ-sameAs על הכלל.
     for(const s of subs){
       if(!s.sameAs||s.sameAs===s.value)continue;
@@ -285,7 +285,7 @@ class Engine{
       // תאריך מלא במצב "שם" הוא תאריך מוזז — אותו היסט לכל המסמך
       else if(fam==="DATE"&&real&&typeof fakeDate==="function")
         base=fakeDate(canonical,this.dateOff)||`[${lab} ${hord(n)}]`;
-      // מקום מהרשימה (סוג PLACE) מקבל שם לפי סוגו — שכונה, רחוב, מושב — ולא תווית (Q11)
+      // מקום מהרשימה (סוג PLACE) מקבל שם לפי סוגו — שכונה, רחוב, מושב — ולא תווית (Q11 בגרסה 2)
       else if(real&&typeof fakePlace==="function"&&
               (h.type==="PLACE"||h.type==="PLACE_CITY"||(h.type==="PLACE_VENUE"&&h.label==="יישוב")))
         base=fakePlace(canonical,this.used,this.forbidden,h.kind)||`[${lab} ${hord(n)}]`;

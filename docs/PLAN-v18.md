@@ -24,6 +24,12 @@ three and four; its facts are summarised, never quoted with identifiers.
 | Q15 | transcription errors | ask her for two or three cleaned transcripts with the typos left in; build the near-miss measurement from those |
 | Q16 | session log | always on, local only, no text; exported by a button next to the leak report; nothing leaves the machine unless she exports |
 
+**Numbering.** There is no Q4 or Q5 in this table. `Q<n>` is not one scheme across the
+repository: this table is one; each release built from her real use numbered its own
+questions again from Q1 (`CHANGELOG.md`: release 2 in v29, release 3 in v33, release 5 in
+v39). Comments name the source: "PLAN-v18 Q13" for this table, "Q11 בגרסה 2" or "Q14 of
+release 2" for a release's. A bare Q number inside a CHANGELOG section is that section's.
+
 ## What the questionnaire changed
 
 - She does this almost daily, on several documents in parallel: meeting
@@ -51,6 +57,16 @@ lists, or a word that appears in the document with a prefix or the definite
 article elsewhere ("באזור" next to "אזור") goes on the ambiguity list
 automatically: it is flagged for her, never auto-replaced. The list stays a
 data file, not code, so a wrong entry is a one-line fix.
+
+**Superseded the next day.** The code no longer keeps this rule. On her four
+real documents the one-word entries of the settlement list gave twelve wrong
+hits and no right ones (`docs/measurements.md`, "Two transcripts and a
+position paper"), so `findPlaces` in `engine/06-model.js` now uses only the
+entries of two words or more. A one-word locality from the settlement list is
+neither replaced nor flagged. A two-word one is flagged only when it is three
+letters or fewer or on the `AMBIG` list, and skipped inside the name of a
+public body. The coordinate list (`PLACES`) is separate and still flags its
+ambiguous one-word towns (`AMBIG`, three letters or fewer).
 
 ## The work, in order
 

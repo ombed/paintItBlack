@@ -1,4 +1,4 @@
-/* A phrase she adds by hand is matched literally (Q13).
+/* A phrase she adds by hand is matched literally (Q13 of release 2, CHANGELOG v29; not PLAN-v18 Q13).
 
    Exact words, exact order, whole words only. The only tolerance is what
    the text itself varies: whitespace and the hyphen between words, and
