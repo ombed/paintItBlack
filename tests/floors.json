@@ -11,7 +11,7 @@
  "version_t.js": 10,
  "design_t.js": 2,
  "engine_t.js": 2,
- "pagelogic_t.js": 37,
+ "pagelogic_t.js": 41,
  "regex_t.js": 42,
  "places_t.js": 68,
  "numbers_t.js": 12,
@@ -23,7 +23,7 @@
  "merge_t.js": 16,
  "phrase_t.js": 15,
  "r3_t.js": 47,
- "site_t.js": 55,
+ "site_t.js": 75,
  "r5_t.js": 27,
  "shapes_t.js": 1154,
  "prcheck_t.js": 16,
@@ -36,5 +36,6 @@
  "benchlib_t.js": 4,
  "license_t.js": 2,
  "failopen_t.js": 15,
- "gate_t.js": 6
+ "gate_t.js": 6,
+ "vendor_t.js": 14
 }

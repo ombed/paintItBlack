@@ -23,7 +23,8 @@ self.addEventListener("activate",e=>{
   })());
 });
 
-// הודעה מהעמוד: לרוקן ולהתעדכן עכשיו
+// הודעה מהעמוד: לרוקן ולהתעדכן עכשיו. נשלחת מ"ניקוי הכלי מהמחשב" בהגדרות (ביקורת M2: עד
+// אז שום דבר לא שלח אותה, והדרך היחידה לנקות מטמון פגום הייתה כלי המפתחים)
 self.addEventListener("message",e=>{
   // העמוד שואל איזו גרסה מוגשת לו בפועל — כך מטמון ישן מסגיר את עצמו
   if(e.data==="version"&&e.source){e.source.postMessage({sw:V});return}
@@ -60,8 +61,21 @@ self.addEventListener("fetch",e=>{
     return;
   }
 
+  // הספריות שבאתר עצמו (vendor/, ביקורת H14): הגרסה בשם הקובץ, ולכן מטמון קודם, כמו ה-CDN
+  if(u.origin===location.origin&&u.pathname.includes("/vendor/")){
+    e.respondWith((async()=>{
+      const c=await caches.open(V);
+      const hit=await c.match(e.request);
+      if(hit)return hit;
+      const res=await fetch(e.request);
+      if(res.ok)c.put(e.request,res.clone());
+      return res;
+    })());
+    return;
+  }
+
   // הכלי עצמו: רשת קודם, מטמון כגיבוי כשאין רשת.
-  // נוגעים במפורש רק בשמונת הקבצים שלנו. כל בקשה אחרת עוברת ישר לרשת:
+  // נוגעים במפורש רק בקבצים שלנו שברשימה. כל בקשה אחרת עוברת ישר לרשת:
   // עובד שירות שמושך אליו כל מה שבמקור שובר כל מה שיושב לידו.
   // L21 בביקורת השנייה: page-logic.js נשמר במטמון אבל לא הוגש ממנו, ובלי רשת נכשל
   const MINE=/(?:^|\/)(?:index\.html|support\.js|page-logic\.js|redact-engine\.js|pdf-text\.js|text-to-docx\.js|manifest\.webmanifest|icon(?:-\d+)?\.(?:svg|png))$|\/$/;

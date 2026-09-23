@@ -94,12 +94,10 @@ const listedNames = (page) => peopleRows(page).locator("> span").allTextContents
    third party hiccups, which a CI run did, so the browser gets the same version from
    node_modules instead. tests/site_t.js keeps the pinned version and the one in
    pdf-text.js the same. */
+/* pdf.js is served by the site itself, from vendor/ (review H14). A request for it from the CDN
+   is aborted, so a regression back to a bare CDN import fails every PDF test. */
 async function servePdfJsLocally(page) {
-  const fs = require("fs"), path = require("path");
-  const dir = path.join(__dirname, "..", "node_modules", "pdfjs-dist", "build");
-  for (const f of ["pdf.min.mjs", "pdf.worker.min.mjs"]) {
-    await page.route("**/pdfjs-dist@*/build/" + f, (route) => route.fulfill({ status: 200, contentType: "text/javascript; charset=utf-8", body: fs.readFileSync(path.join(dir, f)) }));
-  }
+  await page.route("**/pdfjs-dist@*/**", (route) => route.abort());
 }
 
 module.exports = { servePdfJsLocally, DOCX, serveEngineWithStub, boot, upload, startScan, scanning, goButton, goOn, skipButton, peopleRows, listedNames };

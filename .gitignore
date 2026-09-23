@@ -46,3 +46,7 @@ qa-audit/
 # Built site, see scripts/build-site.js
 _site/
 coverage/
+
+# built by scripts/vendor.js from node_modules (npm install / npm ci); the runtime loaders under vendor/ort-*/ are committed
+vendor/transformers-*.min.js
+vendor/pdfjs-*/

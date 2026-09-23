@@ -1,7 +1,9 @@
 /* חילוץ טקסט מ-PDF. PDF סרוק (תמונה בלבד) יחזיר טקסט ריק — וזה מדווח כלפי מעלה
    במפורש, כי כלי שמחזיר "לא נמצאו ממצאים" על מסמך סרוק הוא כלי מסוכן. */
-const LIB = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.mjs";
-const WORKER = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.worker.min.mjs";
+/* pdf.js רואה את ה-PDF שלה, ולכן הוא יושב באתר עצמו ולא נטען מ-CDN (ביקורת H14). הקבצים הם
+   אלה של החבילה בגרסה הזאת בדיוק; tests/vendor_t.js מוודא. */
+const LIB = new URL("./vendor/pdfjs-4.6.82/pdf.min.mjs", import.meta.url).href;
+const WORKER = new URL("./vendor/pdfjs-4.6.82/pdf.worker.min.mjs", import.meta.url).href;
 
 export async function pdfToText(buf){
   const pdfjs = await import(/* webpackIgnore: true */ LIB);
