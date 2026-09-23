@@ -43,6 +43,8 @@
 | Her 5 docs | 33 | 32 | 1 | 3 | 3 | 81 | 27–29 (to be recomputed) |
 | Model off (synthetic / hers) | | 210 / 26 | 58 / 7 | 74 / 9 | 4 / 1 | 29 / 54 | – |
 
+Her junk is now **79**, not 81: the real name she missed was replaced in the r5 fixture (23.9), and two of the model's suggestions were that name. Today's loader and the model-eval loader both give 79, with the same entities (RESULTS.md, parity).
+
 **What each set can prove:**
 - **Her documents are biased by how they were made.** The tool produced them with the model on, so every name the baseline found has already been replaced. What is left is pseudonyms plus what the baseline missed.
   - We use them only for the **safety** and **her-time** checks, never as evidence that a candidate reads Hebrew better.

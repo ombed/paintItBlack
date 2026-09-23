@@ -1,0 +1,24 @@
+{
+ "base": "base-q8:a",
+ "pairs": [
+  {
+   "against": "base-q8:today",
+   "worse": 0,
+   "better": 0,
+   "entities": 0
+  },
+  {
+   "against": "base-uint8:a",
+   "worse": 6,
+   "better": 1,
+   "entities": 5
+  }
+ ],
+ "entities": [
+  "a2|P_TWO_SPELL|אלמליח",
+  "b2|O_PRIVATE|חברת קו הזהב הובלות",
+  "f4|P_ARABIC|עבד אל-האדי",
+  "p2|L_TOWN|גבעת עדה",
+  "t3|P_ED1_PAIR|מורן אביטן"
+ ]
+}

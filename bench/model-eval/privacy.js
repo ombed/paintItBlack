@@ -52,7 +52,7 @@ const WORDS = new Set([
   "tp", "fp", "fn", "tn", "p", "r", "f1", "f2", "f05", "found", "missed", "leaked", "junk",
   "precision", "recall", "support", "n", "count", "total", "sum", "mean", "median", "min",
   "max", "sd", "ci", "ci95", "lo", "hi", "delta", "diff", "gain", "loss", "rate", "ratio",
-  "pct", "added", "lost", "kept", "new", "fixed", "broken", "same", "better", "worse",
+  "pct", "added", "lost", "kept", "new", "fixed", "broken", "same", "better", "worse", "gone", "scored",
   // fields (FORMATS.md)
   "name", "source", "licence", "split", "docs", "doc", "id", "genre", "text", "mentions",
   "s", "e", "type", "must", "cat", "ent", "contamination", "key", "repo", "revision", "dtype",
