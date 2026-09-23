@@ -123,6 +123,8 @@ A name that appears in the document only in its corrupted form, never cleanly. T
 
 **New trap category.** `T_GAZWORD`: ordinary words that are also locality names, used as ordinary words in prose, in three documents. It costs 2 false positives today, both from the coordinate list ("קדימה", "עלי"), both flagged for review rather than replaced. That is the intended behaviour for an ambiguous town and the trap now records its price.
 
+**The counterweight is light (checked 2026-09-23, outside review L21).** The trap has three entities, so it can price the harmful change at a few false positives at most, against a gain the totals report in tens. Re-enabling the one-word localities on today's corpus, model off (`bench/engine.js` patch of the one-word skip in `findPlaces`): leaks 74 → 66 and misses 58 → 43, which reads as 23 units better, against `T_GAZWORD` false positives 2 → 3, all false positives 4 → 7 and junk 29 → 41. Most of the apparent gain is the flattery described above: people whose names are also villages, "caught" with a place pseudonym. So the totals favour a change that makes her documents worse. A change to the gazetteer rule is judged on the per-entity diff (which entities moved, and to what kind of replacement), never on the totals, and the one-word skip stays.
+
 **On her files after the fixes.** Junk flags fell from 37 to 27 across the four documents; the public body, the four wrongly replaced localities, the invented person and the number are all gone, and with them the four near-miss items their parts had seeded.
 
 ### Second pass on the same four files: the review noise
