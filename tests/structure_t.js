@@ -102,6 +102,14 @@ const bodyOf = (x) => (x.match(/<w:body>[\s\S]*<\/w:body>/) || [""])[0];
       ok(res.verification.suggest.some((x) => x.value === NAME), "a WordArt shape: proposed to her: " + JSON.stringify(res.verification.suggest.map((x) => x.value)));
       ok(res.verification.complete === false, "a WordArt shape: not reported as complete");
     }
+    // found by the benchmark's structure documents (review M20): a person named only in a picture's
+    // alt text was proposed by nothing without the model, and by the model in two cases of three
+    {
+      const pic = P(`<w:r><w:drawing><wp:inline><wp:docPr id="7" name="תמונה 7" descr="${NAME} בפגישה במרכז הקשר"/></wp:inline></w:drawing></w:r>`);
+      const res = await E.redactDocx(zipOf(plain + pic), [], [], NOLIST);
+      ok(res.verification.suggest.some((x) => x.value === NAME), "alt text: the person is proposed to her: " + JSON.stringify(res.verification.suggest.map((x) => x.value)));
+      ok(!res.verification.suggest.some((x) => /תמונה|פגישה|מרכז/.test(x.value)), "and nothing else in it is");
+    }
     // review H10: the page-one thumbnail is a picture of the text, and a link inside a field code is
     // a target like any other; both go whatever is on her list
     {

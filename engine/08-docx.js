@@ -530,6 +530,22 @@ async function redactDocx(buf,subs,allow,opt){
       knownN.add(t);
       suggest.push({value:t,score:0,count:1,why:b.label?"כיתוב מעוצב (WordArt) שנראה כמו שם":"תווית בגרף או בתרשים שנראית כמו שם",ctx:ctxHTML(b.text,0,b.text.length),part:partName(b.part)});
     }
+    /* טקסט חלופי של תמונה ("רחל פרידמן בפגישה במרכז הקשר") הוא משפט בלי הקשר של דיבור, וסריקת
+       הגוף אינה קוראת אותו. בלי המודל שם שישב רק שם לא הוצע לאף שכבה, ועם המודל רק בחלק מהמקרים
+       (נמצא במסמכי המבנה של הבנצ'מרק, ביקורת M20). שם פרטי מוכר ואחריו מילה שנראית כמו שם מוצעים. */
+    for(const b of ORIG){
+      if(!b.part.includes("טקסט חלופי"))continue;
+      const raw=String(b.text).split(/\s+/).map(x=>trimEdges(x)).filter(Boolean);
+      for(let i=0;i+1<raw.length;i++){
+        const a=norm(raw[i]).trim(), c=norm(raw[i+1]).trim();
+        if(!(KNOWN_FIRST.has(a)||POOL.he_f.includes(a)||POOL.he_m.includes(a)||POOL.ar_f.includes(a)||POOL.ar_m.includes(a)))continue;
+        if(!(POOL.he_s.includes(c)||POOL.ar_s.includes(c)||nameish(c,docTok)))continue;
+        const t=raw[i]+" "+raw[i+1], tn=norm(t).trim();
+        if(knownN.has(tn))continue;
+        knownN.add(tn);
+        suggest.push({value:t,score:0,count:1,why:"שם בטקסט החלופי של תמונה",ctx:ctxHTML(b.text,0,b.text.length),part:partName(b.part)});
+      }
+    }
   }catch(e){console.warn("סריקת התוויות נכשלה",e);incomplete.push("labels")}
   ver.incomplete=incomplete;
   // ירוק רק כשאין דליפות, אין ממצאים פתוחים, ואין ערוץ שלא נותח
