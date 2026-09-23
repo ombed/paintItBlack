@@ -19,20 +19,20 @@ Each layer catches a different kind of miss. The first one is already in place.
 
 ### 1. Shape suites: every value in every shape real documents use
 
-`tests/shapes_t.js` writes the same values in 31 shapes: every quote style, a prefix letter before the quote, brackets, dashes, maqaf, no-break spaces, direction marks, line breaks and tabs inside, footnote digits and bullets. For each shape it checks that the value is found, fully replaced, and shown in context, and that no suggested value carries punctuation at its edge. Numbers get the same treatment, with and without a space after their label. **Done: 221 checks. On the previous engine the same suite reports 62 failures.**
+`tests/shapes_t.js` writes the same values in 31 shapes: every quote style, a prefix letter before the quote, brackets, dashes, maqaf, no-break spaces, direction marks, line breaks and tabs inside, footnote digits and bullets. For each shape it checks that the value is found, fully replaced, and shown in context, and that no suggested value carries punctuation at its edge. Numbers get the same treatment, with and without a space after their label. **Done: 221 checks when this layer landed; on the previous engine the same suite reported 62 failures.** The suite has grown with the shape table since: 1,154 checks on 2026-09-23.
 
 **1b, done.** Places now go through every shape, with and without a prefix letter, and all of them pass. The AI's answer goes through every shape plus markdown, titles and prefixes, and restore missed two: a fake name in gershayim and one after a maqaf. That was the same word-boundary class as the quoted names. `tests/structure_t.js` builds real .docx files with a name in 28 Word structures and reads every XML part of the output. It found ten ways a name left the tool, and all are fixed. They were: a tab, line break or non-breaking hyphen inside the name; content-control titles and tags; picture titles; document variables; bookmark names; SmartArt; chart labels; and tracked formatting changes. It also found that the final check could not see a name split across runs. The old engine fails 14 of its 66 checks. A grep for every other matcher that treats the whole Hebrew block as letters turned up the model's span growth. A quoted "מיכל ברנע" reached the list as "יכל ברנע". A model span on each value in every shape, exact and with the first letter cut, now covers that. The old code fails 18 of those checks. Still outside the scan: a chart's embedded workbook, which is reported as an unanalysed channel, and text inside images.
 
 ### 2. Invariants checked after every run, in every browser test
 
-A shared automatic fixture asserts the product's promises on whatever screen the test ended on, so the 170 existing browser tests become checks of rules they were never written for:
+A shared automatic fixture asserts the product's promises on whatever screen the test ended on, so the existing browser tests (about 170 when this was written, 212 on 2026-09-23) become checks of rules they were never written for:
 
 - No card title starts or ends with punctuation, and no two cards are the same letters.
 - Every listed value whose letters appear in the document has at least one occurrence to show, and is not reported as "not in the document".
-- The spotlight, the inline editor and the tip sit within one pixel of what they point at.
+- The spotlight, the inline editor and the tip sit within 1.5 pixels of what they point at (`near` in `selfCheck`).
 - No horizontal overflow, no page error, no runtime warning in the console.
 
-**Done.** The checks live in the app, in `selfCheck()` in index.html, so layer 5 can reuse them in real sessions. `e2e/base.js` runs them automatically after every passing browser test, once animations settle. All 166 browser tests pass under it. `e2e/selfcheck.spec.js` breaks each rule on purpose and expects it reported, so a check that never fires cannot pass for a clean app. Writing those tests found one real miss: a repeated speaker "דוד כהן" was never listed without the model, because "כהן" was read as כ plus the stop word "הן". A test opts out with the `no-self-check` annotation only when it leaves the page broken by design.
+**Done.** The checks live in the app, in `selfCheck()` in index.html, so layer 5 can reuse them in real sessions. `e2e/base.js` runs them automatically after every passing browser test, once animations settle. All the browser tests of the time (166) passed under it; `npx playwright test --list` counts 212 on 2026-09-23. `e2e/selfcheck.spec.js` breaks each rule on purpose and expects it reported, so a check that never fires cannot pass for a clean app. Writing those tests found one real miss: a repeated speaker "דוד כהן" was never listed without the model, because "כהן" was read as כ plus the stop word "הן". A test opts out with the `no-self-check` annotation only when it leaves the page broken by design.
 
 ### 3. A misbehaving user
 
@@ -75,6 +75,8 @@ Every reported bug closes with three things, written into the PR template:
 
 QA runs use documents with real typography, carry the layer-3 misbehaviour list, and report the layer-2 invariants on every screen they visit.
 
+**Brief written.** `docs/review/QA-ROUND.md` is the prompt a browser-driving agent runs. It plays her: two documents of one case, most of the time spent overriding the tool on the check screen, restore with a Hebrew and an English answer, and disturbances from resizing to a second tab. On every screen it records the self-check, CSP refusals, dropped log fields and console errors, and it unzips every download to search each part for the real values. A finding is filed only after it reproduces twice, with its class and a suggested test. A first short dry run is in `qa-audit/qa-round-1/report.md` (local only). The full round is still to run.
+
 ## Order
 
 | Step | What | Effort | Status |
@@ -86,7 +88,7 @@ QA runs use documents with real typography, carry the layer-3 misbehaviour list,
 | 5 | Self-check events in the session log | half a day | done |
 | 1b | Shape suite extended to places, restore and Word structure | about a day | done |
 | 4 | Shape harvesting from the private fixtures | one to two days | done |
-| 7 | Next QA round with the new brief | one round | next |
+| 7 | Next QA round with the new brief | one round | brief written, dry run done; full round next |
 
 ## How we'll know it works
 

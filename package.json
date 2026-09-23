@@ -13,7 +13,7 @@
     "build:design": "node scripts/build-design.js",
     "build:atlas": "node scripts/build-atlas-doc.js",
     "build:engine": "node scripts/build-engine.js",
-    "lint": "eslint .",
+    "lint": "eslint . && node scripts/lint-page.js",
     "report": "node tests/report.js",
     "bench": "node bench/generate.js && node bench/run.js",
     "bench:nomodel": "node bench/generate.js && node bench/run.js --no-model",
@@ -34,6 +34,7 @@
   "type": "commonjs",
   "private": true,
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@huggingface/transformers": "^4.2.0",
     "@playwright/test": "^1.62.1",
     "@xmldom/xmldom": "^0.9.12",

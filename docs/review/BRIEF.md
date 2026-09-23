@@ -24,8 +24,36 @@ things in it were wrong or incomplete, and the review proved each one:
   `@huggingface/transformers` and `pdfjs-dist`, because a bare dynamic `import()` cannot carry
   one. `CHARTER.md` section 6.6 repeats the same mistake as "No Subresource Integrity".
 - **Section 9, payload.** Babel is never fetched. It is reachable only through an import of a
-  `.jsx` or `.tsx` URL, and the repository has none.
+  `.jsx` or `.tsx` URL, and the repository has none. The rest of "React, Babel, d3 and the fonts
+  come from CDNs" needs the same care (added 2026-09-23): d3, topojson and the world-atlas
+  shapes load only when the map is opened; React and ReactDOM load on every page, from unpkg on
+  the first visit and after each version bump, and from the service worker's cache otherwise.
 - **Section 9, API surface.** The engine has 83 exports, not 81.
+
+Added 2026-09-23, with the documentation batch of the triage:
+
+- **Section 9, complexity, now from a committed command.** `node scripts/complexity.js`
+  measures the bundle, `page-logic.js`, `scripts/harvest-shapes.js` and the app script inside
+  `index.html`, and fails on a file it cannot parse instead of skipping it
+  (`tests/complexity_t.js`). At v53 it gives, highest first: `renderVals` 186 (index.html),
+  `redactDocx` 184, `bodyNames` 113, `nerClean` 110, `showPeople` 73 (index.html), the engine
+  class constructor 69, `selfCheck` 55 (index.html), `flatten` 51, `anchored` 49, `repFor` 48.
+  35 functions above 12 in the linted files, 74 with `index.html`. These are v53 numbers; the
+  review's 155 and 173 were v48's.
+- **Section 9, "Commands are in the charter."** They were not. `CHARTER.md` now has a section,
+  "Commands behind the brief's measurements", with the ones that exist, and it says which
+  numbers have no command behind them.
+- **Section 9, churn.** The table is the repository's whole history, not a window. The first
+  commit is itself from 2026-09-03, so "since 2026-09-03" meant everything.
+- **Section 7, "4 false positives".** That column counts keyed traps and public bodies only.
+  The same report lists, beside it, unlisted suggestions: values that match nothing in the key
+  ("המטופלת", "חתימה", "תצהיר"), each one tap for her to dismiss. The run the review read had 23.
+  Today, model off, 43 documents: 74 leaks, 58 missed, 4 false positives and 29 unlisted
+  (`bench/results-no-model.md`).
+- **Section 7, "1,828 checks".** 1,154 of them, 63%, are one combinatorial suite,
+  `tests/shapes_t.js`: a table of 42 shapes crossed with values. "31 typographic shapes" is
+  right (42 keys less 11 prefix-letter shapes). On 2026-09-23 `node tests/run.js` reports
+  2,146 checks, of which the same suite is still 1,154 (54%).
 
 The review also found the brief too hard on itself in one place: about 88% of the comments state
 the rule the code keeps, and none narrates a bug without it.

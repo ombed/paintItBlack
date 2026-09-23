@@ -36,6 +36,37 @@ reproduced here, got a test that fails on the old code, and was fixed in its own
 | H10 | Field codes, table alt text and the page-one thumbnail were not walked | hidden blocks, link scrub in field codes, thumbnail dropped | v51 |
 | L14 | Three files named three licences | PolyForm Shield 1.0.0, pinned by `tests/license_t.js` (owner's decision) | v51 |
 | H15, L16–L18 | The brief and the charter were wrong in four places | a corrections section in `BRIEF.md` | v51 |
+| M14 | Four places stated a gazetteer rule the code stopped keeping | comments in `06-model.js`, `07-gazetteer.js`, `build-gazetteer.js`; PLAN-v18 marks its rule superseded | v54 (pending) |
+| M15 | `Q<n>` meant several numbering schemes | bare references name their source; a numbering note in PLAN-v18. Not `index.html` (see Batch E) | v54 (pending) |
+| M13 | A partial sweep re-run rewrote the whole `bench/sweep.md` | `--only` merges, per-section provenance, `tests/sweep_t.js`; the last full sweep restored from git | v54 (pending) |
+| M12 | `measurements.md` cited an instrument that is not in the repo | it says what can and cannot be reproduced, and traces the sweep table to its run | v54 (pending) |
+| H15 | The complexity list had no command behind it | `scripts/complexity.js`, `tests/complexity_t.js`, pinned in the charter; v53 top ten in the brief | v54 (pending) |
+| L16 | "Commands are in the charter"; the churn window | the charter lists the commands and the numbers with none | v54 (pending) |
+| L17, L18 | Which CDN loads happen when; "No Subresource Integrity" in the charter | brief corrections; the charter states the five-of-seven | v54 (pending) |
+| L22, L24 | "4 false positives" without the junk; 63% of the checks one matrix | brief corrections, with today's measured numbers | v54 (pending) |
+| L11 | `bodyNames`' 3/2/1 scale and cutoff documented nowhere | a comment in `05-bodynames.js` | v54 (pending) |
+| L13 | Stale counts and tolerance in `QUALITY-PLAN.md` | dated counts, 1.5 px | v54 (pending) |
+| L15 | README prose pointed at a line number and a label that do not exist | names the string and «מודל זיהוי עברי מקומי» | v54 (pending) |
+| L21 | `T_GAZWORD` prices the harmful gazetteer change lightly | measured and recorded in `measurements.md`: judge by the per-entity diff | v54 (pending) |
+| Nits 2, 8, 9 | eight vs twelve; three restating comments; two scripts that crash opaquely | comments; `log-report.js` and `diff-runtime.js` with tests | v54 (pending) |
+| M25 | A scan layer that threw read as "found nothing" (body scan, labels, model chunks) | `verification.incomplete`, a red bar and an export question; `tests/failopen_t.js` | v53 |
+| H10 (rest) | WordArt, list-number text and style names were not walked | read and cleared; a last pass clears listed values from every unwalked XML part | v53 |
+| M21, M22 | The leak report read engine names the browser did not have, and counted with its own matcher | the engine exports them; counts use the engine's NW, flex, variants | v53 |
+| L7 | Three mutators skipped the undo history | each is a step | v53 |
+| L12 | Two silent caps (spelling check, self-check log), and a twelve-suggestion cap on the body scan | both report; the body-scan cap is gone | v53 |
+| Suspicions | Restore rewrote the inside of a longer number; a case's "פלוני א׳" collided with the open document's | whole-number boundary; `restorePairs` lets the document win | v53 |
+| Suspicion | A scanned PDF with a printed header passed as text | pages judged by their own text; picture pages named | v53 |
+| M20 | The benchmark measured body text only | the product's reader, the whole output file, three structure documents | v53 |
+| L19, L4, M6, L10, L5, L20, L23 | Gate netted within a category; two flow assertions; PR check accepted a missing file; from-leak wrote into the corpus (and read "digits(9)" with a lost backslash); coverage measured no engine; lexicon-aided marker; trap canonicals | entity gate; ported; file must exist; temp folder, fixed regex, guard extended to bench/ and scripts/; command corrected; marker list; generator refuses | v53 |
+| H14, M4, M2, L6 | Libraries that see the document came from a CDN unchecked; model unpinned; nothing evicted the model; log guard was a value filter | self-hosted (`scripts/vendor.js`), runtime WebAssembly checked by SHA-256, model pinned and verified, a CSP, "delete the model", a value schema | v53 |
+| — | A file, pasted text or the tour started before the engine loaded did nothing | queued until it loads | v53 |
+| M26–M32, L26–L30 | Accessibility (zoom, contrast, announcements, keyboard, direction, the tour, motion, names, states, selection, errors) | `e2e/a11y.spec.js` with axe; Escape does not end the tour, by the contract `e2e/unruly.spec.js` pins | v54 (pending) |
+| M5 | `index.html` was linted by nothing | `scripts/lint-page.js`, `tests/lintpage_t.js` | v54 (pending) |
+| QA 1 H1 | A pseudonym changed after copying did not restore | every pseudonym that left is remembered, by the case too | v54 (pending) |
+| QA 1 M1 | A typed pseudonym that is another real person was replaced again | the sweep skips written pseudonyms | v54 (pending) |
+| QA 1 M2 | Girls' names outside the lists got men's pseudonyms | the role word decides for a full name; short names ending in ה | v54 (pending) |
+| Nit 3, M15 in index.html | A dated comment; bare Q references in the page | dated; qualified | v54 (pending) |
+| Nit 4 | HANDOVER says MIT | the dated note at its top, with L14 | v51 |
 
 **Looked at and deliberately left.** A finishing re-run closes an inline editor opened while it ran
 (found by CI, not by the review). Her two real sessions show re-runs of 0.14–0.2 s, 0.42 s at most,
@@ -59,19 +90,18 @@ counterpart), and M6 below.
 path is dead and nothing evicts `transformers-cache`), L6 (the session log's guard is a
 value filter, like the leak report's was), and H14 below.
 
-**Batch D — accessibility.** M26 (200% zoom collapses the document pane), M27 (control
-borders at 1.3:1), M28 (nothing is announced), M29, M30, M31 (no `dir="auto"`, so English
-AI answers render right-to-left), M32 (the tour and assistive use), L26–L30.
+**Batch D — accessibility.** Done (v54).
 
-**Batch E — decisions and documents.** M14 (four places state a gazetteer rule the code
-stopped keeping), M15 (`Q<n>` means three numbering schemes), M12, M13 (`bench/sweep.md`
-destroyed by a partial re-run), L11–L18, L20–L24, H15 and the other corrections to
-`docs/review/BRIEF.md`, the ten nits.
+**Batch E — decisions and documents.** What is left of it: nits 5, 6, 7 and 10.
 
 **Batch F — structure.** M16 (engine sections share one namespace), M17 (the UI builds
-rules field by field at 20 sites and knows 35 engine exports), M21 and M22 (`page-logic.js`
-re-implements `classify` and the word boundary, and both diverge from the engine in the
-browser), M5 (`index.html` is linted by nothing), L8, L9 (dead code).
+rules field by field at 20 sites and knows 35 engine exports), L8, L9 (dead code). M21, M22 and
+M5 are done.
+
+**Found on the way, for the detection batch.** A surname that begins with ה (הורוביץ) is
+never proposed by the body scan, by design, to keep definite nouns out; it needs a lexicon and
+both benchmarks. A name only in a picture's alt text is proposed only when its first name is a
+known one (the benchmark's names are disjoint from the lists, so it shows as 3 leaks there).
 
 ## Needs the owner's decision
 

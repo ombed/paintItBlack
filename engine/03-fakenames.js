@@ -66,7 +66,9 @@ function gender(v,hint){
   if(MASC.has(first)||MALE_HE.has(first))return "m";
   // סיומת -יה (נריה, עזריה) היא תאופורית וזכרית; -ית/-את/-ה אחרת נקבית
   if(/יה$/.test(first)&&first.length>=4)return "m";
-  if(/(?:ית|את|ה)$/.test(first)&&first.length>=4)return "f";
+  // שם בן שלוש אותיות שמסתיים ב-ה ("ליה", "גלה") נקבי כמו שם ארוך ממנו (סבב QA 1, M2); שם
+  // זכרי קצר ב-ה ("משה") יושב ברשימות ומוכרע למעלה
+  if(/(?:ית|את|ה)$/.test(first)&&first.length>=3)return "f";
   return "m"}
 function hash32(s){let h=0x811c9dc5;
   for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}

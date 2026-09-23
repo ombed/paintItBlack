@@ -95,7 +95,9 @@ class Engine{
       const FEMCTX=new Set(["הקטינה","הילדה","הבת","האחות","האם","הסבתא","הדודה","גב'","הגב'","גברת","התובעת","הנתבעת","המבקשת","המשיבה","המנוחה","הפעוטה","התינוקת","הנערה"]);
       const nt=norm(docText); let m;
       while((m=FCTX.exec(nt))){ const w=m[2]; if(STOP.has(w)||COMMON.has(w)||VRB.has(w))continue; this.firstish.add(w);
-        for(const s of subs) if(s.kind==="NAME"&&!this.gmap[s.value]&&norm(s.value).trim()===w) this.gmap[s.value]=FEMCTX.has(m[1])?"f":"m"; }
+        // השם הפרטי של שם מלא נקבע גם הוא מההקשר: "הקטינה ליה לוי" (סבב QA 1, M2). קודם רק ערך
+        // בן מילה אחת קיבל אותו, וכל ילדה ששמה לא ברשימות קיבלה כינוי של בן
+        for(const s of subs) if(s.kind==="NAME"&&!this.gmap[s.value]&&norm(s.value).trim().split(/\s+/)[0]===w) this.gmap[s.value]=FEMCTX.has(m[1])?"f":"m"; }
     }
     this.used=new Set();
     // פרופיל שכופה "יעל רוזן" על מישהי, כשיעל רוזן אמיתית מופיעה במסמך
@@ -183,7 +185,7 @@ class Engine{
       if(full)this.alias[short.value]=full.value;
     }
     // "שלוה ליבוביץ" ו"שלווה ליבוביץ": עד כאן מוזגו מעצמם כשכל מילה במרחק
-    // אות-קריאה. ההחלטה שלה (Q12): מיזוג לעולם אינו אוטומטי — מסך השמות מציע
+    // אות-קריאה. ההחלטה שלה (Q12 בגרסה 2): מיזוג לעולם אינו אוטומטי — מסך השמות מציע
     // אותו (mergeSignals) והיא מקישה. מה שאושר מגיע כאן כ-sameAs על הכלל.
     for(const s of subs){
       if(!s.sameAs||s.sameAs===s.value)continue;
@@ -285,7 +287,7 @@ class Engine{
       // תאריך מלא במצב "שם" הוא תאריך מוזז — אותו היסט לכל המסמך
       else if(fam==="DATE"&&real&&typeof fakeDate==="function")
         base=fakeDate(canonical,this.dateOff)||`[${lab} ${hord(n)}]`;
-      // מקום מהרשימה (סוג PLACE) מקבל שם לפי סוגו — שכונה, רחוב, מושב — ולא תווית (Q11)
+      // מקום מהרשימה (סוג PLACE) מקבל שם לפי סוגו — שכונה, רחוב, מושב — ולא תווית (Q11 בגרסה 2)
       else if(real&&typeof fakePlace==="function"&&
               (h.type==="PLACE"||h.type==="PLACE_CITY"||(h.type==="PLACE_VENUE"&&h.label==="יישוב")))
         base=fakePlace(canonical,this.used,this.forbidden,h.kind)||`[${lab} ${hord(n)}]`;

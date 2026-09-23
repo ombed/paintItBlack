@@ -2,11 +2,29 @@
 
 Decisions that were settled with data, recorded so nobody re-runs them.
 
+**What can be reproduced from this repository (checked 2026-09-23, outside review M12).**
+Not every instrument cited below is in the repository. Each section says where its
+evidence is; in short:
+
+- *Model size and quantization*: **not reproducible from the repo.** The harness,
+  `exp/ner_experiment.py`, was run outside it and was never committed (it is in no commit
+  on any ref), and neither are the two synthetic documents or the ground truth. Only the
+  Knesset transcript, `tests/protocol.txt`, is here. The table is a record of a run, not
+  something the repo can re-create.
+- *Parameter sweep*: the instrument, `bench/sweep.js`, is here. The table was read from the
+  sweep committed at `e7dd25e`; `bench/sweep.md` holds the re-run after the adopted values
+  (`0d94212`, v14, restored from git). Both ran on the 30-document corpus of that day, model
+  on; the corpus has grown since, so a re-run today gives different numbers.
+- *Span boundaries*, the benchmark rows, and the gate: `bench/spans.js`, `bench/run.js` and
+  `bench/gate.js` are here and re-run on the current corpus.
+- *Anything measured on her real documents*: not reproducible by design. Her files never
+  enter the repo; only shapes and counts are recorded.
+
 ## Model size and quantization, 2026-09-05
 
 **Question.** Are the Hebrew NER model's misses a quantization problem (H1) or a capacity problem (H3)? The shipped model is `onnx-community/dictabert-ner-ONNX` at `dtype:"q8"`.
 
-**Method.** `ner exp/ner_experiment.py` over three documents: the real Knesset transcript (`tests/protocol.txt`, 46 people), and two synthetic ones, a meeting summary and a court filing, with injected transcription typos. Same documents, same ground truth, three variants. Runs used native onnxruntime and PyTorch on CPU, not WebAssembly, so the speed column is comparable between rows and not to the browser.
+**Method.** A Python harness, `exp/ner_experiment.py`, run outside the repository and never committed, over three documents: the real Knesset transcript (`tests/protocol.txt`, 46 people), and two synthetic ones, a meeting summary and a court filing, with injected transcription typos. Same documents, same ground truth, three variants. Runs used native onnxruntime and PyTorch on CPU, not WebAssembly, so the speed column is comparable between rows and not to the browser.
 
 | variant | PER recall | false positives | typo robustness | size | sec/1k words |
 |---|---|---|---|---|---|
@@ -36,7 +54,7 @@ A name that appears in the document only in its corrupted form, never cleanly. T
 
 **Question.** Several numbers in the detection layer were set by feel: the model confidence floor (0.7), which letter pairs count as confusable and which insertions as matres lectionis in the near-miss scan, the shortest name fragment replaced alone, the prefix-peeling lengths. Which of them move leaks?
 
-**Method.** `bench/sweep.js`: every parameter at several values, the whole 30-document corpus at each point, model on, product options. The engine is patched textually per point (`bench/engine.js` `load`), never edited. Full surface in `bench/sweep.md`.
+**Method.** `bench/sweep.js`: every parameter at several values, the whole 30-document corpus at each point, model on, product options. The engine is patched textually per point (`bench/engine.js` `load`), never edited. The table below was read from the sweep committed at `e7dd25e` (`git show e7dd25e:bench/sweep.md`; the raw rows are `git show e7dd25e:bench/sweep.json`), when the shipped values were still 0.7, 3 and verb layer off. `bench/sweep.md` now holds the re-run made right after adopting them (`0d94212`, v14), same corpus, model on: it shows the adopted values and was restored from git after a later `--only` re-run had cut the file to one section (review M13). That later re-run, model off on 37 documents, is at `git show a91b246:bench/sweep.md`; its one parameter was flat too.
 
 | parameter | shipped | finding | decision |
 |---|---|---|---|
@@ -104,6 +122,8 @@ A name that appears in the document only in its corrupted form, never cleanly. T
 **The benchmark was flattering the gazetteer.** Dropping one-word localities made the corpus look eleven leaks worse. The per-entity diff shows why: the gazetteer had been "catching" people whose names coincide with village names — a minor called לביא, a minor called גפן, "מתן צח", "עלמה כץ", "עמיחי אלמגור", "מכון שורשים" — and replacing them with *place* pseudonyms. "הקטין לביא" became "הקטין [יישוב א׳]". Thirteen corpus surfaces are localities in the list. So the 56 was not a real 56, and the honest number after the correction is 67 on the deterministic run. The baseline is re-seeded in the same commit, which is what the blocking gate exists to make visible.
 
 **New trap category.** `T_GAZWORD`: ordinary words that are also locality names, used as ordinary words in prose, in three documents. It costs 2 false positives today, both from the coordinate list ("קדימה", "עלי"), both flagged for review rather than replaced. That is the intended behaviour for an ambiguous town and the trap now records its price.
+
+**The counterweight is light (checked 2026-09-23, outside review L21).** The trap has three entities, so it can price the harmful change at a few false positives at most, against a gain the totals report in tens. Re-enabling the one-word localities on today's corpus, model off (`bench/engine.js` patch of the one-word skip in `findPlaces`): leaks 74 → 66 and misses 58 → 43, which reads as 23 units better, against `T_GAZWORD` false positives 2 → 3, all false positives 4 → 7 and junk 29 → 41. Most of the apparent gain is the flattery described above: people whose names are also villages, "caught" with a place pseudonym. So the totals favour a change that makes her documents worse. A change to the gazetteer rule is judged on the per-entity diff (which entities moved, and to what kind of replacement), never on the totals, and the one-word skip stays.
 
 **On her files after the fixes.** Junk flags fell from 37 to 27 across the four documents; the public body, the four wrongly replaced localities, the invented person and the number are all gone, and with them the four near-miss items their parts had seeded.
 

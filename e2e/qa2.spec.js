@@ -89,6 +89,38 @@ async function onward(page) {
   await afterList(page);
 }
 
+/* QA round 1, H1: C1 checks everyone but the person whose pseudonym changed. Her old pseudonym
+   went out in the text the AI answered, and the restore dropped it: the answer came back with a
+   mix of pseudonym and real name ("יוסי שטרן", nobody) and a success message. Every pseudonym that
+   has left the tool (copied or downloaded) must still restore to its person. */
+test("H1: a pseudonym changed after the text was sent still restores the answer to that text", async ({ page }) => {
+  await toWork(page);
+  const before = {};
+  for (const p of PEOPLE) before[p] = (await repOf(page, p)).trim();
+  await page.evaluate(() => { navigator.clipboard.writeText = () => Promise.resolve(); });
+  await page.locator("[data-bar]").getByRole("button", { name: /העתקה ל-AI|הועתק/ }).click();
+  const anyway = page.getByRole("button", { name: "להעתיק בכל זאת" });
+  if (await anyway.isVisible()) await anyway.click();
+  const answer = `לדעתי ${before["שירה ברקוביץ׳"]} צריכה לדבר עם המורה ${before["רחל פרידמן"]}.`;
+
+  await page.locator('[data-mark][data-val="שירה ברקוביץ׳"]').first().click();
+  const ed = page.locator("[data-inline]");
+  await ed.getByPlaceholder("תחליף אחר").fill("גלית ורד");
+  await ed.getByPlaceholder("תחליף אחר").press("Enter");
+  await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("גלית ורד");
+  // the same class: "don't replace" on another person after the text was sent (QA round 1, class probe)
+  await page.locator('[data-mark][data-val="רחל פרידמן"]').first().click();
+  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליף" }).click();
+  await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("רחל פרידמן");
+
+  await page.getByRole("button", { name: "החזרת שמות מתשובת AI" }).click();
+  await page.getByPlaceholder("הדבקת תשובת ה-AI…").fill(answer);
+  await page.getByRole("button", { name: "החזרת שמות", exact: true }).click();
+  const out = page.locator("[data-rv-out]");
+  await expect(out).toContainText("לדעתי שירה ברקוביץ׳ צריכה");
+  await expect(out).toContainText("המורה רחל פרידמן");
+});
+
 test("C2: a saved case keeps its people and their pseudonyms across documents", async ({ page }) => {
   await toWork(page, A);
   await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();

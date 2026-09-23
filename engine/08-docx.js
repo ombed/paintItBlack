@@ -283,7 +283,8 @@ async function redactDocx(buf,subs,allow,opt){
      for(const [s,e,nw] of srt){ if(nw==="")dels.push({s:s-shift, val:blk.text.slice(s,e).trim()}); shift+=(e-s)-nw.length; }
      if(dels.length)blk.dels=dels;}
     applyReps(blk,reps)}
-  // מעבר אחידות
+  // מעבר אחידות: כל ערך שהוחלף (ארבע אותיות ומעלה) נסרק שוב בכל חלקי המסמך,
+  // כדי שמופע שאף שכבה לא סימנה יקבל אותו תחליף ולא יישאר בטקסט.
   const sweep={};
   for(const r of applied){
     const v=norm(r.value).trim(), rp=r.baseRep||r.rep;
@@ -332,7 +333,8 @@ async function redactDocx(buf,subs,allow,opt){
       if(p in sweep||!to||norm(to).includes(p))return;
       const g=partOf.get(p)||{to:new Set(),of:new Set(),wordy:wordy(p)};
       g.to.add(to); g.of.add(value); partOf.set(p,g)};
-    // שם פרטי → שם פרטי בדוי
+    // השם הפרטי לבד: במצב real (שם בדוי) הוא מקבל את השם הפרטי של הבדוי, ובמצבים
+    // האחרים (תווית, השחרה) את התחליף כולו, כי אין בו שם פרטי נפרד
     add(vw[0],real?rw[0]:rp);
     // שם המשפחה כולו ("לב שדה", "בן דוד") והמילה האחרונה לבד
     const sur=vw.slice(1).join(" "), rsur=real?rw.slice(1).join(" "):rp;
@@ -351,11 +353,17 @@ async function redactDocx(buf,subs,allow,opt){
     sweep[p]={rep:[...g.to][0],of:[...g.of][0],wordy:g.wordy};
   }
   let blocks2=[];for(const dd of docs)blocks2=blocks2.concat(flatten(dd.doc,dd.f.name));
+  /* כינוי שכבר נכתב אינו טקסט של המסמך, והסריקה לא נוגעת בו (סבב QA 1, M1). כינוי שהיא הקלידה
+     ושהוא שם של אדם אמיתי אחר במסמך הוחלף שוב, בכינוי של האדם האחר — שרשרת — וכך גם כינוי
+     שמכיל שם משפחה אמיתי של מישהו אחר */
+  const pseudoWritten=[...new Set(applied.map(r=>norm(String(r.rep||"")).trim()).filter(w=>w.length>=2))];
   for(const blk of blocks2){
     const n=norm(blk.text),reps=[];
     const zones=[];
     for(const rx0 of eng.allow){rx0.lastIndex=0;let z;
       while((z=rx0.exec(n)))zones.push([z.index,z.index+z[0].length])}
+    for(const w of pseudoWritten){let i=n.indexOf(w);
+      while(i>=0){zones.push([i,i+w.length]);i=n.indexOf(w,i+1)}}
     for(const [o,inf] of Object.entries(sweep)){
       if(!n.includes(o))continue;
       const nw=inf.rep;
@@ -401,7 +409,8 @@ async function redactDocx(buf,subs,allow,opt){
   for(const dd of docs) dd.f.data=ENC.encode(serXML(dd.doc,dd.orig));
   rep.residue=residuePass(keep,new Set(docs.map(d=>d.f.name)),subs,applied);
 
-  // תצוגה
+  // התצוגה המקדימה: סימון כל תחליף על הטקסט שאחרי ההחלפה. תחליף שעומד ליותר
+  // מערך אחד, או שהופיע כבר במקור, מסומן כדו-משמעי.
   const origAll=blocks.map(b=>b.text).join("\n");
   const repVals={};
   for(const r of applied){ if(!r.rep)continue;
@@ -839,32 +848,12 @@ function fixTokJSON(txt){
   try{JSON.parse(out)}catch(_){console.warn("התיקון יצא פגום, מחזירים מקור");return txt}
   return out;
 }
-// עותק שכבר יושב במטמון לא עובר דרך fetch, ולכן מתקנים אותו במקום
+// תשובה שנבנית מטקסט JSON מתוקן: לוו ה-fetch ולעותק שנכתב למטמון. (nerFixCached, שתיקנה עותק
+// שמור במקום, לא נקראה מאף מקום והוסרה: ביקורת L8; nerPrepTokenizer עושה את זה)
 let jsonRes=body=>new Response(body,{status:200,statusText:"OK",
   headers:{"Content-Type":"application/json"}});
 const TOK_URL=()=>HUB(NER_REV,"tokenizer.json");
 let RAW_FETCH=null;
-async function nerFixCached(){
-  let n=0;
-  try{
-    if(!nerEnv().canCache)return 0;
-    const c=await caches.open(NER_CACHE);
-    for(const req of await c.keys()){
-      if(!/tokenizer\.json/.test(req.url))continue;
-      const res=await c.match(req); if(!res)continue;
-      let txt; try{txt=await res.clone().text()}catch(_){await c.delete(req);continue}
-      const fixed=fixTokJSON(txt);
-      if(fixed===txt)continue;
-      await c.put(req,jsonRes(fixed));
-      // אימות: קוראים בחזרה ומוודאים שזה באמת JSON תקין
-      let ok=false;
-      try{const back=await c.match(req); JSON.parse(await back.text()); ok=true}catch(_){}
-      if(ok)n++;
-      else{await c.delete(req);console.warn("העותק השמור נמחק; יירד מחדש מתוקן")}
-    }
-  }catch(e){console.warn("תיקון המטמון נכשל",e)}
-  return n;
-}
 let FETCH_HOOKED=false;
 function nerHookFetch(){
   if(FETCH_HOOKED)return; FETCH_HOOKED=true;

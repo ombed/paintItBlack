@@ -1,4 +1,4 @@
-/* The merge suggestion on the people screen (Q12).
+/* The merge suggestion on the people screen (Q12 of release 2, CHANGELOG v29).
 
    Two spellings of one woman used to be merged silently by the engine when
    every word was one vowel letter apart. Her decision: a merge is suggested,

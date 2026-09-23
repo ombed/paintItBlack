@@ -1,4 +1,5 @@
-/* Turns a leak report into a reproduction:  node bench/from-leak.js report.json
+/* Turns a leak report into a reproduction:  node bench/from-leak.js <report.json | package> [--model]
+   (a package is her zip; its leak-report.json is read in memory, nothing is unpacked)
 
    The report carries shapes, not text (see page-logic.js leakShape). For
    each shape this builds a synthetic paragraph with a made-up name of the
@@ -13,8 +14,11 @@ const { makeBench, loadModel } = require("./lib.js");
 const { mkzip } = require("../tests/mkzip.js");
 
 const file = process.argv[2];
-if (!file) { console.error("usage: node bench/from-leak.js <report.json> [--model]"); process.exit(2); }
-const report = JSON.parse(fs.readFileSync(file, "utf8"));
+if (!file) { console.error("usage: node bench/from-leak.js <report.json | package> [--model]"); process.exit(2); }
+const report = fs.readFileSync(file).readUInt32LE(0) === 0x04034b50
+  ? require("../scripts/log-report.js").readPackage(file).leaks
+  : JSON.parse(fs.readFileSync(file, "utf8"));
+if (!report) { console.error("no leak-report.json in this package: she marked no name by hand"); process.exit(2); }
 const WITH_MODEL = process.argv.includes("--model");
 
 // letters that are not in the tool's lexicons make a name of a given length

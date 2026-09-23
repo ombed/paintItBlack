@@ -7,6 +7,7 @@ Re-run after every detection change; compare `results.md` in the diff.
     npm run bench:nomodel    # the deterministic layers alone, written to results-no-model.md (runs in CI)
     npm run gate             # compare results-no-model.json with baseline-no-model.json, entity by entity; CI runs it with GATE_BLOCKING=1
     node bench/sweep.js      # score every tunable at several values, write sweep.md (model on, ~10 minutes)
+    node bench/sweep.js --only=min   # re-run one tunable; the other sections of sweep.md are kept
     node bench/spans.js      # characterise the model's span boundaries against the key, write spans.md
     node bench/from-leak.js report.json   # rebuild a document from a leak report and run the chain on it
 

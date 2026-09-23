@@ -461,4 +461,6 @@ test("a file chosen before the engine has loaded is read once it has", async ({ 
   expect(await page.evaluate(() => !!(window.__pib && window.__pib.state().E))).toBe(false);
   await page.locator('input[type="file"][accept*=".docx"]').setInputFiles("e2e/fixtures/case-empty.docx");
   await expect(page.locator("[data-file-err]")).toBeVisible({ timeout: 20000 });
+  // and the session log says it happened, for the session-triage routine
+  expect(await page.evaluate(() => window.__pib.log().events.filter((e) => e.ev === "file-early").map((e) => e.n))).toEqual([1]);
 });

@@ -1,7 +1,7 @@
 const { test, expect } = require("./base");
 const H = require("./helpers");
 
-/* The first-run tour (Q15).
+/* The first-run tour (Q15 of release 2, CHANGELOG v29).
 
    Offered once per version, on a fake document built into the tool and
    marked as such. It walks the screens itself, Next/Back/Skip/Close, and
