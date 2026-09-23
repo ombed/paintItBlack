@@ -7,6 +7,12 @@
 <meta name="description" content="הסרת פרטים מזהים ממסמכי Word לפני שליחה לכלי AI. הכל רץ במחשב שלך.">
 <meta name="theme-color" content="#1F5B44">
 <meta name="referrer" content="no-referrer">
+<!-- מדיניות אבטחת התוכן (ביקורת H14): לאן העמוד רשאי לפנות. connect-src הוא העיקר: גם קוד זר
+     שירוץ כאן לא יוכל לשלוח את המסמך או את מפת השמות לשום כתובת שאינה ברשימה. המודל: huggingface.co
+     והשרתים שהוא מפנה אליהם (hf.co). ה-CDN: ספריית ההרצה של המודל, נבדקת ב-SHA-256, ומפת העולם.
+     'unsafe-eval' נדרש לשכבת ההרצה (התבנית מוערכת ב-new Function) ול-WebAssembly. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://unpkg.com; worker-src 'self' blob:; connect-src 'self' https://huggingface.co https://*.huggingface.co https://*.hf.co https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<script>/* ערכת הצבעים לפני הציור הראשון: בלי זה טעינה מחדש במצב לילה הבהבה ביום עד שהממשק עלה */try{var t=localStorage.getItem("redact-theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}</script>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icon-192.png">
@@ -386,6 +392,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
             <small style="color:var(--ink2);font-size:12.5px;line-height:1.45">ממלא את רשימת השמות מראש. רץ על המחשב הזה; המסמך לא נשלח לשום מקום.</small>
             <sc-if value="{{ nerHint }}"><small style="display:block;margin-top:6px;padding:8px 10px;border-radius:8px;background:var(--panel2);color:var(--ink2);font-size:12px;line-height:1.5">{{ nerHint }}</small></sc-if></span>
           </label>
+          <sc-if value="{{ nerHave }}"><div style="padding:0 16px 12px 46px;margin-top:-6px;border-bottom:1px solid var(--line2)"><button data-model-forget onClick="{{ onModelForget }}" style="font-size:12px;color:var(--ink2);text-decoration:underline;padding:2px 0">מחיקת המודל והקבצים השמורים מהמחשב</button></div></sc-if>
           <label style="display:flex;gap:13px;align-items:flex-start;padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--line2)">
             <input type="checkbox" checked="{{ oAuto }}" onChange="{{ tAuto }}" style="width:17px;height:17px;margin:2px 0 0;accent-color:var(--accent);flex:none">
             <span><b style="display:block;font-weight:500">איתור שמות אוטומטי</b>
@@ -1374,6 +1381,15 @@ class Component extends DCLogic {
   }
   toggleTheme = () => { const t = this.state.theme==="dark"?"light":"dark"; this.applyTheme(t, true); this.setState({theme:t}); };
 
+  /* מחיקת המודל מהמחשב (ביקורת M2): 185MB שנשארו לתמיד, ומטמון פגום שרק כלי המפתחים ניקו.
+     המודל יירד שוב בשימוש הבא; הכלי עצמו נטען מחדש מהרשת. */
+  modelForget = async () => {
+    const E=this.state.E; if(!E) return;
+    this.log.add("model-forget",{});
+    try{ await E.nerForget(); }catch(_){}
+    try{ const c=navigator.serviceWorker&&navigator.serviceWorker.controller; if(c) c.postMessage("refresh"); }catch(_){}
+    this.setState({nerHave:false, nerHint:"המודל נמחק מהמחשב. בהפעלה הבאה יורדים כ-180MB.", notice:"המודל והקבצים השמורים נמחקו מהמחשב.", noticeUndo:false});
+  };
   async nerStatus(E){
     const env = E.nerEnv();
     if(env.local){
@@ -3309,7 +3325,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       fileName:S.pending?"":bdi(S.name),
       dropStyle:"display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;text-align:start;"+
         "background:var(--panel);border:1px solid "+(S.drag?"var(--accent)":"var(--line)")+";box-shadow:var(--shadow)",
-      oAuto:S.o.auto, oPlaces:S.o.places, oNer:S.o.ner, oNear:S.o.near, nerOff:S.nerOff, nerHint:S.nerHint,
+      oAuto:S.o.auto, oPlaces:S.o.places, oNer:S.o.ner, oNear:S.o.near, nerOff:S.nerOff, nerHint:S.nerHint, nerHave:!!S.nerHave&&!S.nerOff, onModelForget:this.modelForget,
       tAuto:()=>this.setState({o:{...S.o, auto:!S.o.auto}}),
       tPlaces:()=>this.setState({o:{...S.o, places:!S.o.places}}),
       tNer:()=>this.setState({o:{...S.o, ner:!S.o.ner}}),
