@@ -37,6 +37,11 @@ Added 2026-09-23, with the documentation batch of the triage:
   class constructor 69, `selfCheck` 55 (index.html), `flatten` 51, `anchored` 49, `repFor` 48.
   35 functions above 12 in the linted files, 74 with `index.html`. These are v53 numbers; the
   review's 155 and 173 were v48's.
+- **Section 9, "Commands are in the charter."** They were not. `CHARTER.md` now has a section,
+  "Commands behind the brief's measurements", with the ones that exist, and it says which
+  numbers have no command behind them.
+- **Section 9, churn.** The table is the repository's whole history, not a window. The first
+  commit is itself from 2026-09-03, so "since 2026-09-03" meant everything.
 
 The review also found the brief too hard on itself in one place: about 88% of the comments state
 the rule the code keeps, and none narrates a bug without it.

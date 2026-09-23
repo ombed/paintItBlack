@@ -104,6 +104,21 @@ command, a test, or a document that triggers it.
   bundle, `page-logic.js`, `scripts/harvest-shapes.js` and the app script inside
   `index.html`; eslint `complexity` above 12 and `max-depth` above 4. A file that
   does not parse is an error, not a skip.
+- **Churn**, the whole history, generated files excluded:
+  `git log --name-only --format= -- . ':!design/redact.dc.html' ':!redact-engine.js' ':!docs/atlas-tags-he.md' | grep -v '^$' | sort | uniq -c | sort -rn | head`.
+  The repository starts on 2026-09-03, so there is no window to choose; do not add
+  `--since=2026-09-03`, which git reads as that date at the current time of day and
+  which drops that day's earlier commits.
+- **Duplication**: `npx jscpd --min-lines 6 --min-tokens 60` over the source. The
+  ignore set behind the brief's 4.35% was not recorded, so that figure cannot be
+  reproduced exactly; the review found an ignore set giving 4.18% / 69 clones with
+  the same shape (almost all in `e2e/`, one engine clone). Name the ignore set when
+  you quote a number.
+- **Node checks**: `node tests/run.js`, total on its last line; per-suite counts in
+  its table.
+- Not backed by a command here: the engine export count (read the `export {…}`
+  line at the end of `redact-engine.js`), the comment-language counts and the
+  payload sizes, which were counted by hand for the brief.
 
 ## 5. Lenses
 
