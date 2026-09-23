@@ -1177,7 +1177,7 @@ class Component extends DCLogic {
           }, 2000);
         } else this.setState({nerMsg:t||"", nerPct:p, nerStall:false});
       });
-      this.setState({E, ready:true});
+      this.setState({E, ready:true}, ()=>{ const q=this._early||[]; this._early=null; for(const fn of q) fn(); });
       this.nerStatus(E);
     }catch(e){
       // L16 בביקורת השנייה: הודעה טכנית באנגלית, בלי דרך לנסות שוב, ובחירת קובץ שלא עשתה דבר
@@ -1396,7 +1396,10 @@ class Component extends DCLogic {
   onFile = e => { const f=e.target.files[0]; if(f) this.load(f); e.target.value=""; };
 
   async load(f){
-    const E=this.state.E; if(!E) return;
+    /* קובץ שנבחר לפני שהמנוע סיים להיטען נשמר ונקרא כשהוא מגיע. עד כאן load חזר בשקט, ובקו
+       איטי קובץ שנבחר מיד אחרי פתיחת הדף פשוט לא עשה דבר (נמצא ב-CI של אצוות הביקורת) */
+    const E=this.state.E;
+    if(!E) return this.afterEngine(()=>this.load(f));
     /* שגיאות קובץ ליד כרטיס הקובץ, עם מה לעשות (UX #4), ובזמן הבחירה ולא אחרי
        "המשך" (ביקורת QA 010): קובץ שאינו docx תקין, או docx בלי טקסט, לא מקבל ✓. */
     const bad=(m,code)=>{ this.log.add("file-reject",{why:code||"other"}); this.setState({fileErr:m, err:"", pending:false, name:"", buf:null}); };
@@ -1491,7 +1494,15 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     setTimeout(()=>URL.revokeObjectURL(u), 4000);
   };
 
+  /* פעולה שהתחילה לפני שהמנוע סיים להיטען — קובץ שנבחר או נגרר, טקסט שהודבק, הסיור — נשמרת
+     ורצה כשהוא מגיע. עד כאן קובץ כזה לא עשה דבר, הדבקה נכשלה בהודעה טכנית והסיור זרק שגיאה
+     (נמצא ב-CI של אצוות הביקורת). אם המנוע לא נטען בכלל, ההודעה על כך כבר במסך. */
+  afterEngine(fn){
+    if(this.state.E) return fn();
+    if(!this.state.engineFailed) (this._early=this._early||[]).push(fn);
+  }
   usePastedText = async () => {
+    if(!this.state.E) return this.afterEngine(()=>this.usePastedText());
     const txt=(this.state.pasteText||"").trim();
     if(txt.length<20){ this.setState({err:"צריך קצת יותר טקסט כדי שהזיהוי יעבוד."}); return; }
     try{
@@ -2765,6 +2776,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      text:"זהו. המסמך הבדוי נמחק עכשיו ושום דבר ממנו לא נשמר. עכשיו: לחצי «סיום» והעלי תיק אמיתי."},
   ];
   tourStart = async () => {
+    if(!this.state.E) return this.afterEngine(()=>this.tourStart());
     this.log.add("tour",{at:"start"});
     this._tourNer=this.state.o.ner;
     // hadPlaces: null עד שיודעים — כך המונה מראה שבעה צעדים מההתחלה ולא קופץ
