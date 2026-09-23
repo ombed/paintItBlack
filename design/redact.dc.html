@@ -1709,8 +1709,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.setState({peo:[...this.state.peo, k], peoKept:this.state.peoKept.filter(x=>x.value!==value),
       allow:this.state.allow.filter(a=>a!==value)}); };
   // "אל תחליף" במסך הבדיקה, מכל מקור: אותה רצועה, אותו ↩
+  // שלושת אלה משנים את הרשימה, ולכן הם צעד בהיסטוריה כמו כל החלטה אחרת (ביקורת L7)
   allowRestore = value => {
-    this.log.add("restore-allow",{});
+    this.pushHistory(); this.log.add("restore-allow",{});
     // שם שנמחק במסך השמות מעולם לא הפך לכלל; "לחזור ולהחליף" חייב להחזיר גם אותו,
     // אחרת ההיתר נעלם והשם נשאר בטקסט בכל זאת
     const E=this.state.E, n=x=>E.norm(String(x||"")).trim();
@@ -1928,6 +1929,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       geo, geoExtra:extra});
   };
   geoRestore = name => {
+    this.pushHistory();
     const E=this.state.E;
     const names=[...this.state.geoNames, name];
     const old=this.state.geo, edits=this.state.geoEdits||{};
@@ -2854,6 +2856,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   };
   applyProfile(prof){
     try{
+      // תיק שנטען על מסמך בעבודה מחליף את כל הרשימה: ↶ מחזיר אותה
+      if(this.state.res) this.pushHistory();
       const En=this.state.E, nn=v=>En.norm(String(v||"")).trim(), goneP=new Set((prof.removed||[]).map(nn));
       const rules=(prof.rules||[]).filter(r=>r&&!goneP.has(nn(r.value)));
       for(const [value, replacement] of Object.entries(prof.map||{})){
