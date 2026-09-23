@@ -45,6 +45,11 @@ Added 2026-09-23, with the documentation batch of the triage:
   numbers have no command behind them.
 - **Section 9, churn.** The table is the repository's whole history, not a window. The first
   commit is itself from 2026-09-03, so "since 2026-09-03" meant everything.
+- **Section 7, "4 false positives".** That column counts keyed traps and public bodies only.
+  The same report lists, beside it, unlisted suggestions: values that match nothing in the key
+  ("המטופלת", "חתימה", "תצהיר"), each one tap for her to dismiss. The run the review read had 23.
+  Today, model off, 43 documents: 74 leaks, 58 missed, 4 false positives and 29 unlisted
+  (`bench/results-no-model.md`).
 
 The review also found the brief too hard on itself in one place: about 88% of the comments state
 the rule the code keeps, and none narrates a bug without it.
