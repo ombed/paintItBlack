@@ -79,6 +79,32 @@ ok("model span bounds classified", s4.layers.model && s4.layers.model.bounds ===
   ok("the model's bounds are codes with no stray space", model.layers.model.bounds === "cut-right" && JSON.parse(PL.leakReport([model])).refused === undefined);
 }
 
+/* Review M21 and M22. The suite above hands leakShape tests/core.js, which exports names the
+   shipped engine does not: in the browser VRB, COMMON and KNOWN_FIRST were undefined, so
+   every speech verb classified as "other". And page-logic.js re-implemented the word
+   boundary and the prefix letters, so its counts differed from the engine's, and
+   bench/from-leak.js rebuilt a different, easier document than the one that leaked.
+   Here the engine is only what redact-engine.js exports, and the engine's own matcher is
+   the oracle for the counts. */
+{
+  const fsx = require("fs"), pathx = require("path");
+  const src = fsx.readFileSync(pathx.join(__dirname, "..", "redact-engine.js"), "utf8");
+  const exported = new Set(src.match(/^export\s*\{([\s\S]*?)\}/m)[1].split(",").map((s) => s.trim()).filter(Boolean));
+  const used = new Set([...fsx.readFileSync(pathx.join(__dirname, "..", "page-logic.js"), "utf8").matchAll(/\bE\.([A-Za-z_]+)/g)].map((m) => m[1]));
+  const missing = [...used].filter((k) => !exported.has(k));
+  ok("every engine name page-logic.js reads is one the engine exports: missing " + missing.join(","), missing.length === 0);
+  const REAL = Object.fromEntries(Object.entries(E).filter(([k]) => exported.has(k)));
+  const say = [{ text: "פרוטוקול", part: "body" }, { text: "העדה אמרה רונית כהן הגיעה.", part: "body" }];
+  ok("a speech verb before the name is a verb with the shipped engine", PL.leakShape(REAL, say, "רונית כהן", {}).before === "verb");
+  const lines = ["פרוטוקול", "העדה רונית אמרה שלום.", '"רונית" חזרה.', "ורונית הוסיפה.", "ולרונית אין מה להוסיף.", "שרונית? לא.", "Xרונית כתובת.", "רונית."];
+  const txt = lines.join("\n"), blk = lines.map((t) => ({ text: t, part: "body" }));
+  const hits = new E.Engine([{ value: "רונית", kind: "NAME" }], [], { on: new Set(), flag: new Set(), mode: "real", prefixes: "normal" }, txt).detect(txt).filter((h) => h.base === "רונית");
+  const bare = hits.filter((h) => E.norm(h.text).trim() === "רונית").length, pre = hits.length - bare;
+  const sh = PL.leakShape(REAL, blk, "רונית", {});
+  ok(`occurrences are the engine's: ${sh.occurrences} vs ${bare}`, sh.occurrences === bare);
+  ok(`prefixed forms are the engine's, two-letter prefixes included: ${sh.otherForms} vs ${pre}`, sh.otherForms === pre);
+}
+
 // the session log keeps timings and counts, and refuses text
 const L = PL.sessionLog("v18");
 L.add("screen", { to: "people", from: "entry" });

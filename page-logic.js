@@ -81,13 +81,15 @@
       doc: docShape(blocks, E), modelUsed: !!ctx.modelUsed,
     };
     // occurrences of the exact surface, and of the stem behind a prefix letter
-    const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const NW = "(?<![\\u0590-\\u05ff])", NWE = "(?![\\u0590-\\u05ff])";
-    const all = [...nj.matchAll(new RegExp(NW + esc(nt) + NWE, "gu"))];
+    // with the engine's own word boundary, spelling flex and prefix letters (review M22): a copy
+    // of them here counted a Latin-glued form the engine skips and missed two-letter prefixes,
+    // so bench/from-leak.js rebuilt a different document from the one that leaked
+    const count = (v) => [...nj.matchAll(new RegExp(E.NW + E.flex(v) + E.NWE, "gu"))];
+    const all = count(nt);
     shape.occurrences = all.length;
     const stem = PFX.has(nt[0]) && words.length === 1 && nt.length >= 4 ? nt.slice(1) : nt;
-    if (stem !== nt) { shape.prefix = nt[0]; shape.stemOccurrences = [...nj.matchAll(new RegExp(NW + esc(stem) + NWE, "gu"))].length; }
-    shape.otherForms = [...nj.matchAll(new RegExp(NW + "[בהולמכש]" + esc(stem) + NWE, "gu"))].length - (shape.prefix ? all.length : 0);
+    if (stem !== nt) { shape.prefix = nt[0]; shape.stemOccurrences = count(stem).length; }
+    shape.otherForms = E.variants(stem, "normal").filter(([, x]) => x).reduce((n, [v]) => n + count(v).length, 0) - (shape.prefix ? all.length : 0);
     // context classes at the first occurrence
     const first = all[0];
     if (first) {

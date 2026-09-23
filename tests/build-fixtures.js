@@ -27,6 +27,14 @@ const path = require("path");
 const HERE = __dirname;
 let src = fs.readFileSync(path.join(HERE, "..", "redact-engine.js"), "utf8");
 
+/* What the browser can reach: the engine's own export list. core.js exports all of it,
+   plus the internals the suites reach into. It used to export a hand-written list only, and
+   a suite could pass on a name the shipped engine did not have (review M21: VRB, COMMON and
+   KNOWN_FIRST were undefined in the browser, so page-logic.js classified every verb as
+   "other" there and "verb" here). tests/pagelogic_t.js checks page-logic against SHIPPED. */
+const SHIPPED = (src.match(/^export\s*\{([\s\S]*?)\};?[ \t]*$/m) || ["", ""])[1].split(",").map((s) => s.trim()).filter(Boolean);
+if (!SHIPPED.length) throw new Error("no export list in redact-engine.js");
+
 // ESM to plain script: the suites load this with require().
 src = src.replace(/^export\s+(?=(async\s+)?(function|const|let|class)\b)/gm, "");
 src = src.replace(/^export\s*\{[\s\S]*?\};?[ \t]*$/gm, "");
@@ -63,8 +71,9 @@ fs.writeFileSync(path.join(HERE, "app.html"),
   "</script>\n", "utf8");
 
 // core.js is required directly, never sliced, so it keeps the original order.
-// The export list is what extract.py used to append; the suites destructure these.
-const exp = "module.exports={norm,near1,findNear,restoreNames,fakeName,gender,origin,POOL,STOP,PLACE_BY,Engine,ckey,variants,hord,words,pseudoRX,hash32,discover,anchored,partName,ctxHTML,findPlaces,esc,GF,GM,bodyNames,nameish,VRB,COMMON,nerClean,nerChunks,PUBLIC_ORG,nerAlign,nerGroup,fixTokJSON,rxClean,geoNames,placesFound,examplesOf,fakePlace,PAT,fakeOrg,orgHead,GROUP_HEADS,ORG_HEADS,PLACES,ATLAS_TAGS,ATLAS_KEYS,ATLAS_VOCAB,atlasTags,atlasPenalty,atlasDiff,placeKind,NEIGHBORHOODS,STREETS,geoMap,mergeSignals,fakeDate,foldEvidence,tokPieces,namePosition,nerClean,WORDLIKE,trimEdges,verbTail}";
+// INTERNAL is what extract.py used to append: engine internals the suites reach into.
+const INTERNAL = "norm,near1,findNear,restoreNames,fakeName,gender,origin,POOL,STOP,PLACE_BY,Engine,ckey,variants,hord,words,pseudoRX,hash32,discover,anchored,partName,ctxHTML,findPlaces,esc,GF,GM,bodyNames,nameish,VRB,COMMON,nerClean,nerChunks,PUBLIC_ORG,nerAlign,nerGroup,fixTokJSON,rxClean,geoNames,placesFound,examplesOf,fakePlace,PAT,fakeOrg,orgHead,GROUP_HEADS,ORG_HEADS,PLACES,ATLAS_TAGS,ATLAS_KEYS,ATLAS_VOCAB,atlasTags,atlasPenalty,atlasDiff,placeKind,NEIGHBORHOODS,STREETS,geoMap,mergeSignals,fakeDate,foldEvidence,tokPieces,namePosition,nerClean,WORDLIKE,trimEdges,verbTail".split(",");
+const exp = "module.exports={" + [...new Set([...SHIPPED, ...INTERNAL])].join(",") + "}";
 fs.writeFileSync(path.join(HERE, "core.js"), PRELUDE + src + "\n" + exp + ";\n", "utf8");
 
 console.log("built tests/app.html and tests/core.js from redact-engine.js");
