@@ -60,6 +60,18 @@ const boom = () => { throw new Error("broken on purpose"); };
 
   const chart = { name: "word/charts/chart1.xml", body: '<?xml version="1.0"?><c:chartSpace xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><c:chart><c:title><c:tx><c:rich><a:p><a:r><a:t>קורמיץ שפלון</a:t></a:r></a:p></c:rich></c:tx></c:title></c:chart></c:chartSpace>' };
 
+  console.log("\n— more unlisted names than the body scan used to propose —");
+  {
+    // the body scan's proposals were cut at twelve, so the thirteenth unlisted name was never
+    // put in front of her and stayed in the file (found as the probe of L12)
+    const sur = ["ברקוביץ", "זלצמן", "קורניק", "שפרינצק", "גולדפרב", "טננבאום", "רוזנצווייג", "פינקלשטיין", "וייסברג", "קליינמן", "שטרנהל", "אייזנברג", "ליבוביץ", "מנדלבאום", "גרינברג"];
+    const body = sur.map((s) => P(R(`העובדת הסוציאלית ${s} ציינה שהמשפחה מוכרת.`)) + P(R(`${s} המליצה על ליווי.`))).join("");
+    const res = await E.redactDocx(zipOf(body), [], [], OPT);
+    const got = sur.filter((s) => res.verification.suggest.some((x) => x.value.includes(s)));
+    ok(got.length === sur.length, `every one of ${sur.length} is proposed: ${got.length}, missing ${sur.filter((s) => !got.includes(s)).length}`);
+    if (got.length !== sur.length) console.log("    missing:", sur.filter((s) => !got.includes(s)).join(", "));
+  }
+
   console.log("\n— the body scan throws —");
   {
     E.break("bodyNames", boom);

@@ -482,8 +482,9 @@ async function redactDocx(buf,subs,allow,opt){
     const known=[...subs.map(s=>s.value),...(allow||[]),
       ...applied.map(r=>r.base||r.value),...applied.map(r=>r.baseRep||r.rep)];
     suggest=bodyNames(ORIG.filter(b=>!hiddenPart(b.part)),known)
-      .filter(x=>!near.some(nm=>norm(nm.value).trim()===norm(x.value).trim()))
-      .slice(0,12);
+      .filter(x=>!near.some(nm=>norm(nm.value).trim()===norm(x.value).trim()));
+    // בלי תקרה: ההצעות נחתכו בשתים-עשרה, והשם השלושה-עשר שלא ברשימה לא הוצע לה ונשאר בקובץ.
+    // על המסמכים האמיתיים שלה, בלי רשימה בכלל, הגבוה ביותר היה תשע (L12, הבדיקה של המשפחה)
   }catch(e){if(!e||!e.skip){console.warn("סריקת גוף הטקסט נכשלה",e);incomplete.push("body")}}
   ver.suggest=suggest;
   /* תווית בגרף או בתרשים עומדת לבדה, בלי משפט סביבה, ולכן סריקת הגוף — ששוקלת הקשר — אינה
