@@ -50,6 +50,10 @@ Added 2026-09-23, with the documentation batch of the triage:
   ("המטופלת", "חתימה", "תצהיר"), each one tap for her to dismiss. The run the review read had 23.
   Today, model off, 43 documents: 74 leaks, 58 missed, 4 false positives and 29 unlisted
   (`bench/results-no-model.md`).
+- **Section 7, "1,828 checks".** 1,154 of them, 63%, are one combinatorial suite,
+  `tests/shapes_t.js`: a table of 42 shapes crossed with values. "31 typographic shapes" is
+  right (42 keys less 11 prefix-letter shapes). On 2026-09-23 `node tests/run.js` reports
+  2,146 checks, of which the same suite is still 1,154 (54%).
 
 The review also found the brief too hard on itself in one place: about 88% of the comments state
 the rule the code keeps, and none narrates a bug without it.
