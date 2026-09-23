@@ -194,7 +194,8 @@ function build(inp, opt) {
       : { st: "PENDING", why: "(a) " + R.r2a.st + ", (b) " + R.r2b.st };
 
     // 3: download from the registry; browser time and memory are Phase 5
-    const rg = reg.get(m);
+    // a -ft run is the same model file with the faithful tokenizer: same size and licence
+    const rg = reg.get(m) || reg.get(m.replace(/-ft$/, ""));
     if (!rg || !rg.bytes) R.r3 = { st: "PENDING", why: "no registry size; browser scan time and peak memory come from the browser check (Phase 5)" };
     else {
       const mb = rg.bytes / MB, band = mb <= 250 ? "green" : mb <= 450 ? "amber (owner's OK and a first-run warning)" : "red";

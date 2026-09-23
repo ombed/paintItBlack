@@ -122,6 +122,8 @@ function keys() {
       for (const h of [row.revision, row.sha256]) if (typeof h === "string" && HASH.test(h)) knownHashes.add(h);
     }
   }
+  // <key>-ft: the same model with the faithful tokenizer (run.js --tok faithful)
+  for (const k of [...modelKeys]) modelKeys.add(k + "-ft");
   for (const k of [...modelKeys]) if (!k.startsWith("union-")) modelKeys.add("union-" + k);
   return modelKeys;
 }

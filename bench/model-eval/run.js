@@ -1,11 +1,13 @@
 /* One model over one gold set -> predictions files (FORMATS.md "Predictions").
 
      node bench/model-eval/run.js --model <key> --set <gold.json> [--out <dir>]
-          [--chunk N] [--min 0.6] [--private] [--offline]
+          [--chunk N] [--min 0.6] [--tok product|faithful] [--private] [--offline]
 
    Writes <out>/<key>[.c<N>].<set>.raw.json (threshold 0, every span with its score) and
    <out>/<key>[.c<N>].<set>.cleaned.json (nerClean at --min, the product's 0.6 by default).
    --chunk: nerChunks' limit, for the chunk-size rows; the files then carry "chunk": N.
+   --tok faithful: the tokenizer as the model was trained (tokfix.js, RESULTS.md); the run is
+   named <key>-ft, so it sits beside the product run in every table.
 
    --private (her documents, PLAN.md section 6):
      - the output must be under private-bench/model-eval/ (the default there), nowhere else;
@@ -39,7 +41,7 @@ function parseArgs(argv) {
   }
   return a;
 }
-const OPTIONS = new Set(["model", "set", "out", "chunk", "min"]);
+const OPTIONS = new Set(["model", "set", "out", "chunk", "min", "tok"]);
 // argument errors, raised before any document is read: safe to print as they are
 const usage = (m) => Object.assign(new Error(m), { usage: true });
 const inside = (p, dir) => { const r = path.relative(dir, p); return r === "" || (!!r && !r.startsWith("..") && !path.isAbsolute(r)); };
@@ -60,13 +62,16 @@ async function main() {
   if (chunk != null && !(Number.isInteger(chunk) && chunk >= 50)) throw usage("--chunk must be a whole number of characters, at least 50");
   const min = a.min != null ? Number(a.min) : 0.6;
   if (!(min >= 0 && min <= 1)) throw usage("--min must be between 0 and 1");
+  const tok = a.tok || "product";
+  if (!["product", "faithful"].includes(tok)) throw usage("--tok must be product or faithful");
 
   const spec = getSpec(a.model);
   const set = JSON.parse(fs.readFileSync(setFile, "utf8"));
   const setName = set.name || path.basename(setFile, ".json");
 
   const t0 = Date.now();
-  const pipe = await loadModel(spec, { offline: priv || a.flags.has("offline") });
+  const pipe = await loadModel(spec, { offline: priv || a.flags.has("offline"), tok });
+  const name = spec.key + (tok === "faithful" ? "-ft" : "");
   const loadMs = Date.now() - t0;
 
   const health = Object.fromEntries(HEALTH_KEYS.map((k) => [k, 0]));
@@ -82,17 +87,17 @@ async function main() {
     cleanDocs.push({ id: doc.id, spans: cleaned(doc.text, r.raw, { min }) });
   }
 
-  const head = (stage, threshold) => Object.assign({ model: spec.key, set: setName, stage, threshold }, chunk ? { chunk } : {});
+  const head = (stage, threshold) => Object.assign({ model: name, set: setName, stage, threshold }, chunk ? { chunk } : {}, tok !== "product" ? { tok } : {});
   const files = [
     [Object.assign(head("raw", 0), { docs: rawDocs, health, timing }), "raw"],
     [Object.assign(head("cleaned", min), { docs: cleanDocs, health, timing }), "cleaned"],
   ];
   fs.mkdirSync(out, { recursive: true });
-  const base = spec.key + (chunk ? ".c" + chunk : "") + "." + setName.replace(/[^\w.-]+/g, "_");
+  const base = name + (chunk ? ".c" + chunk : "") + "." + setName.replace(/[^\w.-]+/g, "_");
   for (const [obj, stage] of files) fs.writeFileSync(path.join(out, base + "." + stage + ".json"), JSON.stringify(obj, null, 1) + "\n", "utf8");
 
   const nRaw = rawDocs.reduce((n, d) => n + d.spans.length, 0), nClean = cleanDocs.reduce((n, d) => n + d.spans.length, 0);
-  log("model", spec.key, "docs", set.docs.length, "raw", nRaw, "cleaned", nClean);
+  log("model", name, "docs", set.docs.length, "raw", nRaw, "cleaned", nClean);
   log("health", health);
   // seconds in a private run: the gate refuses 7-digit integers (ID shapes), a long scan in ms is one
   if (priv) log("sec", "load", +(timing.loadMs / 1000).toFixed(1), "scan", +(timing.scanMs / 1000).toFixed(1), "words", timing.words);
