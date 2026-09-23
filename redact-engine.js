@@ -2331,7 +2331,8 @@ async function redactDocx(buf,subs,allow,opt){
      for(const [s,e,nw] of srt){ if(nw==="")dels.push({s:s-shift, val:blk.text.slice(s,e).trim()}); shift+=(e-s)-nw.length; }
      if(dels.length)blk.dels=dels;}
     applyReps(blk,reps)}
-  // מעבר אחידות
+  // מעבר אחידות: כל ערך שהוחלף (ארבע אותיות ומעלה) נסרק שוב בכל חלקי המסמך,
+  // כדי שמופע שאף שכבה לא סימנה יקבל אותו תחליף ולא יישאר בטקסט.
   const sweep={};
   for(const r of applied){
     const v=norm(r.value).trim(), rp=r.baseRep||r.rep;
@@ -2380,7 +2381,8 @@ async function redactDocx(buf,subs,allow,opt){
       if(p in sweep||!to||norm(to).includes(p))return;
       const g=partOf.get(p)||{to:new Set(),of:new Set(),wordy:wordy(p)};
       g.to.add(to); g.of.add(value); partOf.set(p,g)};
-    // שם פרטי → שם פרטי בדוי
+    // השם הפרטי לבד: במצב real (שם בדוי) הוא מקבל את השם הפרטי של הבדוי, ובמצבים
+    // האחרים (תווית, השחרה) את התחליף כולו, כי אין בו שם פרטי נפרד
     add(vw[0],real?rw[0]:rp);
     // שם המשפחה כולו ("לב שדה", "בן דוד") והמילה האחרונה לבד
     const sur=vw.slice(1).join(" "), rsur=real?rw.slice(1).join(" "):rp;
@@ -2449,7 +2451,8 @@ async function redactDocx(buf,subs,allow,opt){
   for(const dd of docs) dd.f.data=ENC.encode(serXML(dd.doc,dd.orig));
   rep.residue=residuePass(keep,new Set(docs.map(d=>d.f.name)),subs,applied);
 
-  // תצוגה
+  // התצוגה המקדימה: סימון כל תחליף על הטקסט שאחרי ההחלפה. תחליף שעומד ליותר
+  // מערך אחד, או שהופיע כבר במקור, מסומן כדו-משמעי.
   const origAll=blocks.map(b=>b.text).join("\n");
   const repVals={};
   for(const r of applied){ if(!r.rep)continue;
