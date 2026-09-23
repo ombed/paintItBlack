@@ -52,6 +52,16 @@ article elsewhere ("באזור" next to "אזור") goes on the ambiguity list
 automatically: it is flagged for her, never auto-replaced. The list stays a
 data file, not code, so a wrong entry is a one-line fix.
 
+**Superseded the next day.** The code no longer keeps this rule. On her four
+real documents the one-word entries of the settlement list gave twelve wrong
+hits and no right ones (`docs/measurements.md`, "Two transcripts and a
+position paper"), so `findPlaces` in `engine/06-model.js` now uses only the
+entries of two words or more. A one-word locality from the settlement list is
+neither replaced nor flagged. A two-word one is flagged only when it is three
+letters or fewer or on the `AMBIG` list, and skipped inside the name of a
+public body. The coordinate list (`PLACES`) is separate and still flags its
+ambiguous one-word towns (`AMBIG`, three letters or fewer).
+
 ## The work, in order
 
 1. **Ship the decisions that are one file each.** PolyForm Shield in

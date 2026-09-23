@@ -3,11 +3,13 @@
 
    Source: data.gov.il, dataset "רשימת יישובים" (resource
    5c78e9fa-c2e2-4771-93ff-7f400a12f7ba), public data. The file holds
-   every locality name as the engine's GAZ list. The engine decides at match
-   time which names are homographs of common words, first names or words
-   the document itself uses, and flags those instead of replacing them
-   (decision Q10 in docs/PLAN-v18.md). Names already in PLACES (the ones
-   with coordinates, used for the distance-preserving map) are left out. */
+   every locality name as the engine's GAZ list. The engine uses only the
+   names of two words or more: findPlaces in engine/06-model.js skips every
+   one-word entry, neither replacing nor flagging it, because on real
+   documents they were almost all ordinary words (docs/measurements.md). This
+   replaced the homograph-flagging rule of PLAN-v18 Q10. Names already in
+   PLACES (the ones with coordinates, used for the distance-preserving map)
+   are left out. */
 const fs = require("fs");
 const path = require("path");
 
@@ -34,9 +36,9 @@ for (const r of recs) {
 const list = [...names].sort((a, b) => a.localeCompare(b, "he"));
 const out = `/* ══════════ מאגר יישובים ══════════
    ${list.length} שמות יישובים מרשימת הלמ"ס (data.gov.il), בלי אלה שכבר ב-PLACES עם
-   קואורדינטות. נבנה ב-scripts/build-gazetteer.js; לא לערוך ביד. יישוב שהוא גם
-   מילה, שם פרטי, או מילה שהמסמך משתמש בה עם ה' הידיעה — מסומן לבדיקה ולא מוחלף
-   (החלטה Q10 ב-docs/PLAN-v18.md). */
+   קואורדינטות. נבנה ב-scripts/build-gazetteer.js; לא לערוך ביד. הרשימה מלאה, אבל
+   findPlaces (06-model.js) משתמש רק בשמות בני שתי מילים ומעלה; שם בן מילה אחת
+   מכאן לא נתפס כלל. הנימוק והכלל המלא — שם. */
 const GAZ=${JSON.stringify(list)};
 const GAZ_RX=new RegExp("(?<![\\\\u0590-\\\\u05ff])(?:[בהולמכש]|ו[בהלמכ]|כש|מה|לכ)?("+
   GAZ.slice().sort((a,b)=>b.length-a.length).map(n=>n.replace(/[.*+?^\${}()|[\\]\\\\]/g,"\\\\$&")).join("|")+

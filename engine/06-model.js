@@ -580,10 +580,12 @@ function findPlaces(text){
       apply:!risky,src:"pattern",prio:2,conf:risky?"medium":"high",
       review:risky,place:nm});
   }
-  // מאגר היישובים המלא (07-gazetteer.js): בלי קואורדינטות, אז בלי מיפוי מרחקים, אבל
-  // כל יישוב בארץ נתפס. הומוגרף — יישוב בן מילה אחת שהוא גם מילה, שם פרטי, או
-  // מילה שהמסמך משתמש בה עם ה' הידיעה ("באזור" ליד "האזור") — מסומן לבדיקה ולא
-  // מוחלף (Q10 ב-docs/PLAN-v18.md). שם בן שתי מילים כמעט אינו דו-משמעי.
+  // מאגר היישובים המלא (07-gazetteer.js): בלי קואורדינטות, אז בלי מיפוי מרחקים.
+  // הכלל שהקוד שומר: מהמאגר נתפסים רק יישובים בני שתי מילים ומעלה. יישוב בן מילה אחת
+  // מהמאגר לא נתפס כלל — לא מוחלף ולא מסומן לבדיקה (הנימוק למטה וב-docs/measurements.md).
+  // שם בן שתי מילים כמעט אינו דו-משמעי: הוא מסומן לבדיקה רק אם הוא עד שלוש אותיות או
+  // ב-AMBIG, ומדולג אם הוא חלק משם של גוף ציבורי. הכלל המקורי של PLAN-v18 Q10
+  // (הומוגרף בן מילה אחת מסומן לבדיקה ולא מוחלף) הוחלף בזה.
   if(typeof GAZ_RX!=="undefined"){
     const docTokG=new Set(n.match(WRX)||[]);
     GAZ_RX.lastIndex=0;
@@ -595,10 +597,11 @@ function findPlaces(text){
       // מסמכים אמיתיים הוא נתן שמונה סימונים מיותרים ואפס תפיסות. הערים הגדולות
       // ממילא ב-PLACES עם קואורדינטות. ראו docs/measurements.md.
       if(!nm.includes(" "))continue;
+      // מכאן כל שם הוא בן שתי מילים ומעלה, אז one תמיד false, ושני הענפים שבודקים אותו
+      // (דילוג על שם פרטי או מילה מהרשימות, וסימון לבדיקה של הומוגרף) אינם פעילים.
       const one=false;
-      // יישוב בן מילה אחת שהוא גם שם פרטי או מילה מהרשימות (שחר, אור, גן) דו-משמעי מדי אפילו לסימון;
-      // "משרד הרווחה" ליד היישוב רווחה הוא גוף ציבורי, לא מקום
       if(one&&(WORDLIKE.has(nm)||KNOWN_FIRST.has(nm)||FEM.has(nm)||MASC.has(nm)))continue;
+      // "משרד הרווחה" ליד היישוב רווחה הוא גוף ציבורי, לא מקום
       {const back=n.slice(Math.max(0,m.index-30),m.index).split(/\s+/).filter(Boolean).slice(-2); const full=m[0].trim(); const c2=[...back,full].join(" "), c1=[...back.slice(-1),full].join(" ");
        if([c2,c1].some(x=>PUBLIC_ORG.test(x)||PUBLIC_ORG.test(x.replace(/^[בהולמכש]/,""))))continue;}
       const risky=nm.length<=3||AMBIG.has(nm)||(one&&(COMMON.has(nm)||WORDLIKE.has(nm)||KNOWN_FIRST.has(nm)||STOP.has(nm)||FEM.has(nm)||MASC.has(nm)||docTokG.has("ה"+nm)));
