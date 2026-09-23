@@ -120,5 +120,20 @@ ok("a text field is dropped, not exported", !exp.includes("רונית") && JSON.
 ok("a dropped field leaves its name, so the drop is visible", JSON.parse(exp).events[1].dropped === "name");
 ok("no Hebrew word in the log", !/[֐-׿]{3,}/.test(exp));
 
+// review L6: the guard was a filter on Hebrew, so an address, an ID written as a string, a Latin
+// name or a number that is really an identifier went through. A value is now a short code or a
+// plausible count, and anything else is dropped and named.
+{
+  const L2 = PL.sessionLog("v53");
+  L2.add("x", { email: "rachel@example.com", id: "314277062", phone: "052-6613874", latin: "Ronit Levy", big: 314277062, one: "ב" });
+  L2.add("x", { kind: "NAME", band: "<.95", src: "mh", part: "first", gender: "?", screen: "tour-work", incomplete: "body,labels", ms: 1234, n: 3, ok: true });
+  const ev = JSON.parse(L2.export()).events;
+  const dropped = (ev[0].dropped || "").split(",");
+  ok("an address, an ID string, a phone, a number that is an ID are dropped: " + ev[0].dropped, ["email", "id", "phone", "big"].every((k) => dropped.includes(k)));
+  ok("a name in Latin letters is dropped: " + ev[0].dropped, dropped.includes("latin"));
+  ok("and a Hebrew letter", dropped.includes("one"));
+  ok("the codes, bands and counts the app logs pass: " + JSON.stringify(ev[1]), ev[1].kind === "NAME" && ev[1].band === "<.95" && ev[1].incomplete === "body,labels" && ev[1].ms === 1234 && ev[1].ok === true && !ev[1].dropped);
+}
+
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

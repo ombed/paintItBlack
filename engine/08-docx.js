@@ -718,9 +718,83 @@ async function nerPersist(){
 /* ── טעינת המודל בדפדפן ──
    המודל רץ אצלה במחשב. שום דבר לא נשלח לשום מקום — לא המסמך, לא הטקסט.
    מה שכן עובר ברשת הוא הורדת המודל עצמו, פעם אחת. */
-const NER_LIB="https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0";
+/* שרשרת האספקה (ביקורת H14, M4). שתי הספריות שרואות את המסמך נטענו מ-CDN ב-import() חשוף,
+   ש-Subresource Integrity אינו יכול לכסות, ועובד השירות שמר אותן קודם. עכשיו:
+   - transformers.js, והטוען של ספריית ההרצה (mjs), יושבים באתר עצמו, תחת vendor/, בשם שנושא
+     את הגרסה. tests/vendor_t.js מוודא שהם הקבצים של החבילה בגרסה הזאת בדיוק.
+   - קובץ ה-WebAssembly של ספריית ההרצה (27MB) נשאר ב-CDN, בכתובת נעולת-גרסה, ונבדק: מורידים
+     אותו כאן, משווים SHA-256 לערך הנעול, ומוסרים לספרייה את הבייטים שנבדקו. קובץ שהשתנה —
+     הטעינה נכשלת, בקול.
+   - המודל נעול לגרסה (commit) ולא ל-main, וקובץ המשקולות נבדק מול ה-SHA-256 שלו פעם אחת.
+   מדיניות אבטחת התוכן (CSP) ב-index.html מגבילה לאן העמוד יכול לפנות. */
+const NER_LIB="./vendor/transformers-4.2.0.min.js";
+const ORT_V="1.24.0-dev.20251116-b39e144322";
+const ORT_CDN="https://cdn.jsdelivr.net/npm/onnxruntime-web@"+ORT_V+"/dist/";
+const ORT_WASM={"ort-wasm-simd-threaded.asyncify":"ijj2sXOzrwSfS0ib7b4dolPO7XoXIPls3vYD8oNrZlw=",
+  "ort-wasm-simd-threaded":"v3jjoRtGXpqh51bCDtQG3dbP8trXwt8NCNhytDbVTio="};
 const NER_MODEL="onnx-community/dictabert-ner-ONNX";
+// המאגר לא השתנה מאז 2025-01-06 (lastModified ב-API של Hugging Face), ולכן עותק של main
+// ששמור אצלה הוא הגרסה הזאת בדיוק; nerMigrateCache מעביר אותו במקום להוריד 185MB מחדש
+const NER_REV="4f0aabf58566526df6f3fb548e0fd2619fbf2b1d";
+const NER_WEIGHTS={file:"onnx/model_quantized.onnx",sha256:"fd7ac841768f11197e1d46ea6bbfe82d9cd9e21289be8761af63dbc996a32007"};
+const NER_OK_KEY="redact-model-verified";
 let NERP=null,NERSTATE="off";
+async function sha256(buf,enc){
+  const d=new Uint8Array(await crypto.subtle.digest("SHA-256",buf));
+  if(enc==="hex")return [...d].map(b=>b.toString(16).padStart(2,"0")).join("");
+  return globalThis.btoa(String.fromCharCode(...d));
+}
+// ספריית ההרצה: הטוען מהאתר, ה-WebAssembly מה-CDN אחרי בדיקה. בלי wasmPaths.wasm,
+// transformers.js אינו מוריד את הקובץ בעצמו ומשתמש ב-wasmBinary שמסרנו.
+async function nerRuntime(t){
+  const safari=/^((?!chrome|android).)*safari/i.test((typeof navigator!=="undefined"&&navigator.userAgent)||"");
+  const v=safari?"ort-wasm-simd-threaded":"ort-wasm-simd-threaded.asyncify";
+  const f=RAW_FETCH||window.fetch.bind(window);
+  const res=await f(ORT_CDN+v+".wasm");
+  if(!res.ok)throw new Error("לא הצלחתי להוריד את ספריית ההרצה ("+res.status+")");
+  const buf=await res.arrayBuffer();
+  if(await sha256(buf)!==ORT_WASM[v])throw new Error("ספריית ההרצה שהורדה אינה הקובץ הנעול. המודל לא נטען.");
+  const o=t.env.backends.onnx;
+  o.wasm.wasmPaths={mjs:new URL("./vendor/ort-"+ORT_V+"/"+v+".mjs",location.href).href};
+  o.wasm.wasmBinary=buf;
+}
+const HUB=(rev,file)=>"https://huggingface.co/"+NER_MODEL+"/resolve/"+rev+"/"+file;
+// עותק ששמור תחת main עובר לכתובת של הגרסה הנעולה, ועותקים של כל גרסה אחרת נמחקים (ביקורת M2:
+// דבר לא פינה את המטמון הזה, ו-185MB נשארו אחרי כל שינוי)
+async function nerMigrateCache(){
+  if(!nerEnv().canCache)return 0;
+  const c=await caches.open(NER_CACHE); let moved=0;
+  const mine="https://huggingface.co/"+NER_MODEL+"/resolve/";
+  for(const req of await c.keys()){
+    if(!req.url.startsWith(mine))continue;
+    const rest=req.url.slice(mine.length), slash=rest.indexOf("/"), rev=rest.slice(0,slash), file=rest.slice(slash+1);
+    if(rev===NER_REV)continue;
+    if(rev==="main"&&!(await c.match(HUB(NER_REV,file)))){ const r=await c.match(req); if(r){await c.put(HUB(NER_REV,file),r);moved++} }
+    await c.delete(req);
+  }
+  return moved;
+}
+// המשקולות נבדקות פעם אחת מול ה-SHA-256 הנעול (185MB, שנייה או שתיים), והבדיקה נזכרת לפי
+// גודל העותק השמור. עותק שאינו תואם נמחק, והטעינה נכשלת בקול.
+async function nerVerifyWeights(){
+  if(!nerEnv().canCache)return "no-cache";
+  const c=await caches.open(NER_CACHE), url=HUB(NER_REV,NER_WEIGHTS.file);
+  const r=await c.match(url); if(!r)return "not-cached";
+  const tag=NER_REV+":"+(r.headers.get("content-length")||"");
+  try{ if(localStorage.getItem(NER_OK_KEY)===tag)return "known"; }catch(_){}
+  const h=await sha256(await r.arrayBuffer(),"hex");
+  if(h!==NER_WEIGHTS.sha256){ await c.delete(url); try{localStorage.removeItem(NER_OK_KEY)}catch(_){}
+    throw new Error("קובץ המודל שהורד אינו הקובץ הנעול. הוא נמחק מהמחשב; המודל לא נטען."); }
+  try{ localStorage.setItem(NER_OK_KEY,tag); }catch(_){}
+  return "verified";
+}
+// "מחיקת המודל מהמחשב" בהגדרות: הדרך היחידה לפנות אותו הייתה כלי המפתחים (ביקורת M2)
+async function nerForget(){
+  NERP=null; NERSTATE="off";
+  try{ localStorage.removeItem(NER_OK_KEY); }catch(_){}
+  if(typeof caches!=="undefined") return caches.delete(NER_CACHE);
+  return false;
+}
 /* tokenizer.json של DictaBERT מכיל \" — escape חוקי במנוע ה-regex של
    Rust, ולא חוקי ב-JavaScript תחת דגל u. בלי זה הטוקנייזר לא נבנה בכלל.
 
@@ -768,7 +842,7 @@ function fixTokJSON(txt){
 // עותק שכבר יושב במטמון לא עובר דרך fetch, ולכן מתקנים אותו במקום
 let jsonRes=body=>new Response(body,{status:200,statusText:"OK",
   headers:{"Content-Type":"application/json"}});
-const TOK_URL=()=>`https://huggingface.co/${NER_MODEL}/resolve/main/tokenizer.json`;
+const TOK_URL=()=>HUB(NER_REV,"tokenizer.json");
 let RAW_FETCH=null;
 async function nerFixCached(){
   let n=0;
@@ -887,14 +961,17 @@ let nerLoad=async function(){
     // בלי זה הדפדפן רשאי למחוק את המודל כשהמקום נגמר, והוא יירד שוב
     await nerPersist();
     nerHookFetch();
+    try{ const moved=await nerMigrateCache(); if(moved)console.log("מודל: "+moved+" קבצים הועברו לגרסה הנעולה"); }
+    catch(e){ console.warn('העברת המטמון נכשלה',e); }
     try{ await nerPrepTokenizer(); }
     catch(e){ console.warn('הכנת הטוקנייזר נכשלה',e); }
     const t=await import(/* webpackIgnore: true */ NER_LIB);
     t.env.allowLocalModels=false;
     t.env.useBrowserCache=true;
+    await nerRuntime(t);
     const seen={};
     const pipe=await t.pipeline("token-classification",NER_MODEL,{
-      dtype:"q8",
+      dtype:"q8", revision:NER_REV,
       progress_callback:p=>{
         if(p.status==="progress"&&p.file){
           // לפי בייטים, לא ממוצע של קבצים: הקבצים הקטנים נגמרים מיד וממוצע
@@ -908,6 +985,8 @@ let nerLoad=async function(){
           nerSay(tot?`מוריד את מודל הזיהוי: ${mb(v.reduce((a,b)=>a+b.loaded,0))} מתוך ${mb(tot)} MB · אחרי שיסתיים הוא נשמר במחשב`:`מוריד את מודל הזיהוי… ${Math.round(pct)}%`,pct);
         } else if(p.status==="ready")nerSay("המודל מוכן.",null);
       }});
+    const w=await nerVerifyWeights();
+    if(w==="verified")console.log("מודל: קובץ המשקולות נבדק מול הגרסה הנעולה");
     NERSTATE="ready";
     return pipe;
   })().catch(e=>{NERP=null;NERSTATE="error";throw e});
@@ -1143,7 +1222,7 @@ function restorePairs(caseMap,docMap){
 }
 
 
-export {nerLast, hiddenPart, VRB, COMMON, KNOWN_FIRST, NW, NWE, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
+export {nerLast, hiddenPart, nerForget, VRB, COMMON, KNOWN_FIRST, NW, NWE, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
   variants, validID, ibanOK, luhn, hord, POOL, WORDLIKE, FEM, MASC, fakeName, near1, HOMO, WEAK,
   findNear, mergeSignals, fakeDate, foldEvidence, tokPieces, namePosition, nerReset, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,

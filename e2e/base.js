@@ -39,12 +39,26 @@ async function selfCheckOf(page, hookTimeout = 10000) {
 
 const test = base.test.extend({
   selfCheck: [async ({ page }, use, info) => {
-    await page.addInitScript(() => { window.__PIB_TEST = true; });
+    await page.addInitScript(() => {
+      window.__PIB_TEST = true;
+      // the Content-Security-Policy (review H14): anything the page is refused is recorded, and a
+      // refusal fails the test, so a host the policy forgot shows here and not in her session
+      window.__csp = [];
+      document.addEventListener("securitypolicyviolation", (e) => window.__csp.push(e.violatedDirective + " " + String(e.blockedURI).slice(0, 80)));
+    });
     const noise = [];
     page.on("console", (m) => { if (/never resolved/.test(m.text())) noise.push({ rule: "runtime-warning", detail: m.text().slice(0, 160) }); });
     page.on("pageerror", (e) => noise.push({ rule: "page-error", detail: String(e && e.message || e).slice(0, 160) }));
     await use();
     if (info.status !== info.expectedStatus) return;
+    if (!page.isClosed()) {
+      const csp = await page.evaluate(() => window.__csp || []).catch(() => []);
+      base.expect(csp, "nothing refused by the Content-Security-Policy").toEqual([]);
+      // the session log drops a value that is not a code or a count, and names it (review L6); the
+      // app itself must never log one, or its telemetry is silently thinner than it looks
+      const drops = await page.evaluate(() => (window.__pib && window.__pib.log ? window.__pib.log().events : []).filter((e) => e.dropped).map((e) => e.ev + ":" + e.dropped)).catch(() => []);
+      base.expect(drops, "no session-log field dropped by the app's own events").toEqual([]);
+    }
     if (info.annotations.some((a) => a.type === "no-self-check")) return;
     const found = await selfCheckOf(page);
     if (found === null) return;

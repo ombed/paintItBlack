@@ -6,7 +6,7 @@
 
 ## פריסה
 
-אחד-עשר הקבצים יושבים יחד בשורש אותה כתובת `https`:
+הקבצים יושבים יחד תחת אותה כתובת `https`:
 
 | קובץ | תפקיד |
 |---|---|
@@ -19,6 +19,9 @@
 | `sw.js` | עובד שירות — התקנה ועבודה בלי רשת |
 | `manifest.webmanifest` | הגדרות התקנה |
 | `icon.svg`, `icon-192.png`, `icon-512.png` | אייקונים |
+| `vendor/transformers-4.2.0.min.js` | ספריית מודל הזיהוי (transformers.js), מהאתר עצמו ולא מ-CDN |
+| `vendor/ort-1.24.0-dev.20251116-b39e144322/ort-wasm-simd-threaded.asyncify.mjs`, `vendor/ort-1.24.0-dev.20251116-b39e144322/ort-wasm-simd-threaded.mjs` | הטוען של ספריית ההרצה; קובץ ה-WebAssembly שלה יורד מ-CDN ונבדק מול SHA-256 נעול |
+| `vendor/pdfjs-4.6.82/pdf.min.mjs`, `vendor/pdfjs-4.6.82/pdf.worker.min.mjs` | pdf.js, לקריאת PDF |
 
 רק הקבצים האלה מתפרסמים: `.github/workflows/pages.yml` בונה איתם תיקייה
 (`node scripts/build-site.js`), מריץ עליה בדיקות דפדפן, ומפרסם אותה ב-GitHub
@@ -58,10 +61,10 @@ GitHub Pages או כל אירוח סטטי מספיק. **כתובת `https` הי
 
 | קובץ | שורה | המחרוזת | תפקיד |
 |---|---|---|---|
-| `index.html` | 1134 | `<div id="ver">גרסה v52</div>` | השבב התחתון — מה שנראה על המסך |
-| `index.html` | 120 | `console.log("… גרסה v52")` | שורת הפתיחה בקונסול |
-| `index.html` | 158 | `if(served==="v52") return;` | **בדיקת ההשוואה** מול מה שהעובד מגיש |
-| `index.html` | 160 | `el.innerHTML='גרסה v52 · …'` | תווית האזהרה שמוצגת כשיש פער |
+| `index.html` | 1141 | `<div id="ver">גרסה v52</div>` | השבב התחתון — מה שנראה על המסך |
+| `index.html` | 126 | `console.log("… גרסה v52")` | שורת הפתיחה בקונסול |
+| `index.html` | 164 | `if(served==="v52") return;` | **בדיקת ההשוואה** מול מה שהעובד מגיש |
+| `index.html` | 166 | `el.innerHTML='גרסה v52 · …'` | תווית האזהרה שמוצגת כשיש פער |
 | `sw.js` | 8 | `const V="hedact-v52";` | מפתח המטמון |
 
 מספרי השורות נכונים לגרסה v52 והם עזר בלבד — לחפש את המחרוזת, לא לסמוך

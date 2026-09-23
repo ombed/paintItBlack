@@ -51,17 +51,26 @@ for (const f of SITE_FILES.filter((x) => /\.js$/.test(x) && x !== "support.js"))
 for (const f of refs) ok("index.html loads " + f + " but the site does not ship it", listed.has(f));
 ok("index.html references were found", refs.size >= 5);
 
-// the browser tests serve pdf.js from node_modules (e2e/helpers.js), so the pinned copy must be the
-// version the page asks the CDN for; otherwise the tests pass on a library she does not get
+// a vendored library is loaded through a constant, not a literal import (review H14): every
+// "./vendor/..." path a runtime file names is shipped, and every shipped vendor file is named
 {
-  const want = (read("pdf-text.js").match(/pdfjs-dist@([0-9.]+)[/]/) || [])[1];
+  const named = new Set();
+  for (const f of SITE_FILES.filter((x) => /\.m?js$/.test(x) && !x.startsWith("vendor/")))
+    for (const m of read(f).matchAll(/["'`]\.\/(vendor\/[^"'`$]+)["'`]/g)) if (/\.m?js$/.test(m[1])) named.add(m[1]);
+  const eng = read("engine/08-docx.js"), v = (eng.match(/const ORT_V="([^"]+)"/) || [])[1];
+  for (const k of Object.keys(JSON.parse("{" + (eng.match(/const ORT_WASM=\{([^}]*)\}/) || ["", ""])[1] + "}"))) named.add("vendor/ort-" + v + "/" + k + ".mjs");
+  for (const f of named) ok("a runtime file loads " + f + " but the site does not ship it", listed.has(f));
+  for (const f of SITE_FILES.filter((x) => x.startsWith("vendor/"))) ok("the site ships " + f + " but nothing loads it", named.has(f));
+  // pdf.js: the vendored folder is the version package.json pins, so the tests and she run one library
+  const want = (read("pdf-text.js").match(/vendor\/pdfjs-([0-9.]+)\//) || [])[1];
   const have = (JSON.parse(read("package.json")).devDependencies || {})["pdfjs-dist"];
-  ok("pdf-text.js asks for pdfjs-dist " + want + " and package.json pins " + have, !!want && have === want);
+  ok("pdf-text.js loads pdfjs " + want + " and package.json pins " + have, !!want && have === want);
 }
 
 // the build copies exactly the list, and nothing from design/ or docs/
 const out = build(fs.mkdtempSync(path.join(os.tmpdir(), "site-")));
-const got = fs.readdirSync(out).sort();
+const walk = (d, pre = "") => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name), pre + e.name + "/") : [pre + e.name]);
+const got = walk(out).sort();
 ok("build output is the list plus .nojekyll", JSON.stringify(got) === JSON.stringify([".nojekyll", ...SITE_FILES].sort()));
 ok("no design canvas in the site", !fs.existsSync(path.join(out, "design")));
 ok("no archive in the site", !fs.existsSync(path.join(out, "docs")));
