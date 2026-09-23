@@ -148,3 +148,18 @@ test("a missing hook and a throwing check are reported, never read as clean", as
   await page.goto("about:blank");
   expect(await selfCheckOf(page)).toBeNull();
 });
+
+// review L12: past forty kinds the log went silent, so a saturated session read as a clean one
+test("a self-check log that is full says so once", async ({ page }) => {
+  await toWork(page);
+  await page.evaluate(() => { const s = window.__pib.seen(); for (let i = 0; i < 40; i++) s.add("filler-" + i + "|work"); });
+  await page.evaluate(() => {
+    const g = document.querySelector("[data-group]"), a = g.cloneNode(true);
+    a.setAttribute("data-group", "a|אלונים\""); a.querySelector("span").textContent = "אלונים\"";
+    g.parentNode.append(a);
+  });
+  await page.evaluate(() => { window.__pib.runCheck(); window.__pib.runCheck(); });
+  const evs = await page.evaluate(() => window.__pib.log().events.map((e) => e.ev));
+  expect(evs.filter((e) => e === "self-check-full")).toHaveLength(1);
+  expect(evs).not.toContain("self-check");
+});

@@ -59,7 +59,9 @@ function mergeSignals(a,b){
 function findNear(blocks,targets,banned){
   // הסף הקודם דרש חמש אותיות לשם בן מילה אחת, וכך חסם בדיוק את המקרה
   // שממנו התחלנו: "שלוה" מול "שלווה". ארבע אותיות זה שם.
-  const tg=targets.filter(t=>t.norm.length>=4).slice(0,120);
+  /* 120 שמות לכל היותר, בשביל הזמן. מה שמעבר נאמר בתוצאה (read, of) ולא נחתך בשקט (ביקורת L12):
+     המנוע מדווח שהבדיקה הזאת לא הסתיימה, כמו שכבה שנשברה */
+  const all=targets.filter(t=>t.norm.length>=4), tg=all.slice(0,120);
   if(!tg.length)return [];
   const byK={}; for(const t of tg)(byK[t.words]=byK[t.words]||[]).push(t);
   const out=[],seen=new Set();
@@ -102,5 +104,7 @@ function findNear(blocks,targets,banned){
               (homo?` — אותיות מתחלפות בתמלול (${r.p[0]}↔${r.p[1]})`:
                     (r.k==="sub"?` — תו אחד שונה (${r.p[0]}↔${r.p[1]})`:" — תו אחד חסר או עודף"))});
           break}}}}
-  return out.sort((a,b)=>(a.conf==="high"?0:1)-(b.conf==="high"?0:1))}
+  const res=out.sort((a,b)=>(a.conf==="high"?0:1)-(b.conf==="high"?0:1));
+  res.read=tg.length; res.of=all.length;
+  return res}
 

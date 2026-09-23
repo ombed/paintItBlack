@@ -411,7 +411,7 @@ async function redactDocx(buf,subs,allow,opt){
 
   // סריקת שיבושים על הפלט, לא על המקור: כל מה שדומה לשם שהוחלף ובכל זאת
   // שרד את ההחלפה — הוא בדיוק מה שהיה יוצא החוצה בלי שאף אחד ישים לב.
-  let near=[];
+  let near=[], nearOf=null;
   if(opt.near!==false){
     const tset=new Map();
     for(const r of applied){
@@ -438,8 +438,9 @@ async function redactDocx(buf,subs,allow,opt){
     for(const t of tset.values())banned.add(t.norm);
     for(const a of (allow||[]))banned.add(norm(a).trim());
     let blocksN=[];for(const dd of docs)blocksN=blocksN.concat(flatten(dd.doc,dd.f.name));
-    near=findNear(blocksN.filter(b=>!hiddenPart(b.part)),
-      [...tset.values()],banned);
+    const targets=[...tset.values()];
+    near=findNear(blocksN.filter(b=>!hiddenPart(b.part)),targets,banned);
+    nearOf=near.of>near.read?{read:near.read,of:near.of}:null;
     for(const nm of near)flagged.push(nm);
   }
 
@@ -474,6 +475,7 @@ async function redactDocx(buf,subs,allow,opt){
   /* שכבה שנשברה אינה שכבה שלא מצאה כלום (ביקורת M25). סריקה שזרקה השאירה רשימה ריקה,
      והפס נעשה ירוק. עכשיו התוצאה אומרת איזו שכבה לא הסתיימה, והמסך מציג את זה. */
   const incomplete=[];
+  if(nearOf){incomplete.push("near");ver.nearOf=nearOf}
   let suggest=[];
   try{
     if(opt.body===false)throw {skip:1};

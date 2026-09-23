@@ -1070,7 +1070,8 @@ class Component extends DCLogic {
     try{
       const E = await import("./redact-engine.js");
       // בדיקות הדפדפן קוראות לבדיקה העצמית אחרי כל בדיקה (docs/QUALITY-PLAN.md, שכבה 2)
-      if(window.__PIB_TEST) window.__pib={check:v=>this.selfCheck(v), state:()=>this.state};
+      if(window.__PIB_TEST) window.__pib={check:v=>this.selfCheck(v), state:()=>this.state,
+        runCheck:()=>{ this._scOff=false; this._scWait=0; this.runSelfCheck(); }, seen:()=>this._scSeen||(this._scSeen=new Set()), log:()=>JSON.parse(this.log.export())};
       /* הורדת המודל (UX #6): זמן משוער לפי הקצב, והודעה כשהמונה לא זז 20 שניות —
          "סטלה" נראתה כמו תקיעה, והדרך החוצה לא הוצעה. */
       E.setNerSay((t,p)=>{
@@ -2464,11 +2465,13 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   verifyFailed(){ const v=this.state.res&&this.state.res.verification; return !!(v&&v.passed===false&&(v.leaks||[]).length); }
   /* שכבת חיפוש שלא הסתיימה (ביקורת M25) שואלת לפני ייצוא, כמו אימות שנכשל: היא לא יכולה
      לתקן את זה בעצמה, ולכן השאלה מאפשרת להמשיך ביודעין ולא נועלת אותה בחוץ */
-  scanIncomplete(){ const v=this.state.res&&this.state.res.verification; return !!(v&&(v.incomplete||[]).length); }
+  // שכבה שנשברה (גוף, תוויות) חוסמת; בדיקת כתיב שעברה רק על חלק מרשימה ארוכה היא אזהרה בלבד (L12)
+  scanIncomplete(){ const v=this.state.res&&this.state.res.verification; return !!(v&&(v.incomplete||[]).some(k=>k!=="near")); }
+  nearPartial(){ const v=this.state.res&&this.state.res.verification; return v&&(v.incomplete||[]).includes("near")&&v.nearOf?v.nearOf:null; }
   scanIncompleteText(){
-    const L={body:"החיפוש אחר שמות שלא ברשימה", labels:"החיפוש בתוויות של גרפים ותרשימים"};
     const v=this.state.res.verification;
-    return v.incomplete.map(k=>L[k]||k).join(" ו")+" נכשל באמצע";
+    const L={body:"החיפוש אחר שמות שלא ברשימה נכשל באמצע", labels:"החיפוש בתוויות של גרפים ותרשימים נכשל באמצע"};
+    return v.incomplete.filter(k=>k!=="near").map(k=>L[k]||k).join(" · ");
   }
   exportGuard(what){
     const p=this.pendingReview(), failed=this.verifyFailed(), partial=this.scanIncomplete();
@@ -2956,7 +2959,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const S=this.state, screen=S.tour?"tour-"+S.screen:S.screen, seen=this._scSeen||(this._scSeen=new Set()), by={};
     for(const f of found) by[f.rule]=(by[f.rule]||0)+1;
     for(const [rule,n] of Object.entries(by)){
-      const k=rule+"|"+screen; if(seen.has(k)||seen.size>=40) continue;
+      const k=rule+"|"+screen; if(seen.has(k)) continue;
+      // ארבעים סוגים לכל היותר ביומן; כשהתקרה מתמלאת זה נרשם פעם אחת, כדי שסשן רווי לא ייראה נקי (L12)
+      if(seen.size>=40){ if(!this._scFull){ this._scFull=true; this.log.add("self-check-full",{screen}); } continue; }
       seen.add(k); this.log.add("self-check",{rule, screen, n, ms});
     }
   }
@@ -3762,12 +3767,13 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       // אנשים קודם, ספקות ברמת המילה בסוף
       const ordered=[...PR.people.map(x=>x.value), ...PR.numbers.map(x=>x.value), ...PR.sug.map(x=>x.value), ...PR.near.map(x=>x.value), ...PR.soft.map(x=>x.value)];
       text=listNames(ordered)+". מה שלא הוחלט יגיע ל-AI כמו שהוא.";
-    } else if(PR.soft.length||ver.embedded.length){ kind="warn";
-      const bits=[];
+    } else if(PR.soft.length||ver.embedded.length||this.nearPartial()){ kind="warn";
+      const bits=[], np=this.nearPartial();
+      if(np) bits.push(`הבדיקה של כתיב דומה עברה רק על ${np.read} מתוך ${np.of} השמות ברשימה`);
       if(PR.soft.length) bits.push((PR.soft.length===1?"מקום או גוף אחד ממתין":PR.soft.length+" מקומות או גופים ממתינים")+" בפאנל «לבדיקה» — ההחלטה שלך");
       if(ver.embedded.length) bits.push(ver.embedded.length+" תמונות או קבצים מוטמעים שלא נסרקו");
       title="השמות והמספרים הוחלפו; נשאר מה שאינו חוסם";
-      text=bits.join(" · ")+". טקסט בתוך תמונה או קובץ מוטמע אינו נסרק.";
+      text=bits.join(" · ")+(ver.embedded.length?". טקסט בתוך תמונה או קובץ מוטמע אינו נסרק.":".");
     } else {
       // בלי מונחי מנוע (UX #15)
       title="לא נשארו בטקסט שמות או מספרים מהרשימה";

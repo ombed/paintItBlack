@@ -78,6 +78,20 @@ const boom = () => { throw new Error("broken on purpose"); };
     ok(res.verification.complete === false, "and it is not reported complete");
   }
 
+  console.log("\n— more listed names than the spelling check reads —");
+  {
+    // review L12: findNear read the first 120 targets and dropped the rest without a word
+    const L = "אבגדהוזחטיכלמנסעפצקרשת";
+    const names = Array.from({ length: 130 }, (_, i) => "אב" + L[i % 22] + L[Math.floor(i / 22)] + "ון");
+    const res = await E.redactDocx(zipOf(BODY), names.map((v) => ({ value: v, kind: "NAME" })), [], { ...OPT, near: true, body: false });
+    const inc = res.verification.incomplete || [];
+    ok(inc.includes("near"), "the result says the spelling check did not read every name: " + JSON.stringify(inc));
+    ok(res.verification.nearOf && res.verification.nearOf.of === 130 && res.verification.nearOf.read === 120,
+      "and how many it read: " + JSON.stringify(res.verification.nearOf));
+    const few = await E.redactDocx(zipOf(BODY), names.slice(0, 20).map((v) => ({ value: v, kind: "NAME" })), [], { ...OPT, near: true, body: false });
+    ok(!(few.verification.incomplete || []).includes("near"), "twenty names are all read");
+  }
+
   console.log("\n— one chunk of the model fails —");
   {
     // a pipeline that answers every chunk but the second
