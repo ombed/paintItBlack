@@ -27,7 +27,7 @@
  "r5_t.js": 27,
  "shapes_t.js": 1154,
  "prcheck_t.js": 14,
- "structure_t.js": 111,
+ "structure_t.js": 113,
  "harvest_t.js": 21,
  "logreport_t.js": 12,
  "state_t.js": 93,
@@ -35,5 +35,6 @@
  "passes_t.js": 17,
  "benchlib_t.js": 4,
  "license_t.js": 2,
- "failopen_t.js": 15
+ "failopen_t.js": 15,
+ "gate_t.js": 6
 }

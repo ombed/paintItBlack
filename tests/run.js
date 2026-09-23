@@ -15,7 +15,10 @@
      race_t.js  -> e2e/race.spec.js   both scenarios, on the real guard
      theme_t.js -> e2e/theme.spec.js  tokens, dark toggle, persistence
      ui.js      -> e2e/ui.spec.js     controls per screen, no page errors
-     flow.js    -> e2e/flow.spec.js   header fill, list editing, fallback, env hints, regex
+     flow.js    -> e2e/flow.spec.js   header fill, list editing, fallback, env hints, regex,
+                                      the flag after a failed model load and the local-file
+                                      load (review L4). Its "model off by default" is obsolete:
+                                      the model is on by default (PLAN-v18 Q13).
 
    The originals stay here untouched as the record of what they asserted.
 
@@ -26,7 +29,7 @@ const { spawnSync } = require("child_process");
 const HERE = __dirname;
 const SUITES = [
   "t.js", "e2e.js", "edge.js", "ner_t.js", "tok_t.js",
-  "align_t.js", "diag_t.js", "org_t.js", "case.js", "version_t.js", "design_t.js", "engine_t.js", "pagelogic_t.js", "regex_t.js", "places_t.js", "numbers_t.js", "private_t.js", "allow_t.js", "omit_t.js", "orgs_t.js", "atlas_t.js", "merge_t.js", "phrase_t.js", "r3_t.js", "site_t.js", "r5_t.js", "shapes_t.js", "prcheck_t.js", "structure_t.js", "harvest_t.js", "logreport_t.js", "state_t.js", "runner_t.js", "passes_t.js", "benchlib_t.js", "license_t.js", "failopen_t.js",
+  "align_t.js", "diag_t.js", "org_t.js", "case.js", "version_t.js", "design_t.js", "engine_t.js", "pagelogic_t.js", "regex_t.js", "places_t.js", "numbers_t.js", "private_t.js", "allow_t.js", "omit_t.js", "orgs_t.js", "atlas_t.js", "merge_t.js", "phrase_t.js", "r3_t.js", "site_t.js", "r5_t.js", "shapes_t.js", "prcheck_t.js", "structure_t.js", "harvest_t.js", "logreport_t.js", "state_t.js", "runner_t.js", "passes_t.js", "benchlib_t.js", "license_t.js", "failopen_t.js", "gate_t.js",
 ];
 const BLOCKED = [
   ["flow.js", 26], ["theme_t.js", 13], ["race_t.js", 6], ["ui.js", 0],
