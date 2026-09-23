@@ -79,6 +79,36 @@ ok("model span bounds classified", s4.layers.model && s4.layers.model.bounds ===
   ok("the model's bounds are codes with no stray space", model.layers.model.bounds === "cut-right" && JSON.parse(PL.leakReport([model])).refused === undefined);
 }
 
+/* Review M21 and M22. The suite above hands leakShape tests/core.js, which exports names the
+   shipped engine does not: in the browser VRB, COMMON and KNOWN_FIRST were undefined, so
+   every speech verb classified as "other". And page-logic.js re-implemented the word
+   boundary and the prefix letters, so its counts differed from the engine's, and
+   bench/from-leak.js rebuilt a different, easier document than the one that leaked.
+   Here the engine is only what redact-engine.js exports, and the engine's own matcher is
+   the oracle for the counts. */
+{
+  const fsx = require("fs"), pathx = require("path");
+  const src = fsx.readFileSync(pathx.join(__dirname, "..", "redact-engine.js"), "utf8");
+  const exported = new Set([...src.match(/^export\s*\{([\s\S]*?)\}/m)[1].split(",").map((s) => s.trim()).filter(Boolean),
+    ...[...src.matchAll(/^export\s+(?:async\s+)?(?:function|const|let|class)\s+([A-Za-z_$][\w$]*)/gm)].map((m) => m[1])]);
+  const reads = (file, rx) => new Set([...fsx.readFileSync(pathx.join(__dirname, "..", file), "utf8").matchAll(rx)].map((m) => m[1]));
+  const missing = [...reads("page-logic.js", /\bE\.([A-Za-z_]+)/g)].filter((k) => !exported.has(k));
+  ok("every engine name page-logic.js reads is one the engine exports: missing " + missing.join(","), missing.length === 0);
+  // the same class in the page itself: E, and E2 where a handler takes a second copy of it
+  const missingUI = [...reads("index.html", /\bE2?\.([A-Za-z_]+)/g)].filter((k) => !exported.has(k));
+  ok("every engine name index.html reads is one the engine exports: missing " + missingUI.join(","), missingUI.length === 0);
+  const REAL = Object.fromEntries(Object.entries(E).filter(([k]) => exported.has(k)));
+  const say = [{ text: "פרוטוקול", part: "body" }, { text: "העדה אמרה רונית כהן הגיעה.", part: "body" }];
+  ok("a speech verb before the name is a verb with the shipped engine", PL.leakShape(REAL, say, "רונית כהן", {}).before === "verb");
+  const lines = ["פרוטוקול", "העדה רונית אמרה שלום.", '"רונית" חזרה.', "ורונית הוסיפה.", "ולרונית אין מה להוסיף.", "שרונית? לא.", "Xרונית כתובת.", "רונית."];
+  const txt = lines.join("\n"), blk = lines.map((t) => ({ text: t, part: "body" }));
+  const hits = new E.Engine([{ value: "רונית", kind: "NAME" }], [], { on: new Set(), flag: new Set(), mode: "real", prefixes: "normal" }, txt).detect(txt).filter((h) => h.base === "רונית");
+  const bare = hits.filter((h) => E.norm(h.text).trim() === "רונית").length, pre = hits.length - bare;
+  const sh = PL.leakShape(REAL, blk, "רונית", {});
+  ok(`occurrences are the engine's: ${sh.occurrences} vs ${bare}`, sh.occurrences === bare);
+  ok(`prefixed forms are the engine's, two-letter prefixes included: ${sh.otherForms} vs ${pre}`, sh.otherForms === pre);
+}
+
 // the session log keeps timings and counts, and refuses text
 const L = PL.sessionLog("v18");
 L.add("screen", { to: "people", from: "entry" });
@@ -89,6 +119,21 @@ ok("log exports", typeof exp === "string" && JSON.parse(exp).events.length === 3
 ok("a text field is dropped, not exported", !exp.includes("רונית") && JSON.parse(exp).events[1].words === 2);
 ok("a dropped field leaves its name, so the drop is visible", JSON.parse(exp).events[1].dropped === "name");
 ok("no Hebrew word in the log", !/[֐-׿]{3,}/.test(exp));
+
+// review L6: the guard was a filter on Hebrew, so an address, an ID written as a string, a Latin
+// name or a number that is really an identifier went through. A value is now a short code or a
+// plausible count, and anything else is dropped and named.
+{
+  const L2 = PL.sessionLog("v53");
+  L2.add("x", { email: "rachel@example.com", id: "314277062", phone: "052-6613874", latin: "Ronit Levy", big: 314277062, one: "ב" });
+  L2.add("x", { kind: "NAME", band: "<.95", src: "mh", part: "first", gender: "?", screen: "tour-work", incomplete: "body,labels", ms: 1234, n: 3, ok: true });
+  const ev = JSON.parse(L2.export()).events;
+  const dropped = (ev[0].dropped || "").split(",");
+  ok("an address, an ID string, a phone, a number that is an ID are dropped: " + ev[0].dropped, ["email", "id", "phone", "big"].every((k) => dropped.includes(k)));
+  ok("a name in Latin letters is dropped: " + ev[0].dropped, dropped.includes("latin"));
+  ok("and a Hebrew letter", dropped.includes("one"));
+  ok("the codes, bands and counts the app logs pass: " + JSON.stringify(ev[1]), ev[1].kind === "NAME" && ev[1].band === "<.95" && ev[1].incomplete === "body,labels" && ev[1].ms === 1234 && ev[1].ok === true && !ev[1].dropped);
+}
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

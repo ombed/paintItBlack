@@ -7,7 +7,7 @@
    chain on it and says whether the name is surfaced. A shape that
    reproduces here is a benchmark category waiting to be added to
    corpus-more.js; one that does not needs the model, so run with --model. */
-const fs = require("fs");
+const fs = require("fs"), os = require("os"), path = require("path");
 const E = require("./engine.js");
 const { makeBench, loadModel } = require("./lib.js");
 const { mkzip } = require("../tests/mkzip.js");
@@ -48,9 +48,13 @@ function docFor(shape, k) {
   const before = pick(shape.before), after = pick(shape.after);
   // a gap arrives as a class (page-logic.js, gapClass): punctuation as it was, anything else as a
   // label with a length, which is rebuilt here as made-up characters of the same kind
-  const gapText = (g) => { const m = /^(digits|latin|mixed)((d+))$/.exec(g || ""); if (g === "email") return "a.b@example.com";
+  const gapText = (g) => { const m = /^(digits|latin|mixed)\((\d+)\)$/.exec(g || ""); if (g === "email") return "a.b@example.com";
     return m ? (m[1] === "digits" ? "1234567890" : m[1] === "latin" ? "abcdefghij" : "a1b2c3d4e5").repeat(30).slice(0, +m[2]) : (g || ""); };
-  const gapB = shape.gapBefore ? gapText(shape.gapBefore) + " " : " ", gapA = shape.gapAfter ? gapText(shape.gapAfter) + " " : " ";
+  // the class keeps no whitespace: punctuation is rebuilt against the name, a number, Latin text or
+  // an address with a space on each side, as they stand in a sentence
+  const spaced = (g) => /^(email|digits|latin|mixed)/.test(g || "");
+  const gapB = shape.gapBefore ? gapText(shape.gapBefore) + " " : " ";
+  const gapA = shape.gapAfter ? (spaced(shape.gapAfter) ? " " : "") + gapText(shape.gapAfter) + " " : " ";
   const line = `${before}${before ? gapB : ""}${surface}${gapA}${after} בהמשך היום.`.replace(/\s+/g, " ").trim();
   console.log(`   (made-up name «${name}», shown only here; the report never carried one)`);
   const paras = shape.doc && shape.doc.genre === "transcript"
@@ -74,13 +78,20 @@ function docFor(shape, k) {
   const B = makeBench(E);
   for (const [k, shape] of (report.shapes || []).entries()) {
     const d = docFor(shape, k);
-    fs.writeFileSync(`bench/corpus/.${d.id}.docx`, Buffer.from(d.buf));
-    const doc = { id: d.id, genre: d.genre, file: `corpus/.${d.id}.docx`, entities: [{ cat: "LEAK", kind: shape.kind || "NAME", must: true, canonical: d.name, surfaces: [d.surface, d.name] }] };
-    const res = await B.runDoc(pipe, doc);
-    const sc = B.scoreDoc(doc, res);
-    const row = sc.rows[0];
-    console.log(`${d.id}: ${shape.words} word(s) ${shape.lens.join("+")}${shape.prefix ? " prefix " + shape.prefix : ""}, before=${shape.before} after=${shape.after} → ${row.found ? "found via " + row.via.join("+") : "NOT FOUND"}${row.leaked ? ", leaked" : ""}`);
-    console.log("   " + d.paras.join(" | "));
-    fs.unlinkSync(`bench/corpus/.${d.id}.docx`);
+    /* written outside the repository and removed whatever happens (review L10): it used to go
+       into the tracked bench/corpus/ and stay there if the run threw */
+    const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "pib-leak-")), d.id + ".docx");
+    try {
+      fs.writeFileSync(file, Buffer.from(d.buf));
+      const doc = { id: d.id, genre: d.genre, file, entities: [{ cat: "LEAK", kind: shape.kind || "NAME", must: true, canonical: d.name, surfaces: [d.surface, d.name] }] };
+      const res = await B.runDoc(pipe, doc);
+      const sc = B.scoreDoc(doc, res);
+      const row = sc.rows[0];
+      console.log(`${d.id}: ${shape.words} word(s) ${shape.lens.join("+")}${shape.prefix ? " prefix " + shape.prefix : ""}, before=${shape.before} after=${shape.after} → ${row.found ? "found via " + row.via.join("+") : "NOT FOUND"}${row.leaked ? ", leaked" : ""}`);
+      // the paragraphs are synthetic: a made-up name and context words chosen by class
+      console.log("   " + d.paras.join(" | "));
+    } finally {
+      fs.rmSync(path.dirname(file), { recursive: true, force: true });
+    }
   }
 })().catch((e) => { console.error(e); process.exit(1); });

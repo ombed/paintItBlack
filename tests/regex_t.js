@@ -30,7 +30,10 @@ const path = require("path");
 const ROOT = path.join(__dirname, "..");
 
 const FILES = ["redact-engine.js", "page-logic.js", "pdf-text.js", "text-to-docx.js", "sw.js", "index.html"]
-  .concat(fs.readdirSync(path.join(ROOT, "engine")).filter((f) => f.endsWith(".js")).map((f) => "engine/" + f));
+  .concat(fs.readdirSync(path.join(ROOT, "engine")).filter((f) => f.endsWith(".js")).map((f) => "engine/" + f))
+  // the tools that turn her reports into reproductions are not shipped, but a lost backslash there
+  // rebuilds the wrong document (bench/from-leak.js read "digits(9)" with (d+) until 2026-09-23)
+  .concat(["bench", "scripts"].flatMap((d) => fs.readdirSync(path.join(ROOT, d)).filter((f) => f.endsWith(".js")).map((f) => d + "/" + f)));
 
 // each: the broken form, and what it was meant to be
 const SUSPECT = [
@@ -41,6 +44,8 @@ const SUSPECT = [
   [/\.split\(\/n\//g, ".split(/\\n/)"],
   [/\/d\{/g, "/\\d{"],
   [/\(\/w\+\//g, "(/\\w+/"],
+  [/\(d\+\)/g, "(\\d+)"],
+  [/\(w\+\)/g, "(\\w+)"],
 ];
 
 const HEBREW = /[א-ת]/;

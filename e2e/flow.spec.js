@@ -88,6 +88,9 @@ test.describe("people screen", () => {
     await expect(page.getByText(/המודל לא נטען/)).toBeVisible();
     expect(await H.listedNames(page)).toContain("רונית לוי");
     await expect(page.getByText(/טוען את המודל|סורק את המסמך/)).toHaveCount(0); // progress box closed
+    // ported from tests/flow.js (review L4): the model did not run, so nothing downstream may say it
+    // did — the leak report's "modelUsed" and its model spans read this
+    expect(await page.evaluate(() => window.__pib.state().nerUsed)).toBe(false);
   });
 
   test("with the model switched off, no scan runs and no progress box appears", async ({ page }) => {
@@ -104,12 +107,24 @@ test.describe("people screen", () => {
 test.describe("what the user is told about the model", () => {
   test("from a local file the switch is locked, off, and explained", async ({ page }) => {
     await H.serveEngineWithStub(page);
+    const fetched = [];
+    page.on("request", (r) => { if (/huggingface|transformers/.test(r.url())) fetched.push(r.url()); });
     await page.addInitScript(() => { window.__ner = { env: { local: true, canCache: false, canRun: false } }; });
     await H.boot(page);
     const box = page.getByRole("checkbox").first();
     await expect(box).toBeDisabled();
     await expect(box).not.toBeChecked();
     await expect(page.getByText(/מקובץ מקומי המודל לא נטען/)).toBeVisible();
+    // ported from tests/flow.js (review L4): a load fails at once, instead of starting a 180 MB
+    // download that cannot finish
+    const r = await page.evaluate(async () => {
+      const E = await import("./redact-engine.js");
+      const t0 = performance.now();
+      try { await E.nerLoad(); return { threw: false }; } catch (e) { return { threw: true, ms: performance.now() - t0 }; }
+    });
+    expect(r.threw).toBe(true);
+    expect(r.ms).toBeLessThan(200);
+    expect(fetched).toEqual([]);
   });
 
   test("over http with the model cached, no download is promised", async ({ page }) => {

@@ -17,7 +17,14 @@ const ROOT = path.resolve(__dirname, "..");
 const SITE_FILES = [
   "index.html", "support.js", "page-logic.js", "redact-engine.js", "pdf-text.js",
   "text-to-docx.js", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png",
+  // the libraries that see her document, served by the site itself (review H14); each name
+  // carries its version, so the service worker can keep them cache-first
+  "vendor/transformers-4.2.0.min.js",
+  "vendor/ort-1.24.0-dev.20251116-b39e144322/ort-wasm-simd-threaded.asyncify.mjs",
+  "vendor/ort-1.24.0-dev.20251116-b39e144322/ort-wasm-simd-threaded.mjs",
+  "vendor/pdfjs-4.6.82/pdf.min.mjs", "vendor/pdfjs-4.6.82/pdf.worker.min.mjs",
 ];
+const TOP = new Set(SITE_FILES.map((f) => f.split("/")[0]));
 
 /* The output folder is deleted before it is rebuilt, so what may be named is narrow: an
    existing folder is only removed if this script made it, which means it holds .nojekyll
@@ -30,7 +37,7 @@ function safeToReplace(out) {
   if (!fs.statSync(out).isDirectory()) return false;
   const names = fs.readdirSync(out);
   if (!names.length) return true;
-  return names.includes(".nojekyll") && names.every((n) => n === ".nojekyll" || SITE_FILES.includes(n));
+  return names.includes(".nojekyll") && names.every((n) => n === ".nojekyll" || TOP.has(n));
 }
 
 function build(out) {
@@ -38,7 +45,10 @@ function build(out) {
   if (!safeToReplace(out)) throw new Error("refusing to delete " + out + ": it is not a folder this script built");
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });
-  for (const f of SITE_FILES) fs.copyFileSync(path.join(ROOT, f), path.join(out, f));
+  for (const f of SITE_FILES) {
+    fs.mkdirSync(path.dirname(path.join(out, f)), { recursive: true });
+    fs.copyFileSync(path.join(ROOT, f), path.join(out, f));
+  }
   // served as-is: no Jekyll pass over index.html's {{ }} template syntax
   fs.writeFileSync(path.join(out, ".nojekyll"), "");
   return out;

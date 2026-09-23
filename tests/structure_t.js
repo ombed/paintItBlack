@@ -61,6 +61,16 @@ const bodyOf = (x) => (x.match(/<w:body>[\s\S]*<\/w:body>/) || [""])[0];
     ok(/<w:body>/.test(docOut) && docOut.includes("פרוטוקול הדיון"), `${name}: the document body did not survive`);
   }
 
+  // the last pass says where it had to reach, so the report can show it
+  {
+    const c = S["a part no version of the tool has seen"];
+    const res = await E.redactDocx(mkzip([...base, { name: "word/document.xml", body: doc(c.body) }, ...c.parts]), SUBS, [], OPT);
+    ok((res.structural.residue || []).includes("word/vendorData.xml"), "the part the last pass cleaned is named: " + JSON.stringify(res.structural.residue));
+    ok(res.verification.passed, "and the final check passes");
+    const out = TXT.decode((await E.unzip(await res.blob.arrayBuffer())).find((f) => f.name === "word/vendorData.xml").data);
+    ok(out.includes("יעל כהן"), "the value became its pseudonym there too: " + out.replace(/[א-ת]/g, "x").slice(0, 80));
+  }
+
   /* Review C2. Every case above supplies the rule itself, so it proves the apply layer and
      says nothing about who would have proposed the name. These run with an empty list, the
      way a document arrives: the name must either be gone from the file, or be put in front
@@ -82,6 +92,23 @@ const bodyOf = (x) => (x.match(/<w:body>[\s\S]*<\/w:body>/) || [""])[0];
       const res = await E.redactDocx(zipOf(plain, parts), [], [], NOLIST);
       ok(res.verification.suggest.some((x) => x.value === NAME), `${what}: proposed to her: ${JSON.stringify(res.verification.suggest.map((x) => x.value))}`);
       ok(res.verification.complete === false, `${what}: not reported as complete`);
+    }
+    // the rest of H10: WordArt stands alone like a chart label, with no sentence around it
+    {
+      const art = P(`<w:r><w:pict><v:shape type="#_x0000_t136"><v:textpath string="${NAME}"/></v:shape></w:pict></w:r>`);
+      const blocks = await E.readBlocks(zipOf(plain + art));
+      ok(blocks.some((b) => b.text === NAME), "a WordArt shape: the proposal layers can read it");
+      const res = await E.redactDocx(zipOf(plain + art), [], [], NOLIST);
+      ok(res.verification.suggest.some((x) => x.value === NAME), "a WordArt shape: proposed to her: " + JSON.stringify(res.verification.suggest.map((x) => x.value)));
+      ok(res.verification.complete === false, "a WordArt shape: not reported as complete");
+    }
+    // found by the benchmark's structure documents (review M20): a person named only in a picture's
+    // alt text was proposed by nothing without the model, and by the model in two cases of three
+    {
+      const pic = P(`<w:r><w:drawing><wp:inline><wp:docPr id="7" name="תמונה 7" descr="${NAME} בפגישה במרכז הקשר"/></wp:inline></w:drawing></w:r>`);
+      const res = await E.redactDocx(zipOf(plain + pic), [], [], NOLIST);
+      ok(res.verification.suggest.some((x) => x.value === NAME), "alt text: the person is proposed to her: " + JSON.stringify(res.verification.suggest.map((x) => x.value)));
+      ok(!res.verification.suggest.some((x) => /תמונה|פגישה|מרכז/.test(x.value)), "and nothing else in it is");
     }
     // review H10: the page-one thumbnail is a picture of the text, and a link inside a field code is
     // a target like any other; both go whatever is on her list

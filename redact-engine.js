@@ -375,7 +375,9 @@ function mergeSignals(a,b){
 function findNear(blocks,targets,banned){
   // הסף הקודם דרש חמש אותיות לשם בן מילה אחת, וכך חסם בדיוק את המקרה
   // שממנו התחלנו: "שלוה" מול "שלווה". ארבע אותיות זה שם.
-  const tg=targets.filter(t=>t.norm.length>=4).slice(0,120);
+  /* 120 שמות לכל היותר, בשביל הזמן. מה שמעבר נאמר בתוצאה (read, of) ולא נחתך בשקט (ביקורת L12):
+     המנוע מדווח שהבדיקה הזאת לא הסתיימה, כמו שכבה שנשברה */
+  const all=targets.filter(t=>t.norm.length>=4), tg=all.slice(0,120);
   if(!tg.length)return [];
   const byK={}; for(const t of tg)(byK[t.words]=byK[t.words]||[]).push(t);
   const out=[],seen=new Set();
@@ -418,7 +420,9 @@ function findNear(blocks,targets,banned){
               (homo?` — אותיות מתחלפות בתמלול (${r.p[0]}↔${r.p[1]})`:
                     (r.k==="sub"?` — תו אחד שונה (${r.p[0]}↔${r.p[1]})`:" — תו אחד חסר או עודף"))});
           break}}}}
-  return out.sort((a,b)=>(a.conf==="high"?0:1)-(b.conf==="high"?0:1))}
+  const res=out.sort((a,b)=>(a.conf==="high"?0:1)-(b.conf==="high"?0:1));
+  res.read=tg.length; res.of=all.length;
+  return res}
 
 /* ══════════ שמות בגוף הטקסט ══════════
    העוגנים המבניים ("עו״ד", "בפני", "ת״ז") חיים בפתיח של כתב טענות.
@@ -2052,7 +2056,8 @@ function ownText(p,out){
     ownText(c,out)}}
 const DML="http://schemas.openxmlformats.org/drawingml/2006/main";
 // טקסט חלופי של תמונה אינו חלק מגוף הטקסט: לא נסרק לשמות חדשים ולא מוצג כפסקה
-const hiddenPart=p=>p.includes("טקסט חלופי")||p.includes("קוד שדה");
+const hiddenPart=p=>p.includes("טקסט חלופי")||p.includes("קוד שדה")||p.includes("הגדרות עיצוב");
+const VML="urn:schemas-microsoft-com:vml";
 function flatten(doc,part){
   const out=[];
   // SmartArt וגרפים כותבים פסקאות DrawingML (a:p), לא פסקאות Word
@@ -2092,7 +2097,17 @@ function flatten(doc,part){
       if(HEB_LETTER.test(t))out.push({text:t,spans:[{el,s:0,e:t.length,attr:null}],part:part+" (קוד שדה)"})}
     else if(ln==="fldSimple"&&el.namespaceURI===W){
       const v=el.getAttribute("w:instr");
-      if(v&&HEB_LETTER.test(v))out.push({text:v,spans:[{el,s:0,e:v.length,attr:"w:instr"}],part:part+" (קוד שדה)"})}}
+      if(v&&HEB_LETTER.test(v))out.push({text:v,spans:[{el,s:0,e:v.length,attr:"w:instr"}],part:part+" (קוד שדה)"})}
+    /* WordArt ישן (VML), בעיקר בקובץ .doc שהומר: הטקסט הוא מאפיין, לא ריצה, והוא נראה בעמוד
+       כמו כל טקסט אחר — ולכן הוא בלוק רגיל שנסרק (שאר H10) */
+    else if(ln==="textpath"&&el.namespaceURI===VML){
+      const v=el.getAttribute("string");
+      if(v&&v.trim())out.push({text:v,spans:[{el,s:0,e:v.length,attr:"string"}],part,label:true})}
+    /* טקסט של מספור ("סעיף %1") ושם של סגנון: רק כשיש בהם עברית. אינם טקסט שהיא קוראת
+       כמשפט, ולכן לא נסרקים לשמות חדשים, אבל שם מהרשימה מוחלף בהם (שאר H10) */
+    else if((ln==="lvlText"||(ln==="name"||ln==="aliases")&&el.parentNode&&el.parentNode.localName==="style")&&el.namespaceURI===W){
+      const v=el.getAttribute("w:val");
+      if(v&&HEB_LETTER.test(v))out.push({text:v,spans:[{el,s:0,e:v.length,attr:"w:val"}],part:part+" (הגדרות עיצוב)"})}}
   return out}
 /* יעד של קישור בתוך קוד שדה: כתובת מייל, או נתיב לקובץ במחשב שלה, יוצאים עם הקובץ בדיוק כמו
    יעד ב-.rels, ושם הם כבר מנוטרלים (LEAK). כאן לא נגעו בהם (ביקורת H10). */
@@ -2173,7 +2188,7 @@ function acceptTracked(doc){
 /* חלקים שאינם גוף המסמך ובכל זאת נושאים טקסט שיוצא עם הקובץ (שכבה 1ב): משתני מסמך
    בהגדרות, צורות SmartArt, ותוויות וכותרות של גרפים. הספרייה המוטמעת של גרף
    (word/embeddings) אינה נקראת כאן; היא מדווחת כערוץ שלא נותח. */
-const EXTRAPART=/^word\/(settings\.xml|diagrams\/(data|drawing)\d*\.xml|charts\/chart(?:Ex)?\d*\.xml)$/;
+const EXTRAPART=/^word\/(settings\.xml|numbering\.xml|styles(?:WithEffects)?\.xml|diagrams\/(data|drawing)\d*\.xml|charts\/chart(?:Ex)?\d*\.xml)$/;
 /* שם סימנייה נשמר בקובץ ונראה בחלון "סימניות" של Word — וסימנייה נקראת לעתים על שם
    אדם ("רחל_פרידמן"). סימנייה עם אות עברית מקבלת שם ניטרלי, וכל הפניה אליה (קישור
    פנימי, שדה REF או PAGEREF) עוברת איתה, כך שההפניות ממשיכות לעבוד. */
@@ -2208,6 +2223,31 @@ function stripRsid(doc){let n=0;
     if(/^rsids?$/.test(el.localName)){el.remove();n++}
   return n}
 const LEAK=/Target="(mailto:[^"]+|file:[^"]+|[A-Za-z]:\\[^"]+|\\\\[^"]+)"/g;
+
+/* המעבר האחרון. חלק XML שהצינור אינו קורא — טבלת גופנים, ערכת נושא, חלק של תוכנה אחרת,
+   חלק שעוד לא ראינו — ובו ערך מהרשימה, נכשל באימות, והיא לא יכלה לעשות דבר: הערך אינו
+   במסמך שהיא רואה (שאר H10, כמשפחה ולא ערוץ אחרי ערוץ). כאן כל ערך מהרשימה שנשאר בחלק כזה
+   מוחלף בכינוי שלו, ובלי כינוי ב"[הוסר]". מה שנשאר גם אחרי זה — שם שמפוצל בין תגיות, או
+   בתוך קובץ מוטמע — האימות עדיין תופס, וזה נכון: שם הוא לא יכול לנקות. */
+const XESC=v=>String(v).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;").split("'").join("&apos;");
+function residuePass(files,walked,subs,applied){
+  const repOf=new Map();
+  const put=(v,r)=>{for(const k of [String(v||"").trim(),norm(String(v||"")).trim()]) if(k.length>=2&&!repOf.has(k))repOf.set(k,r)};
+  for(const r of applied)put(r.base||r.value,r.baseRep||r.rep||"");
+  for(const s of subs)put(s.value,s.replacement||"[הוסר]");
+  const vals=[...repOf.keys()].sort((a,b)=>b.length-a.length);
+  const done=[];
+  for(const f of files){
+    if(walked.has(f.name)||!f.name.endsWith(".xml")||f.name==="[Content_Types].xml"||f.name==="docProps/core.xml"||f.name==="docProps/app.xml")continue;
+    const o=TXT.decode(f.data); let s=o;
+    for(const v of vals){
+      const r=XESC(repOf.get(v));
+      for(const form of new Set([v,XESC(v)]))
+        s=s.replace(new RegExp("(?<![א-ת])"+esc(form)+"(?![א-ת])","gu"),()=>r);
+    }
+    if(s!==o){f.data=ENC.encode(s);done.push(f.name)}
+  }
+  return done}
 
 async function redactDocx(buf,subs,allow,opt){
   const files=await unzip(buf);
@@ -2261,7 +2301,7 @@ async function redactDocx(buf,subs,allow,opt){
   const eng=new Engine(subs,allow,opt,blocks.map(b=>b.text).join("\n"));
   // ה-XML משתנה במקום, ולכן flatten אחרי ההחלפה מחזיר את הטקסט המושחר.
   // בלי צילום מראש, סורק הגוף מציע לה בחזרה את השמות הבדויים שהמצאנו.
-  const ORIG=blocks.map(b=>({part:b.part,text:b.text}));
+  const ORIG=blocks.map(b=>({part:b.part,text:b.text,label:!!b.label}));
   for(const blk of blocks){
     const hits=eng.detect(blk.text);if(!hits.length)continue;
     const reps=[];
@@ -2404,6 +2444,7 @@ async function redactDocx(buf,subs,allow,opt){
       ctx:ctxHTML(hit.text,mm.index,mm.index+pa.p.length),review:true,src:"partAmbig"});
   }
   for(const dd of docs) dd.f.data=ENC.encode(serXML(dd.doc,dd.orig));
+  rep.residue=residuePass(keep,new Set(docs.map(d=>d.f.name)),subs,applied);
 
   // תצוגה
   const origAll=blocks.map(b=>b.text).join("\n");
@@ -2441,7 +2482,7 @@ async function redactDocx(buf,subs,allow,opt){
 
   // סריקת שיבושים על הפלט, לא על המקור: כל מה שדומה לשם שהוחלף ובכל זאת
   // שרד את ההחלפה — הוא בדיוק מה שהיה יוצא החוצה בלי שאף אחד ישים לב.
-  let near=[];
+  let near=[], nearOf=null;
   if(opt.near!==false){
     const tset=new Map();
     for(const r of applied){
@@ -2468,8 +2509,9 @@ async function redactDocx(buf,subs,allow,opt){
     for(const t of tset.values())banned.add(t.norm);
     for(const a of (allow||[]))banned.add(norm(a).trim());
     let blocksN=[];for(const dd of docs)blocksN=blocksN.concat(flatten(dd.doc,dd.f.name));
-    near=findNear(blocksN.filter(b=>!hiddenPart(b.part)),
-      [...tset.values()],banned);
+    const targets=[...tset.values()];
+    near=findNear(blocksN.filter(b=>!hiddenPart(b.part)),targets,banned);
+    nearOf=near.of>near.read?{read:near.read,of:near.of}:null;
     for(const nm of near)flagged.push(nm);
   }
 
@@ -2501,15 +2543,20 @@ async function redactDocx(buf,subs,allow,opt){
   ver.near=near;
   // הרשת האחרונה: שם שהיא לא רשמה, שיושב בגוף הטקסט ולא נגענו בו.
   // לא מחליפים אותו מאחורי גבה — שואלים.
+  /* שכבה שנשברה אינה שכבה שלא מצאה כלום (ביקורת M25). סריקה שזרקה השאירה רשימה ריקה,
+     והפס נעשה ירוק. עכשיו התוצאה אומרת איזו שכבה לא הסתיימה, והמסך מציג את זה. */
+  const incomplete=[];
+  if(nearOf){incomplete.push("near");ver.nearOf=nearOf}
   let suggest=[];
   try{
     if(opt.body===false)throw {skip:1};
     const known=[...subs.map(s=>s.value),...(allow||[]),
       ...applied.map(r=>r.base||r.value),...applied.map(r=>r.baseRep||r.rep)];
     suggest=bodyNames(ORIG.filter(b=>!hiddenPart(b.part)),known)
-      .filter(x=>!near.some(nm=>norm(nm.value).trim()===norm(x.value).trim()))
-      .slice(0,12);
-  }catch(e){if(!e||!e.skip)console.warn("סריקת גוף הטקסט נכשלה",e)}
+      .filter(x=>!near.some(nm=>norm(nm.value).trim()===norm(x.value).trim()));
+    // בלי תקרה: ההצעות נחתכו בשתים-עשרה, והשם השלושה-עשר שלא ברשימה לא הוצע לה ונשאר בקובץ.
+    // על המסמכים האמיתיים שלה, בלי רשימה בכלל, הגבוה ביותר היה תשע (L12, הבדיקה של המשפחה)
+  }catch(e){if(!e||!e.skip){console.warn("סריקת גוף הטקסט נכשלה",e);incomplete.push("body")}}
   ver.suggest=suggest;
   /* תווית בגרף או בתרשים עומדת לבדה, בלי משפט סביבה, ולכן סריקת הגוף — ששוקלת הקשר — אינה
      יכולה להציע אותה, וגם המודל כבוי לפעמים. תווית קצרה שכל מילה בה נראית כמו שם מוצעת
@@ -2520,24 +2567,41 @@ async function redactDocx(buf,subs,allow,opt){
     const docTok=new Set(norm(ORIG.map(b=>b.text).join(" ")).split(/\s+/));
     const looksName=w=>KNOWN_FIRST.has(w)||POOL.he_s.includes(w)||POOL.ar_s.includes(w)||nameish(w,docTok);
     for(const b of ORIG){
-      if(!/\/(?:charts|diagrams)\//.test(b.part))continue;
+      if(!b.label&&!/\/(?:charts|diagrams)\//.test(b.part))continue;
       const t=trimEdges(norm(b.text)).trim(), w=t.split(/\s+/).filter(Boolean);
       if(!t||w.length>3||knownN.has(t)||!w.every(looksName))continue;
       // מילה בודדת מוצעת רק כשהיא שם פרטי או שם משפחה מוכר: "הכנסות" ו"ינואר" הן תוויות רגילות
       if(w.length===1&&!(KNOWN_FIRST.has(t)||POOL.he_s.includes(t)||POOL.ar_s.includes(t)))continue;
       knownN.add(t);
-      suggest.push({value:t,score:0,count:1,why:"תווית בגרף או בתרשים שנראית כמו שם",ctx:ctxHTML(b.text,0,b.text.length),part:partName(b.part)});
+      suggest.push({value:t,score:0,count:1,why:b.label?"כיתוב מעוצב (WordArt) שנראה כמו שם":"תווית בגרף או בתרשים שנראית כמו שם",ctx:ctxHTML(b.text,0,b.text.length),part:partName(b.part)});
     }
-  }catch(e){console.warn("סריקת התוויות נכשלה",e)}
+    /* טקסט חלופי של תמונה ("רחל פרידמן בפגישה במרכז הקשר") הוא משפט בלי הקשר של דיבור, וסריקת
+       הגוף אינה קוראת אותו. בלי המודל שם שישב רק שם לא הוצע לאף שכבה, ועם המודל רק בחלק מהמקרים
+       (נמצא במסמכי המבנה של הבנצ'מרק, ביקורת M20). שם פרטי מוכר ואחריו מילה שנראית כמו שם מוצעים. */
+    for(const b of ORIG){
+      if(!b.part.includes("טקסט חלופי"))continue;
+      const raw=String(b.text).split(/\s+/).map(x=>trimEdges(x)).filter(Boolean);
+      for(let i=0;i+1<raw.length;i++){
+        const a=norm(raw[i]).trim(), c=norm(raw[i+1]).trim();
+        if(!(KNOWN_FIRST.has(a)||POOL.he_f.includes(a)||POOL.he_m.includes(a)||POOL.ar_f.includes(a)||POOL.ar_m.includes(a)))continue;
+        if(!(POOL.he_s.includes(c)||POOL.ar_s.includes(c)||nameish(c,docTok)))continue;
+        const t=raw[i]+" "+raw[i+1], tn=norm(t).trim();
+        if(knownN.has(tn))continue;
+        knownN.add(tn);
+        suggest.push({value:t,score:0,count:1,why:"שם בטקסט החלופי של תמונה",ctx:ctxHTML(b.text,0,b.text.length),part:partName(b.part)});
+      }
+    }
+  }catch(e){console.warn("סריקת התוויות נכשלה",e);incomplete.push("labels")}
+  ver.incomplete=incomplete;
   // ירוק רק כשאין דליפות, אין ממצאים פתוחים, ואין ערוץ שלא נותח
   ver.complete=ver.passed&&!remaining.length&&!ver.embedded.length&&
-    !near.length&&!suggest.length;
+    !near.length&&!suggest.length&&!incomplete.length;
   return {blob,applied,flagged,preview,structural:rep,verification:ver,map:eng.map};
 }
 const PARTN={"document.xml":"גוף המסמך","footnotes.xml":"הערות שוליים","endnotes.xml":"הערות סיום"};
 function partName(p){
   const base=p.split(" (")[0].split("/").pop();
-  const ex=p.includes("טקסט חלופי")?" · טקסט חלופי":p.includes("קוד שדה")?" · קוד שדה":"";
+  const ex=p.includes("טקסט חלופי")?" · טקסט חלופי":p.includes("קוד שדה")?" · קוד שדה":p.includes("הגדרות עיצוב")?" · הגדרות עיצוב":"";
   if(PARTN[base])return PARTN[base]+ex;
   if(base.startsWith("header"))return "כותרת עליונה"+ex;
   if(base.startsWith("footer"))return "כותרת תחתונה"+ex;
@@ -2545,6 +2609,8 @@ function partName(p){
   if(p.includes("/diagrams/"))return "תרשים SmartArt"+ex;
   if(p.includes("/charts/"))return "גרף"+ex;
   if(base==="settings.xml")return "הגדרות המסמך"+ex;
+  if(base==="numbering.xml")return "מספור"+ex;
+  if(base.startsWith("styles"))return "סגנונות"+ex;
   return base+ex}
 function ctxHTML(t,s,e,w=55){
   const a=Math.max(0,s-w),b=Math.min(t.length,e+w);
@@ -2697,9 +2763,83 @@ async function nerPersist(){
 /* ── טעינת המודל בדפדפן ──
    המודל רץ אצלה במחשב. שום דבר לא נשלח לשום מקום — לא המסמך, לא הטקסט.
    מה שכן עובר ברשת הוא הורדת המודל עצמו, פעם אחת. */
-const NER_LIB="https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0";
+/* שרשרת האספקה (ביקורת H14, M4). שתי הספריות שרואות את המסמך נטענו מ-CDN ב-import() חשוף,
+   ש-Subresource Integrity אינו יכול לכסות, ועובד השירות שמר אותן קודם. עכשיו:
+   - transformers.js, והטוען של ספריית ההרצה (mjs), יושבים באתר עצמו, תחת vendor/, בשם שנושא
+     את הגרסה. tests/vendor_t.js מוודא שהם הקבצים של החבילה בגרסה הזאת בדיוק.
+   - קובץ ה-WebAssembly של ספריית ההרצה (27MB) נשאר ב-CDN, בכתובת נעולת-גרסה, ונבדק: מורידים
+     אותו כאן, משווים SHA-256 לערך הנעול, ומוסרים לספרייה את הבייטים שנבדקו. קובץ שהשתנה —
+     הטעינה נכשלת, בקול.
+   - המודל נעול לגרסה (commit) ולא ל-main, וקובץ המשקולות נבדק מול ה-SHA-256 שלו פעם אחת.
+   מדיניות אבטחת התוכן (CSP) ב-index.html מגבילה לאן העמוד יכול לפנות. */
+const NER_LIB="./vendor/transformers-4.2.0.min.js";
+const ORT_V="1.24.0-dev.20251116-b39e144322";
+const ORT_CDN="https://cdn.jsdelivr.net/npm/onnxruntime-web@"+ORT_V+"/dist/";
+const ORT_WASM={"ort-wasm-simd-threaded.asyncify":"ijj2sXOzrwSfS0ib7b4dolPO7XoXIPls3vYD8oNrZlw=",
+  "ort-wasm-simd-threaded":"v3jjoRtGXpqh51bCDtQG3dbP8trXwt8NCNhytDbVTio="};
 const NER_MODEL="onnx-community/dictabert-ner-ONNX";
+// המאגר לא השתנה מאז 2025-01-06 (lastModified ב-API של Hugging Face), ולכן עותק של main
+// ששמור אצלה הוא הגרסה הזאת בדיוק; nerMigrateCache מעביר אותו במקום להוריד 185MB מחדש
+const NER_REV="4f0aabf58566526df6f3fb548e0fd2619fbf2b1d";
+const NER_WEIGHTS={file:"onnx/model_quantized.onnx",sha256:"fd7ac841768f11197e1d46ea6bbfe82d9cd9e21289be8761af63dbc996a32007"};
+const NER_OK_KEY="redact-model-verified";
 let NERP=null,NERSTATE="off";
+async function sha256(buf,enc){
+  const d=new Uint8Array(await crypto.subtle.digest("SHA-256",buf));
+  if(enc==="hex")return [...d].map(b=>b.toString(16).padStart(2,"0")).join("");
+  return globalThis.btoa(String.fromCharCode(...d));
+}
+// ספריית ההרצה: הטוען מהאתר, ה-WebAssembly מה-CDN אחרי בדיקה. בלי wasmPaths.wasm,
+// transformers.js אינו מוריד את הקובץ בעצמו ומשתמש ב-wasmBinary שמסרנו.
+async function nerRuntime(t){
+  const safari=/^((?!chrome|android).)*safari/i.test((typeof navigator!=="undefined"&&navigator.userAgent)||"");
+  const v=safari?"ort-wasm-simd-threaded":"ort-wasm-simd-threaded.asyncify";
+  const f=RAW_FETCH||window.fetch.bind(window);
+  const res=await f(ORT_CDN+v+".wasm");
+  if(!res.ok)throw new Error("לא הצלחתי להוריד את ספריית ההרצה ("+res.status+")");
+  const buf=await res.arrayBuffer();
+  if(await sha256(buf)!==ORT_WASM[v])throw new Error("ספריית ההרצה שהורדה אינה הקובץ הנעול. המודל לא נטען.");
+  const o=t.env.backends.onnx;
+  o.wasm.wasmPaths={mjs:new URL("./vendor/ort-"+ORT_V+"/"+v+".mjs",location.href).href};
+  o.wasm.wasmBinary=buf;
+}
+const HUB=(rev,file)=>"https://huggingface.co/"+NER_MODEL+"/resolve/"+rev+"/"+file;
+// עותק ששמור תחת main עובר לכתובת של הגרסה הנעולה, ועותקים של כל גרסה אחרת נמחקים (ביקורת M2:
+// דבר לא פינה את המטמון הזה, ו-185MB נשארו אחרי כל שינוי)
+async function nerMigrateCache(){
+  if(!nerEnv().canCache)return 0;
+  const c=await caches.open(NER_CACHE); let moved=0;
+  const mine="https://huggingface.co/"+NER_MODEL+"/resolve/";
+  for(const req of await c.keys()){
+    if(!req.url.startsWith(mine))continue;
+    const rest=req.url.slice(mine.length), slash=rest.indexOf("/"), rev=rest.slice(0,slash), file=rest.slice(slash+1);
+    if(rev===NER_REV)continue;
+    if(rev==="main"&&!(await c.match(HUB(NER_REV,file)))){ const r=await c.match(req); if(r){await c.put(HUB(NER_REV,file),r);moved++} }
+    await c.delete(req);
+  }
+  return moved;
+}
+// המשקולות נבדקות פעם אחת מול ה-SHA-256 הנעול (185MB, שנייה או שתיים), והבדיקה נזכרת לפי
+// גודל העותק השמור. עותק שאינו תואם נמחק, והטעינה נכשלת בקול.
+async function nerVerifyWeights(){
+  if(!nerEnv().canCache)return "no-cache";
+  const c=await caches.open(NER_CACHE), url=HUB(NER_REV,NER_WEIGHTS.file);
+  const r=await c.match(url); if(!r)return "not-cached";
+  const tag=NER_REV+":"+(r.headers.get("content-length")||"");
+  try{ if(localStorage.getItem(NER_OK_KEY)===tag)return "known"; }catch(_){}
+  const h=await sha256(await r.arrayBuffer(),"hex");
+  if(h!==NER_WEIGHTS.sha256){ await c.delete(url); try{localStorage.removeItem(NER_OK_KEY)}catch(_){}
+    throw new Error("קובץ המודל שהורד אינו הקובץ הנעול. הוא נמחק מהמחשב; המודל לא נטען."); }
+  try{ localStorage.setItem(NER_OK_KEY,tag); }catch(_){}
+  return "verified";
+}
+// "מחיקת המודל מהמחשב" בהגדרות: הדרך היחידה לפנות אותו הייתה כלי המפתחים (ביקורת M2)
+async function nerForget(){
+  NERP=null; NERSTATE="off";
+  try{ localStorage.removeItem(NER_OK_KEY); }catch(_){}
+  if(typeof caches!=="undefined") return caches.delete(NER_CACHE);
+  return false;
+}
 /* tokenizer.json של DictaBERT מכיל \" — escape חוקי במנוע ה-regex של
    Rust, ולא חוקי ב-JavaScript תחת דגל u. בלי זה הטוקנייזר לא נבנה בכלל.
 
@@ -2747,7 +2887,7 @@ function fixTokJSON(txt){
 // עותק שכבר יושב במטמון לא עובר דרך fetch, ולכן מתקנים אותו במקום
 let jsonRes=body=>new Response(body,{status:200,statusText:"OK",
   headers:{"Content-Type":"application/json"}});
-const TOK_URL=()=>`https://huggingface.co/${NER_MODEL}/resolve/main/tokenizer.json`;
+const TOK_URL=()=>HUB(NER_REV,"tokenizer.json");
 let RAW_FETCH=null;
 async function nerFixCached(){
   let n=0;
@@ -2866,14 +3006,17 @@ let nerLoad=async function(){
     // בלי זה הדפדפן רשאי למחוק את המודל כשהמקום נגמר, והוא יירד שוב
     await nerPersist();
     nerHookFetch();
+    try{ const moved=await nerMigrateCache(); if(moved)console.log("מודל: "+moved+" קבצים הועברו לגרסה הנעולה"); }
+    catch(e){ console.warn('העברת המטמון נכשלה',e); }
     try{ await nerPrepTokenizer(); }
     catch(e){ console.warn('הכנת הטוקנייזר נכשלה',e); }
     const t=await import(/* webpackIgnore: true */ NER_LIB);
     t.env.allowLocalModels=false;
     t.env.useBrowserCache=true;
+    await nerRuntime(t);
     const seen={};
     const pipe=await t.pipeline("token-classification",NER_MODEL,{
-      dtype:"q8",
+      dtype:"q8", revision:NER_REV,
       progress_callback:p=>{
         if(p.status==="progress"&&p.file){
           // לפי בייטים, לא ממוצע של קבצים: הקבצים הקטנים נגמרים מיד וממוצע
@@ -2887,6 +3030,8 @@ let nerLoad=async function(){
           nerSay(tot?`מוריד את מודל הזיהוי: ${mb(v.reduce((a,b)=>a+b.loaded,0))} מתוך ${mb(tot)} MB · אחרי שיסתיים הוא נשמר במחשב`:`מוריד את מודל הזיהוי… ${Math.round(pct)}%`,pct);
         } else if(p.status==="ready")nerSay("המודל מוכן.",null);
       }});
+    const w=await nerVerifyWeights();
+    if(w==="verified")console.log("מודל: קובץ המשקולות נבדק מול הגרסה הנעולה");
     NERSTATE="ready";
     return pipe;
   })().catch(e=>{NERP=null;NERSTATE="error";throw e});
@@ -2998,12 +3143,12 @@ async function nerRun(blocks,onProgress){
   const pipe=await nerLoad();
   const text=blocks.map(b=>b.text).join("\n");
   const parts=nerChunks(text);
-  const ents=[]; let raw=0,withOff=0;
+  const ents=[]; let raw=0,withOff=0,failed=0;
   for(let i=0;i<parts.length;i++){
     const {t,off}=parts[i];
     let res;
     try{res=await pipe(t,{ignore_labels:[]})}
-    catch(e){console.warn("קטע נכשל",e);continue}
+    catch(e){console.warn("קטע נכשל",e);failed++;continue}
     if(!Array.isArray(res))res=res?[res]:[];
     if(!raw&&res.length)console.log("מבנה חיזוי גולמי:",JSON.stringify(res[0]));
     raw+=res.length;
@@ -3015,8 +3160,13 @@ async function nerRun(blocks,onProgress){
       await new Promise(r=>setTimeout(r,0));
     }
   }
+  /* קטע שנכשל דולג בשקט, וחלק מהמסמך לא נקרא בידי המודל בלי שדבר במסך אמר זאת (ביקורת M25,
+     אותה משפחה). מודל שלא קרא אף קטע נכשל, כדי שהמסך יציג כישלון ולא רשימה ריקה; מודל שקרא
+     חלק מוסר כמה קטעים לא נקראו, והמסך אומר זאת. */
+  if(parts.length&&failed===parts.length)throw new Error("המודל לא הצליח לקרוא אף קטע מהמסמך");
   NER_LAST=ents.map(e=>({type:e.type,score:e.score,s:e.s,e:e.e}));
   const out=nerClean(ents,text);
+  out.chunks=parts.length; out.failedChunks=failed;
   await foldEvidence(pipe,out,text);
   const chars=parts.reduce((a,p)=>a+p.t.length,0);
   console.log(`זיהוי: ${parts.length} קטעים (${chars}/${text.length} תווים) · `+
@@ -3056,13 +3206,18 @@ function pseudoRX(p){
      של באג כמו השם במירכאות ב-v41 (שכבה 1ב). אות שימוש יכולה לבוא עם מקף, והמקף
      נשאר איתה. */
   const L="\u0591-\u05bd\u05bf-\u05c7\u05d0-\u05ea", PRE="(?:[בהולמכש]|ו[בהלמכ]|כש|מה|לכ)";
+  /* בצד שבו הכינוי מסתיים בספרה או באות לטינית, גם ספרה ואות לטינית הן חלק מהמילה: תאריך
+     מוזז "19.7.2020" שחזר שכתב גם את פנים "119.7.20201", ומספר זהות את פנים מספר ארוך ממנו
+     (ביקורת, חשד שאומת). בצד של אות עברית ספרה נשארת גבול: "ברנע2" הוא שם עם הערת שוליים. */
+  const an=c=>(c>="0"&&c<="9")||(c>="A"&&c<="Z")||(c>="a"&&c<="z");
+  const LB=L+(an(p[0])?"0-9A-Za-z":""), LA=L+(an(p[p.length-1])?"0-9A-Za-z":"");
   // כינוי שמתחיל ב-ה ("הגפן") נכתב במסמך בלי ה אחרי ב/ל/כ ("בגפן", "לגפן"):
   // כך addPre כותב אותו, וכך ה-AI מעתיק אותו. הקבוצה השנייה תופסת את הצורה הזאת.
   if(p[0]==="ה"&&p.length>2)
-    return new RegExp("(?<!["+L+"])(?:("+PRE+"[-\u05be]?)?ה|((?:[בלכ]|ו[בלכ]|כש)[-\u05be]?))"+
-      pat.slice(esc("ה").length)+"(?!["+L+"])","gu");
-  return new RegExp("(?<!["+L+"])("+PRE+"[-\u05be]?)?"+pat+
-    "(?!["+L+"])","gu");
+    return new RegExp("(?<!["+LB+"])(?:("+PRE+"[-\u05be]?)?ה|((?:[בלכ]|ו[בלכ]|כש)[-\u05be]?))"+
+      pat.slice(esc("ה").length)+"(?!["+LA+"])","gu");
+  return new RegExp("(?<!["+LB+"])("+PRE+"[-\u05be]?)?"+pat+
+    "(?!["+LA+"])","gu");
 }
 // זוגות [שם אמיתי, כינוי]. מחזיר טקסט, כמה הוחזרו, ומה לא נמצא —
 // כינוי שלא נמצא הוא לא בהכרח תקלה, אבל כדאי לדעת עליו.
@@ -3097,12 +3252,25 @@ function restoreNames(txt,pairs){
   }
   return {text:out,count:n,missing,conflict:[...conflict]};
 }
+/* זוגות ההחזרה במסך ההחזרה: המסמך שבעבודה קודם, והתיק משלים שמות ממסמכים קודמים.
+   תווית ("פלוני א׳", "[ת"ז א׳]") נספרת מחדש בכל מסמך, ולכן אותה תווית יכולה להיות של
+   אדם אחד בתיק ושל אחר במסמך הזה. אם שתיהן נכנסו, הכינוי נחשב "של שני אנשים" ואף אחד
+   לא הוחזר (ביקורת, חשד שאומת). כינוי שהמסמך הזה כבר נתן אינו נלקח מהתיק. */
+function restorePairs(caseMap,docMap){
+  const out={...(docMap||{})};
+  const taken=new Set(Object.values(out).map(v=>norm(String(v)).trim()));
+  for(const [real,fake] of Object.entries(caseMap||{})){
+    if(real in out||!fake||taken.has(norm(String(fake)).trim()))continue;
+    out[real]=fake;
+  }
+  return out;
+}
 
 
-export {nerLast, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
+export {nerLast, hiddenPart, nerForget, VRB, COMMON, KNOWN_FIRST, NW, NWE, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
   variants, validID, ibanOK, luhn, hord, POOL, WORDLIKE, FEM, MASC, fakeName, near1, HOMO, WEAK,
   findNear, mergeSignals, fakeDate, foldEvidence, tokPieces, namePosition, nerReset, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,
   discover, PLACES, PLACE_BY, geoMap, geoNames, placesFound, examplesOf, findPlaces, fakePlace,
   atlasTags, atlasDiff, atlasPenalty, placeKind, nerEnv, nerCached, nerPersist, nerLoad, nerRun,
-  TITLE_RX, ORG_RX, likelyOrg, cleanEntry, trimEdges, pseudoRX, restoreNames, STOP, gender, origin, readBlocks, isTextPart};
+  TITLE_RX, ORG_RX, likelyOrg, cleanEntry, trimEdges, pseudoRX, restoreNames, restorePairs, STOP, gender, origin, readBlocks, isTextPart};

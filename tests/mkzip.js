@@ -6,7 +6,7 @@ function mkzip(files){
   const crc32=u8=>{let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CRC[(c^u8[i])&255]^(c>>>8);
     return (c^0xFFFFFFFF)>>>0};
   for(const f of files){
-    const nm=enc.encode(f.name),data=enc.encode(f.body),c=crc32(data);
+    const nm=enc.encode(f.name),data=typeof f.body==="string"?enc.encode(f.body):new Uint8Array(f.body),c=crc32(data);
     const body=new Uint8Array(zlib.deflateRawSync(Buffer.from(data)));
     const h=new Uint8Array(30+nm.length),d=new DataView(h.buffer);
     d.setUint32(0,0x04034b50,true);d.setUint16(4,20,true);d.setUint16(6,0x800,true);

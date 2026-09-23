@@ -99,7 +99,7 @@ module.exports = function more(Doc, C) {
     const [ph] = d.ent("I_PHONE", "PII", true, "050-2278461", ["050-2278461"]);
     const [o1, o1b] = d.ent("O_PRIVATE", "ORG", true, "מרפאת נוף הים", ["מרפאת נוף הים", "נוף הים"]);
     d.ent("O_PUBLIC", "ORG", false, PUBLIC[3], [PUBLIC[3]]);
-    d.ent("T_NUMBERS", "TRAP", false, "2.3.2026", ["סעיף 4"]);
+    d.ent("T_NUMBERS", "TRAP", false, "סעיף 4", ["סעיף 4"]);
     d.ent("I_DATE", "PII", true, "2.3.2026", ["2.3.2026"], "full date, omitted by default");
     d.p(`${o1} — סיכום ביקור מיום 2.3.2026`)
      .p(`המטופלת: ${mn}, ${dob}, ${id}. ליווי: האם, טלפון ${ph}.`)
@@ -115,7 +115,7 @@ module.exports = function more(Doc, C) {
     const [id] = d.ent("I_ID", "PII", true, tz(28711309), ['ת"ז ' + tz(28711309)]);
     const [em] = d.ent("I_EMAIL", "PII", true, "yasmin.alm@walla.co.il", ["yasmin.alm@walla.co.il"]);
     const [l1] = d.ent("L_TOWN", "PLACE", true, "צור יצחק", ["צור יצחק"]);
-    d.ent("T_NUMBERS", "TRAP", false, "18.8.2025", ["סעיף 2(ג)"]);
+    d.ent("T_NUMBERS", "TRAP", false, "סעיף 2(ג)", ["סעיף 2(ג)"]);
     d.ent("I_DATE", "PII", true, "18.8.2025", ["18.8.2025"], "full date, omitted by default");
     d.p("סיכום אשפוז — מחלקת ילדים")
      .p(`${f1}, ${id}, התקבלה ביום 18.8.2025. הורים: ${f2} ו${hy1}. דוא"ל לקשר: ${em}.`)
@@ -232,7 +232,7 @@ module.exports = function more(Doc, C) {
     const [dob] = d.ent("I_DOB", "PII", true, "5.5.1979", ["יליד 5.5.1979"]);
     const [id] = d.ent("I_ID", "PII", true, tz(24478315), ['ת.ז. ' + tz(24478315)]);
     const [o1, o1b] = d.ent("O_PRIVATE", "ORG", true, "חברת קו הזהב הובלות", ["חברת קו הזהב הובלות", "קו הזהב"]);
-    d.ent("T_NUMBERS", "TRAP", false, "12.6.2026", ["סעיף 5"]);
+    d.ent("T_NUMBERS", "TRAP", false, "סעיף 5", ["סעיף 5"]);
     d.ent("I_DATE", "PII", true, "12.6.2026", ["12.6.2026"], "full date, omitted by default");
     d.p("לכבוד")
      .p(`${a1}, ${dob}, ${id}`)
@@ -248,7 +248,7 @@ module.exports = function more(Doc, C) {
     const [em] = d.ent("I_EMAIL", "PII", true, "oleg.ivanov77@mail.ru", ["oleg.ivanov77@mail.ru"]);
     const [ph] = d.ent("I_PHONE", "PII", true, "055-8823910", ["055-8823910"]);
     const [l1] = d.ent("L_TOWN", "PLACE", true, "בית אריה", ["בית אריה"]);
-    d.ent("T_NUMBERS", "TRAP", false, "30.6.2026", ["42,000"]);
+    d.ent("T_NUMBERS", "TRAP", false, "42,000", ["42,000"]);
     d.ent("I_DATE", "PII", true, "30.6.2026", ["30.6.2026"], "full date, omitted by default");
     d.p("אישור יתרה ליום 30.6.2026")
      .p(`${ru1}, ${l1}. טלפון ${ph}, דוא"ל ${em}.`)
@@ -265,7 +265,7 @@ module.exports = function more(Doc, C) {
     const [ph] = d.ent("I_PHONE", "PII", true, "052-7715803", ["052-7715803"]);
     const [l1] = d.ent("L_TOWN", "PLACE", true, "נופית", ["נופית"]);
     const [pr] = d.ent("P_PROSE", "NAME", true, "צליל", ["צליל"], "never before a speech verb");
-    d.ent("T_NUMBERS", "TRAP", false, "12.3.2026", ["21:14"]);
+    d.ent("T_NUMBERS", "TRAP", false, "21:14", ["21:14"]);
     d.ent("I_DATE", "PII", true, "12.3.2026", ["12.3.2026"], "full date, omitted by default");
     d.p(`${stamp("12.3.2026", "21:14")} ${s2}: את לוקחת את ${mn} מחר?`)
      .p(`${stamp("12.3.2026", "21:15")} אמא: כן, ואת ${pr} גם. תשלח לי את המספר של המורה, ${ph}?`)
@@ -294,7 +294,7 @@ module.exports = function more(Doc, C) {
     const [ph] = d.ent("I_PHONE", "PII", true, "050-6650912", ["050-6650912"]);
     const [pl] = d.ent("I_PLATE", "PII", true, "45-903-16", ["45-903-16"]);
     const [st, stb] = d.ent("L_STREET", "PLACE", true, "רחוב הנרקיס 9", ["רחוב הנרקיס 9", "הנרקיס"]);
-    d.ent("T_NUMBERS", "TRAP", false, "15.4.2026", ["17:40"]);
+    d.ent("T_NUMBERS", "TRAP", false, "17:40", ["17:40"]);
     d.ent("I_DATE", "PII", true, "15.4.2026", ["15.4.2026"], "full date, omitted by default");
     d.p(`${stamp("15.4.2026", "17:40")} ${et1}: ראיתי את הרכב שלך ${pl} ב${st}. ${mnb} הייתה שם?`)
      .p(`${stamp("15.4.2026", "17:42")} אבא: כן, לקחתי אותה מהחוג. תתקשרי ל${ph} אם יש בעיה.`)

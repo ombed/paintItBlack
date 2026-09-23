@@ -14,6 +14,7 @@ const DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.doc
      error        -> nerRun rejects with this message
      env          -> object nerEnv returns                (default: the real one)
      cached       -> what nerCached resolves to           (default: the real one)
+     failedChunks, chunks -> a model that could not read some chunks
 
    env and cached are read at mount, so set them with addInitScript. The
    rest are read per call, so page.evaluate after boot is fine. Every other
@@ -37,7 +38,9 @@ async function serveEngineWithStub(page) {
       "  if (onProgress) onProgress(5);",
       "  await new Promise((r) => setTimeout(r, cfg.delay ? cfg.delay(text) : 0));",
       "  if (cfg.error) throw new Error(cfg.error);",
-      "  return (cfg.names ? cfg.names(text) : []).map((v) => ({ value: v, kind: 'NAME', n: cfg.n ? cfg.n(v) : 1, score: 0.95 }));",
+      "  const out = (cfg.names ? cfg.names(text) : []).map((v) => ({ value: v, kind: 'NAME', n: cfg.n ? cfg.n(v) : 1, score: 0.95 }));",
+      "  if (cfg.failedChunks) { out.failedChunks = cfg.failedChunks; out.chunks = cfg.chunks; }",
+      "  return out;",
       "};",
       "",
     ].join("\n");
@@ -91,12 +94,10 @@ const listedNames = (page) => peopleRows(page).locator("> span").allTextContents
    third party hiccups, which a CI run did, so the browser gets the same version from
    node_modules instead. tests/site_t.js keeps the pinned version and the one in
    pdf-text.js the same. */
+/* pdf.js is served by the site itself, from vendor/ (review H14). A request for it from the CDN
+   is aborted, so a regression back to a bare CDN import fails every PDF test. */
 async function servePdfJsLocally(page) {
-  const fs = require("fs"), path = require("path");
-  const dir = path.join(__dirname, "..", "node_modules", "pdfjs-dist", "build");
-  for (const f of ["pdf.min.mjs", "pdf.worker.min.mjs"]) {
-    await page.route("**/pdfjs-dist@*/build/" + f, (route) => route.fulfill({ status: 200, contentType: "text/javascript; charset=utf-8", body: fs.readFileSync(path.join(dir, f)) }));
-  }
+  await page.route("**/pdfjs-dist@*/**", (route) => route.abort());
 }
 
 module.exports = { servePdfJsLocally, DOCX, serveEngineWithStub, boot, upload, startScan, scanning, goButton, goOn, skipButton, peopleRows, listedNames };

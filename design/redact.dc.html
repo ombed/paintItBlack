@@ -299,6 +299,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
             <small style="color:var(--ink2);font-size:12.5px;line-height:1.45">ממלא את רשימת השמות מראש. רץ על המחשב הזה; המסמך לא נשלח לשום מקום.</small>
             <sc-if value="{{ nerHint }}"><small style="display:block;margin-top:6px;padding:8px 10px;border-radius:8px;background:var(--panel2);color:var(--ink2);font-size:12px;line-height:1.5">{{ nerHint }}</small></sc-if></span>
           </label>
+          <sc-if value="{{ nerHave }}"><div style="padding:0 16px 12px 46px;margin-top:-6px;border-bottom:1px solid var(--line2)"><button data-model-forget onClick="{{ onModelForget }}" style="font-size:12px;color:var(--ink2);text-decoration:underline;padding:2px 0">מחיקת המודל והקבצים השמורים מהמחשב</button></div></sc-if>
           <label style="display:flex;gap:13px;align-items:flex-start;padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--line2)">
             <input type="checkbox" checked="{{ oAuto }}" onChange="{{ tAuto }}" style="width:17px;height:17px;margin:2px 0 0;accent-color:var(--accent);flex:none">
             <span><b style="display:block;font-weight:500">איתור שמות אוטומטי</b>
@@ -1070,7 +1071,8 @@ class Component extends DCLogic {
     try{
       const E = await import("./redact-engine.js");
       // בדיקות הדפדפן קוראות לבדיקה העצמית אחרי כל בדיקה (docs/QUALITY-PLAN.md, שכבה 2)
-      if(window.__PIB_TEST) window.__pib={check:v=>this.selfCheck(v), state:()=>this.state};
+      if(window.__PIB_TEST) window.__pib={check:v=>this.selfCheck(v), state:()=>this.state,
+        runCheck:()=>{ this._scOff=false; this._scWait=0; this.runSelfCheck(); }, seen:()=>this._scSeen||(this._scSeen=new Set()), log:()=>JSON.parse(this.log.export())};
       /* הורדת המודל (UX #6): זמן משוער לפי הקצב, והודעה כשהמונה לא זז 20 שניות —
          "סטלה" נראתה כמו תקיעה, והדרך החוצה לא הוצעה. */
       E.setNerSay((t,p)=>{
@@ -1088,7 +1090,7 @@ class Component extends DCLogic {
           }, 2000);
         } else this.setState({nerMsg:t||"", nerPct:p, nerStall:false});
       });
-      this.setState({E, ready:true});
+      this.setState({E, ready:true}, ()=>{ const q=this._early||[]; this._early=null; for(const fn of q) fn(); });
       this.nerStatus(E);
     }catch(e){
       // L16 בביקורת השנייה: הודעה טכנית באנגלית, בלי דרך לנסות שוב, ובחירת קובץ שלא עשתה דבר
@@ -1285,6 +1287,15 @@ class Component extends DCLogic {
   }
   toggleTheme = () => { const t = this.state.theme==="dark"?"light":"dark"; this.applyTheme(t, true); this.setState({theme:t}); };
 
+  /* מחיקת המודל מהמחשב (ביקורת M2): 185MB שנשארו לתמיד, ומטמון פגום שרק כלי המפתחים ניקו.
+     המודל יירד שוב בשימוש הבא; הכלי עצמו נטען מחדש מהרשת. */
+  modelForget = async () => {
+    const E=this.state.E; if(!E) return;
+    this.log.add("model-forget",{});
+    try{ await E.nerForget(); }catch(_){}
+    try{ const c=navigator.serviceWorker&&navigator.serviceWorker.controller; if(c) c.postMessage("refresh"); }catch(_){}
+    this.setState({nerHave:false, nerHint:"המודל נמחק מהמחשב. בהפעלה הבאה יורדים כ-180MB.", notice:"המודל והקבצים השמורים נמחקו מהמחשב.", noticeUndo:false});
+  };
   async nerStatus(E){
     const env = E.nerEnv();
     if(env.local){
@@ -1307,7 +1318,10 @@ class Component extends DCLogic {
   onFile = e => { const f=e.target.files[0]; if(f) this.load(f); e.target.value=""; };
 
   async load(f){
-    const E=this.state.E; if(!E) return;
+    /* קובץ שנבחר לפני שהמנוע סיים להיטען נשמר ונקרא כשהוא מגיע. עד כאן load חזר בשקט, ובקו
+       איטי קובץ שנבחר מיד אחרי פתיחת הדף פשוט לא עשה דבר (נמצא ב-CI של אצוות הביקורת) */
+    const E=this.state.E;
+    if(!E) return this.afterEngine(()=>this.load(f));
     /* שגיאות קובץ ליד כרטיס הקובץ, עם מה לעשות (UX #4), ובזמן הבחירה ולא אחרי
        "המשך" (ביקורת QA 010): קובץ שאינו docx תקין, או docx בלי טקסט, לא מקבל ✓. */
     const bad=(m,code)=>{ this.log.add("file-reject",{why:code||"other"}); this.setState({fileErr:m, err:"", pending:false, name:"", buf:null}); };
@@ -1328,7 +1342,7 @@ class Component extends DCLogic {
     this.setState({err:"", screen:"busy", busyT:"קורא את ה-PDF…"});
     try{
       const {pdfToText} = await import("./pdf-text.js");
-      const {text, pages, scanned} = await pdfToText(raw);
+      const {text, pages, scanned, imagePages} = await pdfToText(raw);
       if(scanned || !text){
         this.setState({screen:"entry", err:"ב-PDF הזה כמעט אין טקסט — כנראה מסמך סרוק או צילום. הכלי עובד על טקסט בלבד, ולכן אין בו מה להחליף. אפשר להריץ המרה ל-Word עם זיהוי תווים, ואז להעלות את הקובץ."});
         return;
@@ -1339,6 +1353,10 @@ class Component extends DCLogic {
       this.setState({screen:"entry", buf, name:f.name, pending:true, nerAsk:false, fileErr:"", err:"",
         origBlocks:blocks.map(b=>({part:b.part, text:b.text})),
         pendMeta:`${pages===1?"עמוד אחד":pages+" עמודים"} · ${blocks.length} פסקאות · טקסט חולץ מ-PDF`});
+      // עמוד שהוא תמונה בתוך PDF של טקסט (עמוד חתום שנסרק): מה שכתוב בו לא נקרא ולא יוחלף
+      const img=imagePages||[];
+      if(img.length){ this.log.add("pdf-image-pages",{n:img.length, of:pages});
+        this.setState({notice:(img.length===1?`עמוד ${img[0]} ב-PDF הוא תמונה`:`עמודים ${img.join(", ")} ב-PDF הם תמונה`)+" — מה שכתוב שם לא נקרא ולא יוחלף. כדאי לבדוק אותם בעין.", noticeUndo:false}); }
     }catch(e){
       this.setState({screen:"entry", err:"קריאת ה-PDF נכשלה ("+String(e.message||e).slice(0,60)+"). אפשר להמיר ל-Word ולהעלות שוב."});
     }
@@ -1361,9 +1379,7 @@ class Component extends DCLogic {
     }
     const v=RES.verification;
     const st=RES.structural;
-    const clean=[["טקסט שנמחק במעקב שינויים",st.del],["שינויים שהתקבלו",st.ins],["סימוני הערות",st.cm],
-      ["חלקים שהוסרו",st.dropped.length],["שדות מטא-דאטה",st.meta.length],["קישורים שנוטרלו",st.rels.length],
-      ["מזהי עריכה",st.rsid],["נתונים נסתרים שהוסרו",st.hidden],["החלפות אחידות",st.sweep]].filter(x=>x[1]);
+    const clean=this.cleanStats(st);
     const modeName={real:"שם חלופי",label:"פלוני א׳",block:"███"}[S.mode];
     return `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
 <title>דוח השחרה — ${esc(S.name)}</title>
@@ -1400,7 +1416,15 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     setTimeout(()=>URL.revokeObjectURL(u), 4000);
   };
 
+  /* פעולה שהתחילה לפני שהמנוע סיים להיטען — קובץ שנבחר או נגרר, טקסט שהודבק, הסיור — נשמרת
+     ורצה כשהוא מגיע. עד כאן קובץ כזה לא עשה דבר, הדבקה נכשלה בהודעה טכנית והסיור זרק שגיאה
+     (נמצא ב-CI של אצוות הביקורת). אם המנוע לא נטען בכלל, ההודעה על כך כבר במסך. */
+  afterEngine(fn){
+    if(this.state.E) return fn();
+    if(!this.state.engineFailed) (this._early=this._early||[]).push(fn);
+  }
   usePastedText = async () => {
+    if(!this.state.E) return this.afterEngine(()=>this.usePastedText());
     const txt=(this.state.pasteText||"").trim();
     if(txt.length<20){ this.setState({err:"צריך קצת יותר טקסט כדי שהזיהוי יעבוד."}); return; }
     try{
@@ -1529,6 +1553,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       // מה שהמודל מצא נשמר בנפרד מהרשימה: זה מה שמאפשר לוודא, בכל ריצה, ששם
       // שנמצא פעמיים ומעלה לא יוצא בלי שהיא החליטה עליו (guardModel)
       this._modelFound=found;
+      // קטע שהמודל לא הצליח לקרוא (ביקורת M25): חלק מהמסמך לא נסרק בידי המודל, והיא צריכה לדעת
+      if(found.failedChunks){ this.log.add("model-partial",{failed:found.failedChunks, of:found.chunks||0});
+        this.setState({notice:`המודל לא הצליח לקרוא ${found.failedChunks} מתוך ${found.chunks} קטעים של המסמך. ייתכנו שמות שלא נמצאו שם — כדאי לעבור על הטקסט בעין.`, noticeUndo:false}); }
       // יומן: כמה זמן, כמה נמצא מכל סוג, ואיך הוודאות של כל המקטעים הגולמיים מתפלגת — כדי לדעת
       // אם סף אחר היה מוצא את מה שהיא הוסיפה בעצמה, או חוסך את מה שהיא הסירה
       try{
@@ -1706,8 +1733,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.setState({peo:[...this.state.peo, k], peoKept:this.state.peoKept.filter(x=>x.value!==value),
       allow:this.state.allow.filter(a=>a!==value)}); };
   // "אל תחליף" במסך הבדיקה, מכל מקור: אותה רצועה, אותו ↩
+  // שלושת אלה משנים את הרשימה, ולכן הם צעד בהיסטוריה כמו כל החלטה אחרת (ביקורת L7)
   allowRestore = value => {
-    this.log.add("restore-allow",{});
+    this.pushHistory(); this.log.add("restore-allow",{});
     // שם שנמחק במסך השמות מעולם לא הפך לכלל; "לחזור ולהחליף" חייב להחזיר גם אותו,
     // אחרת ההיתר נעלם והשם נשאר בטקסט בכל זאת
     const E=this.state.E, n=x=>E.norm(String(x||"")).trim();
@@ -1925,6 +1953,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       geo, geoExtra:extra});
   };
   geoRestore = name => {
+    this.pushHistory();
     const E=this.state.E;
     const names=[...this.state.geoNames, name];
     const old=this.state.geo, edits=this.state.geoEdits||{};
@@ -2024,7 +2053,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       // "לבדיקה" נפתח כשיש מה להחליט — כולל שמות שמחכים כ"לאישור" (UX #13) — או כשיש שם שהושאר
       const toReview=(res.verification.near||[]).length+(res.verification.suggest||[]).length+(this.state.allow||[]).length+
         res.flagged.filter(f=>f.src!=="near"&&f.src!=="nohit"&&f.src!=="collide").length;
-      this.log.add("run",{applied:res.applied.length, flagged:res.flagged.length, near:(res.verification.near||[]).length, suggest:(res.verification.suggest||[]).length, passed:!!res.verification.passed});
+      this.log.add("run",{applied:res.applied.length, flagged:res.flagged.length, near:(res.verification.near||[]).length, suggest:(res.verification.suggest||[]).length, passed:!!res.verification.passed, incomplete:(res.verification.incomplete||[]).join(",")});
       // יומן: מאיזו שכבה הגיע כל מה שהוחלף וכל מה שמחכה, כדי לראות מה עולה לה בזמן
       { const cnt=(arr,f)=>arr.filter(f).length, A=res.applied, F=res.flagged;
         this.log.add("run-src",{aList:cnt(A,r=>r.src==="list"), aSweep:cnt(A,r=>r.src==="sweep"), aPattern:cnt(A,r=>r.src==="pattern"),
@@ -2352,7 +2381,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
   kindOfLabel(l){ return /^(?:שם|אדם)/.test(l||"")?"NAME":/^גוף/.test(l||"")?"ORG":/^(?:יישוב|מקום)/.test(l||"")?"PLACE":"OTHER"; }
   redactedText(){
-    return this.state.res.preview.filter(b=>!b.part.includes("טקסט חלופי")&&!b.part.includes("קוד שדה"))
+    return this.state.res.preview.filter(b=>!this.state.E.hiddenPart(b.part))
       .map(b=>b.text).join("\n").replace(/\n{3,}/g,"\n\n").trim();
   }
   livePairs(){
@@ -2456,11 +2485,29 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      ו"בכל זאת". הצבע האדום היה ההגנה היחידה, וההורדה לא נשאה אפילו אותו. */
   /* אימות שנכשל עוצר גם הוא (ביקורת H2): הפס האדום אמר "אין לשלוח ואין להעתיק", וההורדה
      יצאה בלי שאלה, כי השומר ספר רק פריטים בלי החלטה ולא הסתכל על תוצאת האימות. */
+  /* מה נוקה מהקובץ: רשימה אחת לפאנל ולדוח שיורד. היו שתי העתקות שלה, וכל שורה חדשה
+     הייתה צריכה להיכנס לשתיהן */
+  cleanStats(st){
+    return [["טקסט שנמחק במעקב שינויים",st.del],["שינויים שהתקבלו",st.ins],["סימוני הערות",st.cm],
+      ["חלקים שהוסרו",(st.dropped||[]).length],["שדות מטא-דאטה",(st.meta||[]).length],["קישורים שנוטרלו",(st.rels||[]).length],
+      ["מזהי עריכה",st.rsid],["נתונים נסתרים שהוסרו",st.hidden],["החלפות אחידות",st.sweep],
+      ["חלקים שהכלי אינו קורא, שנוקו מערכים מהרשימה",(st.residue||[]).length]].filter(x=>x[1]);
+  }
   verifyFailed(){ const v=this.state.res&&this.state.res.verification; return !!(v&&v.passed===false&&(v.leaks||[]).length); }
+  /* שכבת חיפוש שלא הסתיימה (ביקורת M25) שואלת לפני ייצוא, כמו אימות שנכשל: היא לא יכולה
+     לתקן את זה בעצמה, ולכן השאלה מאפשרת להמשיך ביודעין ולא נועלת אותה בחוץ */
+  // שכבה שנשברה (גוף, תוויות) חוסמת; בדיקת כתיב שעברה רק על חלק מרשימה ארוכה היא אזהרה בלבד (L12)
+  scanIncomplete(){ const v=this.state.res&&this.state.res.verification; return !!(v&&(v.incomplete||[]).some(k=>k!=="near")); }
+  nearPartial(){ const v=this.state.res&&this.state.res.verification; return v&&(v.incomplete||[]).includes("near")&&v.nearOf?v.nearOf:null; }
+  scanIncompleteText(){
+    const v=this.state.res.verification;
+    const L={body:"החיפוש אחר שמות שלא ברשימה נכשל באמצע", labels:"החיפוש בתוויות של גרפים ותרשימים נכשל באמצע"};
+    return v.incomplete.filter(k=>k!=="near").map(k=>L[k]||k).join(" · ");
+  }
   exportGuard(what){
-    const p=this.pendingReview(), failed=this.verifyFailed();
-    if((!p.blocking&&!failed)||this.state.exportAsk===what) { if(this.state.exportAsk) this.setState({exportAsk:""}); return true; }
-    this.log.add("export-ask",{what, open:p.blocking, verifyFailed:failed});
+    const p=this.pendingReview(), failed=this.verifyFailed(), partial=this.scanIncomplete();
+    if((!p.blocking&&!failed&&!partial)||this.state.exportAsk===what) { if(this.state.exportAsk) this.setState({exportAsk:""}); return true; }
+    this.log.add("export-ask",{what, open:p.blocking, verifyFailed:failed, incomplete:partial});
     this.setState({exportAsk:what});
     return false;
   }
@@ -2651,6 +2698,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      text:"זהו. המסמך הבדוי נמחק עכשיו ושום דבר ממנו לא נשמר. עכשיו: לחצי «סיום» והעלי תיק אמיתי."},
   ];
   tourStart = async () => {
+    if(!this.state.E) return this.afterEngine(()=>this.tourStart());
     this.log.add("tour",{at:"start"});
     this._tourNer=this.state.o.ner;
     // hadPlaces: null עד שיודעים — כך המונה מראה שבעה צעדים מההתחלה ולא קופץ
@@ -2843,6 +2891,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   };
   applyProfile(prof){
     try{
+      // תיק שנטען על מסמך בעבודה מחליף את כל הרשימה: ↶ מחזיר אותה
+      if(this.state.res) this.pushHistory();
       const En=this.state.E, nn=v=>En.norm(String(v||"")).trim(), goneP=new Set((prof.removed||[]).map(nn));
       const rules=(prof.rules||[]).filter(r=>r&&!goneP.has(nn(r.value)));
       for(const [value, replacement] of Object.entries(prof.map||{})){
@@ -2941,7 +2991,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const S=this.state, screen=S.tour?"tour-"+S.screen:S.screen, seen=this._scSeen||(this._scSeen=new Set()), by={};
     for(const f of found) by[f.rule]=(by[f.rule]||0)+1;
     for(const [rule,n] of Object.entries(by)){
-      const k=rule+"|"+screen; if(seen.has(k)||seen.size>=40) continue;
+      const k=rule+"|"+screen; if(seen.has(k)) continue;
+      // ארבעים סוגים לכל היותר ביומן; כשהתקרה מתמלאת זה נרשם פעם אחת, כדי שסשן רווי לא ייראה נקי (L12)
+      if(seen.size>=40){ if(!this._scFull){ this._scFull=true; this.log.add("self-check-full",{screen}); } continue; }
       seen.add(k); this.log.add("self-check",{rule, screen, n, ms});
     }
   }
@@ -2976,6 +3028,11 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         if(!handled.some(h=>covers(h,v)||h===v)) add("listed-not-handled", r.value);
       }
       for(const f of S.res.flagged.filter(r=>r.src==="nohit")) if(present(f.value)&&!allowed.has(n(f.value))) add("nohit-but-present", f.value);
+      // הבטחה 4: שני אנשים אינם חולקים כינוי. אם כן, התשובה מה-AI אינה יכולה לחזור אליהם
+      // (restoreNames מוותר על כינוי משותף). אותה מפה שמסך ההחזרה משתמש בה; מיזוג "אותו אדם" כבר יצא ממנה.
+      const byPseudo=new Map();
+      for(const [v,p] of Object.entries(this.currentMap())){ const k=n(p); if(!k) continue;
+        if(byPseudo.has(k)&&n(byPseudo.get(k))!==n(v)) add("pseudonym-shared", byPseudo.get(k)+" / "+v); else byPseudo.set(k,v); }
     }
     // שכבות צמודות למה שהן מצביעות עליו
     const near=(a,b)=>Math.abs(a-b)<=1.5;
@@ -3186,7 +3243,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       fileName:S.pending?"":bdi(S.name),
       dropStyle:"display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;text-align:start;"+
         "background:var(--panel);border:1px solid "+(S.drag?"var(--accent)":"var(--line)")+";box-shadow:var(--shadow)",
-      oAuto:S.o.auto, oPlaces:S.o.places, oNer:S.o.ner, oNear:S.o.near, nerOff:S.nerOff, nerHint:S.nerHint,
+      oAuto:S.o.auto, oPlaces:S.o.places, oNer:S.o.ner, oNear:S.o.near, nerOff:S.nerOff, nerHint:S.nerHint, nerHave:!!S.nerHave&&!S.nerOff, onModelForget:this.modelForget,
       tAuto:()=>this.setState({o:{...S.o, auto:!S.o.auto}}),
       tPlaces:()=>this.setState({o:{...S.o, places:!S.o.places}}),
       tNer:()=>this.setState({o:{...S.o, ner:!S.o.ner}}),
@@ -3308,7 +3365,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
            רק את המפה של התיק השמור, ולא את זו של המסמך שבעבודה — הכינוי שהכלי
            עצמו כתב רגע קודם לא נמצא. המסמך הנוכחי קודם; הפרופיל משלים שמות
            ממסמכים קודמים באותו תיק. */
-        const map={...((S.profile&&S.profile.map)||{}), ...this.currentMap()};
+        const map=E.restorePairs((S.profile&&S.profile.map)||{}, this.currentMap());
         if(!S.rvIn.trim()){ this.setState({err:"אין טקסט להחזרה. מדביקים כאן את התשובה שה-AI החזיר (Ctrl+V)."}); return; }
         if(!Object.keys(map).length){ this.setState({err:"אין מיפוי זמין. יש לטעון פרופיל תיק, או להשחיר מסמך קודם בחלון הזה."}); return; }
         /* הכתיב שחוזר הוא הכתיב שבמסמך (UX #19): "ברקוביץ׳" ו"ברקוביץ'" התערבבו,
@@ -3711,12 +3768,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       this.setState({aiIn:r.text, aiWarn:bits.join(". ")+"."});
     };
 
-    const st=RES.structural, stats=[];
-    const add=(l,n)=>{ if(n) stats.push({label:l, value:n}); };
-    add("טקסט שנמחק במעקב שינויים", st.del); add("שינויים שהתקבלו", st.ins);
-    add("סימוני הערות", st.cm); add("חלקים שהוסרו", st.dropped.length);
-    add("שדות מטא-דאטה", st.meta.length); add("קישורים שנוטרלו", st.rels.length);
-    add("מזהי עריכה", st.rsid); add("נתונים נסתרים שהוסרו", st.hidden); add("החלפות אחידות", st.sweep);
+    const stats=this.cleanStats(RES.structural).map(([label,value])=>({label, value}));
     v.stats = stats.length?stats:[{label:"לא נמצא מה לנקות", value:"—"}];
 
     v.onReport = this.downloadReport;
@@ -3738,17 +3790,22 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     if(!ver.passed){ kind="bad";
       title="האימות נכשל — ערכים מזהים עדיין בקובץ";
       text=ver.leaks.slice(0,3).map(l=>l.value+" בתוך "+l.part).join(" · ")+(ver.leaks.length>3?" ועוד":"")+". אין לשלוח ואין להעתיק.";
+    } else if(this.scanIncomplete()){ kind="bad";
+      // שכבה שנשברה אינה שכבה שלא מצאה כלום (ביקורת M25): בלי זה הפס היה ירוק
+      title="הבדיקה האחרונה לא הושלמה";
+      text=this.scanIncompleteText()+". ייתכנו שמות שלא הוצעו — כדאי לקרוא את המסמך בעין לפני שליחה.";
     } else if(PR.blocking){ kind="bad";
       title=(PR.count===1?"פריט אחד ממתין":PR.count+" פריטים ממתינים")+" להחלטה בפאנל «לבדיקה»";
       // אנשים קודם, ספקות ברמת המילה בסוף
       const ordered=[...PR.people.map(x=>x.value), ...PR.numbers.map(x=>x.value), ...PR.sug.map(x=>x.value), ...PR.near.map(x=>x.value), ...PR.soft.map(x=>x.value)];
       text=listNames(ordered)+". מה שלא הוחלט יגיע ל-AI כמו שהוא.";
-    } else if(PR.soft.length||ver.embedded.length){ kind="warn";
-      const bits=[];
+    } else if(PR.soft.length||ver.embedded.length||this.nearPartial()){ kind="warn";
+      const bits=[], np=this.nearPartial();
+      if(np) bits.push(`הבדיקה של כתיב דומה עברה רק על ${np.read} מתוך ${np.of} השמות ברשימה`);
       if(PR.soft.length) bits.push((PR.soft.length===1?"מקום או גוף אחד ממתין":PR.soft.length+" מקומות או גופים ממתינים")+" בפאנל «לבדיקה» — ההחלטה שלך");
       if(ver.embedded.length) bits.push(ver.embedded.length+" תמונות או קבצים מוטמעים שלא נסרקו");
       title="השמות והמספרים הוחלפו; נשאר מה שאינו חוסם";
-      text=bits.join(" · ")+". טקסט בתוך תמונה או קובץ מוטמע אינו נסרק.";
+      text=bits.join(" · ")+(ver.embedded.length?". טקסט בתוך תמונה או קובץ מוטמע אינו נסרק.":".");
     } else {
       // בלי מונחי מנוע (UX #15)
       title="לא נשארו בטקסט שמות או מספרים מהרשימה";
@@ -3767,9 +3824,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.onCopyAi=this.copyAi; v.onDownload=this.download;
     // השאלה לפני ייצוא כשיש ממתינים (UX #18, #23)
     const vFail=this.verifyFailed(), vLeaks=vFail?S.res.verification.leaks:[];
-    v.exportAsk=!!S.exportAsk&&(PR.blocking>0||vFail);
+    const vPartial=this.scanIncomplete();
+    v.exportAsk=!!S.exportAsk&&(PR.blocking>0||vFail||vPartial);
     v.exportAskText=vFail
       ? "האימות נכשל: "+(vLeaks.length===1?"ערך מזהה אחד":vLeaks.length+" ערכים מזהים")+" עדיין בקובץ ("+[...new Set(vLeaks.map(l=>E.partName(l.part)))].slice(0,3).join(", ")+"). קובץ שיוצא עכשיו נושא אותם."
+      : vPartial&&!PR.blocking ? this.scanIncompleteText()+", ולכן ייתכנו שמות שלא הוצעו לך."
       : (PR.blocking===1?"פריט אחד עדיין בלי החלטה":PR.blocking+" פריטים עדיין בלי החלטה")+" — "+listNames([...PR.people.map(x=>x.value), ...PR.numbers.map(x=>x.value), ...PR.sug.map(x=>x.value), ...PR.near.map(x=>x.value)]);
     v.exportAnyLabel=S.exportAsk==="download"?"להוריד בכל זאת":"להעתיק בכל זאת";
     v.onExportShow=()=>{ this.log.add("export-ask",{act:"show"}); this.setState({exportAsk:"", open:this.openWith("review"), pane:"find"}); };

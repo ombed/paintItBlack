@@ -49,6 +49,11 @@ console.log("\n— a bug fix answers all three —");
   ok(empty.length === 3, "a bug fix with only the hints fails three times: " + JSON.stringify(empty));
   const noFile = full().replace('e2e/unruly.spec.js "a tooltip opened while the screen rises ends on its word"', "the quote test");
   ok(checkPr(noFile).some((p) => /names no test file/.test(p)), "the case must name a test file");
+  // review M6: a file that is not in the repository passed, with "." for the class and the probe
+  const madeUp = full().replace("e2e/unruly.spec.js", "tests/totally-made-up-does-not-exist.js");
+  ok(checkPr(madeUp).some((p) => /does not exist/.test(p) && p.includes("tests/totally-made-up-does-not-exist.js")), "a named test file must exist: " + JSON.stringify(checkPr(madeUp)));
+  const one = full().replace('e2e/unruly.spec.js "a tooltip', 'tests/nope_t.js and e2e/unruly.spec.js "a tooltip');
+  ok(checkPr(one).some((p) => p.includes("tests/nope_t.js")), "every named file must exist, not just one of them");
   const noProbe = full().replace("The 31 shapes on names, organisations and numbers; found footnote digits and glued numbers.", "");
   ok(checkPr(noProbe).some((p) => /The probe/.test(p)), "an empty probe fails");
   ok(checkPr(noProbe).length === 1, "and only the probe is reported");

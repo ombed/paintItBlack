@@ -35,6 +35,7 @@ const OPT = { on: new Set(["ISRAELI_ID", "PHONE_MOBILE", "EMAIL", "PLACES", "ADD
   flag: new Set(["NAME_ANCHORED"]), mode: "real", near: true, prefixes: "normal" };
 const LABEL_KIND = { "שם": "NAME", "גוף": "ORG", "מקום": "PLACE", "יישוב": "PLACE", "רחוב": "PLACE", "כתובת": "PLACE" };
 const TITLE = /^(עו"ד|ד"ר|גב'|משפחת|המבקשת|הנתבע|התובעת|מר) /;
+const REMOVED_BY_DESIGN = new Set(["S_COMMENT", "S_META"]);
 
 const strip = (s) => String(s || "").replace(/[֑-ׇ]/g, "");
 const rx = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -71,14 +72,24 @@ function makeBench(E, opt) {
     if (rawOut) rawOut.push(...ents.map((e) => ({ ...e, text: text.slice(e.s, e.e) })));
     return E.nerClean(ents, text);
   }
-  async function blocksOf(buf) {
-    const files = await E.unzip(buf.slice(0));
-    let blocks = [];
-    for (const f of files) if (E.TEXTPART.test(f.name)) {
-      const d = E.parseXML(E.TXT.decode(f.data)); E.acceptTracked(d);
-      blocks = blocks.concat(E.flatten(d, f.name));
+  /* The product's reader (review M20, and the C2 class): this used to be a copy that read the
+     body, headers, footers and notes only, so a name in a chart label, a SmartArt box or the
+     settings was proposed by the product and invisible to the benchmark. */
+  const blocksOf = (buf) => E.readBlocks(buf.slice(0));
+  /* The whole output file, as text (review M20). The leak check read r2.preview, the body as
+     flattened, so a name left in the metadata, a comment, an unwalked part or an attribute
+     counted as no leak. Every XML part is read with its tags removed and its Hebrew attribute
+     values kept, the way the final check reads it. */
+  async function fileText(blob) {
+    const files = await E.unzip(await blob.arrayBuffer());
+    const out = [];
+    for (const f of files) {
+      if (!/\.(xml|rels)$/.test(f.name)) continue;
+      const x = E.TXT.decode(f.data);
+      const attrs = [...x.matchAll(/="([^"]*)"/g)].map((m) => m[1]).filter((v) => /[א-ת]/.test(v));
+      out.push(x.replace(/<\/(?:w|a):p>/g, "\n").replace(/<[^>]+>/g, ""), attrs.join("\n"));
     }
-    return blocks;
+    return out.join("\n");
   }
   const kindOf = (v) => (E.cleanEntry(v).kind) || "NAME";
   function addRule(rules, value, kind, rep) {
@@ -119,7 +130,7 @@ function makeBench(E, opt) {
     for (const x of near) addRule(rules2, x.value, (x.near && x.near.kind) || "NAME", x.near && x.near.rep);
     for (const x of flagged) addRule(rules2, x.value, LABEL_KIND[x.label] || kindOf(x.value));
     const r2 = await E.redactDocx(buf, rules2, [], OD);
-    const out = norm(r2.preview.map((b) => b.text).join("\n"));
+    const out = norm(await fileText(r2.blob));
     const applied = new Set([...r1.applied, ...r2.applied].map((a) => norm(a.base || a.value)));
     return { surfaced, applied, near, out, rules: rules2.length, why, model, text: blocks.map((b) => b.text).join("\n") };
   }
@@ -147,6 +158,9 @@ function makeBench(E, opt) {
         const leakIn = (hay, s) => s.length >= 3 ? wordIn(hay, s) : s.length === 2 && new RegExp("(^|[^א-ת])" + rx(s) + "(?![א-ת])").test(hay);
         row.leakedSurfaces = bare.filter((s) => leakIn(outForLeak, s));
         row.leaked = row.leakedSurfaces.length > 0;
+        // comments and file properties are removed wholesale, so nothing proposes a name that
+        // lives only there: gone from the output file is handled, left in it is a leak
+        if (REMOVED_BY_DESIGN.has(e.cat) && !row.leaked && !row.found) { row.found = true; row.via.push("removed"); }
         if (e.cat === "P_ED1_PAIR") {
           // merged = the scanner flagged this person as a typo of the other
           const other = pairs.find((p) => !p.includes(surfaces[0])) || [];
@@ -189,7 +203,7 @@ function makeBench(E, opt) {
     for (const k of Object.keys(g)) {
       const o = g[k];
       const name = groupBy === "cat" ? (M.categories[k] || k) : k;
-      const mark = groupBy === "cat" && (M.expectedFail || []).includes(k) ? " (expected to fail)" : groupBy === "cat" && (M.exemptFromDisjoint || []).includes(k) && k !== "T_IDIOM" ? " (lexicon-aided)" : "";
+      const mark = groupBy === "cat" && (M.expectedFail || []).includes(k) ? " (expected to fail)" : groupBy === "cat" && (M.lexiconAided || KEY.lexiconAided || []).includes(k) ? " (lexicon-aided)" : "";
       lines.push(`| ${name}${mark} | ${o.scored ? o.found : "–"} | ${o.scored ? o.missed : "–"} | ${o.scored ? o.leaked : "–"} | ${o.fp} |`);
     }
     return lines.join("\n");

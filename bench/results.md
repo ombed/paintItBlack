@@ -1,6 +1,6 @@
 # Benchmark results
 
-40 documents, 314 keyed entities, model on (q8, same artifact as the browser). Generated 2026-09-20.
+43 documents, 332 keyed entities, model on (q8, same artifact as the browser). Generated 2026-09-23.
 
 ## Per category
 
@@ -12,7 +12,7 @@
 | person: same person, one clean and one corrupted spelling | 12 | 0 | 1 | 0 |
 | person: name split across two runs mid-word | 3 | 0 | 0 | 0 |
 | org: private body, must be redacted | 9 | 1 | 1 | 0 |
-| place: town | 13 | 0 | 0 | 0 |
+| place: town (lexicon-aided) | 13 | 0 | 0 | 0 |
 | trap: case numbers, dates, section references | – | – | – | 1 |
 | pii: full date (omitted by default) | 18 | 0 | 0 | 0 |
 | trap: idiom or public title beside a same-word name | – | – | – | 1 |
@@ -52,6 +52,11 @@
 | person: speaker written on a line of its own (no colon) | 5 | 0 | 0 | 0 |
 | person: foreign first name only after a care or teaching role word, in child speech | 3 | 0 | 0 | 0 |
 | person: everyday word as a first name, before a speech verb (lexicon-aided by design) (lexicon-aided) | 3 | 0 | 0 | 0 |
+| channel: person only in the page header | 3 | 0 | 0 | 0 |
+| channel: person only in a footnote | 3 | 0 | 0 | 0 |
+| channel: person only in a picture's alt text | 2 | 1 | 1 | 0 |
+| channel: person only in a comment and as its author (removed by design) | 3 | 0 | 0 | 0 |
+| channel: person only in the file's properties (emptied by design) | 3 | 0 | 0 | 0 |
 
 ## Per genre
 
@@ -68,8 +73,9 @@
 | position | 13 | 0 | 0 | 2 |
 | audio | 19 | 1 | 2 | 0 |
 | interview | 11 | 0 | 0 | 0 |
+| structure | 14 | 1 | 1 | 0 |
 
-## Unlisted suggestions (match nothing in the key; one tap each) — 25 in total
+## Unlisted suggestions (match nothing in the key; one tap each) — 31 in total
 
 Counted, not optimised for: the list is read, accept-all is not how the tool is used.
 
@@ -83,15 +89,17 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 - **chat** (1, 1 applied): בגן [discover; מופיע אחרי מילת תפקיד טיפולית או חינוכית] **applied**
 - **position** (2, 2 applied): הבהרה [discover; פותח תור דיבור בתמלול] **applied** · משה [model] **applied**
 - **audio** (1, 1 applied): ושניהם [suggest] **applied**
+- **structure** (6, 6 applied): תסקיר שהוגש [discover; מופיע אחרי תפקיד ונקודתיים] **applied** · מתגורר [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · תסקיר שהוגש [discover; מופיע אחרי תפקיד ונקודתיים] **applied** · מתגורר [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · תסקיר שהוגש [discover; מופיע אחרי תפקיד ונקודתיים] **applied** · מתגורר [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied**
 
 ## Missed and leaked, by document
 
 - m3 · person: once, only with a prefix letter · הילי: missed, **leaked**: הילי, בהילי
 - t2 · person: minor, first name only · אופק: missed, **leaked**: אופק
-- h3 · person: two-letter surname · איה נץ: missed, **leaked**: איה נץ
+- h3 · person: two-letter surname · איה נץ: missed, **leaked**: איה נץ, נץ
 - h3 · org: private body, must be redacted · מכון שורשים: missed, **leaked**: מכון שורשים, שורשים
 - a2 · person: same person, one clean and one corrupted spelling · אלמליח: found via suggest as «אתמול ואלמליך», **leaked**: אלמליח, אלמליך
 - a2 · person: minor, first name only · אסיף: missed, **leaked**: אסיף
+- s1 · channel: person only in a picture's alt text · שולמית אוזרבך: missed, **leaked**: שולמית אוזרבך
 
 ## Traps and public bodies touched
 
@@ -104,43 +112,46 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 169 | 10 | 1 |
-| m2 | meeting | 93 | 12 | 0 |
-| m3 | meeting | 68 | 6 | 0 |
-| m4 | meeting | 84 | 7 | 1 |
-| f1 | filing | 107 | 14 | 2 |
-| f2 | filing | 126 | 16 | 1 |
-| f3 | filing | 71 | 8 | 0 |
-| f4 | filing | 97 | 10 | 3 |
-| t1 | transcript | 80 | 8 | 0 |
-| t2 | transcript | 87 | 12 | 1 |
-| t3 | transcript | 78 | 11 | 1 |
-| t4 | transcript | 81 | 14 | 1 |
-| w1 | welfare | 58 | 4 | 0 |
-| w2 | welfare | 52 | 5 | 0 |
-| w3 | welfare | 67 | 6 | 0 |
-| w4 | welfare | 61 | 6 | 1 |
-| h1 | medical | 65 | 7 | 2 |
-| h2 | medical | 58 | 4 | 0 |
-| h3 | medical | 54 | 5 | 3 |
-| p1 | police | 64 | 5 | 1 |
-| p2 | police | 48 | 4 | 1 |
-| p3 | police | 54 | 2 | 0 |
-| p4 | police | 46 | 3 | 0 |
-| b1 | bank | 51 | 6 | 2 |
-| b2 | bank | 42 | 3 | 0 |
-| b3 | bank | 49 | 3 | 0 |
-| c1 | chat | 59 | 4 | 0 |
-| c2 | chat | 69 | 5 | 1 |
-| c3 | chat | 63 | 3 | 0 |
-| c4 | chat | 63 | 5 | 0 |
-| x1 | position | 112 | 8 | 2 |
-| x2 | position | 75 | 5 | 0 |
-| x3 | position | 70 | 5 | 0 |
-| a1 | audio | 65 | 7 | 0 |
-| a2 | audio | 68 | 6 | 0 |
-| a3 | audio | 79 | 8 | 1 |
-| a4 | audio | 56 | 6 | 0 |
-| v1 | interview | 79 | 3 | 0 |
-| v2 | interview | 71 | 5 | 0 |
-| v3 | interview | 36 | 3 | 0 |
+| m1 | meeting | 211 | 10 | 1 |
+| m2 | meeting | 123 | 12 | 0 |
+| m3 | meeting | 90 | 6 | 0 |
+| m4 | meeting | 113 | 7 | 1 |
+| f1 | filing | 159 | 14 | 2 |
+| f2 | filing | 174 | 16 | 1 |
+| f3 | filing | 104 | 8 | 0 |
+| f4 | filing | 140 | 10 | 3 |
+| t1 | transcript | 115 | 8 | 0 |
+| t2 | transcript | 113 | 12 | 1 |
+| t3 | transcript | 123 | 11 | 1 |
+| t4 | transcript | 107 | 14 | 1 |
+| w1 | welfare | 84 | 4 | 0 |
+| w2 | welfare | 75 | 5 | 0 |
+| w3 | welfare | 99 | 6 | 0 |
+| w4 | welfare | 87 | 6 | 1 |
+| h1 | medical | 89 | 7 | 2 |
+| h2 | medical | 77 | 4 | 0 |
+| h3 | medical | 78 | 5 | 3 |
+| p1 | police | 83 | 5 | 1 |
+| p2 | police | 71 | 4 | 1 |
+| p3 | police | 87 | 2 | 0 |
+| p4 | police | 64 | 3 | 0 |
+| b1 | bank | 76 | 6 | 2 |
+| b2 | bank | 57 | 3 | 0 |
+| b3 | bank | 50 | 3 | 0 |
+| c1 | chat | 69 | 4 | 0 |
+| c2 | chat | 95 | 5 | 1 |
+| c3 | chat | 75 | 3 | 0 |
+| c4 | chat | 88 | 5 | 0 |
+| x1 | position | 143 | 8 | 2 |
+| x2 | position | 91 | 5 | 0 |
+| x3 | position | 79 | 5 | 0 |
+| a1 | audio | 84 | 7 | 0 |
+| a2 | audio | 83 | 6 | 0 |
+| a3 | audio | 92 | 8 | 1 |
+| a4 | audio | 73 | 6 | 0 |
+| v1 | interview | 90 | 3 | 0 |
+| v2 | interview | 93 | 5 | 0 |
+| v3 | interview | 56 | 3 | 0 |
+| s1 | structure | 87 | 4 | 2 |
+| s2 | structure | 101 | 5 | 2 |
+| s3 | structure | 90 | 6 | 2 |

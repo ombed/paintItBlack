@@ -41,3 +41,25 @@ test("two rail sections stay open together", async ({ page }) => {
   // the findings list did not collapse when the profile opened
   await expect(page.locator("[data-group]").first()).toBeVisible();
 });
+
+/* Review L7: bringing back a name she had told to stay, and loading a case over the document,
+   changed the list without a step in the history, so undo jumped over them. */
+test("bringing a kept name back to replacement is one undo step", async ({ page }) => {
+  const card = page.locator("[data-group]").filter({ hasText: "רונית לוי" }).first();
+  await card.getByRole("button", { name: "אל תחליף" }).click();
+  await expect(doc(page)).toContainText("רונית לוי הגישה בקשה");
+  await page.getByRole("button", { name: /רונית לוי ↩/ }).click();
+  await expect(doc(page)).not.toContainText("רונית לוי");
+  await page.getByRole("button", { name: "ביטול הפעולה האחרונה" }).click();
+  // one step back is the state before the restore: kept, so the real name is in the text again
+  await expect(doc(page)).toContainText("רונית לוי הגישה בקשה");
+});
+
+test("loading a case over the document in progress is one undo step", async ({ page }) => {
+  const before = await page.evaluate(() => window.__pib.state().rules.map((r) => r.value).sort());
+  const prof = { v: 1, name: "", mode: "real", rules: [{ value: "יוסי כהן", kind: "NAME", replacement: "דני לוי", auto: true }], allow: ["רונית לוי"], removed: [], map: {} };
+  await page.locator('input[type="file"][accept*="json"]').setInputFiles({ name: "case.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(prof)) });
+  await expect.poll(() => page.evaluate(() => window.__pib.state().rules.map((r) => r.value))).toContain("יוסי כהן");
+  await page.getByRole("button", { name: "ביטול הפעולה האחרונה" }).click();
+  await expect.poll(() => page.evaluate(() => window.__pib.state().rules.map((r) => r.value).sort())).toEqual(before);
+});

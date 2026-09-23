@@ -165,4 +165,8 @@ host blocked fetching. Treat those as leads, not authority. Researched
 - Dependencies: `npm audit --audit-level=high`, `npm outdated`. For a CDN asset
   compute the SRI value with
   `openssl dgst -sha384 -binary <file> | openssl base64 -A`.
-- Coverage, as input to mutation testing: `npx c8 node tests/run.js`.
+- Coverage, as input to mutation testing: `npx c8 --reporter=text --exclude "node_modules/**" --include "tests/core.js" --include "tests/*-core.js" --include page-logic.js node tests/run.js`.
+  The engine under test is `tests/core.js` and its siblings, each a copy of `redact-engine.js` built by
+  `tests/build-fixtures.js`, and c8 excludes `tests/` by default: the bare `npx c8 node tests/run.js`
+  measured `page-logic.js` and the scripts and no engine code at all (outside review, L5). Read the
+  table per file; the summary counts each copy of the engine separately.

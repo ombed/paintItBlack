@@ -57,7 +57,11 @@ const EXPECTED_FAIL = new Set(["P_PREFIX_ONCE", "P_CORRUPT_ONLY"]);
 
 // ── document builder ────────────────────────────────────────────────────────
 class Doc {
-  constructor(id, genre, title) { this.id = id; this.genre = genre; this.title = title; this.paras = []; this.ents = []; }
+  constructor(id, genre, title) { this.id = id; this.genre = genre; this.title = title; this.paras = []; this.ents = []; this.parts = []; this.extra = []; }
+  // a paragraph written as XML (a drawing, a note reference), and the text it carries
+  raw(xml, text) { this.paras.push({ xml, text }); return this; }
+  // a part beside document.xml (header, notes, comments, properties), and the text it carries
+  part(name, xml, text) { this.parts.push({ name, body: xml }); this.extra.push(text); return this; }
   // kind NAME|ORG|PLACE|TRAP; must = should be redacted; surfaces = every string
   // form that appears in this document. Returns the surfaces for embedding.
   ent(cat, kind, must, canonical, surfaces, note) {
@@ -65,12 +69,13 @@ class Doc {
     return surfaces;
   }
   p(...runs) { this.paras.push(runs.length === 1 ? runs[0] : runs); return this; }
-  text() { return this.paras.map((p) => (Array.isArray(p) ? p.join("") : p)).join("\n"); }
+  text() { return this.paras.map((p) => (Array.isArray(p) ? p.join("") : p && p.xml ? p.text : p)).concat(this.extra).join("\n"); }
 }
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const W = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"';
 function docx(doc) {
   const body = doc.paras.map((p) => {
+    if (p && p.xml) return p.xml;
     const runs = Array.isArray(p) ? p : [p];
     return "<w:p>" + runs.map((r) => '<w:r><w:t xml:space="preserve">' + esc(r) + "</w:t></w:r>").join("") + "</w:p>";
   }).join("");
@@ -78,6 +83,7 @@ function docx(doc) {
     { name: "[Content_Types].xml", body: '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="application/xml"/></Types>' },
     { name: "_rels/.rels", body: '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="r1" Type="x" Target="word/document.xml"/></Relationships>' },
     { name: "word/document.xml", body: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<w:document ' + W + "><w:body>" + body + "</w:body></w:document>" },
+    ...doc.parts,
   ]);
 }
 const last = (s) => s.replace(/^(עו"ד|ד"ר|גב'|משפחת|המבקשת|הנתבע|התובעת) /, "").split(" ").slice(-1)[0];
@@ -98,7 +104,7 @@ const PUBLIC = ["בית המשפט לענייני משפחה", "משרד הרו�
   d.ent("P_SPLITRUN", "NAME", true, "עמיחי אלמגור", ["עמיחי אלמגור"], "split mid-word across two runs");
   const [o1, o1b] = d.ent("O_PRIVATE", "ORG", true, "עמותת שביל הלב", ["עמותת שביל הלב", "שביל הלב"]);
   const [l1] = d.ent("L_TOWN", "PLACE", true, "נוף הגליל", ["נוף הגליל"]);
-  d.ent("T_NUMBERS", "TRAP", false, "14.5.2026", ["סעיף 3(א)"]);
+  d.ent("T_NUMBERS", "TRAP", false, "סעיף 3(א)", ["סעיף 3(א)"]);
   d.ent("I_DATE", "PII", true, "14.5.2026", ["14.5.2026"], "full date, omitted by default");
   d.ent("T_IDIOM", "TRAP", false, "בחיים לא ראיתי", ["בחיים לא ראיתי"]);
   d.p("סיכום פגישה מיום 14.5.2026")
@@ -357,6 +363,8 @@ docs.push(...require("./corpus-more.js")(Doc, C));
 docs.push(...require("./corpus-audio.js")(Doc, C));
 // interview: spoken conversation with a child, the genre a real session leaked in
 docs.push(...require("./corpus-interview.js")(Doc, C));
+// names outside the body: header, footnote, alt text, comment, file properties (review M20)
+docs.push(...require("./corpus-structure.js")(Doc, C));
 
 // ── assertions: the key cannot drift, every category is covered, nothing is known ──
 const strip = (s) => s.replace(/[֑-ׇ]/g, "");
@@ -364,6 +372,9 @@ for (const d of docs) {
   const text = d.text(), plain = strip(text);
   for (const e of d.ents) for (const s of e.surfaces)
     if (!text.includes(s) && !plain.includes(strip(s))) throw new Error(`${d.id}: surface not in text: ${s}`);
+  // a trap is reported by its canonical beside what was touched: a canonical that is none of its
+  // surfaces printed a date beside a section number (review L23)
+  for (const e of d.ents) if (e.kind === "TRAP" && !e.surfaces.includes(e.canonical)) throw new Error(`${d.id}: trap canonical is not one of its surfaces: ${e.canonical}`);
 }
 const cover = {};
 for (const d of docs) for (const cat of new Set(d.ents.map((e) => e.cat))) cover[cat] = (cover[cat] || 0) + 1;
@@ -386,14 +397,24 @@ if (bad.length) throw new Error("disjointness violated:\n  " + bad.join("\n  "))
 
 // ── write ───────────────────────────────────────────────────────────────────
 const key = { generated: new Date().toISOString().slice(0, 10), categories: C,
-  exemptFromDisjoint: [...EXEMPT_FROM_DISJOINT], expectedFail: [...EXPECTED_FAIL], docs: [] };
+  exemptFromDisjoint: [...EXEMPT_FROM_DISJOINT], expectedFail: [...EXPECTED_FAIL],
+  // marked "(lexicon-aided)" in the report: names that are words by design, and towns, which the
+  // detector finds through its locality list (bench/README.md; review L20)
+  lexiconAided: ["P_WORD", "P_WORD_VERB", "L_TOWN"], docs: [] };
 for (const d of docs) {
   fs.writeFileSync(path.join(OUT, d.id + ".docx"), Buffer.from(docx(d)));
   fs.writeFileSync(path.join(OUT, d.id + ".txt"), d.text() + "\n");
   key.docs.push({ id: d.id, genre: d.genre, title: d.title, file: `corpus/${d.id}.docx`,
     words: d.text().split(/\s+/).length, entities: d.ents });
 }
-fs.writeFileSync(path.join(__dirname, "key.json"), JSON.stringify(key, null, 1));
+/* The key keeps its date while its content is unchanged. It used to be rewritten with today's
+   date on every run, so the ground truth moved in git on every local run (review, suspicion). */
+{
+  const kp = path.join(__dirname, "key.json");
+  let old = null; try { old = JSON.parse(fs.readFileSync(kp, "utf8")); } catch (_) {}
+  if (old && JSON.stringify({ ...old, generated: "" }) === JSON.stringify({ ...key, generated: "" })) key.generated = old.generated;
+  fs.writeFileSync(kp, JSON.stringify(key, null, 1));
+}
 const ents = key.docs.reduce((n, d) => n + d.entities.length, 0);
 console.log(`corpus: ${docs.length} documents, ${ents} keyed entities, ${Object.keys(C).length} categories each in ≥3 documents; names disjoint from the tool's lexicons (exempt: ${[...EXEMPT_FROM_DISJOINT].join(", ")})`);
 for (const d of key.docs) console.log(`  ${d.id.padEnd(3)} ${d.genre.padEnd(11)} ${String(d.words).padStart(4)} words  ${d.entities.length} entities`);

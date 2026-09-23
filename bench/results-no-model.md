@@ -1,6 +1,6 @@
 # Benchmark results (no model)
 
-40 documents, 314 keyed entities, model off. Generated 2026-09-20.
+43 documents, 332 keyed entities, model off. Generated 2026-09-23.
 
 ## Per category
 
@@ -12,7 +12,7 @@
 | person: same person, one clean and one corrupted spelling | 9 | 3 | 10 | 0 |
 | person: name split across two runs mid-word | 2 | 1 | 1 | 0 |
 | org: private body, must be redacted | 7 | 3 | 4 | 0 |
-| place: town | 11 | 2 | 2 | 0 |
+| place: town (lexicon-aided) | 11 | 2 | 2 | 0 |
 | trap: case numbers, dates, section references | – | – | – | 1 |
 | pii: full date (omitted by default) | 18 | 0 | 0 | 0 |
 | trap: idiom or public title beside a same-word name | – | – | – | 1 |
@@ -52,6 +52,11 @@
 | person: speaker written on a line of its own (no colon) | 5 | 0 | 0 | 0 |
 | person: foreign first name only after a care or teaching role word, in child speech | 3 | 0 | 0 | 0 |
 | person: everyday word as a first name, before a speech verb (lexicon-aided by design) (lexicon-aided) | 3 | 0 | 0 | 0 |
+| channel: person only in the page header | 3 | 0 | 0 | 0 |
+| channel: person only in a footnote | 3 | 0 | 0 | 0 |
+| channel: person only in a picture's alt text | 0 | 3 | 3 | 0 |
+| channel: person only in a comment and as its author (removed by design) | 3 | 0 | 0 | 0 |
+| channel: person only in the file's properties (emptied by design) | 3 | 0 | 0 | 0 |
 
 ## Per genre
 
@@ -68,8 +73,9 @@
 | position | 12 | 1 | 2 | 2 |
 | audio | 17 | 3 | 8 | 0 |
 | interview | 8 | 3 | 3 | 0 |
+| structure | 12 | 3 | 3 | 0 |
 
-## Unlisted suggestions (match nothing in the key; one tap each) — 23 in total
+## Unlisted suggestions (match nothing in the key; one tap each) — 29 in total
 
 Counted, not optimised for: the list is read, accept-all is not how the tool is used.
 
@@ -83,6 +89,7 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 - **chat** (1, 1 applied): בגן [discover; מופיע אחרי מילת תפקיד טיפולית או חינוכית] **applied**
 - **position** (1, 1 applied): הבהרה [discover; פותח תור דיבור בתמלול] **applied**
 - **audio** (1, 1 applied): ושניהם [suggest] **applied**
+- **structure** (6, 6 applied): תסקיר שהוגש [discover; מופיע אחרי תפקיד ונקודתיים] **applied** · מתגורר [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · תסקיר שהוגש [discover; מופיע אחרי תפקיד ונקודתיים] **applied** · מתגורר [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied** · תסקיר שהוגש [discover; מופיע אחרי תפקיד ונקודתיים] **applied** · מתגורר [discover; מופיע אחרי מילת תפקיד בגוף הטקסט] **applied**
 
 ## Missed and leaked, by document
 
@@ -157,6 +164,9 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 - v1 · person: minor, first name only · תהל: missed, **leaked**: תהל
 - v2 · person: minor, first name only · איתן: missed, **leaked**: איתן
 - v3 · person: minor, first name only · לינוי: missed, **leaked**: לינוי
+- s1 · channel: person only in a picture's alt text · שולמית אוזרבך: missed, **leaked**: שולמית אוזרבך
+- s2 · channel: person only in a picture's alt text · צביקה גוטרמן: missed, **leaked**: צביקה גוטרמן
+- s3 · channel: person only in a picture's alt text · טויבה טרכטנברג: missed, **leaked**: טויבה טרכטנברג
 
 ## Traps and public bodies touched
 
@@ -169,43 +179,46 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 62 | 4 | 1 |
-| m2 | meeting | 24 | 6 | 0 |
-| m3 | meeting | 16 | 3 | 0 |
-| m4 | meeting | 18 | 3 | 1 |
-| f1 | filing | 35 | 10 | 1 |
-| f2 | filing | 46 | 13 | 1 |
-| f3 | filing | 21 | 5 | 0 |
-| f4 | filing | 24 | 8 | 3 |
-| t1 | transcript | 20 | 6 | 0 |
-| t2 | transcript | 17 | 5 | 1 |
-| t3 | transcript | 20 | 6 | 1 |
-| t4 | transcript | 22 | 8 | 1 |
-| w1 | welfare | 9 | 1 | 0 |
-| w2 | welfare | 14 | 3 | 0 |
-| w3 | welfare | 11 | 2 | 0 |
-| w4 | welfare | 15 | 5 | 1 |
-| h1 | medical | 19 | 6 | 2 |
-| h2 | medical | 13 | 2 | 0 |
-| h3 | medical | 13 | 3 | 3 |
-| p1 | police | 13 | 2 | 1 |
-| p2 | police | 13 | 3 | 1 |
-| p3 | police | 8 | 1 | 0 |
-| p4 | police | 12 | 3 | 0 |
-| b1 | bank | 16 | 5 | 2 |
-| b2 | bank | 6 | 1 | 0 |
-| b3 | bank | 8 | 2 | 0 |
-| c1 | chat | 7 | 1 | 0 |
-| c2 | chat | 11 | 2 | 1 |
-| c3 | chat | 8 | 1 | 0 |
-| c4 | chat | 9 | 3 | 0 |
-| x1 | position | 20 | 5 | 1 |
-| x2 | position | 12 | 4 | 0 |
-| x3 | position | 16 | 4 | 0 |
-| a1 | audio | 9 | 3 | 0 |
-| a2 | audio | 16 | 5 | 0 |
-| a3 | audio | 24 | 7 | 1 |
-| a4 | audio | 10 | 4 | 0 |
-| v1 | interview | 12 | 2 | 0 |
-| v2 | interview | 14 | 3 | 0 |
-| v3 | interview | 9 | 2 | 0 |
+| m1 | meeting | 110 | 4 | 1 |
+| m2 | meeting | 38 | 6 | 0 |
+| m3 | meeting | 22 | 3 | 0 |
+| m4 | meeting | 29 | 3 | 1 |
+| f1 | filing | 60 | 10 | 1 |
+| f2 | filing | 72 | 13 | 1 |
+| f3 | filing | 30 | 5 | 0 |
+| f4 | filing | 39 | 8 | 3 |
+| t1 | transcript | 40 | 6 | 0 |
+| t2 | transcript | 24 | 5 | 1 |
+| t3 | transcript | 26 | 6 | 1 |
+| t4 | transcript | 32 | 8 | 1 |
+| w1 | welfare | 18 | 1 | 0 |
+| w2 | welfare | 23 | 3 | 0 |
+| w3 | welfare | 17 | 2 | 0 |
+| w4 | welfare | 23 | 5 | 1 |
+| h1 | medical | 31 | 6 | 2 |
+| h2 | medical | 23 | 2 | 0 |
+| h3 | medical | 21 | 3 | 3 |
+| p1 | police | 24 | 2 | 1 |
+| p2 | police | 20 | 3 | 1 |
+| p3 | police | 17 | 1 | 0 |
+| p4 | police | 27 | 3 | 0 |
+| b1 | bank | 30 | 5 | 2 |
+| b2 | bank | 8 | 1 | 0 |
+| b3 | bank | 17 | 2 | 0 |
+| c1 | chat | 16 | 1 | 0 |
+| c2 | chat | 18 | 2 | 1 |
+| c3 | chat | 14 | 1 | 0 |
+| c4 | chat | 15 | 3 | 0 |
+| x1 | position | 37 | 5 | 1 |
+| x2 | position | 29 | 4 | 0 |
+| x3 | position | 30 | 4 | 0 |
+| a1 | audio | 15 | 3 | 0 |
+| a2 | audio | 26 | 5 | 0 |
+| a3 | audio | 38 | 7 | 1 |
+| a4 | audio | 25 | 4 | 0 |
+| v1 | interview | 20 | 2 | 0 |
+| v2 | interview | 23 | 3 | 0 |
+| v3 | interview | 16 | 2 | 0 |
+| s1 | structure | 30 | 4 | 2 |
+| s2 | structure | 23 | 4 | 2 |
+| s3 | structure | 24 | 4 | 2 |
