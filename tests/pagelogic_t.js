@@ -89,10 +89,14 @@ ok("model span bounds classified", s4.layers.model && s4.layers.model.bounds ===
 {
   const fsx = require("fs"), pathx = require("path");
   const src = fsx.readFileSync(pathx.join(__dirname, "..", "redact-engine.js"), "utf8");
-  const exported = new Set(src.match(/^export\s*\{([\s\S]*?)\}/m)[1].split(",").map((s) => s.trim()).filter(Boolean));
-  const used = new Set([...fsx.readFileSync(pathx.join(__dirname, "..", "page-logic.js"), "utf8").matchAll(/\bE\.([A-Za-z_]+)/g)].map((m) => m[1]));
-  const missing = [...used].filter((k) => !exported.has(k));
+  const exported = new Set([...src.match(/^export\s*\{([\s\S]*?)\}/m)[1].split(",").map((s) => s.trim()).filter(Boolean),
+    ...[...src.matchAll(/^export\s+(?:async\s+)?(?:function|const|let|class)\s+([A-Za-z_$][\w$]*)/gm)].map((m) => m[1])]);
+  const reads = (file, rx) => new Set([...fsx.readFileSync(pathx.join(__dirname, "..", file), "utf8").matchAll(rx)].map((m) => m[1]));
+  const missing = [...reads("page-logic.js", /\bE\.([A-Za-z_]+)/g)].filter((k) => !exported.has(k));
   ok("every engine name page-logic.js reads is one the engine exports: missing " + missing.join(","), missing.length === 0);
+  // the same class in the page itself: E, and E2 where a handler takes a second copy of it
+  const missingUI = [...reads("index.html", /\bE2?\.([A-Za-z_]+)/g)].filter((k) => !exported.has(k));
+  ok("every engine name index.html reads is one the engine exports: missing " + missingUI.join(","), missingUI.length === 0);
   const REAL = Object.fromEntries(Object.entries(E).filter(([k]) => exported.has(k)));
   const say = [{ text: "פרוטוקול", part: "body" }, { text: "העדה אמרה רונית כהן הגיעה.", part: "body" }];
   ok("a speech verb before the name is a verb with the shipped engine", PL.leakShape(REAL, say, "רונית כהן", {}).before === "verb");

@@ -32,7 +32,8 @@ let src = fs.readFileSync(path.join(HERE, "..", "redact-engine.js"), "utf8");
    a suite could pass on a name the shipped engine did not have (review M21: VRB, COMMON and
    KNOWN_FIRST were undefined in the browser, so page-logic.js classified every verb as
    "other" there and "verb" here). tests/pagelogic_t.js checks page-logic against SHIPPED. */
-const SHIPPED = (src.match(/^export\s*\{([\s\S]*?)\};?[ \t]*$/m) || ["", ""])[1].split(",").map((s) => s.trim()).filter(Boolean);
+const SHIPPED = [...(src.match(/^export\s*\{([\s\S]*?)\};?[ \t]*$/m) || ["", ""])[1].split(",").map((s) => s.trim()).filter(Boolean),
+  ...[...src.matchAll(/^export\s+(?:async\s+)?(?:function|const|let|class)\s+([A-Za-z_$][\w$]*)/gm)].map((m) => m[1])];
 if (!SHIPPED.length) throw new Error("no export list in redact-engine.js");
 
 // ESM to plain script: the suites load this with require().
