@@ -63,7 +63,8 @@ jobs:
       - name: Build the site folder
         run: node scripts/build-site.js _site
       - name: Browser checks against the built folder
-        run: npx playwright test e2e/flow.spec.js e2e/tour.spec.js e2e/ui.spec.js
+        # model-host: the published folder serves the model in its parts, and the joined file passes its hash
+        run: npx playwright test e2e/flow.spec.js e2e/tour.spec.js e2e/ui.spec.js e2e/model-host.spec.js
         env:
           SITE_ROOT: _site
       - name: The version this commit carries
