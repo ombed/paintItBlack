@@ -3319,7 +3319,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
            רק את המפה של התיק השמור, ולא את זו של המסמך שבעבודה — הכינוי שהכלי
            עצמו כתב רגע קודם לא נמצא. המסמך הנוכחי קודם; הפרופיל משלים שמות
            ממסמכים קודמים באותו תיק. */
-        const map={...((S.profile&&S.profile.map)||{}), ...this.currentMap()};
+        const map=E.restorePairs((S.profile&&S.profile.map)||{}, this.currentMap());
         if(!S.rvIn.trim()){ this.setState({err:"אין טקסט להחזרה. מדביקים כאן את התשובה שה-AI החזיר (Ctrl+V)."}); return; }
         if(!Object.keys(map).length){ this.setState({err:"אין מיפוי זמין. יש לטעון פרופיל תיק, או להשחיר מסמך קודם בחלון הזה."}); return; }
         /* הכתיב שחוזר הוא הכתיב שבמסמך (UX #19): "ברקוביץ׳" ו"ברקוביץ'" התערבבו,

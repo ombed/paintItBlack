@@ -16,7 +16,7 @@ const cut=js.indexOf('/* ══════════════════�
 const a=js.indexOf('function pseudoRX(p){'), b=js.indexOf('function livePairs(){');
 const d1=js.indexOf('const TITLE_RX='), d2=js.indexOf('function peoAdd(');
 fs.writeFileSync('edge-core.js',js.slice(0,cut)+"\n"+js.slice(a,b)+"\n"+js.slice(d1,d2)+
- "\nmodule.exports={redactDocx,restoreNames,fakeName,norm,POOL,variants,cleanEntry};\n");
+ "\nmodule.exports={redactDocx,restoreNames,restorePairs:typeof restorePairs==='function'?restorePairs:undefined,fakeName,norm,POOL,variants,cleanEntry};\n");
 const E=require('./edge-core.js');
 const {mkzip}=require('./mkzip.js');
 const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -156,6 +156,30 @@ const sec=t=>console.log("\n— "+t+" —");
  console.log("   "+out);
  ok(!out.includes("שגיא לוי")&&!out.includes("יעל שגיא"),"שני השמות המלאים הוחלפו");
  ok(r.flagged.some(f=>f.value==="שגיא"),"«שגיא» לבד — משותף לשניים — סומן לבדיקה ולא נוחש");
+
+ sec("18. החזרה של תאריך מוזז או מספר, בתוך מספר ארוך יותר");
+ // ביקורת, חשד: לגבול של הכינוי היו רק אותיות עבריות, ולכן תאריך שחזר שכתב גם את פנים המספר הארוך
+ rr=E.restoreNames("ההחלטה מיום 19.7.2020, תיק 119.7.20201, ובאותו יום ב-19.7.2020 שוב.",[["3.2.2019","19.7.2020"]]);
+ console.log("   "+rr.text);
+ ok(rr.text.includes("מיום 3.2.2019")&&rr.text.includes("ב-3.2.2019"),"התאריך עצמו חזר, גם אחרי אות שימוש ומקף");
+ ok(rr.text.includes("119.7.20201"),"ומספר ארוך יותר שמכיל אותו לא נגע");
+ rr=E.restoreNames("ת.ז. 123456789 וחשבון 1234567890.",[["987654321","123456789"]]);
+ ok(rr.text.includes("ת.ז. 987654321")&&rr.text.includes("1234567890"),"מספר זהות חזר, והמספר הארוך ממנו לא: "+rr.text);
+ rr=E.restoreNames("the ID was 123456789X and 123456789 again",[["987654321","123456789"]]);
+ ok(rr.text.includes("123456789X")&&rr.text.includes("987654321 again"),"גם אות לטינית צמודה היא גבול: "+rr.text);
+
+ sec("19. החזרה בתיק: המסמך שבעבודה קודם לתיק");
+ // ביקורת, חשד: המונה של "פלוני א׳" מתחיל מחדש בכל מסמך. במסמך הראשון בתיק "פלוני א׳" הוא
+ // רחל, בשני הוא דנה. מפת התיק ומפת המסמך התמזגו, הכינוי נחשב "של שני אנשים", ואף אחד לא הוחזר.
+ ok(typeof E.restorePairs==="function","יש פונקציה אחת שמרכיבה את זוגות ההחזרה");
+ if(typeof E.restorePairs==="function"){
+  const m=E.restorePairs({"רחל פרידמן":"פלוני א׳","יוסי כהן":"פלוני ב׳","דנה כהן":"שירה לוי"},{"דנה כהן":"פלוני א׳"});
+  ok(m["דנה כהן"]==="פלוני א׳","המסמך שבעבודה קובע: "+JSON.stringify(m));
+  ok(!("רחל פרידמן" in m),"כינוי שהמסמך הזה נתן למישהו אחר אינו חוזר לאדם מהתיק");
+  ok(m["יוסי כהן"]==="פלוני ב׳","ושאר התיק משלים: "+JSON.stringify(m));
+  rr=E.restoreNames("פלוני א׳ אמרה, ופלוני ב׳ השיב.",Object.entries(m));
+  ok(rr.text==="דנה כהן אמרה, ויוסי כהן השיב."&&!rr.conflict.length,"והתשובה חוזרת בלי «כינוי של יותר מאדם אחד»: "+rr.text);
+ }
 
  console.log(`\n${pass} passed, ${fail} failed\n`);
  process.exit(fail?1:0);

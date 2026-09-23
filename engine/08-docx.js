@@ -1037,13 +1037,18 @@ function pseudoRX(p){
      של באג כמו השם במירכאות ב-v41 (שכבה 1ב). אות שימוש יכולה לבוא עם מקף, והמקף
      נשאר איתה. */
   const L="\u0591-\u05bd\u05bf-\u05c7\u05d0-\u05ea", PRE="(?:[בהולמכש]|ו[בהלמכ]|כש|מה|לכ)";
+  /* בצד שבו הכינוי מסתיים בספרה או באות לטינית, גם ספרה ואות לטינית הן חלק מהמילה: תאריך
+     מוזז "19.7.2020" שחזר שכתב גם את פנים "119.7.20201", ומספר זהות את פנים מספר ארוך ממנו
+     (ביקורת, חשד שאומת). בצד של אות עברית ספרה נשארת גבול: "ברנע2" הוא שם עם הערת שוליים. */
+  const an=c=>(c>="0"&&c<="9")||(c>="A"&&c<="Z")||(c>="a"&&c<="z");
+  const LB=L+(an(p[0])?"0-9A-Za-z":""), LA=L+(an(p[p.length-1])?"0-9A-Za-z":"");
   // כינוי שמתחיל ב-ה ("הגפן") נכתב במסמך בלי ה אחרי ב/ל/כ ("בגפן", "לגפן"):
   // כך addPre כותב אותו, וכך ה-AI מעתיק אותו. הקבוצה השנייה תופסת את הצורה הזאת.
   if(p[0]==="ה"&&p.length>2)
-    return new RegExp("(?<!["+L+"])(?:("+PRE+"[-\u05be]?)?ה|((?:[בלכ]|ו[בלכ]|כש)[-\u05be]?))"+
-      pat.slice(esc("ה").length)+"(?!["+L+"])","gu");
-  return new RegExp("(?<!["+L+"])("+PRE+"[-\u05be]?)?"+pat+
-    "(?!["+L+"])","gu");
+    return new RegExp("(?<!["+LB+"])(?:("+PRE+"[-\u05be]?)?ה|((?:[בלכ]|ו[בלכ]|כש)[-\u05be]?))"+
+      pat.slice(esc("ה").length)+"(?!["+LA+"])","gu");
+  return new RegExp("(?<!["+LB+"])("+PRE+"[-\u05be]?)?"+pat+
+    "(?!["+LA+"])","gu");
 }
 // זוגות [שם אמיתי, כינוי]. מחזיר טקסט, כמה הוחזרו, ומה לא נמצא —
 // כינוי שלא נמצא הוא לא בהכרח תקלה, אבל כדאי לדעת עליו.
@@ -1078,6 +1083,19 @@ function restoreNames(txt,pairs){
   }
   return {text:out,count:n,missing,conflict:[...conflict]};
 }
+/* זוגות ההחזרה במסך ההחזרה: המסמך שבעבודה קודם, והתיק משלים שמות ממסמכים קודמים.
+   תווית ("פלוני א׳", "[ת"ז א׳]") נספרת מחדש בכל מסמך, ולכן אותה תווית יכולה להיות של
+   אדם אחד בתיק ושל אחר במסמך הזה. אם שתיהן נכנסו, הכינוי נחשב "של שני אנשים" ואף אחד
+   לא הוחזר (ביקורת, חשד שאומת). כינוי שהמסמך הזה כבר נתן אינו נלקח מהתיק. */
+function restorePairs(caseMap,docMap){
+  const out={...(docMap||{})};
+  const taken=new Set(Object.values(out).map(v=>norm(String(v)).trim()));
+  for(const [real,fake] of Object.entries(caseMap||{})){
+    if(real in out||!fake||taken.has(norm(String(fake)).trim()))continue;
+    out[real]=fake;
+  }
+  return out;
+}
 
 
 export {nerLast, hiddenPart, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
@@ -1086,4 +1104,4 @@ export {nerLast, hiddenPart, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT,
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,
   discover, PLACES, PLACE_BY, geoMap, geoNames, placesFound, examplesOf, findPlaces, fakePlace,
   atlasTags, atlasDiff, atlasPenalty, placeKind, nerEnv, nerCached, nerPersist, nerLoad, nerRun,
-  TITLE_RX, ORG_RX, likelyOrg, cleanEntry, trimEdges, pseudoRX, restoreNames, STOP, gender, origin, readBlocks, isTextPart};
+  TITLE_RX, ORG_RX, likelyOrg, cleanEntry, trimEdges, pseudoRX, restoreNames, restorePairs, STOP, gender, origin, readBlocks, isTextPart};
