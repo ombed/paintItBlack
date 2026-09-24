@@ -1,0 +1,1404 @@
+[
+ {
+  "name": "base-q8",
+  "key": "base-q8",
+  "tok": "product",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 90,
+     "tokens": 305
+    },
+    "msPer1kWords": 513,
+    "loadMs": 1446,
+    "cleaned": {
+     "p": 0.9473684210526315,
+     "r": 0.5142857142857142,
+     "f2": 0.5660377358490566,
+     "n": 35,
+     "entR": 0.875,
+     "traps": 1
+    },
+    "rawExact": {
+     "p": 0.8333333333333334,
+     "r": 0.8571428571428571,
+     "f2": 0.8522727272727273
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 1,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 308,
+     "tokens": 1754
+    },
+    "msPer1kWords": 428,
+    "loadMs": 805,
+    "cleaned": {
+     "p": 0.8545454545454545,
+     "r": 0.706766917293233,
+     "f2": 0.7320872274143302,
+     "n": 133,
+     "entR": 0.706766917293233,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.8547008547008547,
+     "r": 0.7518796992481203,
+     "f2": 0.7704160246533128
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 53,
+     "alignFailEntityTokens": 22,
+     "entityTokens": 252,
+     "tokens": 1176
+    },
+    "msPer1kWords": 602,
+    "loadMs": 895,
+    "known": {
+     "passed": 26,
+     "cases": 33,
+     "controls": 1,
+     "failed": [
+      "v39-glued-full-name",
+      "v39-infinitive",
+      "leak169-14",
+      "leak169-19",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "name": "base-q8-ft",
+  "key": "base-q8",
+  "tok": "faithful",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 90,
+     "tokens": 305
+    },
+    "msPer1kWords": 496,
+    "loadMs": 1230,
+    "cleaned": {
+     "p": 0.95,
+     "r": 0.5428571428571428,
+     "f2": 0.59375,
+     "n": 35,
+     "entR": 0.9375,
+     "traps": 1
+    },
+    "rawExact": {
+     "p": 0.8,
+     "r": 0.9142857142857143,
+     "f2": 0.8888888888888887
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 1,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 307,
+     "tokens": 1753
+    },
+    "msPer1kWords": 475,
+    "loadMs": 1250,
+    "cleaned": {
+     "p": 0.8434782608695652,
+     "r": 0.7293233082706767,
+     "f2": 0.7496136012364761,
+     "n": 133,
+     "entR": 0.7293233082706767,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.907563025210084,
+     "r": 0.8120300751879699,
+     "f2": 0.8294930875576035
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 53,
+     "alignFailEntityTokens": 22,
+     "entityTokens": 252,
+     "tokens": 1179
+    },
+    "msPer1kWords": 724,
+    "loadMs": 1325,
+    "known": {
+     "passed": 27,
+     "cases": 33,
+     "controls": 1,
+     "failed": [
+      "v39-glued-full-name",
+      "v39-infinitive",
+      "leak169-14",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "name": "hebert",
+  "absent": true
+ },
+ {
+  "name": "tiny-parse",
+  "key": "tiny-parse",
+  "tok": "product",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 90,
+     "tokens": 305
+    },
+    "msPer1kWords": 121,
+    "loadMs": 695,
+    "cleaned": {
+     "p": 0.9090909090909091,
+     "r": 0.5714285714285714,
+     "f2": 0.6172839506172838,
+     "n": 35,
+     "entR": 1,
+     "traps": 2
+    },
+    "rawExact": {
+     "p": 0.7857142857142857,
+     "r": 0.9428571428571428,
+     "f2": 0.9065934065934066
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 1,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 308,
+     "tokens": 1754
+    },
+    "msPer1kWords": 80,
+    "loadMs": 502,
+    "cleaned": {
+     "p": 0.6778523489932886,
+     "r": 0.7593984962406015,
+     "f2": 0.7415565345080763,
+     "n": 133,
+     "entR": 0.7593984962406015,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.753731343283582,
+     "r": 0.7593984962406015,
+     "f2": 0.7582582582582583
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 53,
+     "alignFailEntityTokens": 22,
+     "entityTokens": 252,
+     "tokens": 1176
+    },
+    "msPer1kWords": 116,
+    "loadMs": 458,
+    "known": {
+     "passed": 28,
+     "cases": 33,
+     "controls": 1,
+     "failed": [
+      "v39-glued-full-name",
+      "fp-verb-as-name",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "name": "tiny-parse-ft",
+  "key": "tiny-parse",
+  "tok": "faithful",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 90,
+     "tokens": 305
+    },
+    "msPer1kWords": 121,
+    "loadMs": 871,
+    "cleaned": {
+     "p": 0.9047619047619048,
+     "r": 0.5428571428571428,
+     "f2": 0.5900621118012421,
+     "n": 35,
+     "entR": 0.9375,
+     "traps": 2
+    },
+    "rawExact": {
+     "p": 0.8048780487804879,
+     "r": 0.9428571428571428,
+     "f2": 0.9116022099447513
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 1,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 307,
+     "tokens": 1753
+    },
+    "msPer1kWords": 85,
+    "loadMs": 854,
+    "cleaned": {
+     "p": 0.5489130434782609,
+     "r": 0.7593984962406015,
+     "f2": 0.7053072625698323,
+     "n": 133,
+     "entR": 0.7593984962406015,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.7642857142857142,
+     "r": 0.8045112781954887,
+     "f2": 0.7961309523809524
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 53,
+     "alignFailEntityTokens": 22,
+     "entityTokens": 252,
+     "tokens": 1179
+    },
+    "msPer1kWords": 120,
+    "loadMs": 873,
+    "known": {
+     "passed": 28,
+     "cases": 33,
+     "controls": 0,
+     "failed": [
+      "v39-glued-full-name",
+      "fp-verb-as-name",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "name": "iahlt-base",
+  "key": "iahlt-base",
+  "tok": "product",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 90,
+     "tokens": 305
+    },
+    "msPer1kWords": 504,
+    "loadMs": 861,
+    "cleaned": {
+     "p": 0.95,
+     "r": 0.5428571428571428,
+     "f2": 0.59375,
+     "n": 35,
+     "entR": 0.9375,
+     "traps": 1
+    },
+    "rawExact": {
+     "p": 0.8055555555555556,
+     "r": 0.8285714285714286,
+     "f2": 0.8238636363636365
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 1,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 308,
+     "tokens": 1754
+    },
+    "msPer1kWords": 473,
+    "loadMs": 973,
+    "cleaned": {
+     "p": 1,
+     "r": 0.6240601503759399,
+     "f2": 0.6747967479674796,
+     "n": 133,
+     "entR": 0.6240601503759399,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.9035087719298246,
+     "r": 0.7744360902255639,
+     "f2": 0.7972136222910218
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 53,
+     "alignFailEntityTokens": 22,
+     "entityTokens": 252,
+     "tokens": 1176
+    },
+    "msPer1kWords": 621,
+    "loadMs": 914,
+    "known": {
+     "passed": 28,
+     "cases": 33,
+     "controls": 1,
+     "failed": [
+      "v39-glued-full-name",
+      "leak169-14",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "name": "iahlt-base-ft",
+  "key": "iahlt-base",
+  "tok": "faithful",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 90,
+     "tokens": 305
+    },
+    "msPer1kWords": 554,
+    "loadMs": 1659,
+    "cleaned": {
+     "p": 0.9,
+     "r": 0.5142857142857142,
+     "f2": 0.5625,
+     "n": 35,
+     "entR": 0.875,
+     "traps": 2
+    },
+    "rawExact": {
+     "p": 0.8,
+     "r": 0.9142857142857143,
+     "f2": 0.8888888888888887
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 1,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 307,
+     "tokens": 1753
+    },
+    "msPer1kWords": 467,
+    "loadMs": 1262,
+    "cleaned": {
+     "p": 0.9565217391304348,
+     "r": 0.6616541353383458,
+     "f2": 0.705128205128205,
+     "n": 133,
+     "entR": 0.6616541353383458,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.8879310344827587,
+     "r": 0.7744360902255639,
+     "f2": 0.7947530864197532
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 53,
+     "alignFailEntityTokens": 22,
+     "entityTokens": 252,
+     "tokens": 1179
+    },
+    "msPer1kWords": 640,
+    "loadMs": 1340,
+    "known": {
+     "passed": 28,
+     "cases": 33,
+     "controls": 1,
+     "failed": [
+      "v39-glued-full-name",
+      "leak169-14",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "name": "msperka-dicta",
+  "key": "msperka-dicta",
+  "tok": "product",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 90,
+     "tokens": 305
+    },
+    "msPer1kWords": 473,
+    "loadMs": 892,
+    "cleaned": {
+     "p": 0.9444444444444444,
+     "r": 0.4857142857142857,
+     "f2": 0.5379746835443038,
+     "n": 35,
+     "entR": 0.8125,
+     "traps": 1
+    },
+    "rawExact": {
+     "p": 0.7777777777777778,
+     "r": 0.8,
+     "f2": 0.7954545454545454
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 1,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 308,
+     "tokens": 1754
+    },
+    "msPer1kWords": 437,
+    "loadMs": 912,
+    "cleaned": {
+     "p": 0.9433962264150944,
+     "r": 0.7518796992481203,
+     "f2": 0.7836990595611285,
+     "n": 133,
+     "entR": 0.7518796992481203,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.8962962962962963,
+     "r": 0.9097744360902256,
+     "f2": 0.9070464767616191
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 53,
+     "alignFailEntityTokens": 22,
+     "entityTokens": 252,
+     "tokens": 1176
+    },
+    "msPer1kWords": 632,
+    "loadMs": 862,
+    "known": {
+     "passed": 29,
+     "cases": 33,
+     "controls": 0,
+     "failed": [
+      "v39-glued-full-name",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "name": "msperka-dicta-ft",
+  "key": "msperka-dicta",
+  "tok": "faithful",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 90,
+     "tokens": 305
+    },
+    "msPer1kWords": 509,
+    "loadMs": 1444,
+    "cleaned": {
+     "p": 0.9444444444444444,
+     "r": 0.4857142857142857,
+     "f2": 0.5379746835443038,
+     "n": 35,
+     "entR": 0.8125,
+     "traps": 1
+    },
+    "rawExact": {
+     "p": 0.7948717948717948,
+     "r": 0.8857142857142857,
+     "f2": 0.8659217877094971
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 1,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 307,
+     "tokens": 1753
+    },
+    "msPer1kWords": 471,
+    "loadMs": 1311,
+    "cleaned": {
+     "p": 0.9595959595959596,
+     "r": 0.7142857142857143,
+     "f2": 0.7527733755942948,
+     "n": 133,
+     "entR": 0.7142857142857143,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.9253731343283582,
+     "r": 0.9323308270676691,
+     "f2": 0.930930930930931
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 53,
+     "alignFailEntityTokens": 22,
+     "entityTokens": 252,
+     "tokens": 1179
+    },
+    "msPer1kWords": 632,
+    "loadMs": 1282,
+    "known": {
+     "passed": 29,
+     "cases": 33,
+     "controls": 0,
+     "failed": [
+      "v39-glued-full-name",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "name": "aleph",
+  "key": "aleph",
+  "tok": "product",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 99,
+     "tokens": 324
+    },
+    "msPer1kWords": 594,
+    "loadMs": 643,
+    "cleaned": {
+     "p": 0.95,
+     "r": 0.5428571428571428,
+     "f2": 0.59375,
+     "n": 35,
+     "entR": 0.9375,
+     "traps": 1
+    },
+    "rawExact": {
+     "p": 0.7804878048780488,
+     "r": 0.9142857142857143,
+     "f2": 0.8839779005524862
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 1,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 344,
+     "tokens": 1904
+    },
+    "msPer1kWords": 487,
+    "loadMs": 644,
+    "cleaned": {
+     "p": 0.8947368421052632,
+     "r": 0.7669172932330827,
+     "f2": 0.7894736842105262,
+     "n": 133,
+     "entR": 0.7669172932330827,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.8235294117647058,
+     "r": 0.8421052631578947,
+     "f2": 0.8383233532934131
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 70,
+     "alignFailEntityTokens": 29,
+     "entityTokens": 280,
+     "tokens": 1254
+    },
+    "msPer1kWords": 802,
+    "loadMs": 698,
+    "known": {
+     "passed": 28,
+     "cases": 33,
+     "controls": 0,
+     "failed": [
+      "v39-glued-full-name",
+      "leak169-14",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "name": "joint-base",
+  "key": "joint-base",
+  "tok": "product",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 90,
+     "tokens": 305
+    },
+    "msPer1kWords": 563,
+    "loadMs": 1215,
+    "cleaned": {
+     "p": 0.9473684210526315,
+     "r": 0.5142857142857142,
+     "f2": 0.5660377358490566,
+     "n": 35,
+     "entR": 0.875,
+     "traps": 1
+    },
+    "rawExact": {
+     "p": 0.8095238095238095,
+     "r": 0.9714285714285714,
+     "f2": 0.934065934065934
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 1,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 308,
+     "tokens": 1754
+    },
+    "msPer1kWords": 515,
+    "loadMs": 917,
+    "cleaned": {
+     "p": 0.8738738738738738,
+     "r": 0.7293233082706767,
+     "f2": 0.7542768273716953,
+     "n": 133,
+     "entR": 0.7293233082706767,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.8790322580645161,
+     "r": 0.8195488721804511,
+     "f2": 0.8307926829268294
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 53,
+     "alignFailEntityTokens": 22,
+     "entityTokens": 252,
+     "tokens": 1176
+    },
+    "msPer1kWords": 709,
+    "loadMs": 912,
+    "known": {
+     "passed": 29,
+     "cases": 33,
+     "controls": 1,
+     "failed": [
+      "v39-glued-full-name",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "name": "joint-base-ft",
+  "key": "joint-base",
+  "tok": "faithful",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 90,
+     "tokens": 305
+    },
+    "msPer1kWords": 558,
+    "loadMs": 1340,
+    "cleaned": {
+     "p": 0.95,
+     "r": 0.5428571428571428,
+     "f2": 0.59375,
+     "n": 35,
+     "entR": 0.9375,
+     "traps": 1
+    },
+    "rawExact": {
+     "p": 0.85,
+     "r": 0.9714285714285714,
+     "f2": 0.9444444444444444
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 1,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 307,
+     "tokens": 1753
+    },
+    "msPer1kWords": 506,
+    "loadMs": 1302,
+    "cleaned": {
+     "p": 0.99,
+     "r": 0.7443609022556391,
+     "f2": 0.7832278481012658,
+     "n": 133,
+     "entR": 0.7443609022556391,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.928,
+     "r": 0.8721804511278195,
+     "f2": 0.8828006088280062
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 53,
+     "alignFailEntityTokens": 22,
+     "entityTokens": 252,
+     "tokens": 1179
+    },
+    "msPer1kWords": 692,
+    "loadMs": 1580,
+    "known": {
+     "passed": 29,
+     "cases": 33,
+     "controls": 1,
+     "failed": [
+      "v39-glued-full-name",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "name": "parse-base",
+  "key": "parse-base",
+  "tok": "product",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 90,
+     "tokens": 305
+    },
+    "msPer1kWords": 513,
+    "loadMs": 919,
+    "cleaned": {
+     "p": 0.9473684210526315,
+     "r": 0.5142857142857142,
+     "f2": 0.5660377358490566,
+     "n": 35,
+     "entR": 0.875,
+     "traps": 1
+    },
+    "rawExact": {
+     "p": 0.8292682926829268,
+     "r": 0.9714285714285714,
+     "f2": 0.9392265193370166
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 1,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 308,
+     "tokens": 1754
+    },
+    "msPer1kWords": 506,
+    "loadMs": 907,
+    "cleaned": {
+     "p": 0.8761061946902655,
+     "r": 0.7443609022556391,
+     "f2": 0.7674418604651163,
+     "n": 133,
+     "entR": 0.7443609022556391,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.8947368421052632,
+     "r": 0.8947368421052632,
+     "f2": 0.894736842105263
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 53,
+     "alignFailEntityTokens": 22,
+     "entityTokens": 252,
+     "tokens": 1176
+    },
+    "msPer1kWords": 721,
+    "loadMs": 986,
+    "known": {
+     "passed": 29,
+     "cases": 33,
+     "controls": 1,
+     "failed": [
+      "v39-glued-full-name",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "name": "parse-base-ft",
+  "key": "parse-base",
+  "tok": "faithful",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 90,
+     "tokens": 305
+    },
+    "msPer1kWords": 522,
+    "loadMs": 1387,
+    "cleaned": {
+     "p": 0.9523809523809523,
+     "r": 0.5714285714285714,
+     "f2": 0.6211180124223603,
+     "n": 35,
+     "entR": 1,
+     "traps": 1
+    },
+    "rawExact": {
+     "p": 0.8292682926829268,
+     "r": 0.9714285714285714,
+     "f2": 0.9392265193370166
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 1,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 307,
+     "tokens": 1753
+    },
+    "msPer1kWords": 531,
+    "loadMs": 1528,
+    "cleaned": {
+     "p": 0.8878504672897196,
+     "r": 0.7142857142857143,
+     "f2": 0.7433489827856026,
+     "n": 133,
+     "entR": 0.7142857142857143,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.8939393939393939,
+     "r": 0.8872180451127819,
+     "f2": 0.8885542168674697
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 53,
+     "alignFailEntityTokens": 22,
+     "entityTokens": 252,
+     "tokens": 1179
+    },
+    "msPer1kWords": 729,
+    "loadMs": 1382,
+    "known": {
+     "passed": 29,
+     "cases": 33,
+     "controls": 0,
+     "failed": [
+      "v39-glued-full-name",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "name": "golem",
+  "key": "golem",
+  "tok": "product",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 148,
+     "tokens": 439
+    },
+    "msPer1kWords": 915,
+    "loadMs": 1641,
+    "cleaned": {
+     "p": 1,
+     "r": 0.5142857142857142,
+     "f2": 0.5696202531645569,
+     "n": 35,
+     "entR": 0.8125,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.8076923076923077,
+     "r": 0.6,
+     "f2": 0.6325301204819277
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 500,
+     "tokens": 2511
+    },
+    "msPer1kWords": 845,
+    "loadMs": 1641,
+    "cleaned": {
+     "p": 0.9452054794520548,
+     "r": 0.518796992481203,
+     "f2": 0.5702479338842975,
+     "n": 133,
+     "entR": 0.518796992481203,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.6133333333333333,
+     "r": 0.3458646616541353,
+     "f2": 0.3789126853377265
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 0,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 418,
+     "tokens": 1748
+    },
+    "msPer1kWords": 1044,
+    "loadMs": 1754,
+    "known": {
+     "passed": 21,
+     "cases": 33,
+     "controls": 0,
+     "failed": [
+      "r3-bank-pseudonym",
+      "v39-glued-full-name",
+      "leak169-02",
+      "leak169-06",
+      "leak169-14",
+      "leak169-15",
+      "leak169-19",
+      "fp-verb-as-name",
+      "nikud-first-name",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "name": "large-q8",
+  "key": "large-q8",
+  "tok": "product",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 2,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 90,
+     "tokens": 306
+    },
+    "msPer1kWords": 1621,
+    "loadMs": 1759,
+    "cleaned": {
+     "p": 0.9523809523809523,
+     "r": 0.5714285714285714,
+     "f2": 0.6211180124223603,
+     "n": 35,
+     "entR": 1,
+     "traps": 1
+    },
+    "rawExact": {
+     "p": 0.7878787878787878,
+     "r": 0.7428571428571429,
+     "f2": 0.7514450867052023
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 15,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 308,
+     "tokens": 1761
+    },
+    "msPer1kWords": 1607,
+    "loadMs": 1734,
+    "cleaned": {
+     "p": 0.7479674796747967,
+     "r": 0.6917293233082706,
+     "f2": 0.7022900763358778,
+     "n": 133,
+     "entR": 0.6917293233082706,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.8928571428571429,
+     "r": 0.7518796992481203,
+     "f2": 0.7763975155279502
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 53,
+     "alignFailEntityTokens": 22,
+     "entityTokens": 252,
+     "tokens": 1176
+    },
+    "msPer1kWords": 2082,
+    "loadMs": 1991,
+    "known": {
+     "passed": 26,
+     "cases": 33,
+     "controls": 1,
+     "failed": [
+      "v39-glued-full-name",
+      "v39-infinitive",
+      "leak169-13",
+      "leak169-19",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "name": "large-q8-ft",
+  "key": "large-q8",
+  "tok": "faithful",
+  "sets": {
+   "smoke-synth": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 2,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 90,
+     "tokens": 306
+    },
+    "msPer1kWords": 1603,
+    "loadMs": 2205,
+    "cleaned": {
+     "p": 1,
+     "r": 0.5714285714285714,
+     "f2": 0.625,
+     "n": 35,
+     "entR": 1,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.7948717948717948,
+     "r": 0.8857142857142857,
+     "f2": 0.8659217877094971
+    }
+   },
+   "protocol": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 15,
+     "alignFailEntityTokens": 0,
+     "entityTokens": 307,
+     "tokens": 1760
+    },
+    "msPer1kWords": 1761,
+    "loadMs": 2302,
+    "cleaned": {
+     "p": 0.7642276422764228,
+     "r": 0.706766917293233,
+     "f2": 0.7175572519083969,
+     "n": 133,
+     "entR": 0.706766917293233,
+     "traps": 0
+    },
+    "rawExact": {
+     "p": 0.8739495798319328,
+     "r": 0.7819548872180451,
+     "f2": 0.7987711213517665
+    }
+   },
+   "known-cases": {
+    "healthOk": true,
+    "health": {
+     "unmappedLabels": 0,
+     "chunksOver510": 0,
+     "chunkErrors": 0,
+     "alignFailTokens": 53,
+     "alignFailEntityTokens": 22,
+     "entityTokens": 252,
+     "tokens": 1179
+    },
+    "msPer1kWords": 2464,
+    "loadMs": 3025,
+    "known": {
+     "passed": 28,
+     "cases": 33,
+     "controls": 1,
+     "failed": [
+      "v39-glued-full-name",
+      "leak169-19",
+      "nikud-full-name",
+      "latin-name",
+      "latin-caps"
+     ]
+    }
+   }
+  }
+ }
+]

@@ -1,0 +1,608 @@
+[
+ {
+  "model": "base-q8",
+  "passed": 26,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 2
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 18
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 5
+   },
+   "script": {
+    "cases": 4,
+    "passed": 1
+   }
+  },
+  "buckets": {
+   "covered": 3,
+   "exact": 118,
+   "missed": 17,
+   "glued": 4,
+   "partial": 1
+  },
+  "controls": 1,
+  "failed": [
+   "v39-glued-full-name",
+   "v39-infinitive",
+   "leak169-14",
+   "leak169-19",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ },
+ {
+  "model": "base-q8-ft",
+  "passed": 27,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 2
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 19
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 5
+   },
+   "script": {
+    "cases": 4,
+    "passed": 1
+   }
+  },
+  "buckets": {
+   "covered": 3,
+   "exact": 123,
+   "missed": 12,
+   "glued": 4,
+   "partial": 1
+  },
+  "controls": 1,
+  "failed": [
+   "v39-glued-full-name",
+   "v39-infinitive",
+   "leak169-14",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ },
+ {
+  "model": "tiny-parse",
+  "passed": 28,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 3
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 20
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 4
+   },
+   "script": {
+    "cases": 4,
+    "passed": 1
+   }
+  },
+  "buckets": {
+   "covered": 3,
+   "exact": 131,
+   "missed": 8,
+   "partial": 1
+  },
+  "controls": 1,
+  "failed": [
+   "v39-glued-full-name",
+   "fp-verb-as-name",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ },
+ {
+  "model": "tiny-parse-ft",
+  "passed": 28,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 3
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 20
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 4
+   },
+   "script": {
+    "cases": 4,
+    "passed": 1
+   }
+  },
+  "buckets": {
+   "covered": 3,
+   "exact": 131,
+   "missed": 8,
+   "partial": 1
+  },
+  "controls": 0,
+  "failed": [
+   "v39-glued-full-name",
+   "fp-verb-as-name",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ },
+ {
+  "model": "iahlt-base",
+  "passed": 28,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 3
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 19
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 5
+   },
+   "script": {
+    "cases": 4,
+    "passed": 1
+   }
+  },
+  "buckets": {
+   "covered": 3,
+   "exact": 126,
+   "missed": 9,
+   "glued": 4,
+   "partial": 1
+  },
+  "controls": 1,
+  "failed": [
+   "v39-glued-full-name",
+   "leak169-14",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ },
+ {
+  "model": "iahlt-base-ft",
+  "passed": 28,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 3
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 19
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 5
+   },
+   "script": {
+    "cases": 4,
+    "passed": 1
+   }
+  },
+  "buckets": {
+   "covered": 3,
+   "exact": 126,
+   "missed": 9,
+   "glued": 4,
+   "partial": 1
+  },
+  "controls": 1,
+  "failed": [
+   "v39-glued-full-name",
+   "leak169-14",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ },
+ {
+  "model": "msperka-dicta",
+  "passed": 29,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 3
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 20
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 5
+   },
+   "script": {
+    "cases": 4,
+    "passed": 1
+   }
+  },
+  "buckets": {
+   "covered": 3,
+   "exact": 131,
+   "missed": 8,
+   "partial": 1
+  },
+  "controls": 0,
+  "failed": [
+   "v39-glued-full-name",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ },
+ {
+  "model": "msperka-dicta-ft",
+  "passed": 29,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 3
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 20
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 5
+   },
+   "script": {
+    "cases": 4,
+    "passed": 1
+   }
+  },
+  "buckets": {
+   "covered": 3,
+   "exact": 131,
+   "missed": 8,
+   "partial": 1
+  },
+  "controls": 0,
+  "failed": [
+   "v39-glued-full-name",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ },
+ {
+  "model": "aleph",
+  "passed": 28,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 3
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 19
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 5
+   },
+   "script": {
+    "cases": 4,
+    "passed": 1
+   }
+  },
+  "buckets": {
+   "covered": 3,
+   "exact": 126,
+   "missed": 9,
+   "glued": 4,
+   "partial": 1
+  },
+  "controls": 0,
+  "failed": [
+   "v39-glued-full-name",
+   "leak169-14",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ },
+ {
+  "model": "joint-base",
+  "passed": 29,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 3
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 20
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 5
+   },
+   "script": {
+    "cases": 4,
+    "passed": 1
+   }
+  },
+  "buckets": {
+   "covered": 3,
+   "exact": 131,
+   "missed": 8,
+   "partial": 1
+  },
+  "controls": 1,
+  "failed": [
+   "v39-glued-full-name",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ },
+ {
+  "model": "joint-base-ft",
+  "passed": 29,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 3
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 20
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 5
+   },
+   "script": {
+    "cases": 4,
+    "passed": 1
+   }
+  },
+  "buckets": {
+   "covered": 3,
+   "exact": 131,
+   "missed": 8,
+   "partial": 1
+  },
+  "controls": 1,
+  "failed": [
+   "v39-glued-full-name",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ },
+ {
+  "model": "parse-base",
+  "passed": 29,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 3
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 20
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 5
+   },
+   "script": {
+    "cases": 4,
+    "passed": 1
+   }
+  },
+  "buckets": {
+   "covered": 3,
+   "exact": 131,
+   "missed": 8,
+   "partial": 1
+  },
+  "controls": 1,
+  "failed": [
+   "v39-glued-full-name",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ },
+ {
+  "model": "parse-base-ft",
+  "passed": 29,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 3
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 20
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 5
+   },
+   "script": {
+    "cases": 4,
+    "passed": 1
+   }
+  },
+  "buckets": {
+   "covered": 3,
+   "exact": 131,
+   "missed": 8,
+   "partial": 1
+  },
+  "controls": 0,
+  "failed": [
+   "v39-glued-full-name",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ },
+ {
+  "model": "golem",
+  "passed": 21,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 2
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 15
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 4
+   },
+   "script": {
+    "cases": 4,
+    "passed": 0
+   }
+  },
+  "buckets": {
+   "partial": 6,
+   "exact": 99,
+   "missed": 32,
+   "glued": 5,
+   "glued-prefix": 1
+  },
+  "controls": 0,
+  "failed": [
+   "r3-bank-pseudonym",
+   "v39-glued-full-name",
+   "leak169-02",
+   "leak169-06",
+   "leak169-14",
+   "leak169-15",
+   "leak169-19",
+   "fp-verb-as-name",
+   "nikud-first-name",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ },
+ {
+  "model": "large-q8",
+  "passed": 26,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 2
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 18
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 5
+   },
+   "script": {
+    "cases": 4,
+    "passed": 1
+   }
+  },
+  "buckets": {
+   "covered": 3,
+   "exact": 118,
+   "missed": 20,
+   "glued": 1,
+   "partial": 1
+  },
+  "controls": 1,
+  "failed": [
+   "v39-glued-full-name",
+   "v39-infinitive",
+   "leak169-13",
+   "leak169-19",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ },
+ {
+  "model": "large-q8-ft",
+  "passed": 28,
+  "cases": 33,
+  "byGroup": {
+   "leak": {
+    "cases": 4,
+    "passed": 3
+   },
+   "leak-16.9": {
+    "cases": 20,
+    "passed": 19
+   },
+   "false-positive": {
+    "cases": 5,
+    "passed": 5
+   },
+   "script": {
+    "cases": 4,
+    "passed": 1
+   }
+  },
+  "buckets": {
+   "covered": 3,
+   "exact": 126,
+   "missed": 12,
+   "glued": 1,
+   "partial": 1
+  },
+  "controls": 1,
+  "failed": [
+   "v39-glued-full-name",
+   "leak169-19",
+   "nikud-full-name",
+   "latin-name",
+   "latin-caps"
+  ]
+ }
+]

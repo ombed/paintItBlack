@@ -1,0 +1,1204 @@
+{
+ "file": "tests/protocol.txt",
+ "annotator": "B",
+ "guidelines": "PLAN.md 4.2. Every mention of a person (PER), organisation (ORG) or place (PLACE: countries, cities, towns, neighbourhoods, streets, sites, facilities). Offsets are UTF-16 indices into the file text with any BOM stripped, e exclusive. Titles and role words (היו\"ר, גברת, חבר/ת הכנסת, מנהלת הוועדה) are left out. An attached prefix letter (ו ב ל מ ש ה and pairs such as ול) is left out and recorded in \"prefix\"; where a prefix absorbs the article (בוועדה) the span starts after the prefix. A type word that is not part of the proper name (עמותת \"אור שלום\") is left out; where it is part of the body's name (מכון סאמיט, עיריית בת ים, מ.א. חוף אשקלון, אוניברסיטת בן גוריון) it is kept. A committee's name keeps its own article (הוועדה המיוחדת לזכויות הילד). Public bodies (Knesset committees, public committees, ministries and their units, municipalities and their departments, regional councils, public universities, statutory health funds, army units) are ORG with public: true; NGOs, unions and private centres are public: false. First names used alone count as PER. Generic references without a name (הוועדה, המשרד, השר, הבנק, הצבא, שירותי הרווחה) and adjectives of nationality are not annotated. Spans are flat: an ORG that contains a person or place name is one ORG span.",
+ "mentions": [
+  {
+   "s": 0,
+   "e": 27,
+   "type": "ORG",
+   "surface": "הוועדה המיוחדת לזכויות הילד",
+   "prefix": "",
+   "public": true,
+   "note": "Knesset committee; the article is part of its name"
+  },
+  {
+   "s": 52,
+   "e": 71,
+   "type": "ORG",
+   "surface": "הוועדה לזכויות הילד",
+   "prefix": "",
+   "public": true,
+   "note": "Knesset committee; the article is part of its name"
+  },
+  {
+   "s": 200,
+   "e": 216,
+   "type": "PER",
+   "surface": "אורלי לוי-אבקסיס",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 226,
+   "e": 235,
+   "type": "PER",
+   "surface": "יעקב מרגי",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 249,
+   "e": 263,
+   "type": "PER",
+   "surface": "יחיאל חיליק בר",
+   "prefix": "",
+   "public": false,
+   "note": "first name, nickname, surname"
+  },
+  {
+   "s": 265,
+   "e": 275,
+   "type": "PER",
+   "surface": "מרדכי יוגב",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 277,
+   "e": 288,
+   "type": "PER",
+   "surface": "קארין אלהרר",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 290,
+   "e": 303,
+   "type": "PER",
+   "surface": "שמעון סולומון",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 315,
+   "e": 326,
+   "type": "PER",
+   "surface": "דליה לב שדה",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 335,
+   "e": 350,
+   "type": "ORG",
+   "surface": "שירות ילד ונוער",
+   "prefix": "",
+   "public": true,
+   "note": "ministry unit"
+  },
+  {
+   "s": 352,
+   "e": 382,
+   "type": "ORG",
+   "surface": "משרד הרווחה והשירותים החברתיים",
+   "prefix": "",
+   "public": true,
+   "note": "government ministry"
+  },
+  {
+   "s": 384,
+   "e": 392,
+   "type": "PER",
+   "surface": "אריה שמש",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 406,
+   "e": 438,
+   "type": "ORG",
+   "surface": "אגף לטיפול באדם עם מוגבלות שכלית",
+   "prefix": "ב",
+   "public": true,
+   "note": "ministry division; article absorbed by the prefix"
+  },
+  {
+   "s": 440,
+   "e": 470,
+   "type": "ORG",
+   "surface": "משרד הרווחה והשירותים החברתיים",
+   "prefix": "",
+   "public": true,
+   "note": "government ministry"
+  },
+  {
+   "s": 472,
+   "e": 484,
+   "type": "PER",
+   "surface": "שלוה ליבוביץ",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 506,
+   "e": 536,
+   "type": "ORG",
+   "surface": "משרד הרווחה והשירותים החברתיים",
+   "prefix": "",
+   "public": true,
+   "note": "government ministry"
+  },
+  {
+   "s": 538,
+   "e": 548,
+   "type": "PER",
+   "surface": "חנה סלוצקי",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 578,
+   "e": 608,
+   "type": "ORG",
+   "surface": "משרד הרווחה והשירותים החברתיים",
+   "prefix": "",
+   "public": true,
+   "note": "government ministry"
+  },
+  {
+   "s": 610,
+   "e": 618,
+   "type": "PER",
+   "surface": "ניצה בקר",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 663,
+   "e": 685,
+   "type": "ORG",
+   "surface": "מחלקה לשירותים חברתיים",
+   "prefix": "",
+   "public": true,
+   "note": "municipal department"
+  },
+  {
+   "s": 687,
+   "e": 690,
+   "type": "PLACE",
+   "surface": "נשר",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 692,
+   "e": 700,
+   "type": "PER",
+   "surface": "זיוה רשף",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 712,
+   "e": 722,
+   "type": "ORG",
+   "surface": "אגף הרווחה",
+   "prefix": "",
+   "public": true,
+   "note": "municipal department"
+  },
+  {
+   "s": 724,
+   "e": 736,
+   "type": "ORG",
+   "surface": "עיריית בת ים",
+   "prefix": "",
+   "public": true,
+   "note": "municipality; city name inside"
+  },
+  {
+   "s": 738,
+   "e": 749,
+   "type": "PER",
+   "surface": "אלעד בן דוד",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 779,
+   "e": 794,
+   "type": "ORG",
+   "surface": "מ.א. חוף אשקלון",
+   "prefix": "",
+   "public": true,
+   "note": "regional council; \"מ.א.\" is part of the body name"
+  },
+  {
+   "s": 796,
+   "e": 804,
+   "type": "PER",
+   "surface": "אתי ששון",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 836,
+   "e": 850,
+   "type": "ORG",
+   "surface": "לשכת נווה יעקב",
+   "prefix": "",
+   "public": true,
+   "note": "municipal welfare bureau; contains a neighbourhood name"
+  },
+  {
+   "s": 852,
+   "e": 859,
+   "type": "PLACE",
+   "surface": "ירושלים",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 861,
+   "e": 871,
+   "type": "PER",
+   "surface": "צפרא דוויק",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 879,
+   "e": 903,
+   "type": "ORG",
+   "surface": "ארגון העובדים הסוציאליים",
+   "prefix": "",
+   "public": false,
+   "note": "trade union"
+  },
+  {
+   "s": 905,
+   "e": 916,
+   "type": "PER",
+   "surface": "אורית עמיאל",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 937,
+   "e": 947,
+   "type": "ORG",
+   "surface": "מכון סאמיט",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 949,
+   "e": 961,
+   "type": "PER",
+   "surface": "גלית וינדפלד",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 977,
+   "e": 987,
+   "type": "ORG",
+   "surface": "מכון סאמיט",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 989,
+   "e": 1000,
+   "type": "PER",
+   "surface": "רמי וינדפלד",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1016,
+   "e": 1026,
+   "type": "ORG",
+   "surface": "מכון סאמיט",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1028,
+   "e": 1035,
+   "type": "PER",
+   "surface": "טלי חלף",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1080,
+   "e": 1088,
+   "type": "ORG",
+   "surface": "אור שלום",
+   "prefix": "",
+   "public": false,
+   "note": "type word \"עמותת\" and quotes left out"
+  },
+  {
+   "s": 1091,
+   "e": 1099,
+   "type": "PER",
+   "surface": "עמית דור",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1153,
+   "e": 1161,
+   "type": "ORG",
+   "surface": "אור שלום",
+   "prefix": "",
+   "public": false,
+   "note": "type word \"עמותת\" and quotes left out"
+  },
+  {
+   "s": 1164,
+   "e": 1175,
+   "type": "PER",
+   "surface": "דלית וולברג",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1217,
+   "e": 1225,
+   "type": "ORG",
+   "surface": "אור שלום",
+   "prefix": "",
+   "public": false,
+   "note": "type word \"עמותת\" and quotes left out"
+  },
+  {
+   "s": 1228,
+   "e": 1234,
+   "type": "PER",
+   "surface": "הלל שר",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1246,
+   "e": 1249,
+   "type": "ORG",
+   "surface": "שחר",
+   "prefix": "",
+   "public": false,
+   "note": "name only; the descriptive tagline after the dash left out"
+  },
+  {
+   "s": 1277,
+   "e": 1285,
+   "type": "PER",
+   "surface": "עדינה שר",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1298,
+   "e": 1301,
+   "type": "ORG",
+   "surface": "שחר",
+   "prefix": "",
+   "public": false,
+   "note": "name only; the descriptive tagline after the dash left out"
+  },
+  {
+   "s": 1329,
+   "e": 1342,
+   "type": "PER",
+   "surface": "שלומית לוסטיג",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1368,
+   "e": 1399,
+   "type": "ORG",
+   "surface": "שוחרי גיל\"ת לקידום ילדים בסיכון",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1401,
+   "e": 1409,
+   "type": "PER",
+   "surface": "מיה חסקל",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1428,
+   "e": 1453,
+   "type": "ORG",
+   "surface": "מרכז למניעת אלימות במשפחה",
+   "prefix": "ב",
+   "public": false,
+   "note": "article absorbed by the prefix"
+  },
+  {
+   "s": 1461,
+   "e": 1469,
+   "type": "ORG",
+   "surface": "מרכז קשר",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1471,
+   "e": 1478,
+   "type": "PLACE",
+   "surface": "הרצלייה",
+   "prefix": "ב",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1480,
+   "e": 1489,
+   "type": "PER",
+   "surface": "נעמה לוין",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1508,
+   "e": 1533,
+   "type": "ORG",
+   "surface": "אוניברסיטת בן גוריון בנגב",
+   "prefix": "",
+   "public": true,
+   "note": "public university"
+  },
+  {
+   "s": 1536,
+   "e": 1556,
+   "type": "ORG",
+   "surface": "המוקד לביטחון תזונתי",
+   "prefix": "ו",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1572,
+   "e": 1580,
+   "type": "PER",
+   "surface": "רחל סעדה",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1590,
+   "e": 1599,
+   "type": "PER",
+   "surface": "יעקב מרגי",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 1650,
+   "e": 1677,
+   "type": "ORG",
+   "surface": "הוועדה המיוחדת לזכויות הילד",
+   "prefix": "",
+   "public": true,
+   "note": "Knesset committee; the article is part of its name"
+  },
+  {
+   "s": 1824,
+   "e": 1834,
+   "type": "ORG",
+   "surface": "ועדת סילמן",
+   "prefix": "",
+   "public": true,
+   "note": "public committee named after a person"
+  },
+  {
+   "s": 1858,
+   "e": 1876,
+   "type": "ORG",
+   "surface": "וועדה למלחמה בעוני",
+   "prefix": "ב",
+   "public": true,
+   "note": "public committee; article absorbed by the prefix"
+  },
+  {
+   "s": 1966,
+   "e": 1977,
+   "type": "ORG",
+   "surface": "ועדת אלאלוף",
+   "prefix": "",
+   "public": true,
+   "note": "public committee named after a person"
+  },
+  {
+   "s": 2012,
+   "e": 2023,
+   "type": "PER",
+   "surface": "דליה לב שדה",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 2031,
+   "e": 2048,
+   "type": "ORG",
+   "surface": "שירות הילד והנוער",
+   "prefix": "",
+   "public": true,
+   "note": "ministry unit"
+  },
+  {
+   "s": 2050,
+   "e": 2061,
+   "type": "ORG",
+   "surface": "משרד הרווחה",
+   "prefix": "ב",
+   "public": true,
+   "note": "government ministry"
+  },
+  {
+   "s": 2066,
+   "e": 2077,
+   "type": "PER",
+   "surface": "דליה לב שדה",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 2144,
+   "e": 2157,
+   "type": "PER",
+   "surface": "שלווה ליבוביץ",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 2320,
+   "e": 2329,
+   "type": "PER",
+   "surface": "יעקב מרגי",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 2402,
+   "e": 2414,
+   "type": "PER",
+   "surface": "שלוה ליבוביץ",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 2435,
+   "e": 2446,
+   "type": "ORG",
+   "surface": "משרד הרווחה",
+   "prefix": "",
+   "public": true,
+   "note": "government ministry"
+  },
+  {
+   "s": 2458,
+   "e": 2470,
+   "type": "PER",
+   "surface": "שלוה ליבוביץ",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 2658,
+   "e": 2669,
+   "type": "ORG",
+   "surface": "סיירת מטכ\"ל",
+   "prefix": "ה",
+   "public": true,
+   "note": "army unit, used as a metaphor; attached article recorded as prefix"
+  },
+  {
+   "s": 2697,
+   "e": 2713,
+   "type": "PER",
+   "surface": "אורלי לוי אבקסיס",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 2744,
+   "e": 2754,
+   "type": "ORG",
+   "surface": "מכון סאמיט",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 2762,
+   "e": 2770,
+   "type": "ORG",
+   "surface": "אור שלום",
+   "prefix": "",
+   "public": false,
+   "note": "type word \"עמותת\" left out"
+  },
+  {
+   "s": 2772,
+   "e": 2775,
+   "type": "ORG",
+   "surface": "שחר",
+   "prefix": "ו",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 2843,
+   "e": 2851,
+   "type": "PER",
+   "surface": "עמית דור",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 2857,
+   "e": 2861,
+   "type": "PER",
+   "surface": "עמית",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 3020,
+   "e": 3035,
+   "type": "ORG",
+   "surface": "קופת חולים מכבי",
+   "prefix": "ל",
+   "public": true,
+   "note": "statutory health fund"
+  },
+  {
+   "s": 3094,
+   "e": 3101,
+   "type": "PER",
+   "surface": "טלי חלף",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 3103,
+   "e": 3110,
+   "type": "PER",
+   "surface": "טלי חלף",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 3131,
+   "e": 3139,
+   "type": "ORG",
+   "surface": "אור שלום",
+   "prefix": "ב",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 3285,
+   "e": 3296,
+   "type": "ORG",
+   "surface": "משרד הרווחה",
+   "prefix": "",
+   "public": true,
+   "note": "government ministry"
+  },
+  {
+   "s": 3307,
+   "e": 3323,
+   "type": "PER",
+   "surface": "אורלי לוי אבקסיס",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 3325,
+   "e": 3330,
+   "type": "PER",
+   "surface": "שלווה",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 3518,
+   "e": 3527,
+   "type": "PER",
+   "surface": "יובל גורן",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 3556,
+   "e": 3567,
+   "type": "PER",
+   "surface": "קארין אלהרר",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 3581,
+   "e": 3586,
+   "type": "PER",
+   "surface": "שלווה",
+   "prefix": "מ",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 3648,
+   "e": 3660,
+   "type": "PER",
+   "surface": "שלוה ליבוביץ",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 3829,
+   "e": 3840,
+   "type": "PER",
+   "surface": "דליה לב שדה",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 3903,
+   "e": 3907,
+   "type": "PER",
+   "surface": "שלוה",
+   "prefix": "ש",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 3948,
+   "e": 3952,
+   "type": "PER",
+   "surface": "גלית",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 4001,
+   "e": 4013,
+   "type": "PER",
+   "surface": "גלית וינדפלד",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 4019,
+   "e": 4023,
+   "type": "PER",
+   "surface": "גלית",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 4284,
+   "e": 4294,
+   "type": "ORG",
+   "surface": "מכון סאמיט",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 4343,
+   "e": 4347,
+   "type": "PER",
+   "surface": "ציון",
+   "prefix": "",
+   "public": false,
+   "note": "character in a book"
+  },
+  {
+   "s": 4349,
+   "e": 4353,
+   "type": "PER",
+   "surface": "בתיה",
+   "prefix": "ו",
+   "public": false,
+   "note": "character in a book"
+  },
+  {
+   "s": 4361,
+   "e": 4368,
+   "type": "PLACE",
+   "surface": "בית שאן",
+   "prefix": "מ",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 4453,
+   "e": 4456,
+   "type": "PER",
+   "surface": "רמי",
+   "prefix": "ו",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 4503,
+   "e": 4507,
+   "type": "PER",
+   "surface": "חגית",
+   "prefix": "ו",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 4624,
+   "e": 4628,
+   "type": "PER",
+   "surface": "חגית",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 4823,
+   "e": 4827,
+   "type": "PER",
+   "surface": "שליו",
+   "prefix": "ול",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 5037,
+   "e": 5049,
+   "type": "PER",
+   "surface": "גלית וינדפלד",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 5167,
+   "e": 5171,
+   "type": "PER",
+   "surface": "שליו",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 5380,
+   "e": 5390,
+   "type": "ORG",
+   "surface": "מכון סאמיט",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 5451,
+   "e": 5457,
+   "type": "PER",
+   "surface": "הלל שר",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 5473,
+   "e": 5478,
+   "type": "PER",
+   "surface": "עדינה",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 5480,
+   "e": 5483,
+   "type": "PER",
+   "surface": "הלל",
+   "prefix": "ו",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 5499,
+   "e": 5508,
+   "type": "PLACE",
+   "surface": "כוכב יאיר",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 5642,
+   "e": 5651,
+   "type": "PLACE",
+   "surface": "כוכב יאיר",
+   "prefix": "ב",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 5893,
+   "e": 5899,
+   "type": "PLACE",
+   "surface": "שלוותה",
+   "prefix": "ב",
+   "public": false,
+   "note": "psychiatric hospital (facility)"
+  },
+  {
+   "s": 5974,
+   "e": 5985,
+   "type": "PLACE",
+   "surface": "ארצות הברית",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 6029,
+   "e": 6036,
+   "type": "PLACE",
+   "surface": "כפר סבא",
+   "prefix": "מ",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 6073,
+   "e": 6080,
+   "type": "PLACE",
+   "surface": "כפר סבא",
+   "prefix": "ב",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 6101,
+   "e": 6112,
+   "type": "PLACE",
+   "surface": "ארצות הברית",
+   "prefix": "ב",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 6172,
+   "e": 6178,
+   "type": "PER",
+   "surface": "הלל שר",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 6454,
+   "e": 6465,
+   "type": "PER",
+   "surface": "קארין אלהרר",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 6621,
+   "e": 6625,
+   "type": "PER",
+   "surface": "מישל",
+   "prefix": "ב",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 6783,
+   "e": 6794,
+   "type": "PER",
+   "surface": "דלית וולברג",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 6878,
+   "e": 6886,
+   "type": "ORG",
+   "surface": "אור שלום",
+   "prefix": "",
+   "public": false,
+   "note": "type word \"עמותת\" left out"
+  },
+  {
+   "s": 7300,
+   "e": 7309,
+   "type": "PER",
+   "surface": "נעמה לוין",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 7377,
+   "e": 7381,
+   "type": "PER",
+   "surface": "נעמה",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 7409,
+   "e": 7430,
+   "type": "ORG",
+   "surface": "מחלקה לעבודה סוציאלית",
+   "prefix": "ב",
+   "public": true,
+   "note": "university department; article absorbed by the prefix"
+  },
+  {
+   "s": 7432,
+   "e": 7452,
+   "type": "ORG",
+   "surface": "אוניברסיטת בן גוריון",
+   "prefix": "ב",
+   "public": true,
+   "note": "public university"
+  },
+  {
+   "s": 7574,
+   "e": 7584,
+   "type": "PER",
+   "surface": "צפרא דוויק",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 7672,
+   "e": 7680,
+   "type": "ORG",
+   "surface": "אור שלום",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 7682,
+   "e": 7686,
+   "type": "ORG",
+   "surface": "מט\"ב",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 7688,
+   "e": 7698,
+   "type": "ORG",
+   "surface": "מכון סאמיט",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 7700,
+   "e": 7703,
+   "type": "ORG",
+   "surface": "שחר",
+   "prefix": "ו",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 7819,
+   "e": 7828,
+   "type": "PER",
+   "surface": "יעקב מרגי",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 7909,
+   "e": 7922,
+   "type": "PER",
+   "surface": "שמעון סולומון",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 7999,
+   "e": 8008,
+   "type": "PER",
+   "surface": "דודו רותם",
+   "prefix": "",
+   "public": false,
+   "note": ""
+  },
+  {
+   "s": 8010,
+   "e": 8020,
+   "type": "ORG",
+   "surface": "וועדת חוקה",
+   "prefix": "ב",
+   "public": true,
+   "note": "Knesset committee"
+  }
+ ]
+}
