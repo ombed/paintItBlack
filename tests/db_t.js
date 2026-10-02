@@ -108,6 +108,35 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
   await as(A, () => db.query("update public.app_settings set require_approval = false"));
   ok((await db.query("select require_approval from public.app_settings")).rows[0].require_approval === true, "a user cannot switch it");
 
+  // The checks above try one door at a time. Supabase's default grants open more doors than
+  // anyone tries (its live advisor found two the checks missed), so pin the whole list: every
+  // privilege the API roles hold in public, on tables, sequences, columns and functions.
+  console.log("\n— the API roles hold exactly the privileges they need —");
+  const held = (await db.query(`
+    with g as (
+      select c.relname obj, a.grantee, a.privilege_type p from pg_class c
+        cross join aclexplode(coalesce(c.relacl, acldefault((case c.relkind when 'S' then 's' else 'r' end)::"char", c.relowner))) a
+        where c.relnamespace = 'public'::regnamespace and c.relkind in ('r', 'S')
+      union all
+      select c.relname || '.' || t.attname, a.grantee, a.privilege_type from pg_attribute t join pg_class c on c.oid = t.attrelid
+        cross join aclexplode(t.attacl) a where c.relnamespace = 'public'::regnamespace and t.attnum > 0 and t.attacl is not null
+      union all
+      select p.proname || '()', a.grantee, a.privilege_type from pg_proc p
+        cross join aclexplode(coalesce(p.proacl, acldefault('f'::"char", p.proowner))) a where p.pronamespace = 'public'::regnamespace)
+    select g.obj || ' ' || g.p || ' ' || coalesce(r.rolname, 'public') x from g left join pg_roles r on r.oid = g.grantee
+    where g.grantee = 0 or r.rolname in ('anon', 'authenticated') order by 1`)).rows.map((r) => r.x);
+  const allowed = ["app_settings SELECT authenticated", "app_settings UPDATE authenticated",
+    "is_admin() EXECUTE authenticated", "profiles SELECT authenticated",
+    "profiles.approved UPDATE authenticated", "profiles.blocked UPDATE authenticated",
+    "set_log_enabled() EXECUTE authenticated", "submit_log() EXECUTE authenticated",
+    "touch() EXECUTE authenticated", "usage_logs SELECT authenticated"];
+  const extra = held.filter((x) => !allowed.includes(x)), missing = allowed.filter((x) => !held.includes(x));
+  ok(!extra.length, "no privilege beyond the list" + (extra.length ? ": " + extra.join("; ") : ""));
+  ok(!missing.length, "every listed privilege is held" + (missing.length ? ": " + missing.join("; ") : ""));
+  const loose = (await db.query(`select proname from pg_proc where pronamespace = 'public'::regnamespace
+    and not exists (select 1 from unnest(proconfig) c where c like 'search_path=%')`)).rows.map((r) => r.proname);
+  ok(!loose.length, "every function fixes its search_path" + (loose.length ? ": " + loose.join(", ") : ""));
+
   console.log(`\n${pass} passed, ${fail} failed`);
   if (fail) process.exitCode = 1;
 })().catch((e) => { console.log("  ✗ crashed: " + e.message); console.log(`\n${pass} passed, ${fail + 1} failed`); process.exitCode = 1; });
