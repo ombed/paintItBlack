@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<!-- not indexed until launch -->
+<meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'self'">
+<!-- icons: Lucide (lucide.dev), ISC licence, inlined as SVG -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>אינקוגניטו: השחרת מסמכים לפני AI</title>
+<meta name="description" content="אינקוגניטו מחליף שמות ופרטים מזהים בשמות ובפרטים בדויים ישירות בדפדפן, ומחזיר את השמות האמיתיים לתשובה של ה־AI.">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <a class="skip" href="#main">דילוג לתוכן</a>
+  <header class="nav" id="nav">
+    <div class="wrap">
+      <a class="mark" href="#">אינקוגניטו</a>
+      <nav aria-label="ראשי">
+        <ul class="links">
+          <li><a href="#how">איך זה עובד</a></li>
+          <li><a href="#privacy">פרטיות ואבטחה</a></li>
+          <li><a href="#accuracy">כמה זה מדויק</a></li>
+          <li><a href="#faq">שאלות נפוצות</a></li>
+        </ul>
+      </nav>
+      <div class="end">
+        <a class="login" href="login.html">כניסה</a>
+        <a class="btn btn-ink" href="login.html">להרשמה חינם</a>
+        <button class="menu-btn" type="button" aria-expanded="false" aria-controls="sheet" aria-label="תפריט"><svg aria-hidden="true" focusable="false" class="lucide lucide-menu" class="lucide lucide-menu" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M4 5h16" /> <path d="M4 12h16" /> <path d="M4 19h16" /> </svg></button>
+      </div>
+    </div>
+    <div class="sheet" id="sheet">
+      <ul>
+        <li><a href="#how">איך זה עובד</a></li>
+        <li><a href="#privacy">פרטיות ואבטחה</a></li>
+        <li><a href="#accuracy">כמה זה מדויק</a></li>
+        <li><a href="#faq">שאלות נפוצות</a></li>
+        <li><a href="login.html">כניסה</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-grid">
+          <div>
+            <h1>להיעזר ב־AI בלי לחשוף את הלקוח.</h1>
+            <p class="sub">אינקוגניטו מחליף שמות ופרטים מזהים בשמות ובפרטים בדויים, ישירות בדפדפן, ומחזיר את השמות האמיתיים לתשובה של ה־AI.</p>
+            <div class="actions">
+              <a class="btn btn-ink btn-lg" href="login.html">להרשמה חינם</a>
+              <a class="btn btn-ghost" href="#how">לראות איך זה עובד</a>
+            </div>
+            <ul class="micro">
+              <li><svg aria-hidden="true" focusable="false" class="lucide lucide-check" class="lucide lucide-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M20 6 9 17l-5-5" /> </svg>חינם</li>
+              <li><svg aria-hidden="true" focusable="false" class="lucide lucide-check" class="lucide lucide-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M20 6 9 17l-5-5" /> </svg><span>כניסה עם <bdi>Google</bdi> או קישור במייל</span></li>
+              <li><svg aria-hidden="true" focusable="false" class="lucide lucide-check" class="lucide lucide-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M20 6 9 17l-5-5" /> </svg>המסמך המקורי לא יוצא מהמחשב</li>
+            </ul>
+          </div>
+
+          <figure class="frame" data-ink data-loop>
+            <figcaption class="sr-only">הדגמה. המסמך המקורי, שנשאר במחשב: ״ביום 12.3 נפגשה עו״ד נעמה ברק עם אלון שפירא במשרדה ברמת גן.״ מה שכלי ה־AI מקבל, עם שמות בדויים: ״ביום 12.3 נפגשה עו״ד שירה לוין עם רון אדלר במשרדה בהרצליה.״ התשובה של ה־AI חוזרת, והשמות האמיתיים מוחזרים אליה.</figcaption>
+            <div class="bar" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="url">inkognito.co.il/app</span></div>
+            <div class="spread" aria-hidden="true">
+              <div class="page">
+                <p class="label">המקור, נשאר אצלך</p>
+                <p class="doc">ביום 12.3 נפגשה <span class="found">עו״ד נעמה ברק</span> עם <span class="found">אלון שפירא</span> במשרדה <span class="nw">ב<span class="found">רמת גן</span></span>. <span class="found">שפירא</span> מסר כי החוזה נחתם בנוכחות <span class="found">גיל אורן</span>.</p>
+              </div>
+              <div class="page">
+                <p class="label">מה שה־AI מקבל</p>
+                <p class="doc">ביום 12.3 נפגשה <span class="nm" data-alias="עו״ד שירה לוין">עו״ד נעמה ברק</span> עם <span class="nm" data-alias="רון אדלר">אלון שפירא</span> במשרדה <span class="nw">ב<span class="nm" data-alias="הרצליה">רמת גן</span></span>. <span class="nm" data-alias="אדלר">שפירא</span> מסר כי החוזה נחתם בנוכחות <span class="nm" data-alias="עידו כץ">גיל אורן</span>.</p>
+              </div>
+            </div>
+            <div class="answer" data-after aria-hidden="true">
+              <p class="label">התשובה, עם השמות האמיתיים</p>
+              <p class="doc">כדאי לבקש <span class="nw">מ<span class="back" data-real="אלון שפירא">רון אדלר</span></span> תצהיר, ולזמן את <span class="back" data-real="גיל אורן">עידו כץ</span> כעד לחתימה.</p>
+            </div>
+          </figure>
+        </div>
+
+        <ul class="facts">
+          <li><span class="ic"><svg aria-hidden="true" focusable="false" class="lucide lucide-laptop" class="lucide lucide-laptop" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M18 5a2 2 0 0 1 2 2v8.526a2 2 0 0 0 .212.897l1.068 2.127a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45l1.068-2.127A2 2 0 0 0 4 15.526V7a2 2 0 0 1 2-2z" /> <path d="M20.054 15.987H3.946" /> </svg></span><div><b>בדפדפן</b><span>הזיהוי וההחלפה רצים במחשב שלך</span></div></li>
+          <li><span class="ic"><svg aria-hidden="true" focusable="false" class="lucide lucide-file-text" class="lucide lucide-file-text" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /> <path d="M14 2v5a1 1 0 0 0 1 1h5" /> <path d="M10 9H8" /> <path d="M16 13H8" /> <path d="M16 17H8" /> </svg></span><div><b><bdi>Word</bdi> ו־<bdi>PDF</bdi></b><span>נקראים ישירות, בלי המרה</span></div></li>
+          <li><span class="ic"><svg aria-hidden="true" focusable="false" class="lucide lucide-languages" class="lucide lucide-languages" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m5 8 6 6" /> <path d="m4 14 6-6 2-3" /> <path d="M2 5h12" /> <path d="M7 2h1" /> <path d="m22 22-5-10-5 10" /> <path d="M14 18h6" /> </svg></span><div><b>בעברית</b><span>כולל אותיות שימוש ושגיאות כתיב</span></div></li>
+          <li><span class="ic"><svg aria-hidden="true" focusable="false" class="lucide lucide-sparkles" class="lucide lucide-sparkles" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /> <path d="M20 2v4" /> <path d="M22 4h-4" /> <circle cx="4" cy="20" r="2" /> </svg></span><div><b>כל כלי AI</b><span>כל כלי שאפשר להדביק בו טקסט</span></div></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="h-problem">
+      <div class="wrap problem">
+        <div>
+          <h2 id="h-problem">כלי AI חוסכים שעות. שמות הלקוחות לא צריכים להגיע אליהם.</h2>
+        </div>
+        <div>
+          <p>סיכום פרוטוקול, טיוטת תצהיר, שאלה על פסק דין: כלי AI עושים את זה מהר. אבל טקסט שמודבק לצ׳אט יוצא מהמשרד, עם השמות, המספרים והכתובות שבו.</p>
+          <p>השחרה ידנית לוקחת זמן, ושם אחד שנשכח מספיק. אינקוגניטו עושה את ההחלפה, וההחלטה נשארת אצלך.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="how" aria-labelledby="h-how">
+      <div class="wrap">
+        <h2 id="h-how">שלושה צעדים, בלי לצאת מהדפדפן</h2>
+        <ol class="steps">
+          <li><div class="shot"><img src="img/s1.png" alt="מסך ״מי מופיע בתיק״, עם רשימת האנשים והמקומות שנמצאו במסמך"></div><h3>מעלים מסמך</h3><p>קובץ <bdi>Word</bdi> או <bdi>PDF</bdi>. הכלי מוצא את האנשים, המקומות והמספרים, ונשאר רק לעבור על הרשימה.</p></li>
+          <li><div class="shot"><img src="img/s2.png" alt="המסמך אחרי ההחלפה, כל שם בדוי מסומן"></div><h3>מעתיקים ל־AI</h3><p>כל שם מוחלף בשם בדוי שנשמע טבעי, ואותו אדם תמיד מקבל אותו שם. את הגרסה הזאת מדביקים בכלי ה־AI.</p></li>
+          <li><div class="shot"><img src="img/s3.png" alt="תשובת ה־AI עם השמות האמיתיים שהוחזרו אליה"></div><h3>מדביקים את התשובה</h3><p>מדביקים את התשובה, והשמות האמיתיים חוזרים למקומם, במחשב שלך.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="h-features">
+      <div class="wrap">
+        <h2 id="h-features">בנוי למסמכים משפטיים בעברית</h2>
+        <div class="features">
+          <div><span class="ic"><svg aria-hidden="true" focusable="false" class="lucide lucide-type" class="lucide lucide-type" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12 4v16" /> <path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2" /> <path d="M9 20h6" /> </svg></span><h3>אותיות שימוש</h3><p>״לרונית״, ״ולוי״, ״וכהן״: השם נמצא ומוחלף גם כשהוא צמוד למילה.</p></div>
+          <div><span class="ic"><svg aria-hidden="true" focusable="false" class="lucide lucide-spell-check" class="lucide lucide-spell-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m20 15-5.5 5.5L12 18" /> <path d="m4 16 6-12 5.115 10.23" /> <path d="M6 12h8" /> </svg></span><h3>שגיאות כתיב</h3><p>שם שנכתב פעם אחת נכון ופעם בשגיאה מזוהה כאותו אדם.</p></div>
+          <div><span class="ic"><svg aria-hidden="true" focusable="false" class="lucide lucide-layers" class="lucide lucide-layers" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /> </svg></span><h3>כל פינה בקובץ</h3><p>כותרות עמוד, הערות שוליים, הערות סקירה, טקסט חלופי של תמונות ומאפייני הקובץ.</p></div>
+          <div><span class="ic"><svg aria-hidden="true" focusable="false" class="lucide lucide-hash" class="lucide lucide-hash" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <line x1="4" x2="20" y1="9" y2="9" /> <line x1="4" x2="20" y1="15" y2="15" /> <line x1="10" x2="8" y1="3" y2="21" /> <line x1="16" x2="14" y1="3" y2="21" /> </svg></span><h3>מספרים ופרטי קשר</h3><p>תעודות זהות, טלפונים, חשבונות בנק, מספרי רכב וכתובות מייל.</p></div>
+          <div><span class="ic"><svg aria-hidden="true" focusable="false" class="lucide lucide-folder-sync" class="lucide lucide-folder-sync" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M9 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v.5" /> <path d="M12 10v4h4" /> <path d="m12 14 1.535-1.605a5 5 0 0 1 8 1.5" /> <path d="M22 22v-4h-4" /> <path d="m22 18-1.535 1.605a5 5 0 0 1-8-1.5" /> </svg></span><h3>עקבי לאורך התיק</h3><p>אותו אדם מקבל אותו שם בדוי גם במסמך הבא של אותו תיק.</p></div>
+          <div><span class="ic"><svg aria-hidden="true" focusable="false" class="lucide lucide-circle-check" class="lucide lucide-circle-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <circle cx="12" cy="12" r="10" /> <path d="m16 9-5.5 5.5L8 12" /> </svg></span><h3>ההחלטה אצלך</h3><p>כל הצעה אפשר לקבל, לשנות או לדחות לפני שמשהו מועתק.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="privacy" aria-labelledby="h-privacy">
+      <div class="wrap">
+        <h2 id="h-privacy">מה נשאר אצלך, ומה יוצא</h2>
+        <p class="intro">המסמך המקורי לא נשלח לשום מקום. זו הרשימה המלאה של מה שכן יוצא מהמחשב, ולאן.</p>
+        <div class="flow">
+          <div class="zone home">
+            <div class="zh"><span class="ic"><svg aria-hidden="true" focusable="false" class="lucide lucide-laptop" class="lucide lucide-laptop" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M18 5a2 2 0 0 1 2 2v8.526a2 2 0 0 0 .212.897l1.068 2.127a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45l1.068-2.127A2 2 0 0 0 4 15.526V7a2 2 0 0 1 2-2z" /> <path d="M20.054 15.987H3.946" /> </svg></span><h3>המחשב שלך</h3></div>
+            <p class="who">כאן קורה כל העיבוד</p>
+            <ul>
+              <li>המסמך המקורי</li>
+              <li>השמות האמיתיים</li>
+              <li>רשימות התיקים והשמות הבדויים שנבחרו</li>
+              <li>מנוע הזיהוי ומודל השפה העברי (יורד פעם אחת מהאתר)</li>
+            </ul>
+          </div>
+          <div class="zone">
+            <span class="gets"><span aria-hidden="true">← </span>מקבל רק מה שמדביקים בו</span>
+            <div class="zh"><span class="ic"><svg aria-hidden="true" focusable="false" class="lucide lucide-bot" class="lucide lucide-bot" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12 8V4H8" /> <rect width="16" height="12" x="4" y="8" rx="2" /> <path d="M2 14h2" /> <path d="M20 14h2" /> <path d="M15 13v2" /> <path d="M9 13v2" /> </svg></span><h3>כלי ה־AI שבחרת</h3></div>
+            <ul><li>הטקסט עם השמות הבדויים</li></ul>
+            <ul class="not" aria-label="לא מקבל"><li><span class="sr-only">לא מקבל: </span>השמות האמיתיים</li></ul>
+          </div>
+          <div class="zone">
+            <span class="gets"><span aria-hidden="true">← </span>מקבל פרטי חשבון ויומן בלי טקסט</span>
+            <div class="zh"><span class="ic"><svg aria-hidden="true" focusable="false" class="lucide lucide-server" class="lucide lucide-server" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <rect width="20" height="8" x="2" y="2" rx="2" ry="2" /> <rect width="20" height="8" x="2" y="14" rx="2" ry="2" /> <line x1="6" x2="6.01" y1="6" y2="6" /> <line x1="6" x2="6.01" y1="18" y2="18" /> </svg></span><h3>אינקוגניטו</h3></div>
+            <ul>
+              <li>שם וכתובת מייל, לכניסה</li>
+              <li>יומן שימוש בלי טקסט: לחיצות, זמנים וספירות. פעיל כברירת מחדל, ואפשר לכבות בהגדרות</li>
+            </ul>
+            <ul class="not" aria-label="לא מקבל"><li><span class="sr-only">לא מקבל: </span>המסמך, השמות ושמות הקבצים</li></ul>
+          </div>
+        </div>
+        <div class="verify"><span class="ic"><svg aria-hidden="true" focusable="false" class="lucide lucide-scan-search" class="lucide lucide-scan-search" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M3 7V5a2 2 0 0 1 2-2h2" /> <path d="M17 3h2a2 2 0 0 1 2 2v2" /> <path d="M21 17v2a2 2 0 0 1-2 2h-2" /> <path d="M7 21H5a2 2 0 0 1-2-2v-2" /> <circle cx="12" cy="12" r="3" /> <path d="m16 16-1.9-1.9" /> </svg></span><p style="margin:0"><b>אפשר לבדוק בעצמך:</b> פותחים את כלי המפתחים בדפדפן (F12), עוברים ללשונית <bdi>Network</bdi> ומעבדים מסמך. אף בקשה לא נושאת את הטקסט שלו. והקוד כולו פתוח לקריאה ב־<bdi>GitHub</bdi>.</p></div>
+        <p class="nos"><span class="lead">את המסמך:</span><span>לא מעלים.</span><span>לא שומרים.</span><span>לא מאמנים עליו.</span></p>
+      </div>
+    </section>
+
+    <section class="block" id="accuracy" aria-labelledby="h-acc">
+      <div class="wrap">
+        <h2 id="h-acc">כמה זה מדויק</h2>
+        <p class="intro">43 מסמכי בדיקה מומצאים, שנבנו כדי להכשיל את הכלי: אותיות שימוש, ניקוד, שגיאות תמלול, שמות בהערות שוליים. כל שינוי בקוד נבדק מולם לפני שהוא עולה לאוויר.</p>
+        <div class="accuracy">
+          <div><div class="n">266 <small>מתוך 268</small></div><div class="l">פרטים מזהים נמצאו והוחלפו. <span>2 נשארו בטקסט.</span></div></div>
+          <div>
+            <p>גם 266 מתוך 268 זה לא הכול. לכן מסומן מה כדאי לבדוק לפני ההעתקה, והבדיקה האחרונה תמיד שלך.</p>
+            <p>נמדד עם מודל השפה, ספטמבר 2026. מסמכי הבדיקה והתוצאות פתוחים ב־<bdi>GitHub</bdi>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="faq" aria-labelledby="h-faq">
+      <div class="wrap">
+        <h2 id="h-faq">שאלות נפוצות</h2>
+        <div class="faq">
+          <details><summary>המסמך באמת לא יוצא מהמחשב?<svg aria-hidden="true" focusable="false" class="lucide lucide-chevron-down" class="lucide lucide-chevron-down" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m6 9 6 6 6-6" /> </svg></summary><p>נכון, הוא לא יוצא. הקובץ נקרא ונסרק, והשמות מוחלפים, בתוך הדפדפן. מודל השפה העברי יורד פעם אחת מהאתר ורץ אצלך. לשרת מגיעים רק פרטי הכניסה ויומן שימוש בלי טקסט, שפועל כברירת מחדל ואפשר לכבות בהגדרות.</p></details>
+          <details><summary>מה קורה אם הכלי מפספס שם?<svg aria-hidden="true" focusable="false" class="lucide lucide-chevron-down" class="lucide lucide-chevron-down" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m6 9 6 6 6-6" /> </svg></summary><p>זה יכול לקרות. לכן לפני ההעתקה מוצגת רשימה של כל מה שנמצא, ומסומן מה כדאי לבדוק. שם שפוספס מוסיפים בלחיצה, והוא מוחלף בכל המסמך.</p></details>
+          <details><summary>עם אילו כלי AI זה עובד?<svg aria-hidden="true" focusable="false" class="lucide lucide-chevron-down" class="lucide lucide-chevron-down" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m6 9 6 6 6-6" /> </svg></summary><p>עם כל כלי שאפשר להדביק בו טקסט: <bdi>ChatGPT</bdi>, <bdi>Claude</bdi>, <bdi>Gemini</bdi>, <bdi>Copilot</bdi> ואחרים. אינקוגניטו לא מתחבר לאף אחד מהם.</p></details>
+          <details><summary>למה זה חינם?<svg aria-hidden="true" focusable="false" class="lucide lucide-chevron-down" class="lucide lucide-chevron-down" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m6 9 6 6 6-6" /> </svg></summary><p>בתקופת ההשקה הכלי חינם. אם תהיה בעתיד תוכנית בתשלום, נודיע מראש.</p></details>
+          <details><summary>מה אתם יודעים עליי?<svg aria-hidden="true" focusable="false" class="lucide lucide-chevron-down" class="lucide lucide-chevron-down" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m6 9 6 6 6-6" /> </svg></summary><p>שם וכתובת מייל מחשבון <bdi>Google</bdi> או מהקישור, מתי נכנסת, ויומן שימוש בלי טקסט (לחיצות, זמנים, ספירות) אם לא כובה. הפירוט המלא במדיניות הפרטיות.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="final" aria-labelledby="h-final">
+      <div class="wrap">
+        <div>
+          <h2 id="h-final">להשתמש ב־AI בלי לחשוף לקוחות</h2>
+          <p class="micro">חינם. כניסה עם <bdi>Google</bdi> או קישור במייל.</p>
+        </div>
+        <a class="btn btn-lg" href="login.html">להרשמה חינם</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <a class="mark" href="#">אינקוגניטו</a>
+      <nav aria-label="מידע ומסמכים משפטיים">
+        <a href="terms.html">תנאי שימוש</a><a href="privacy.html">מדיניות פרטיות</a><a href="#privacy">אבטחה</a><a href="accessibility.html">הצהרת נגישות</a><a href="https://github.com/ombed/paintItBlack">הקוד ב־GitHub</a><a href="mailto:hello@inkognito.co.il">יצירת קשר</a>
+      </nav>
+      <span>© 2026 אינקוגניטו</span>
+    </div>
+  </footer>
+  <script src="ink.js"></script>
+  <script src="landing.js"></script>
+</body>
+</html>
