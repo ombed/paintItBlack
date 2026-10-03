@@ -38,6 +38,7 @@
     "@electric-sql/pglite": "^0.5.8",
     "@huggingface/transformers": "^4.2.0",
     "@playwright/test": "^1.62.1",
+    "@supabase/supabase-js": "^2.117.2",
     "@xmldom/xmldom": "^0.9.12",
     "eslint": "^9.39.5",
     "jsdom": "^30.0.1",

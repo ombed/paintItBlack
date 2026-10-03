@@ -1,0 +1,13 @@
+<!-- The sign-in email, pasted by hand into the Supabase dashboard (Authentication > Emails) twice:
+     as "Magic Link" (someone who has signed in before) and as "Confirm signup" (the first time).
+     Subject for both: קישור כניסה לאינקוגניטו
+     The link opens site/login.html with the token after the #: a mail scanner that fetches the
+     link never spends it (login.js spends it only on a click), and the token never reaches a
+     server log. {{ .RedirectTo }} is the page that asked, which must be on the project's list of
+     redirect URLs; the 15 minutes is the project's email OTP expiry (900 seconds). -->
+<div dir="rtl" lang="he" style="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1a1a1a;">
+  <h2 style="margin: 0 0 12px;">כניסה לאינקוגניטו</h2>
+  <p>ביקשת להיכנס לאינקוגניטו. הקישור תקף ל־15 דקות ופועל פעם אחת.</p>
+  <p><a href="{{ .RedirectTo }}#confirm={{ .TokenHash }}" style="display: inline-block; background: #1F5B44; color: #ffffff; padding: 12px 22px; border-radius: 999px; text-decoration: none; font-weight: bold;">כניסה לאינקוגניטו</a></p>
+  <p style="color: #555;">לא ביקשת? אפשר להתעלם מהמייל הזה, ושום דבר לא ישתנה.</p>
+</div>

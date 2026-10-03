@@ -36,9 +36,11 @@ const rules = {
 const js = require("@eslint/js");
 module.exports = [
   // engine/ holds the sections that concatenate into redact-engine.js; the whole is linted, the parts are not modules
-  { ignores: ["node_modules/**", "vendor/**", "support.js", "engine/**", "tests/app.html", "tests/core.js", "tests/*-core.js", "bench/.engine*.cjs", "test-results/**", "playwright-report/**"] },
+  { ignores: ["node_modules/**", "vendor/**", "site/vendor/**", "support.js", "engine/**", "tests/app.html", "tests/core.js", "tests/*-core.js", "bench/.engine*.cjs", "test-results/**", "playwright-report/**"] },
   { files: ["redact-engine.js", "pdf-text.js", "text-to-docx.js"], languageOptions: { ecmaVersion: 2022, sourceType: "module", globals: globals.browser }, rules: { ...js.configs.recommended.rules, ...rules } },
   { files: ["page-logic.js"], languageOptions: { ecmaVersion: 2022, sourceType: "script", globals: { ...globals.browser, module: "readonly" } }, rules: { ...js.configs.recommended.rules, ...rules } },
+  // the landing and sign-in pages: classic scripts, one after another on the page
+  { files: ["site/*.js"], languageOptions: { ecmaVersion: 2022, sourceType: "script", globals: { ...globals.browser, setInterval: "readonly", clearInterval: "readonly", IntersectionObserver: "readonly", addEventListener: "readonly", scrollY: "readonly", URLSearchParams: "readonly" } }, rules: { ...js.configs.recommended.rules, ...rules } },
   { files: ["sw.js"], languageOptions: { ecmaVersion: 2022, sourceType: "script", globals: globals.browser }, rules: { ...js.configs.recommended.rules, ...rules } },
   { files: ["bench/*.js", "scripts/*.js", "tests/run.js", "tests/build-fixtures.js", "tests/version_t.js", "tests/design_t.js", "e2e/*.js", "eslint.config.js", "playwright.config.js"],
     languageOptions: { ecmaVersion: 2022, sourceType: "commonjs", globals: { ...globals.node, localStorage: "readonly", getComputedStyle: "readonly", innerWidth: "readonly", navigator: "readonly", NodeFilter: "readonly", getSelection: "readonly", MouseEvent: "readonly", performance: "readonly", requestAnimationFrame: "readonly", CSSRule: "readonly" } },

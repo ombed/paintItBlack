@@ -21,11 +21,13 @@ const copy = (from, to) => {
 };
 
 function vendor() {
-  const tv = version("@huggingface/transformers"), pv = version("pdfjs-dist");
+  const tv = version("@huggingface/transformers"), pv = version("pdfjs-dist"), sv = version("@supabase/supabase-js");
   return [
     copy("node_modules/@huggingface/transformers/dist/transformers.min.js", `vendor/transformers-${tv}.min.js`),
     copy("node_modules/pdfjs-dist/build/pdf.min.mjs", `vendor/pdfjs-${pv}/pdf.min.mjs`),
     copy("node_modules/pdfjs-dist/build/pdf.worker.min.mjs", `vendor/pdfjs-${pv}/pdf.worker.min.mjs`),
+    // the sign-in client; site/login.html names this file, version included
+    copy("node_modules/@supabase/supabase-js/dist/umd/supabase.js", `site/vendor/supabase-${sv}.js`),
   ];
 }
 
