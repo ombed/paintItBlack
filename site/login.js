@@ -7,8 +7,19 @@
 const card = document.getElementById("card"), email = document.getElementById("email"), err = document.getElementById("email-err");
 const resend = document.getElementById("resend"), label = document.getElementById("resend-label"), status = document.getElementById("status");
 const send = document.querySelector("#mailform button[type=submit]");
-const HERE = location.origin + location.pathname, APP = new URL("app/", location.href).href;
+const HERE = location.origin + location.pathname;
 const WAIT = 60; // Supabase allows one link per address per minute
+/* Where a session goes: the app, or the admin page when the sign-in started there
+   (login.html?next=admin). Only that one other page, never an address from the URL: a sign-in
+   page that forwards anywhere it is told is an open redirect. Kept for this tab through the
+   round trip to Google; a link opened from the email in a new tab goes to the app. */
+const NEXT = "ink-next";
+try { if (new URLSearchParams(location.search).get("next") === "admin") sessionStorage.setItem(NEXT, "admin"); } catch (_) {}
+function destination() {
+  let next = null;
+  try { next = sessionStorage.getItem(NEXT); sessionStorage.removeItem(NEXT); } catch (_) {}
+  return new URL(next === "admin" ? "admin.html" : "app/", location.href).href;
+}
 
 // what Supabase put after the # that is ours to handle: the email's token, or a refusal
 const hash = new URLSearchParams(location.hash.slice(1));
@@ -21,7 +32,7 @@ const sb = window.supabase.createClient(window.INK_AUTH.url, window.INK_AUTH.key
 function enter(session) {
   const age = Math.max(0, Math.floor(session.expires_at - Date.now() / 1000));
   document.cookie = "ink_at=" + session.access_token + "; Path=/; Max-Age=" + age + "; SameSite=Lax" + (location.protocol === "https:" ? "; Secure" : "");
-  location.replace(APP);
+  location.replace(destination());
 }
 
 // Supabase's refusals in Hebrew; its English never reaches the page

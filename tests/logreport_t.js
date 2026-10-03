@@ -110,5 +110,37 @@ console.log("\n— a file under four bytes gets a message, not a RangeError (rev
   fs.rmSync(dir, { recursive: true, force: true });
 }
 
+console.log("\n— a hosted upload is one document's slice, timed from where it starts —");
+{
+  // the slice starts 600000 ms into the page load; without "from" those ten minutes before it
+  // were counted as time on the entry screen
+  const slice = { v: "v58", ms: 720000, from: 600000, events: [{ t: 630000, ev: "screen", to: "work" }, { t: 640000, ev: "run" }, { t: 700000, ev: "allow" }] };
+  const t = report(slice);
+  ok(t.includes("Minutes per screen: entry 0.5 · work 1.5"), "time per screen from the slice's start: " + t.split("\n")[2]);
+  ok(t.includes("doc 1 2.0 min, 1 correction"), "the document is the slice's two minutes: " + (t.match(/doc 1[^\n·]*/) || [""])[0]);
+}
+
+console.log("\n— the admin page's export: many logs, by account id only —");
+{
+  const { reportExport, readPackage } = require("../scripts/log-report.js");
+  const fs = require("fs"), os = require("os"), path = require("path");
+  const ex = { export: "inkognito-logs", exported: "2026-10-04T08:00:00.000Z", count: 2, logs: [
+    { at: "2026-10-03T10:00:00Z", user: "00000000-0000-0000-0000-00000000000a", v: "v58", log: { v: "v58", ms: 60000, events: [{ t: 1, ev: "run" }] }, leaks: null },
+    { at: "2026-10-03T11:00:00Z", user: "00000000-0000-0000-0000-00000000000a", v: "v58", log: { v: "v58", ms: 90000, from: 60000, events: [{ t: 70000, ev: "run" }] }, leaks: { shapes: [{ kind: "NAME" }] } },
+  ] };
+  const t = reportExport(ex);
+  ok(t.startsWith("2 logs from 1 account, exported 2026-10-04T08:00:00.000Z"), "the head line: " + t.split("\n")[0]);
+  ok((t.match(/── \d\. /g) || []).length === 2 && t.includes("account 00000000 · v58"), "one section per log, the account as its first 8 characters");
+  ok(t.includes("Leak report: 1 shape(s)") && t.includes("Leak report: none"), "each log says whether it carried a leak report");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "lr-")), f = path.join(dir, "inkognito-logs.json");
+  fs.writeFileSync(f, JSON.stringify(ex));
+  const read = readPackage(f);
+  ok(read.export && read.export.logs.length === 2, "the file is read as an export");
+  fs.rmSync(dir, { recursive: true, force: true });
+  let refused = false;
+  try { reportExport({ logs: [{ log: { v: "v58", events: [{ t: 1, ev: "רונית" }] } }] }); } catch (_) { refused = true; }
+  ok(refused, "a log carrying Hebrew text is refused, as for a single log");
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exitCode = 1;

@@ -23,7 +23,12 @@ function readPackage(file) {
   // under four bytes readUInt32LE threw a bare RangeError (outside review, nit 9). No file
   // name in the message: a file name may carry a client's name.
   if (buf.length < 4) throw new Error(`not a session log or a package: the file is ${buf.length} bytes`);
-  if (buf.readUInt32LE(0) !== 0x04034b50) return { log: JSON.parse(buf.toString("utf8")), leaks: null };
+  if (buf.readUInt32LE(0) !== 0x04034b50) {
+    const j = JSON.parse(buf.toString("utf8"));
+    // the admin page's download (site/admin.js): many uploaded logs in one file
+    if (j && j.export === "inkognito-logs") return { export: j };
+    return { log: j, leaks: null };
+  }
   const { unzip } = require("./harvest-shapes.js");
   const parts = unzip(buf), get = (re) => parts.find((x) => re.test(x.name));
   const f = get(/session-log\.json$/), l = get(/leak-report\.json$/);
@@ -43,7 +48,9 @@ function report(log) {
   out.push(`paintItBlack ${log.v} · session of ${min(log.ms || 0)} min · ${ev.length} events`);
 
   // time per screen
-  const scr = by("screen"); let last = 0, cur = "entry"; const t = {}, spans = [];
+  // a hosted upload holds one document's slice of the page load: its events start at log.from
+  const from = Number(log.from) || 0;
+  const scr = by("screen"); let last = from, cur = "entry"; const t = {}, spans = [];
   for (const e of scr) { t[cur] = (t[cur] || 0) + (e.t - last); spans.push([cur, last, e.t]); last = e.t; cur = e.to; }
   const end = log.ms || last;
   t[cur] = (t[cur] || 0) + (end - last); spans.push([cur, last, end]);
@@ -51,7 +58,7 @@ function report(log) {
 
   // per document: one page load can hold several, split where she pressed "new document"
   const corr = ["allow", "not-a-name", "drop-rule", "set-rep", "set-style", "merge", "add-rule"];
-  const cuts = [0, ...by("new-doc").map((e) => e.t), end];
+  const cuts = [from, ...by("new-doc").map((e) => e.t), end];
   const docs = cuts.slice(1).map((b, i) => {
     const a = cuts[i], ms = b - a;
     const work = spans.reduce((s, [k, x, y]) => s + (k === "work" ? Math.max(0, Math.min(y, b) - Math.max(x, a)) : 0), 0);
@@ -133,13 +140,25 @@ function report(log) {
   return text;
 }
 
-module.exports = { report, readLog, readPackage };
+/* The admin page's export: one entry per uploaded document log, who by account id only. A head
+   line, then each log's own report; the account shows as its first 8 characters. */
+function reportExport(ex) {
+  const logs = (ex && ex.logs) || [];
+  const accounts = new Set(logs.map((l) => l.user)).size;
+  const head = `${logs.length} log${logs.length === 1 ? "" : "s"} from ${accounts} account${accounts === 1 ? "" : "s"}, exported ${(ex && ex.exported) || "?"}`;
+  return [head, ...logs.map((l, i) => `\n── ${i + 1}. ${l.at || "?"} · account ${String(l.user || "?").slice(0, 8)} · ${l.v || "?"}\n` + report(l.log || {}) +
+    "\n" + (l.leaks ? `Leak report: ${(l.leaks.shapes || []).length} shape(s)` : "Leak report: none"))].join("\n");
+}
+
+module.exports = { report, reportExport, readLog, readPackage };
 if (require.main === module) {
   const files = process.argv.slice(2);
-  if (!files.length) { console.log("usage: npm run log-report -- <package.zip | session-log.json> [...]"); process.exit(1); }
+  if (!files.length) { console.log("usage: npm run log-report -- <package.zip | session-log.json | inkognito-logs.json> [...]"); process.exit(1); }
   for (const f of files) {
     const p = readPackage(f);
-    console.log(`\n══ ${path.basename(f).replace(/[א-ת]/g, "")}`); console.log(report(p.log));
+    console.log(`\n══ ${path.basename(f).replace(/[א-ת]/g, "")}`);
+    if (p.export) { console.log(reportExport(p.export)); continue; }
+    console.log(report(p.log));
     // the leak report covers the document open when she packed it; the log covers the whole page load
     console.log(p.leaks ? `Leak report: ${(p.leaks.shapes || []).length} shape(s)${p.leaks.refused ? `, ${p.leaks.refused.length} field(s) refused` : ""} → node bench/from-leak.js <this package> [--model]` : "Leak report: none in this package");
   }

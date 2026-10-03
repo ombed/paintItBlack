@@ -54,6 +54,16 @@ test("the email link: one request for this page, then the sent state with a 60-s
   await axe(page, "sent");
 });
 
+test("signing up discloses the usage log, that it carries no text, and that it can be switched off", async ({ page }) => {
+  await stub(page);
+  await page.goto(LOGIN);
+  const safe = page.locator(".safe");
+  await expect(safe).toContainText("יומן שימוש");
+  await expect(safe).toContainText("בלי טקסט מהמסמך");
+  await expect(safe).toContainText("לכבות");
+  await expect(safe.getByRole("link", { name: "מה נשלח" })).toHaveAttribute("href", "privacy.html");
+});
+
 test("a refused request (too soon) is said in Hebrew and keeps the form", async ({ page }) => {
   await stub(page, { "/auth/v1/otp": { status: 429, body: { code: 429, error_code: "over_email_send_rate_limit", msg: "For security purposes, you can only request this after 41 seconds." } } });
   await page.goto(LOGIN);

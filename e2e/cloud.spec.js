@@ -97,6 +97,9 @@ test("each document's log goes up once when it ends, only what is new, with no t
   await expect.poll(() => submits(calls).length).toBe(2);
   const lastT = Math.max(...first.p_log.events.map((e) => e.t));
   expect(submits(calls)[1].body.p_log.events.every((e) => e.t > lastT)).toBe(true);
+  // each upload says where its slice starts, so a report times it from there
+  expect(first.p_log.from).toBe(0);
+  expect(submits(calls)[1].body.p_log.from).toBe(lastT);
 });
 
 test("with the switch off, nothing goes up", async ({ page }) => {

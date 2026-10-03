@@ -1,0 +1,61 @@
+/* The site's own pages (site/: landing, sign-in, legal pages, admin), as one set. Each rule here
+   holds on every page, so a new page or an edited footer cannot drift from the others:
+   - Hebrew, right to left, a title, a viewport;
+   - a strict Content-Security-Policy: scripts only from the site itself, nothing inline, and
+     connections only to the site and the project's Supabase;
+   - nothing loaded from another site (the "0 third-party requests" promise): every script,
+     stylesheet, image and font is the site's own;
+   - links out only to an allowed list;
+   - one contact address everywhere (contact@inkognito.co.il; hello@ was left in four footers);
+   - no draft placeholders left, and no draft label. */
+const fs = require("fs");
+const path = require("path");
+
+let pass = 0, fail = 0;
+const ok = (c, m) => { c ? pass++ : (fail++, console.log("  ✗ " + m)); };
+
+const SITE = path.join(__dirname, "..", "site");
+const PROJECT = "https://cwsiranjlxbclmaqtucc.supabase.co";
+const CONTACT = "contact@inkognito.co.il";
+const OUT = ["https://github.com/ombed/paintItBlack", "https://mail.google.com", "https://outlook.live.com"];
+const pages = fs.readdirSync(SITE).filter((f) => f.endsWith(".html"));
+const scripts = fs.readdirSync(SITE).filter((f) => f.endsWith(".js"));
+
+console.log("\n— every page —");
+ok(pages.length >= 6, "the site has its pages (" + pages.join(", ") + ")");
+for (const p of pages) {
+  const h = fs.readFileSync(path.join(SITE, p), "utf8");
+  ok(/<html lang="he" dir="rtl">/.test(h) && /<title>[^<]+<\/title>/.test(h) && /name="viewport"/.test(h), p + ": Hebrew, right to left, a title and a viewport");
+  const csp = (h.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/) || [])[1] || "";
+  const dir = (name) => (csp.match(new RegExp("(?:^|;\\s*)" + name + " ([^;]+)")) || [])[1] || "";
+  ok(csp && dir("script-src") === "'self'", p + ": scripts only from the site, nothing inline (" + (dir("script-src") || "no policy") + ")");
+  ok(["'self'", "'self' " + PROJECT].includes(dir("connect-src")), p + ": connects only to the site and the project (" + dir("connect-src") + ")");
+  ok(/base-uri 'none'/.test(csp) && /default-src 'self'/.test(csp), p + ": default-src 'self' and base-uri 'none'");
+  ok(!/<script(?![^>]*\bsrc=)[^>]*>/.test(h), p + ": no inline script");
+  const loads = [...h.matchAll(/<(?:script|img|source|iframe)[^>]*\bsrc="([^"]+)"|<link[^>]*\bhref="([^"]+)"/g)].map((m) => m[1] || m[2]);
+  const foreign = loads.filter((u) => /^(https?:)?\/\//.test(u));
+  ok(!foreign.length, p + ": loads nothing from another site" + (foreign.length ? ": " + foreign.join(", ") : ""));
+  const links = [...h.matchAll(/<a[^>]*\bhref="(https?:[^"]+)"/g)].map((m) => m[1]);
+  const odd = links.filter((u) => !OUT.some((o) => u === o || u.startsWith(o + "/")));
+  ok(!odd.length, p + ": links out only to the allowed list" + (odd.length ? ": " + odd.join(", ") : ""));
+  const mails = [...h.matchAll(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g)].map((m) => m[0]);
+  const wrong = [...new Set(mails.filter((m) => m !== CONTACT && !/@example\.co\.il$/.test(m)))];
+  ok(!wrong.length, p + ": the one contact address" + (wrong.length ? ", not " + wrong.join(", ") : ""));
+  ok(!/\[(?:להשלים|שם|מייל|כתובת|תאריך|טלפון|מחוז)[^\]]*\]|טיוטה, ממתינה/.test(h), p + ": no placeholder or draft label left");
+  if (!/^(login|admin)\.html$/.test(p)) {
+    ok(/href="(?:index\.html)?#?privacy|href="privacy\.html"/.test(h) && /href="terms\.html"/.test(h) && /href="accessibility\.html"/.test(h), p + ": the footer links the privacy policy, terms and accessibility statement");
+  }
+}
+
+console.log("\n— every script —");
+for (const s of scripts) {
+  const js = fs.readFileSync(path.join(SITE, s), "utf8");
+  const urls = [...js.matchAll(/https?:\/\/[^\s"'`)]+/g)].map((m) => m[0]).filter((u) => u !== PROJECT && !u.startsWith("http://www.w3.org/"));
+  ok(!urls.length, s + ": names no other site" + (urls.length ? ": " + urls.join(", ") : ""));
+  const mails = [...js.matchAll(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g)].map((m) => m[0]).filter((m) => m !== CONTACT && !/example\.co\.il$/.test(m));
+  ok(!mails.length, s + ": the one contact address" + (mails.length ? ", not " + mails.join(", ") : ""));
+  ok(!/\.innerHTML\s*=(?!\s*'אפשר לשלוח שוב בעוד <span id="t" aria-hidden="true">' \+ WAIT)/.test(js), s + ": no innerHTML (text that may come from users is only ever set as text)");
+}
+
+console.log(`\n${pass} passed, ${fail} failed`);
+if (fail) process.exitCode = 1;

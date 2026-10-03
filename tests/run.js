@@ -36,6 +36,8 @@ const SUITES = [
   "appgate_t.js",
   // the hosted build (scripts/build-hosted.js): site at the root, the tool under /app/, the model under 25 MiB
   "hosted_t.js",
+  // the site's own pages as one set (site/): policy, no third parties, one contact address
+  "landing_t.js",
   // the model-eval harness (bench/model-eval, docs/model-eval/PLAN.md): offline, invented text only
   "me_adapters_t.js", "me_convert_t.js", "me_exports_t.js", "me_goldsynth_t.js", "me_known_t.js", "me_noise_t.js", "me_predict_t.js", "me_privacy_t.js", "me_score_t.js", "me_tokfix_t.js", "me_wrap_t.js",
 ];

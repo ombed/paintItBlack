@@ -50,8 +50,10 @@
     try { full = JSON.parse(log); } catch (_) { return; }
     const events = (full.events || []).filter((e) => e.t > sentT);
     if (!events.some((e) => e.ev === "run")) return;
+    // where this slice of the page load starts, so a report times it from there (scripts/log-report.js)
+    const from = Math.max(0, sentT);
     sentT = events[events.length - 1].t;
-    const body = JSON.stringify({ p_log: { ...full, events }, p_leaks: leaks ? JSON.parse(leaks) : null });
+    const body = JSON.stringify({ p_log: { ...full, from, events }, p_leaks: leaks ? JSON.parse(leaks) : null });
     // keepalive lets the request outlive a closing page; browsers cap such a body at 64 KB
     fetch(url + "/rest/v1/rpc/submit_log", {
       method: "POST", keepalive: how === "leave" && body.length < 60000, body,

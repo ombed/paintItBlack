@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://cwsiranjlxbclmaqtucc.supabase.co; base-uri 'none'; form-action 'self'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ניהול · אינקוגניטו</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="site.css">
+<style>
+  .head { padding: 14px 0; }
+  .head .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .admin { padding-block: 8px 64px; }
+  .admin h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(28px, 4vw, 36px); margin: 16px 0 6px; }
+  .admin .status { color: var(--graphite); font-size: 14.5px; margin: 0 0 24px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0 0 28px; padding: 0; list-style: none; }
+  .stats li { background: var(--sheet); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px; }
+  .stats b { display: block; font-family: var(--serif); font-size: 30px; line-height: 1.1; }
+  .stats span { color: var(--graphite); font-size: 14px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; margin: 0 0 22px; }
+  .switch { display: flex; gap: 10px; align-items: center; font-weight: 500; cursor: pointer; }
+  .switch input { width: 20px; height: 20px; accent-color: var(--alias); }
+  .hint { color: var(--graphite); font-size: 14px; margin: 4px 0 0; max-width: 44rem; }
+  .linkish { font: inherit; background: none; border: 0; padding: 10px 0; text-decoration: underline; cursor: pointer; color: var(--ink); }
+  .scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 12px; background: var(--sheet); }
+  table { border-collapse: collapse; width: 100%; min-width: 860px; font-size: 14.5px; }
+  caption { text-align: start; padding: 12px 14px 4px; font-weight: 600; }
+  th, td { text-align: start; padding: 10px 14px; border-top: 1px solid var(--rule); vertical-align: middle; }
+  th { font-weight: 600; color: var(--graphite); font-size: 13.5px; }
+  td bdi { unicode-bidi: isolate; }
+  td .act { font: inherit; font-size: 14px; background: none; border: 1px solid var(--rule); border-radius: 999px; padding: 6px 12px; cursor: pointer; color: var(--ink); min-height: 32px; }
+  td .act.danger { color: #B3261E; border-color: #E6B8B4; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; background: var(--alias-soft); color: var(--alias); }
+  .pill.wait { background: #FFF3D6; color: #6B4E00; }
+  .pill.off { background: #FBE3E1; color: #8C1D18; }
+  #msg:empty { display: none; }
+  #msg { margin: 14px 0 0; }
+</style>
+</head>
+<body>
+  <a class="skip" href="#main">דילוג לתוכן</a>
+  <header class="head">
+    <div class="wrap"><a class="mark" href="index.html">אינקוגניטו</a><button class="linkish" type="button" id="out" hidden>יציאה</button></div>
+  </header>
+
+  <main id="main" class="wrap admin">
+    <h1>ניהול</h1>
+    <p class="status" id="loading">טוען…</p>
+
+    <section id="signin" hidden>
+      <p>צריך להיכנס קודם, עם החשבון של המפעיל.</p>
+      <p><a class="btn btn-ink" href="login.html?next=admin">כניסה</a></p>
+    </section>
+    <section id="denied" hidden>
+      <p>לחשבון הזה אין הרשאת ניהול.</p>
+    </section>
+    <section id="failed" hidden>
+      <p>לא הצלחנו לקרוא את הנתונים. אפשר לרענן את העמוד בעוד רגע.</p>
+    </section>
+
+    <section id="panel" hidden>
+      <p class="status" id="updated"></p>
+      <ul class="stats" aria-label="במספרים">
+        <li><b id="n-users">0</b><span>משתמשים</span></li>
+        <li><b id="n-new">0</b><span>נרשמו ב־7 הימים האחרונים</span></li>
+        <li><b id="n-active">0</b><span>פעילים ב־7 הימים האחרונים</span></li>
+        <li><b id="n-docs">0</b><span>מסמכים עד היום</span></li>
+        <li><b id="n-wait">0</b><span>ממתינים לאישור</span></li>
+      </ul>
+      <div class="controls">
+        <div>
+          <label class="switch"><input type="checkbox" id="require"> לדרוש אישור למשתמשים חדשים</label>
+          <p class="hint" id="require-hint">כשהמתג פועל, מי שנרשם לראשונה ממתין לאישור לפני שאפשר להשתמש בכלי. מי שכבר אושר לא מושפע.</p>
+        </div>
+        <button class="linkish" type="button" id="logs">הורדת יומני השימוש (<bdi>JSON</bdi>)</button>
+      </div>
+      <div class="scroll">
+        <table>
+          <caption>משתמשים, מהחדש לישן</caption>
+          <thead><tr><th scope="col">שם</th><th scope="col">מייל</th><th scope="col">נרשם</th><th scope="col">פעילות אחרונה</th><th scope="col">מסמכים</th><th scope="col">יומן</th><th scope="col">מצב</th><th scope="col">פעולות</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <p role="status" id="msg"></p>
+    </section>
+  </main>
+
+  <script src="vendor/supabase-2.117.2.js"></script>
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
