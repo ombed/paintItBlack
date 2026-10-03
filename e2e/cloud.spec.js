@@ -1,11 +1,10 @@
 const { test, expect } = require("./base");
 const H = require("./helpers");
-const fs = require("fs");
 const path = require("path");
-const { hostedApp } = require("../scripts/hosted.js");
+const { build } = require("../scripts/build-hosted.js");
 
-/* The hosted tool (site/cloud.js, put into the page by scripts/hosted.js, the same function the
-   hosted build uses) against a stand-in for Supabase. What it pins:
+/* The hosted tool as the hosted build makes it (scripts/build-hosted.js into dist/, served here
+   at /dist/; site/cloud.js in its page), against a stand-in for Supabase. What it pins:
    - the text-free log goes up once per document, when it ends, and only what is new;
    - nothing goes up while the user's switch is off;
    - signing out and deleting the account end the session and the gate's cookie;
@@ -13,7 +12,8 @@ const { hostedApp } = require("../scripts/hosted.js");
    - the public tool, without the injection, never talks to the project at all. */
 
 const PROJECT = "https://cwsiranjlxbclmaqtucc.supabase.co";
-const ROOT = path.join(__dirname, "..");
+const APP = "/dist/app/index.html";
+test.beforeAll(() => { build(path.join(__dirname, "..", "dist")); });
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
 const JWT = [b64({ alg: "HS256", typ: "JWT" }), b64({ sub: "00000000-0000-0000-0000-00000000000a", role: "authenticated", exp: Math.floor(Date.now() / 1000) + 3600 }), "sig"].join(".");
 const SESSION = { access_token: JWT, token_type: "bearer", expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, refresh_token: "r1",
@@ -32,20 +32,20 @@ async function hosted(page, { session = true, logOn = true, state = {} } = {}) {
     }
     return route.fulfill({ status: u.pathname.startsWith("/rest/v1/rpc/") ? 204 : 200, body: "" });
   });
-  // the hosted page: the tool's own index.html through the build's injection; the site's files
-  // sit one level up, here the server root
-  await page.route(/\/index\.html$/, async (route) => route.fulfill({ contentType: "text/html", body: hostedApp(fs.readFileSync(path.join(ROOT, "index.html"), "utf8")) }));
-  for (const [from, file] of [["/config.js", "site/config.js"], ["/cloud.js", "site/cloud.js"], [/\/vendor\/supabase-[\d.]+\.js$/, null]])
-    await page.route(typeof from === "string" ? "**" + from : from, (route) => {
-      const f = file || "site/vendor/" + path.basename(new URL(route.request().url()).pathname);
-      route.fulfill({ contentType: "text/javascript", body: fs.readFileSync(path.join(ROOT, f), "utf8") });
-    });
-  await page.route("**/login.html", (route) => route.fulfill({ contentType: "text/html", body: "<title>login</title>" }));
-  await page.route(/:4173\/$/, (route) => route.fulfill({ contentType: "text/html", body: "<title>home</title>" }));
+  // where the account panel sends people: stand-ins, so a test ends where it lands
+  await page.route("**/dist/login.html", (route) => route.fulfill({ contentType: "text/html", body: "<title>login</title>" }));
+  await page.route(/\/dist\/$/, (route) => route.fulfill({ contentType: "text/html", body: "<title>home</title>" }));
   if (session) await page.addInitScript((s) => { if (!window.sessionStorage.getItem("seeded")) { localStorage.setItem("sb-cwsiranjlxbclmaqtucc-auth-token", JSON.stringify(s)); window.sessionStorage.setItem("seeded", "1"); } }, SESSION);
   return calls;
 }
 const submits = (calls) => calls.filter((c) => c.path === "/rest/v1/rpc/submit_log");
+// the built tool, past its onboarding (as H.boot does for the public one)
+async function boot(page) {
+  await page.addInitScript(() => { try { localStorage.setItem("redact-intro-seen", "1"); localStorage.setItem("redact-tour-seen", "*"); } catch (_) {} });
+  await page.goto(APP);
+  await expect(page.locator("#dc-root")).toBeAttached({ timeout: 60000 });
+  await expect(page.getByText("לפני שמתחילים")).toHaveCount(0);
+}
 
 async function runDoc(page, name) {
   await H.upload(page, name, DOC);
@@ -67,7 +67,7 @@ test.beforeEach(async ({ page }) => {
 
 test("signed in: the account panel, the visit marked, the gate's cookie written", async ({ page }) => {
   const calls = await hosted(page);
-  await H.boot(page);
+  await boot(page);
   await expect(page.getByRole("button", { name: "חשבון", exact: true })).toBeVisible();
   expect(calls.some((c) => c.path === "/rest/v1/rpc/touch")).toBe(true);
   expect((await page.context().cookies()).find((c) => c.name === "ink_at").value).toBe(JWT);
@@ -78,7 +78,7 @@ test("signed in: the account panel, the visit marked, the gate's cookie written"
 
 test("each document's log goes up once when it ends, only what is new, with no text", async ({ page }) => {
   const calls = await hosted(page);
-  await H.boot(page);
+  await boot(page);
   await runDoc(page, "one.docx");
   expect(submits(calls)).toHaveLength(0);
   await newDoc(page);
@@ -104,7 +104,7 @@ test("each document's log goes up once when it ends, only what is new, with no t
 
 test("with the switch off, nothing goes up", async ({ page }) => {
   const calls = await hosted(page);
-  await H.boot(page);
+  await boot(page);
   await page.getByRole("button", { name: "חשבון", exact: true }).click();
   await page.getByLabel(/שליחת יומן שימוש/).uncheck();
   await expect.poll(() => calls.find((c) => c.path === "/rest/v1/rpc/set_log_enabled")?.body).toEqual({ p_on: false });
@@ -118,7 +118,7 @@ test("with the switch off, nothing goes up", async ({ page }) => {
 
 test("a switch already off on the server is respected from the start", async ({ page }) => {
   const calls = await hosted(page, { logOn: false });
-  await H.boot(page);
+  await boot(page);
   await page.getByRole("button", { name: "חשבון", exact: true }).click();
   await expect(page.getByLabel(/שליחת יומן שימוש/)).not.toBeChecked();
   await page.getByRole("button", { name: "חשבון", exact: true }).click();
@@ -131,7 +131,7 @@ test("a switch already off on the server is respected from the start", async ({ 
 test("signing out ends the session and the cookie, and goes to sign-in", async ({ page }) => {
   test.info().annotations.push({ type: "no-self-check" });
   const calls = await hosted(page);
-  await H.boot(page);
+  await boot(page);
   await page.getByRole("button", { name: "חשבון", exact: true }).click();
   await page.getByRole("button", { name: "יציאה מהחשבון" }).click();
   await page.waitForURL("**/login.html");
@@ -142,7 +142,7 @@ test("signing out ends the session and the cookie, and goes to sign-in", async (
 test("deleting the account asks first, deletes, and leaves for the home page", async ({ page }) => {
   test.info().annotations.push({ type: "no-self-check" });
   const calls = await hosted(page);
-  await H.boot(page);
+  await boot(page);
   await page.getByRole("button", { name: "חשבון", exact: true }).click();
   let asked = "";
   page.once("dialog", (d) => { asked = d.message(); d.dismiss(); });
@@ -151,7 +151,7 @@ test("deleting the account asks first, deletes, and leaves for the home page", a
   expect(calls.some((c) => c.path === "/rest/v1/rpc/delete_my_account")).toBe(false);
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "מחיקת החשבון" }).click();
-  await page.waitForURL(/:4173\/$/);
+  await page.waitForURL(/\/dist\/$/);
   expect(calls.some((c) => c.path === "/rest/v1/rpc/delete_my_account")).toBe(true);
   expect((await page.context().cookies()).find((c) => c.name === "ink_at")).toBeUndefined();
 });
@@ -159,7 +159,7 @@ test("deleting the account asks first, deletes, and leaves for the home page", a
 test("without a session the tool sends the person to sign in", async ({ page }) => {
   test.info().annotations.push({ type: "no-self-check" });
   await hosted(page, { session: false });
-  await page.goto("/index.html");
+  await page.goto(APP);
   await page.waitForURL("**/login.html");
 });
 
@@ -179,7 +179,7 @@ for (const [why, state] of [["blocked", { blocked: true }], ["pending", { approv
   test(`an account that became ${why} is signed out at once, even from a page already open`, async ({ page }) => {
     test.info().annotations.push({ type: "no-self-check" });
     await hosted(page, { state });
-    await page.goto("/index.html");
+    await page.goto(APP);
     await page.waitForURL("**/login.html#error=" + why);
     expect((await page.context().cookies()).find((c) => c.name === "ink_at")).toBeUndefined();
     expect(await page.evaluate(() => localStorage.getItem("sb-cwsiranjlxbclmaqtucc-auth-token"))).toBe(null);

@@ -51,6 +51,37 @@ try {
   const origEng = fs.readFileSync(path.join(ROOT, "redact-engine.js"), "utf8");
   ok(eng.replace(/parts:\[[^\]]*\]/, "") === origEng.replace(/parts:\[[^\]]*\]/, ""), "nothing else in the engine changed");
 
+  console.log("\n— the hosted tool asks no other site for anything —");
+  const H = require("../scripts/hosted.js");
+  const csp = (app.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/) || [])[1] || "";
+  ok(!/https:\/\/(?!cwsiranjlxbclmaqtucc\.supabase\.co)/.test(csp), "the page's policy names no other site but the project: " + csp.slice(0, 80) + "…");
+  ok(!/unpkg\.com|cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com/.test(app), "the page names no CDN and no Google Fonts");
+  const res = read("app/hosted-resources.js");
+  const map = JSON.parse((res.match(/Object\.assign\(window\.__resources \|\| \{\}, (\{[\s\S]*\})\);/) || [, "{}"])[1]);
+  for (const l of H.LIBS) {
+    const at = "app/" + l.to;
+    ok(files.includes(at), "the site serves its own " + path.basename(l.to));
+    if (l.via === "resources") ok(map[l.url] === "./" + l.to, "the tool is told to load " + path.basename(l.to) + " from the site");
+    if (l.via === "page") ok(app.includes('"./' + l.to + '","sha384-'), "the page loads " + path.basename(l.to) + " from the site, its integrity check kept");
+    if (l.via === "atlas") ok(map.atlas === "./" + l.to, "the map's data comes from the site");
+    if (l.pin()) ok("sha384-" + crypto.createHash("sha384").update(fs.readFileSync(path.join(dist, at))).digest("base64") === l.pin(), path.basename(l.to) + " is byte for byte the file the tool pins");
+  }
+  ok(map.ort && map.ort.base === "./" + H.ORT_DIR(), "the runtime's WebAssembly comes from the site (" + (map.ort && map.ort.base) + ")");
+  for (const name of H.ORT_FILES) {
+    const n = (map.ort.parts || {})[name] || 1;
+    const ps = n === 1 ? [H.ORT_DIR() + name + ".wasm"] : Array.from({ length: n }, (_, i) => H.ORT_DIR() + name + ".wasm.part" + (i + 1));
+    ok(ps.every((p) => files.includes("app/" + p)), name + ": every file the engine will ask for is there (" + n + ")");
+    const joined = Buffer.concat(ps.filter((p) => files.includes("app/" + p)).map((p) => fs.readFileSync(path.join(dist, "app", p))));
+    ok(crypto.createHash("sha256").update(joined).digest("base64") === H.ortPin(name), name + ": joined, it is the runtime the engine pins");
+  }
+  ok((map.ort.parts || {})["ort-wasm-simd-threaded.asyncify"] >= 2, "the 25.7 MiB runtime is split under the cap");
+  const fonts = read("app/fonts/app-fonts.css");
+  const urls = [...fonts.matchAll(/url\(\.\/([^)]+)\)/g)].map((m) => m[1]);
+  ok(urls.length && urls.every((u) => files.includes("app/fonts/" + u)), "every font file the stylesheet names is there (" + urls.length + ")");
+  for (const [fam, w] of [["Rubik", 300], ["Rubik", 400], ["Rubik", 500], ["Rubik", 600], ["Noto Serif Hebrew", 400], ["Noto Serif Hebrew", 500]])
+    ok(new RegExp("font-family: '" + fam + "';[^}]*font-weight: " + w + ";[^}]*hebrew", "s").test(fonts), "the Hebrew face of " + fam + " " + w + " is served");
+  ok(app.includes('<link href="./fonts/app-fonts.css" rel="stylesheet">'), "the page takes its fonts from the site");
+
   console.log("\n— Cloudflare's limits, and nothing extra —");
   const big = files.filter((f) => fs.statSync(path.join(dist, f)).size > LIMIT);
   ok(!big.length, "every file is at most 25 MiB" + (big.length ? ": " + big.join(", ") : ""));

@@ -767,13 +767,29 @@ async function sha256(buf,enc){
 }
 // ספריית ההרצה: הטוען מהאתר, ה-WebAssembly מה-CDN אחרי בדיקה. בלי wasmPaths.wasm,
 // transformers.js אינו מוריד את הקובץ בעצמו ומשתמש ב-wasmBinary שמסרנו.
+// האתר המאוחסן (scripts/build-hosted.js) מגיש את קובץ ה-WebAssembly בעצמו, בלי CDN, בחלקים
+// מתחת לתקרת הקובץ של Cloudflare (25MiB): window.__resources.ort={base, parts:{<שם>:<חלקים>}}.
+// הבתים המחוברים נבדקים מול אותו SHA-256 בדיוק; בלי ההגדרה הזאת — ה-CDN, כמו תמיד.
+async function nerRuntimeBytes(f,v){
+  const r=typeof window!=="undefined"&&window.__resources&&window.__resources.ort;
+  const n=(r&&r.parts&&r.parts[v])||1;
+  const urls=r?Array.from({length:n},(_,i)=>r.base+v+".wasm"+(n>1?".part"+(i+1):"")):[ORT_CDN+v+".wasm"];
+  const bufs=[];
+  for(const u of urls){
+    const res=await f(u);
+    if(!res.ok)throw new Error("לא הצלחתי להוריד את ספריית ההרצה ("+res.status+")");
+    bufs.push(new Uint8Array(await res.arrayBuffer()));
+  }
+  if(bufs.length===1)return bufs[0].buffer;
+  const out=new Uint8Array(bufs.reduce((s,b)=>s+b.length,0)); let o=0;
+  for(const b of bufs){ out.set(b,o); o+=b.length; }
+  return out.buffer;
+}
 async function nerRuntime(t){
   const safari=/^((?!chrome|android).)*safari/i.test((typeof navigator!=="undefined"&&navigator.userAgent)||"");
   const v=safari?"ort-wasm-simd-threaded":"ort-wasm-simd-threaded.asyncify";
   const f=RAW_FETCH||window.fetch.bind(window);
-  const res=await f(ORT_CDN+v+".wasm");
-  if(!res.ok)throw new Error("לא הצלחתי להוריד את ספריית ההרצה ("+res.status+")");
-  const buf=await res.arrayBuffer();
+  const buf=await nerRuntimeBytes(f,v);
   if(await sha256(buf)!==ORT_WASM[v])throw new Error("ספריית ההרצה שהורדה אינה הקובץ הנעול. המודל לא נטען.");
   const o=t.env.backends.onnx;
   o.wasm.wasmPaths={mjs:new URL("./vendor/ort-"+ORT_V+"/"+v+".mjs",location.href).href};
