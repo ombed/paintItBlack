@@ -1296,6 +1296,9 @@ class Component extends DCLogic {
       }
     };
     addEventListener("beforeunload", this._unload);
+    // closing or leaving the page ends the document too (pagehide: also fires where unload does not)
+    this._hide=()=>this.docEnd("leave");
+    addEventListener("pagehide", this._hide);
     addEventListener("popstate", this._pop);
     this._follow=()=>{ if(this.state.inline||this.state.tip) this.followAnchors(); };
     /* שתי לשוניות (L15 בביקורת השנייה): תיק שנמחק בלשונית אחת נוצר מחדש מהשינוי הבא בשנייה,
@@ -1324,7 +1327,7 @@ class Component extends DCLogic {
     addEventListener("scroll", this._scNudge, {capture:true, passive:true}); addEventListener("resize", this._scNudge);
   }
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); document.removeEventListener("keyup", this._selKeys); removeEventListener("resize", this._resize);
-    removeEventListener("beforeunload", this._unload); removeEventListener("popstate", this._pop);
+    removeEventListener("beforeunload", this._unload); removeEventListener("pagehide", this._hide); removeEventListener("popstate", this._pop);
     removeEventListener("scroll", this._follow, true); removeEventListener("resize", this._follow); removeEventListener("animationend", this._follow, true); removeEventListener("transitionend", this._follow, true);
     removeEventListener("scroll", this._scNudge, {capture:true}); removeEventListener("resize", this._scNudge); if(this._scT) clearTimeout(this._scT); removeEventListener("storage", this._storage); removeEventListener("error", this._pageErr); removeEventListener("unhandledrejection", this._pageErr);
     if(this._barObs) this._barObs.disconnect(); }
@@ -2629,6 +2632,17 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const n=this.pendingReview().blocking;
     if(n) this.setState({err:`הועתק, אבל ${n===1?"פריט אחד":n+" פריטים"} בלי החלטה — הם יגיעו ל-AI כמו שהם.`});
   };
+  /* The end of a document (a new document, or leaving the page), for the hosted service only:
+     its cloud.js sets window.__inkHost, and nothing here sends anything. It gets the same
+     text-free exports the package carries (the log's and the leak report's guards run here),
+     and decides itself what to upload. Without a host, as on GitHub Pages, this does nothing. */
+  docEnd = (how) => {
+    const h=window.__inkHost; if(!h||typeof h.docEnd!=="function") return;
+    try{
+      const leaks=this.state.leaks.length&&window.PL?window.PL.leakReport(this.state.leaks,{version:this.log.v}):null;
+      h.docEnd({how, log:this.log.export(), leaks});
+    }catch(_){}
+  };
   // חבילת בדיקה (PLAN-v18 Q9): יומן הסשן ודוח הדליפה בקובץ zip אחד, בלי טקסט מהמסמך.
   // עד v56 היא הכילה גם את המסמך הנקי ופתחה מייל. עכשיו רק הורדה: היא שולחת אותה בעצמה, ואת
   // המסמך בנפרד, רק כשהיא מחליטה.
@@ -3561,6 +3575,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onGeoAlt:this.geoAlt, onGeoApply:this.geoApply, onGeoSkip:()=>this.run(S.rules),
       // יציאה בלי ייצוא: הפרופיל נשאר בדפדפן הזה בלבד, וזו הבטחה חלשה מדי לתיק
       onBackHome:()=>{ if(S.profileDirty&&S.rules.length&&!confirm("הפרופיל של התיק נשמר בדפדפן הזה בלבד ולא יוצא לקובץ. אם הדפדפן ינוקה הוא יאבד. לצאת בכל זאת?")) return;
+        this.docEnd("new-doc");
         /* מסמך חדש מתחיל נקי (UX #22, ביקורת QA 005): חיפוש, הוספה ידנית, טקסט
            מודבק ושם הקובץ הקודמים נשארו — והמסמך הבא נפתח עם מסילה ריקה, או עם
            שני מסמכים מודבקים יחד. הגלילה חוזרת לראש העמוד. */
