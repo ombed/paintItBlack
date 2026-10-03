@@ -108,6 +108,31 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
   await as(A, () => db.query("update public.app_settings set require_approval = false"));
   ok((await db.query("select require_approval from public.app_settings")).rows[0].require_approval === true, "a user cannot switch it");
 
+  console.log("\n— a name that arrives later fills the profile —");
+  // the first sign-in by email link carries no name; Google adds one to the account later
+  await db.query("update public.app_settings set require_approval = false");
+  const D = "00000000-0000-0000-0000-00000000000d";
+  await db.query("insert into auth.users (id, email) values ($1, 'd@example.com')", [D]);
+  ok((await db.query("select full_name from public.profiles where id = $1", [D])).rows[0].full_name === null, "an email-link sign-in starts without a name");
+  await db.query(`update auth.users set raw_user_meta_data = '{"full_name":"Delta","name":"Delta"}' where id = $1`, [D]);
+  ok((await db.query("select full_name from public.profiles where id = $1", [D])).rows[0].full_name === "Delta", "Google's name fills the empty profile");
+  await db.query(`update auth.users set raw_user_meta_data = '{"full_name":"Other"}' where id = $1`, [A]);
+  ok((await db.query("select full_name from public.profiles where id = $1", [A])).rows[0].full_name === "Alpha", "a name already there is kept");
+  const E = "00000000-0000-0000-0000-00000000000e";
+  await db.query(`insert into auth.users (id, email, raw_user_meta_data) values ($1, 'e@example.com', '{"name":"Eps"}')`, [E]);
+  ok((await db.query("select full_name from public.profiles where id = $1", [E])).rows[0].full_name === "Eps", "a provider that sends only \"name\" still fills it");
+
+  console.log("\n— deleting your own account —");
+  await submit(D, real);
+  ok(await count(D) === 1, "the account to delete has a log");
+  ok(/permission denied/.test(await tries(() => as(null, () => db.query("select public.delete_my_account()"))) || ""), "a visitor who is not signed in cannot call it");
+  ok((await tries(() => as(D, () => db.query("select public.delete_my_account()")))) === null, "a signed-in user deletes their own account");
+  ok((await db.query("select count(*)::int n from auth.users where id = $1", [D])).rows[0].n === 0, "the account is gone");
+  ok((await db.query("select count(*)::int n from public.profiles where id = $1", [D])).rows[0].n === 0, "its profile is gone");
+  ok(await count(D) === 0, "its logs are gone");
+  ok((await db.query("select count(*)::int n from auth.users")).rows[0].n === 5 && await count(A) === 2, "nobody else's account or logs were touched");
+  await db.query("delete from auth.users where id = $1", [E]);
+
   // The checks above try one door at a time. Supabase's default grants open more doors than
   // anyone tries (its live advisor found two the checks missed), so pin the whole list: every
   // privilege the API roles hold in public, on tables, sequences, columns and functions.
@@ -126,7 +151,7 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
     select g.obj || ' ' || g.p || ' ' || coalesce(r.rolname, 'public') x from g left join pg_roles r on r.oid = g.grantee
     where g.grantee = 0 or r.rolname in ('anon', 'authenticated') order by 1`)).rows.map((r) => r.x);
   const allowed = ["app_settings SELECT authenticated", "app_settings UPDATE authenticated",
-    "is_admin() EXECUTE authenticated", "profiles SELECT authenticated",
+    "delete_my_account() EXECUTE authenticated", "is_admin() EXECUTE authenticated", "profiles SELECT authenticated",
     "profiles.approved UPDATE authenticated", "profiles.blocked UPDATE authenticated",
     "set_log_enabled() EXECUTE authenticated", "submit_log() EXECUTE authenticated",
     "touch() EXECUTE authenticated", "usage_logs SELECT authenticated"];
