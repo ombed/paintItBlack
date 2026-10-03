@@ -16,7 +16,13 @@ const token = hash.get("confirm"), refused = hash.get("error") && { code: hash.g
 if (token || refused) history.replaceState(null, "", HERE);
 
 const sb = window.supabase.createClient(window.INK_AUTH.url, window.INK_AUTH.key, { auth: { flowType: "implicit", persistSession: true, detectSessionInUrl: true } });
-const enter = () => location.replace(APP);
+// the gate in front of the app (lib/gate.mjs) reads the session from this cookie; it lives as
+// long as the token, and a later visit renews it here on the way in
+function enter(session) {
+  const age = Math.max(0, Math.floor(session.expires_at - Date.now() / 1000));
+  document.cookie = "ink_at=" + session.access_token + "; Path=/; Max-Age=" + age + "; SameSite=Lax" + (location.protocol === "https:" ? "; Secure" : "");
+  location.replace(APP);
+}
 
 // Supabase's refusals in Hebrew; its English never reaches the page
 function say(e) {
@@ -24,6 +30,9 @@ function say(e) {
   if (e && e.status === 429 || /rate_limit|over_/.test(code)) return "כבר נשלח קישור לפני רגע. אפשר לבקש שוב בעוד דקה.";
   if (/otp_expired|flow_state/.test(code) || /expired|invalid/i.test(text)) return "תוקף הקישור פג או שכבר השתמשו בו. אפשר לבקש קישור חדש.";
   if (/access_denied/.test(code)) return "הכניסה בוטלה. אפשר לנסות שוב.";
+  // from the gate
+  if (code === "blocked") return "החשבון הזה חסום. לבירור אפשר לכתוב אל contact@inkognito.co.il.";
+  if (code === "pending") return "החשבון ממתין לאישור. אפשר לכתוב אל contact@inkognito.co.il.";
   return "הכניסה לא הצליחה. אפשר לנסות שוב בעוד רגע.";
 }
 function showErr(msg) {
@@ -77,7 +86,7 @@ const go = document.getElementById("confirm-go"), cerr = document.getElementById
 go.addEventListener("click", async () => {
   go.disabled = true; cerr.textContent = "";
   const { data, error } = await sb.auth.verifyOtp({ token_hash: token, type: "email" });
-  if (!error && data.session) return enter();
+  if (!error && data.session) return enter(data.session);
   go.disabled = false; go.hidden = true; again.hidden = false;
   cerr.textContent = say(error);
 });
@@ -86,8 +95,10 @@ again.addEventListener("click", () => { card.classList.remove("is-confirm"); ema
 if (token) {
   card.classList.add("is-confirm");
   document.getElementById("confirm-h").focus();
+} else if (refused) {
+  // no automatic way back in here: the gate just turned this session away
+  showErr(say(refused));
 } else {
-  if (refused) showErr(say(refused));
   // already signed in, or just back from Google: straight to the app
-  sb.auth.getSession().then(({ data }) => { if (data.session) enter(); });
+  sb.auth.getSession().then(({ data }) => { if (data.session) enter(data.session); });
 }

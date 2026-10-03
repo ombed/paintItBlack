@@ -106,10 +106,38 @@ test("Google goes to the project's authorize endpoint and back to this page", as
   expect(a.query.redirect_to).toBe(new URL(LOGIN, "http://127.0.0.1:4173").href);
 });
 
-test("someone already signed in goes straight to the app", async ({ page }) => {
+const gateCookie = async (page) => (await page.context().cookies()).find((c) => c.name === "ink_at");
+
+test("someone already signed in goes straight to the app, with the gate's cookie", async ({ page }) => {
   await stub(page, { "/auth/v1/user": { body: SESSION.user } });
   await page.goto(LOGIN);
   await page.evaluate((s) => localStorage.setItem("sb-cwsiranjlxbclmaqtucc-auth-token", JSON.stringify(s)), SESSION);
   await page.goto(LOGIN);
   await page.waitForURL("**/site/app/");
+  const c = await gateCookie(page);
+  expect(c && c.value).toBe(JWT);
+  expect(c.path).toBe("/");
+  expect(c.sameSite).toBe("Lax");
+  expect(c.expires * 1000).toBeGreaterThan(Date.now() + 3500 * 1000);
 });
+
+test("signing in from the email link also writes the gate's cookie", async ({ page }) => {
+  await stub(page, { "/auth/v1/verify": { body: SESSION } });
+  await page.goto(LOGIN + "#confirm=abc");
+  await page.click("#confirm-go");
+  await page.waitForURL("**/site/app/");
+  expect((await gateCookie(page)).value).toBe(JWT);
+});
+
+for (const [why, words] of [["blocked", "חסום"], ["pending", "ממתין לאישור"]])
+  test(`turned away by the gate (${why}): says why, and does not bounce back into the app`, async ({ page }) => {
+    await stub(page, { "/auth/v1/user": { body: SESSION.user } });
+    await page.goto(LOGIN);
+    await page.evaluate((s) => localStorage.setItem("sb-cwsiranjlxbclmaqtucc-auth-token", JSON.stringify(s)), SESSION);
+    // the gate's redirect is a full page load from /app/; a hash-only change would not reload
+    await page.goto("about:blank");
+    await page.goto(LOGIN + "#error=" + why);
+    await expect(page.locator("#email-err")).toContainText(words);
+    await page.waitForTimeout(1500);
+    expect(new URL(page.url()).pathname).toBe(LOGIN);
+  });
