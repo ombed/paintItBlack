@@ -30,7 +30,14 @@
     if (!session) return leave(LOGIN);
     setCookie(session);
     sb.rpc("touch").then(() => {}, () => {});
-    const r = await sb.from("profiles").select("email,full_name,log_enabled").eq("id", session.user.id).maybeSingle();
+    const r = await sb.from("profiles").select("email,full_name,log_enabled,approved,blocked").eq("id", session.user.id).maybeSingle();
+    // blocked or waiting: the gate already refuses every navigation; this also ends the session
+    // kept in this browser, and covers a page the service worker served from its cache
+    if (r.data && (r.data.blocked || r.data.approved === false)) {
+      leavingTo = LOGIN + "#error=" + (r.data.blocked ? "blocked" : "pending");
+      await sb.auth.signOut({ scope: "local" }).catch(() => {});
+      return leave(leavingTo);
+    }
     profile = r.data || { email: session.user.email || "", full_name: null, log_enabled: true };
     // this runs in the page's head: a quick answer can arrive before the body exists
     if (document.body) panel(); else addEventListener("DOMContentLoaded", panel, { once: true });

@@ -20,14 +20,14 @@ const SESSION = { access_token: JWT, token_type: "bearer", expires_in: 3600, exp
   user: { id: "00000000-0000-0000-0000-00000000000a", aud: "authenticated", role: "authenticated", email: "a@example.co.il" } };
 const DOC = ["פרוטוקול", "רחל פרידמן: אני מבקשת לפתוח.", "אבנר שטרן: הגעתי.", "רחל פרידמן: תודה."].join("\n");
 
-async function hosted(page, { session = true, logOn = true } = {}) {
+async function hosted(page, { session = true, logOn = true, state = {} } = {}) {
   const calls = [];
   await page.route(PROJECT + "/**", async (route) => {
     const req = route.request(), u = new URL(req.url());
     calls.push({ path: u.pathname, body: req.postData() ? JSON.parse(req.postData()) : null, keepalive: false });
     if (u.pathname === "/auth/v1/user") return route.fulfill({ json: SESSION.user });
     if (u.pathname === "/rest/v1/profiles") {
-      const row = { email: "a@example.co.il", full_name: "Alpha", log_enabled: logOn };
+      const row = { email: "a@example.co.il", full_name: "Alpha", log_enabled: logOn, approved: true, blocked: false, ...state };
       return route.fulfill({ json: /object/.test(req.headers().accept || "") ? row : [row] });
     }
     return route.fulfill({ status: u.pathname.startsWith("/rest/v1/rpc/") ? 204 : 200, body: "" });
@@ -171,3 +171,13 @@ test("the public tool, without the hosted injection, never talks to the project"
   expect(calls).toEqual([]);
   expect(await page.evaluate(() => "__inkHost" in window)).toBe(false);
 });
+
+for (const [why, state] of [["blocked", { blocked: true }], ["pending", { approved: false }]])
+  test(`an account that became ${why} is signed out at once, even from a page already open`, async ({ page }) => {
+    test.info().annotations.push({ type: "no-self-check" });
+    await hosted(page, { state });
+    await page.goto("/index.html");
+    await page.waitForURL("**/login.html#error=" + why);
+    expect((await page.context().cookies()).find((c) => c.name === "ink_at")).toBeUndefined();
+    expect(await page.evaluate(() => localStorage.getItem("sb-cwsiranjlxbclmaqtucc-auth-token"))).toBe(null);
+  });
