@@ -149,6 +149,14 @@ policy `https://inkognito.co.il/privacy`, authorized domain `inkognito.co.il` (i
 you to prove ownership, it gives a TXT record to add in Cloudflare DNS). No logo (a logo means a
 review of weeks). Then **Audience → Publish app**.
 
+Only the basic scopes (openid, email, profile), so publishing needs no review. But until Google
+verifies the brand, its sign-in screen names the app by the address Google returns to:
+"continue to cwsiranjlxbclmaqtucc.supabase.co" (Supabase's docs: "does not inspire trust").
+Brand verification alone gets stuck on that address (Google's checker sees supabase.co, not the
+homepage's name). The fix is a Supabase custom domain, e.g. `auth.inkognito.co.il` (a paid add-on
+on the Pro plan), then brand verification. Decide before announcing widely: lawyers will see that
+address on the Google screen.
+
 ## 7. Before announcing (owner + Claude)
 
 - Settled on 4.10: the courts clause (the competent courts in Israel, not exclusive), a narrow
