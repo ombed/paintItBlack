@@ -32,7 +32,15 @@ for (const p of pages) {
   ok(["'self'", "'self' " + PROJECT].includes(dir("connect-src")), p + ": connects only to the site and the project (" + dir("connect-src") + ")");
   ok(/base-uri 'none'/.test(csp) && /default-src 'self'/.test(csp), p + ": default-src 'self' and base-uri 'none'");
   ok(!/<script(?![^>]*\bsrc=)[^>]*>/.test(h), p + ": no inline script");
-  const loads = [...h.matchAll(/<(?:script|img|source|iframe)[^>]*\bsrc="([^"]+)"|<link[^>]*\bhref="([^"]+)"/g)].map((m) => m[1] || m[2]);
+  // a canonical link names the page's own address and loads nothing
+  const loads = [...h.matchAll(/<(?:script|img|source|iframe)[^>]*\bsrc="([^"]+)"|<link(?![^>]*rel="canonical")[^>]*\bhref="([^"]+)"/g)].map((m) => m[1] || m[2]);
+  // search engines: the four public pages are found under their one address; the rest stay out
+  const canon = (h.match(/<link rel="canonical" href="([^"]+)">/) || [])[1];
+  if (/^(index|privacy|terms|accessibility)\.html$/.test(p)) {
+    ok(!/name="robots" content="noindex"/.test(h) && canon === "https://inkognito.co.il/" + (p === "index.html" ? "" : p.replace(".html", "")), p + ": indexable, under its one address (" + canon + ")");
+  } else {
+    ok(/name="robots" content="noindex"/.test(h) && !canon, p + ": kept out of search engines");
+  }
   const foreign = loads.filter((u) => /^(https?:)?\/\//.test(u));
   ok(!foreign.length, p + ": loads nothing from another site" + (foreign.length ? ": " + foreign.join(", ") : ""));
   const links = [...h.matchAll(/<a[^>]*\bhref="(https?:[^"]+)"/g)].map((m) => m[1]);

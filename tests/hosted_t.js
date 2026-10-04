@@ -102,6 +102,8 @@ try {
   ok(!stray.length, "no tests, migrations, scripts or notes are published" + (stray.length ? ": " + stray.slice(0, 5).join(", ") : ""));
   const h = read("_headers");
   ok(/\/app\/\*[\s\S]*X-Robots-Tag: noindex/.test(h) && /X-Frame-Options: DENY/.test(h) && /X-Content-Type-Options: nosniff/.test(h), "_headers: no framing, no sniffing, the app not indexed");
+  ok(/https:\/\/:project\.pages\.dev\/\*\s*\n\s*X-Robots-Tag: noindex/.test(h) && /https:\/\/:version\.:project\.pages\.dev\/\*\s*\n\s*X-Robots-Tag: noindex/.test(h), "the pages.dev copies (production and previews) are kept out of search engines");
+  ok(files.includes("sitemap.xml") && /https:\/\/inkognito\.co\.il\/privacy/.test(read("sitemap.xml")) && /Sitemap: https:\/\/inkognito\.co\.il\/sitemap\.xml/.test(read("robots.txt")), "a sitemap of the public pages, named in robots.txt");
   ok(!/Cache-Control/i.test(h), "_headers sets no caching (the gate does: two rules on one path would join their values)");
 
   console.log("\n— the gate runs in front of everything but the public files —");

@@ -124,15 +124,18 @@ review of weeks). Then **Audience → Publish app**.
 
 ## 7. Before announcing (owner + Claude)
 
-- The legal points left for you and the lawyer (see the morning report of 4.10): an exclusive
-  Central District venue clause and a blanket liability exclusion are presumed unfair in a
-  standard contract; logs on by default may need active consent under the Privacy Protection
-  Authority's 2026 consent opinion; whether the accessibility rules apply at all (small-business
-  exemptions); the transfer basis for the US processors.
+- Settled on 4.10: the courts clause (the competent courts in Israel, not exclusive), a narrow
+  liability clause (no indirect damage, direct capped at ₪100 while free), the usage log only
+  with active consent (asked when the first document is sent), the daily email as a count.
+- Left for the lawyer: whether the accessibility rules apply at all (small-business exemptions),
+  and the transfer basis for the US processors.
 - The database definitions document (מסמך הגדרות מאגר): drafted for you outside the repository
   (`../inkognito-private/database-definitions.he.md`); keep it, and review it every year by
   31 December.
-- The landing page: remove `noindex` from the pages you want found. (The three step screenshots
+- Search engines (done 4.10): the home, privacy, terms and accessibility pages are indexable
+  under their inkognito.co.il addresses (canonical links, sitemap.xml); the tool, admin, sign-in
+  and 404 pages, and every pages.dev copy, are kept out. After launch, add the site in Google
+  Search Console and submit `https://inkognito.co.il/sitemap.xml`. (The three step screenshots
   show no product name or version, so the rename needs no new ones.)
 - Her move from the GitHub Pages address, at a time agreed with her.
 

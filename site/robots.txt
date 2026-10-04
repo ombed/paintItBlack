@@ -3,3 +3,5 @@ User-agent: *
 Disallow: /app/
 Disallow: /admin
 Disallow: /login
+
+Sitemap: https://inkognito.co.il/sitemap.xml

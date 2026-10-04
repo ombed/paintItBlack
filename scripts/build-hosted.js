@@ -35,6 +35,12 @@ const HEADERS = `/*
 
 /app/*
   X-Robots-Tag: noindex
+
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex
 `;
 const ROUTE_LIMIT = 100; // Cloudflare Pages: at most 100 include and exclude rules together
 
