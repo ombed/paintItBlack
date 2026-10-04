@@ -20,6 +20,24 @@
   let gone = false;
   const leave = (to) => { if (gone) return; gone = true; clearCookie(); location.replace(to); };
 
+  /* The gate reads the cookie on every request, and the token in it lasts an hour. A tab left in
+     the background can outlive it (browsers slow its timers, so the regular refresh comes late),
+     and the next file the tool asks for (the model's parts, on the first scan) would be refused.
+     So before the tool fetches anything from the site, a token within two minutes of its end is
+     renewed first. One renewal at a time; Supabase's own calls go to another origin and pass. */
+  const siteFetch = window.fetch.bind(window);
+  let renewing = null;
+  window.fetch = async function (input, init) {
+    try {
+      const u = new URL(typeof input === "string" ? input : (input && input.url) || "", location.href);
+      if (u.origin === location.origin && session && session.expires_at - Date.now() / 1000 < 120) {
+        renewing = renewing || sb.auth.refreshSession().then(({ data }) => { if (data && data.session) { session = data.session; setCookie(session); } }).finally(() => { renewing = null; });
+        await renewing;
+      }
+    } catch (_) {}
+    return siteFetch(input, init);
+  };
+
   sb.auth.onAuthStateChange((ev, s) => {
     if (s) { session = s; setCookie(s); }
     if (ev === "SIGNED_OUT") leave(leavingTo || LOGIN);

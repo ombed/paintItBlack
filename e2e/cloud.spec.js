@@ -175,6 +175,26 @@ test("the public tool, without the hosted injection, never talks to the project"
   expect(await page.evaluate(() => "__inkHost" in window)).toBe(false);
 });
 
+/* A background tab: the browser slows its timers, so supabase-js's own refresh (every 30 s,
+   two minutes ahead) comes late, and the token can run out under the page. Here the clock jumps
+   58 minutes ahead without any timer firing, and the very next request the tool makes to the
+   site must already carry a renewed token: otherwise the gate refuses it (the model's parts, on
+   the first scan after a long pause). */
+test("after a long pause, the tool's next request to the site carries a renewed token", async ({ page }) => {
+  const NEW = [b64({ alg: "HS256", typ: "JWT" }), b64({ sub: SESSION.user.id, role: "authenticated", exp: Math.floor(Date.now() / 1000) + 7200, n: 2 }), "sig2"].join(".");
+  await page.clock.install();
+  const calls = await hosted(page);
+  await page.route(PROJECT + "/auth/v1/token**", (route) => { calls.push({ path: "/auth/v1/token" }); route.fulfill({ json: { ...SESSION, access_token: NEW, refresh_token: "r2", expires_in: 7200, expires_at: Math.floor(Date.now() / 1000) + 7200 } }); });
+  await boot(page);
+  expect(calls.filter((c) => c.path === "/auth/v1/token")).toHaveLength(0);
+  await page.clock.setSystemTime(Date.now() + 3500 * 1000);
+  const sent = page.waitForRequest((r) => r.url().endsWith("/dist/app/hosted-resources.js?probe"));
+  await page.evaluate(() => window.fetch("./hosted-resources.js?probe").then((r) => r.status));
+  const cookie = (await (await sent).allHeaders()).cookie || "";
+  expect(cookie).toContain("ink_at=" + NEW);
+  expect(calls.filter((c) => c.path === "/auth/v1/token")).toHaveLength(1);
+});
+
 for (const [why, state] of [["blocked", { blocked: true }], ["pending", { approved: false }]])
   test(`an account that became ${why} is signed out at once, even from a page already open`, async ({ page }) => {
     test.info().annotations.push({ type: "no-self-check" });
