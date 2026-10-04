@@ -152,3 +152,100 @@ for (const [why, words] of [["blocked", "חסום"], ["pending", "ממתין ל�
     await page.waitForTimeout(1500);
     expect(new URL(page.url()).pathname).toBe(LOGIN);
   });
+
+/* Passwords (the owner's choice, 4.10): sign in with one, create an account with one (an email
+   confirms it), and set one from an emailed link ("forgot password", or adding a password to an
+   account made with Google or a link). Supabase keeps it hashed; the page only passes it on. */
+const USER = { id: "u1", aud: "authenticated", role: "authenticated", email: "a@example.co.il", identities: [{ id: "i1", provider: "email" }] };
+
+test("password: signing in sends the email and password, and opens the app with the gate's cookie", async ({ page }) => {
+  const calls = await stub(page, { "/auth/v1/token": { body: SESSION } });
+  await page.goto(LOGIN);
+  await page.getByRole("button", { name: "כניסה עם סיסמה" }).click();
+  await expect(page.locator("#password")).toBeFocused();
+  await page.fill("#email", "a@example.co.il");
+  await page.fill("#password", "correct horse 42");
+  await axe(page, "password mode");
+  await page.getByRole("button", { name: "כניסה", exact: true }).click();
+  await page.waitForURL("**/site/app/");
+  const t = calls.find((c) => c.path === "/auth/v1/token");
+  expect(t.query.grant_type).toBe("password");
+  expect(t.body).toMatchObject({ email: "a@example.co.il", password: "correct horse 42" });
+  expect((await gateCookie(page)).value).toBe(JWT);
+});
+
+test("password: a wrong one is said in Hebrew, and the page stays", async ({ page }) => {
+  await stub(page, { "/auth/v1/token": { status: 400, body: { code: 400, error_code: "invalid_credentials", msg: "Invalid login credentials" } } });
+  await page.goto(LOGIN);
+  await page.getByRole("button", { name: "כניסה עם סיסמה" }).click();
+  await page.fill("#email", "a@example.co.il");
+  await page.fill("#password", "wrong");
+  await page.getByRole("button", { name: "כניסה", exact: true }).click();
+  await expect(page.locator("#email-err")).toHaveText("המייל או הסיסמה לא נכונים.");
+  expect(new URL(page.url()).pathname).toBe(LOGIN);
+});
+
+test("password: a new account needs 8 characters, then an email confirms it", async ({ page }) => {
+  const calls = await stub(page, { "/auth/v1/signup": { body: { ...USER, session: null } } });
+  await page.goto(LOGIN);
+  await page.getByRole("button", { name: "כניסה עם סיסמה" }).click();
+  await page.getByRole("button", { name: "יצירת חשבון עם סיסמה" }).click();
+  await expect(page.locator("#pw-hint")).toBeVisible();
+  await page.fill("#email", "new@example.co.il");
+  await page.fill("#password", "short");
+  await page.getByRole("button", { name: "יצירת חשבון", exact: true }).click();
+  await expect(page.locator("#email-err")).toContainText("8");
+  expect(calls.filter((c) => c.path === "/auth/v1/signup")).toHaveLength(0);
+  await page.fill("#password", "long enough 1");
+  await page.getByRole("button", { name: "יצירת חשבון", exact: true }).click();
+  await expect(page.locator("#sent-h")).toHaveText("נשאר לאשר את המייל");
+  await expect(page.locator(".sent .why")).toContainText("להיכנס עם הסיסמה");
+  const s = calls.find((c) => c.path === "/auth/v1/signup");
+  expect(s.body).toMatchObject({ email: "new@example.co.il", password: "long enough 1" });
+  expect(s.query.redirect_to).toBe(new URL(LOGIN, page.url()).href);
+});
+
+test("password: an address that already has an account is told so, with the way to set a password", async ({ page }) => {
+  await stub(page, { "/auth/v1/signup": { body: { ...USER, identities: [] } } });
+  await page.goto(LOGIN);
+  await page.getByRole("button", { name: "כניסה עם סיסמה" }).click();
+  await page.getByRole("button", { name: "יצירת חשבון עם סיסמה" }).click();
+  await page.fill("#email", "a@example.co.il");
+  await page.fill("#password", "long enough 1");
+  await page.getByRole("button", { name: "יצירת חשבון", exact: true }).click();
+  await expect(page.locator("#email-err")).toContainText("שכחתי סיסמה");
+  await expect(page.locator("#sent-h")).toBeHidden();
+});
+
+test("forgot password: a link is sent to set one", async ({ page }) => {
+  const calls = await stub(page);
+  await page.goto(LOGIN);
+  await page.getByRole("button", { name: "כניסה עם סיסמה" }).click();
+  await page.fill("#email", "a@example.co.il");
+  await page.getByRole("button", { name: "שכחתי סיסמה" }).click();
+  await expect(page.locator("#sent-h")).toHaveText("קישור לקביעת סיסמה נשלח");
+  const r = calls.find((c) => c.path === "/auth/v1/recover");
+  expect(r.body.email).toBe("a@example.co.il");
+  expect(r.query.redirect_to).toBe(new URL(LOGIN, page.url()).href);
+});
+
+test("the link to set a password asks for it, spends the token once, and opens the app", async ({ page }) => {
+  const calls = await stub(page, { "/auth/v1/verify": { body: SESSION }, "/auth/v1/user": { body: USER } });
+  await page.goto(LOGIN + "#confirm=rec123&type=recovery");
+  await expect(page.locator("#confirm-h")).toHaveText("קביעת סיסמה");
+  await expect(page.locator("#newpw")).toBeVisible();
+  await expect.poll(() => new URL(page.url()).hash).toBe("");
+  await axe(page, "set password");
+  await page.fill("#newpw", "short");
+  await page.getByRole("button", { name: "שמירה וכניסה" }).click();
+  await expect(page.locator("#confirm-err")).toContainText("8");
+  expect(calls.filter((c) => c.path === "/auth/v1/verify")).toHaveLength(0);
+  await page.fill("#newpw", "a new password 7");
+  await page.getByRole("button", { name: "שמירה וכניסה" }).click();
+  await page.waitForURL("**/site/app/");
+  const v = calls.filter((c) => c.path === "/auth/v1/verify");
+  expect(v).toHaveLength(1);
+  expect(v[0].body).toMatchObject({ token_hash: "rec123", type: "recovery" });
+  const u = calls.find((c) => c.path === "/auth/v1/user" && c.method === "PUT");
+  expect(u.body).toMatchObject({ password: "a new password 7" });
+});
