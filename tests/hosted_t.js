@@ -88,6 +88,7 @@ try {
   for (const [fam, w] of [["Rubik", 300], ["Rubik", 400], ["Rubik", 500], ["Rubik", 600], ["Noto Serif Hebrew", 400], ["Noto Serif Hebrew", 500]])
     ok(new RegExp("font-family: '" + fam + "';[^}]*font-weight: " + w + ";[^}]*hebrew", "s").test(fonts), "the Hebrew face of " + fam + " " + w + " is served");
   ok(app.includes('<link href="./fonts/app-fonts.css" rel="stylesheet">'), "the page takes its fonts from the site");
+  for (const fam of ["rubik", "noto-serif-hebrew"]) ok(/SIL Open Font License/.test(read("app/fonts/" + fam + "-LICENSE.txt")), "the Open Font License travels with " + fam);
 
   console.log("\n— Cloudflare's limits, and nothing extra —");
   const big = files.filter((f) => fs.statSync(path.join(dist, f)).size > LIMIT);
