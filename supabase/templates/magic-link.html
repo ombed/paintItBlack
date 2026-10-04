@@ -1,13 +1,55 @@
 <!-- The sign-in email, pasted by hand into the Supabase dashboard (Authentication > Emails) twice:
      as "Magic Link" (someone who has signed in before) and as "Confirm signup" (the first time).
      Subject for both: קישור כניסה לאינקוגניטו
+     Copy from this file in an editor (VS Code, Notepad), never from a terminal: a terminal shows
+     Hebrew right to left and copies it reversed.
      The link opens site/login.html with the token after the #: a mail scanner that fetches the
      link never spends it (login.js spends it only on a click), and the token never reaches a
      server log. {{ .RedirectTo }} is the page that asked, which must be on the project's list of
-     redirect URLs; the 15 minutes is the project's email OTP expiry (900 seconds). -->
-<div dir="rtl" lang="he" style="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1a1a1a;">
-  <h2 style="margin: 0 0 12px;">כניסה לאינקוגניטו</h2>
-  <p>ביקשת להיכנס לאינקוגניטו. הקישור תקף ל־15 דקות ופועל פעם אחת.</p>
-  <p><a href="{{ .RedirectTo }}#confirm={{ .TokenHash }}" style="display: inline-block; background: #1F5B44; color: #ffffff; padding: 12px 22px; border-radius: 999px; text-decoration: none; font-weight: bold;">כניסה לאינקוגניטו</a></p>
-  <p style="color: #555;">לא ביקשת? אפשר להתעלם מהמייל הזה, ושום דבר לא ישתנה.</p>
+     redirect URLs; the 15 minutes is the project's email OTP expiry (900 seconds).
+     Built for email clients: tables and inline styles only, no images, no web fonts. -->
+<div dir="rtl" lang="he" style="margin:0;padding:0;background:#F2F3EF;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F2F3EF;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;background:#FBFBF8;border:1px solid #D9DBD3;border-radius:16px;">
+          <tr>
+            <td dir="rtl" style="padding:32px 32px 8px 32px;text-align:right;font-family:Arial,Helvetica,sans-serif;">
+              <span style="font-family:Georgia,'Times New Roman',serif;font-size:24px;font-weight:bold;color:#161827;border-bottom:4px solid #161827;padding-bottom:2px;">אינקוגניטו</span>
+            </td>
+          </tr>
+          <tr>
+            <td dir="rtl" style="padding:24px 32px 0 32px;text-align:right;font-family:Arial,Helvetica,sans-serif;color:#161827;">
+              <h1 style="margin:0 0 12px 0;font-size:22px;line-height:1.3;font-weight:bold;">כניסה לאינקוגניטו</h1>
+              <p style="margin:0 0 24px 0;font-size:16px;line-height:1.6;color:#3A3D49;">ביקשת להיכנס לאינקוגניטו. הכפתור פותח את דף הכניסה, ושם לוחצים ״כניסה״.</p>
+            </td>
+          </tr>
+          <tr>
+            <td dir="rtl" align="right" style="padding:0 32px 24px 32px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center" bgcolor="#1F5B44" style="border-radius:999px;">
+                    <a href="{{ .RedirectTo }}#confirm={{ .TokenHash }}" style="display:inline-block;padding:14px 32px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;color:#FFFFFF;text-decoration:none;border-radius:999px;">כניסה לאינקוגניטו</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td dir="rtl" style="padding:0 32px 24px 32px;text-align:right;font-family:Arial,Helvetica,sans-serif;">
+              <p style="margin:0;font-size:14px;line-height:1.6;color:#5B5E6B;">הקישור תקף ל־15 דקות ופועל פעם אחת.</p>
+            </td>
+          </tr>
+          <tr>
+            <td dir="rtl" style="padding:16px 32px 28px 32px;border-top:1px solid #D9DBD3;text-align:right;font-family:Arial,Helvetica,sans-serif;">
+              <p style="margin:0 0 8px 0;font-size:13px;line-height:1.6;color:#5B5E6B;">הכפתור לא עובד? אפשר להעתיק את הקישור הזה לדפדפן:</p>
+              <p dir="ltr" style="margin:0 0 16px 0;font-size:12px;line-height:1.5;color:#1F5B44;word-break:break-all;text-align:left;">{{ .RedirectTo }}#confirm={{ .TokenHash }}</p>
+              <p style="margin:0;font-size:13px;line-height:1.6;color:#5B5E6B;">לא ביקשת? אפשר להתעלם מהמייל הזה, ושום דבר לא ישתנה.</p>
+            </td>
+          </tr>
+        </table>
+        <p dir="rtl" style="margin:16px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#85887F;">אינקוגניטו · השחרת מסמכים לפני AI</p>
+      </td>
+    </tr>
+  </table>
 </div>
