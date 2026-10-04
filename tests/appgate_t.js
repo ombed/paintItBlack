@@ -49,12 +49,13 @@ const UID = "00000000-0000-0000-0000-00000000000a";
     return f;
   }
   // a request through the site's front door (what Cloudflare calls), to a raw address
-  async function run(cookie, { nav = true, sb = supabase(), at = now, path: p = "/app/" } = {}) {
+  async function run(cookie, { nav = true, sb = supabase(), at = now, path: p = "/app/", type = null } = {}) {
     const headers = { accept: nav ? "text/html" : "*/*" };
     if (nav) headers["sec-fetch-mode"] = "navigate";
     if (cookie !== null) headers.cookie = cookie;
     let passed = false;
-    const res = await G.site({ request: new Request("https://inkognito.co.il" + p, { headers }), next: async () => { passed = true; return new Response("the file", { headers: { "cache-control": "public, max-age=0, must-revalidate" } }); } }, { fetchImpl: sb, now: at });
+    const served = { "cache-control": "public, max-age=0, must-revalidate", ...(type ? { "content-type": type } : {}) };
+    const res = await G.site({ request: new Request("https://inkognito.co.il" + p, { headers }), next: async () => { passed = true; return new Response("the file", { headers: served }); } }, { fetchImpl: sb, now: at });
     return { res, passed, where: res.headers.get("location") || "", sb };
   }
   const ck = (t) => "theme=dark; " + G.COOKIE + "=" + t + "; other=1";
@@ -149,6 +150,17 @@ const UID = "00000000-0000-0000-0000-00000000000a";
   }
   r = await run(null, { path: "/site.css" });
   ok(r.res.headers.get("cache-control") === "public, max-age=0, must-revalidate", "a public file keeps the server's own caching");
+  // pages are sent with no-transform: Cloudflare must not add its own scripts to them (its Web
+  // Analytics beacon was found on the real domain, 4.10); other files keep Cloudflare's compression
+  r = await run(ck(await token(K1)), { path: "/app/", type: "text/html; charset=utf-8" });
+  ok(r.res.headers.get("cache-control") === "private, no-cache, no-transform", "the tool's page is not to be touched: " + r.res.headers.get("cache-control"));
+  r = await run(ck(await token(K1)), { nav: false, path: "/app/redact-engine.js", type: "text/javascript" });
+  ok(r.res.headers.get("cache-control") === "private, no-cache", "a script may still be compressed: " + r.res.headers.get("cache-control"));
+  r = await run(null, { path: "/no-such-page", type: "text/html" });
+  ok(r.passed && r.res.headers.get("cache-control") === "public, max-age=0, must-revalidate, no-transform", "a public page that reaches the gate (the 404 page) is not to be touched either");
+  G._reset();
+  r = await run(ck(await token(K1)), { sb: supabase({ jwksStatus: 500 }) });
+  ok(/no-transform/.test(r.res.headers.get("cache-control") || ""), "nor is the 503 page");
 
   console.log("\n— the key list: cached, and refreshed when Supabase rotates keys —");
   G._reset();

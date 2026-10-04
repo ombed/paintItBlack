@@ -104,7 +104,16 @@ try {
   ok(/\/app\/\*[\s\S]*X-Robots-Tag: noindex/.test(h) && /X-Frame-Options: DENY/.test(h) && /X-Content-Type-Options: nosniff/.test(h), "_headers: no framing, no sniffing, the app not indexed");
   ok(/https:\/\/:project\.pages\.dev\/\*\s*\n\s*X-Robots-Tag: noindex/.test(h) && /https:\/\/:version\.:project\.pages\.dev\/\*\s*\n\s*X-Robots-Tag: noindex/.test(h), "the pages.dev copies (production and previews) are kept out of search engines");
   ok(files.includes("sitemap.xml") && /https:\/\/inkognito\.co\.il\/privacy/.test(read("sitemap.xml")) && /Sitemap: https:\/\/inkognito\.co\.il\/sitemap\.xml/.test(read("robots.txt")), "a sitemap of the public pages, named in robots.txt");
-  ok(!/Cache-Control/i.test(h), "_headers sets no caching (the gate does: two rules on one path would join their values)");
+  /* Caching is the gate's, except one thing on the public pages: no-transform, so that Cloudflare adds
+     none of its own scripts to them (its Web Analytics beacon was found on the real domain, 4.10).
+     Each page gets it at both its addresses, by an exact rule that sets nothing else, and no other
+     rule sets Cache-Control: two rules on one path would join their values. */
+  const rules = h.split(/\n(?=\S)/).map((b) => { const [p, ...l] = b.trim().split("\n"); return { p: p.trim(), cc: l.filter((x) => /^\s*Cache-Control:/i.test(x)) }; });
+  const withCc = rules.filter((r) => r.cc.length);
+  ok(withCc.length > 0 && withCc.every((r) => !/[*:]/.test(r.p) && r.cc.length === 1 && /^\s*Cache-Control: public, max-age=0, must-revalidate, no-transform$/.test(r.cc[0])), "only exact page rules set Cache-Control, each once, with no-transform");
+  const pagesServed = files.filter((f) => /^[^/]+\.html$/.test(f)).flatMap((f) => ["/" + f, f === "index.html" ? "/" : "/" + f.slice(0, -5)]);
+  ok(pagesServed.every((p) => withCc.some((r) => r.p === p)) && withCc.every((r) => pagesServed.includes(r.p)), "every page has it, at both addresses, and nothing else does (" + withCc.length + " rules)");
+  ok(new Set(withCc.map((r) => r.p)).size === withCc.length, "no page address has two such rules");
   // the real domain is attached before launch (4.10); until then it is kept out of search engines too
   const early = /https:\/\/inkognito\.co\.il\/\*\s*\n\s*X-Robots-Tag: noindex/.test(h);
   ok(LAUNCHED ? !early : early, LAUNCHED ? "launched: inkognito.co.il is open to search engines" : "before launch: inkognito.co.il is kept out of search engines");

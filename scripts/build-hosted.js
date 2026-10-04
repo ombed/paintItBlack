@@ -11,7 +11,8 @@
      the engine told the new part names (partNofM: a different split never reuses a cached
      name). Joined, they are the same bytes: the page checks the SHA-256. The repository's model
      files and the public tool are untouched;
-   - _headers: no framing, no sniffing, the app kept out of search engines;
+   - _headers: no framing, no sniffing, the app kept out of search engines, and the pages marked
+     no-transform so that Cloudflare adds none of its own scripts to them;
    - _routes.json: the gate runs in front of every request except the site's own public files,
      each named exactly (no pattern an encoded path could slip into). Exact names also keep
      the landing page off the daily Functions quota.
@@ -52,6 +53,7 @@ https://inkognito.co.il/*
   X-Robots-Tag: noindex
 `);
 const ROUTE_LIMIT = 100; // Cloudflare Pages: at most 100 include and exclude rules together
+const HEADER_LIMIT = 100; // Cloudflare Pages: at most 100 rules in _headers
 
 // an existing folder is replaced only if this script made it (the same rule as build-site.js)
 function safeToReplace(out) {
@@ -140,8 +142,6 @@ function build(out) {
   }
   put("fonts/app-fonts.css", css);
 
-  fs.writeFileSync(path.join(out, "_headers"), HEADERS_NOW);
-
   /* The public files skip the gate by exact name; everything else, /app/ above all, meets it. A
      page also goes by the address Cloudflare serves it at: /login.html redirects to /login, and
      /index.html is /. Without those, every visit to the landing and sign-in pages ran the gate (the
@@ -154,6 +154,17 @@ function build(out) {
   const pub = [...new Set([...files, ...pretty])].sort();
   if (pub.length + 1 > ROUTE_LIMIT) throw new Error("build-hosted: " + pub.length + " public files exceed Cloudflare's " + ROUTE_LIMIT + " route rules");
   fs.writeFileSync(path.join(out, "_routes.json"), JSON.stringify({ version: 1, include: ["/*"], exclude: pub }, null, 1));
+
+  /* Cloudflare adds its own scripts to a page on the way out when the zone has them on: Web
+     Analytics' beacon was found on the real domain (4.10), and it breaks "nothing is loaded from
+     another site". "no-transform" tells Cloudflare not to touch a page. Only on the pages, at both
+     their addresses: it also stops Cloudflare's compression, which matters for the scripts and the
+     model, not for these. The gate does the same for the pages it serves (lib/gate.mjs). */
+  const pages = files.filter((p) => /^\/[^/]+\.html$/.test(p)).flatMap((p) => [p, p === "/index.html" ? "/" : p.slice(0, -".html".length)]);
+  const headers = HEADERS_NOW + "\n" + pages.map((p) => p + "\n  Cache-Control: public, max-age=0, must-revalidate, no-transform\n").join("\n");
+  const rules = headers.split("\n").filter((l) => l && !/^\s/.test(l)).length;
+  if (rules > HEADER_LIMIT) throw new Error("build-hosted: " + rules + " header rules exceed Cloudflare's " + HEADER_LIMIT);
+  fs.writeFileSync(path.join(out, "_headers"), headers);
   return out;
 }
 
