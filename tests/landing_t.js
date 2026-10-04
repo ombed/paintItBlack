@@ -56,6 +56,14 @@ for (const p of pages) {
   }
 }
 
+console.log("\n— the way in —");
+// sign-in is Google, or an email and a password (4.10); "sign up" opens the page on creating an account
+const index = fs.readFileSync(path.join(SITE, "index.html"), "utf8");
+const signups = [...index.matchAll(/<a[^>]*\bhref="([^"]+)"[^>]*>להרשמה חינם<\/a>/g)].map((m) => m[1]);
+ok(signups.length >= 3 && signups.every((h) => h === "login.html?mode=signup"), "every sign-up button opens on creating an account (" + signups.join(", ") + ")");
+for (const p of ["index.html", "terms.html", "privacy.html"])
+  ok(!/(?:כניסה|להיכנס)[^.]{0,60}קישור במייל|קישורי כניסה|קישור כניסה/.test(fs.readFileSync(path.join(SITE, p), "utf8")), p + ": promises no sign-in by an emailed link");
+
 console.log("\n— every script —");
 for (const s of scripts) {
   const js = fs.readFileSync(path.join(SITE, s), "utf8");

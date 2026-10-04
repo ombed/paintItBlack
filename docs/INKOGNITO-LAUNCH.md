@@ -67,9 +67,17 @@ Gmail; decide later between a mail program that sends through Resend, or Google 
    sender email `noreply@inkognito.co.il`, sender name `InKognito`, host `smtp.resend.com`,
    port `465`, username `resend`, password = the `supabase` key. Save.
    (A Hebrew sender name, אינקוגניטו, may work; test it once before switching.)
-2. **Authentication → Emails → Templates** (unlocked by step 1): in **Magic Link** and in
-   **Confirm signup**, subject `קישור כניסה לאינקוגניטו`, body = the contents of
-   `supabase/templates/magic-link.html` (paste into the Source view). Save both.
+2. **Authentication → Emails → Templates** (unlocked by step 1). Each body is the contents of a
+   file in `supabase/templates/`, copied in an editor (never a terminal: it reverses Hebrew) and
+   pasted into the Source view. Save each.
+   - **Confirm signup**: subject `אישור החשבון באינקוגניטו`, body `confirm-signup.html`.
+   - **Reset Password**: subject `קביעת סיסמה לאינקוגניטו`, body `reset-password.html`.
+   - **Magic Link**: subject `קישור כניסה לאינקוגניטו`, body `magic-link.html`. The sign-in page
+     no longer asks for one (sign-in is Google, or an email and a password, 4.10), but the
+     dashboard can still send it.
+   Then **Authentication → Sign In / Providers → Email**: minimum password length **8**, password
+   requirements **none** (a "letters and digits" rule counts only English letters, so it would
+   refuse a Hebrew password; length is what matters).
 3. **Authentication → URL Configuration** (on launch day, once the site is live):
    Site URL `https://inkognito.co.il`. Redirect URLs: add `https://inkognito.co.il/login` and
    `https://inkognito.co.il/login.html`. (Cloudflare serves `login.html` as `/login`, so the page
@@ -84,7 +92,8 @@ Gmail; decide later between a mail program that sends through Resend, or Google 
    Then tell Claude to apply `supabase/migrations/0006_signup_digest.sql` and send a test. The
    email carries only the number of new sign-ups and a link to the admin page.
 5. Check (already so): Authentication → Sign In / Providers → **anonymous sign-ins OFF**;
-   Email → **Confirm email ON**, **Secure email change ON**, email OTP expiration **900**.
+   Email → **Confirm email ON**, **Secure email change ON**, email OTP expiration **900** (the
+   confirmation and password links last 15 minutes; the sign-in page sends a new one).
 
 ## 5. Cloudflare Pages: put the site live (owner with Claude, 30 minutes)
 

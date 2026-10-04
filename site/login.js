@@ -1,20 +1,21 @@
-/* Sign-in page: Google, a link by email, or an email and a password (the owner's choice, 4.10),
+/* Sign-in page, as on other sites: Google, or an email and a password (the owner's choice, 4.10),
    through Supabase Auth (site/config.js). The password is kept by Supabase, hashed; the site
-   never sees it again.
-   Every emailed link opens this page as login.html#confirm=<token> (supabase/templates/): to sign
-   in, to confirm a new account, or (with &type=recovery) to set a password. The token is after
-   the #, so it never reaches a server, and it is spent only on a click here: a mail scanner that
-   opens the link first cannot use it up, and any browser on the computer works.
+   never sees it again. There is no sign-in by an emailed link.
+   Email comes only to confirm a new account and to set a password ("forgot password"). Each
+   emailed link opens this page as login.html#confirm=<token>&type=signup|recovery
+   (supabase/templates/). The token is after the #, so it never reaches a server, and it is spent
+   only on a click here: a mail scanner that opens the link first cannot use it up, and any
+   browser on the computer works.
    Google comes back here with the session after the #, which the client reads itself.
    A session sends the person on to the app. */
 const card = document.getElementById("card"), email = document.getElementById("email"), err = document.getElementById("email-err");
 const resend = document.getElementById("resend"), label = document.getElementById("resend-label"), status = document.getElementById("status");
 const send = document.getElementById("send");
 const $ = (id) => document.getElementById(id);
-const pw = $("password"), pwWrap = $("pw-wrap"), pwHint = $("pw-hint"), pwLinks = $("pw-links"), modeBtn = $("mode"), signupBtn = $("signup");
+const pw = $("password"), pwWrap = $("pw-wrap"), pwHint = $("pw-hint"), forgot = $("forgot"), reconfirm = $("reconfirm"), switchBtn = $("switch");
 const MIN = 8; // the password's minimum length, as set in Supabase (Authentication > Providers > Email)
 const HERE = location.origin + location.pathname;
-const WAIT = 60; // Supabase allows one link per address per minute
+const WAIT = 60; // Supabase sends one email per address per minute
 /* Where a session goes: the app, or the admin page when the sign-in started there
    (login.html?next=admin). Only that one other page, never an address from the URL: a sign-in
    page that forwards anywhere it is told is an open redirect. Kept for this tab through the
@@ -29,7 +30,8 @@ function destination() {
 
 // what Supabase put after the # that is ours to handle: the email's token, or a refusal
 const hash = new URLSearchParams(location.hash.slice(1));
-const tokenType = hash.get("type") === "recovery" ? "recovery" : "email";
+// signup: confirms a new account; recovery: sets a password; none: a sign-in link (the dashboard can still send one)
+const kind = hash.get("type");
 const token = hash.get("confirm"), refused = hash.get("error") && { code: hash.get("error_code") || hash.get("error"), message: hash.get("error_description") || "" };
 if (token || refused) history.replaceState(null, "", HERE);
 
@@ -45,24 +47,28 @@ function enter(session) {
 // Supabase's refusals in Hebrew; its English never reaches the page
 function say(e) {
   const code = String((e && e.code) || ""), text = String((e && e.message) || "");
-  if (e && e.status === 429 || /rate_limit|over_/.test(code)) return "כבר נשלח קישור לפני רגע. אפשר לבקש שוב בעוד דקה.";
   // exact codes first: the looser text test below would read "Invalid login credentials" as an expired link
-  // passwords
+  if (code === "over_email_send_rate_limit") return "כבר נשלח מייל לפני רגע. אפשר לבקש שוב בעוד דקה.";
+  if (e && e.status === 429 || /rate_limit|over_/.test(code)) return "היו יותר מדי ניסיונות. אפשר לנסות שוב בעוד כמה דקות.";
   if (code === "invalid_credentials") return "המייל או הסיסמה לא נכונים.";
-  if (code === "email_not_confirmed") return "צריך קודם לאשר את החשבון: הקישור נמצא במייל האישור.";
+  if (code === "email_not_confirmed") return "צריך קודם לאשר את החשבון, בקישור שנשלח למייל בהרשמה.";
   if (code === "weak_password") return "הסיסמה חלשה מדי. כדאי לפחות " + MIN + " תווים, עם אותיות ומספרים.";
   if (code === "same_password") return "זו כבר הסיסמה שלך. אפשר לבחור אחרת, או פשוט להיכנס.";
   if (code === "user_already_exists" || code === "email_exists") return "כבר יש חשבון עם המייל הזה. אפשר להיכנס, או לקבוע סיסמה דרך ״שכחתי סיסמה״.";
-  if (/otp_expired|flow_state/.test(code) || /expired|invalid/i.test(text)) return "תוקף הקישור פג או שכבר השתמשו בו. אפשר לבקש קישור חדש.";
+  if (code === "email_address_invalid") return "הכתובת לא נראית תקינה. למשל: name@example.co.il";
+  if (code === "signup_disabled") return "פתיחת חשבונות חדשים סגורה כרגע.";
+  if (/otp_expired|flow_state/.test(code) || /expired|invalid/i.test(text)) return "תוקף הקישור פג או שכבר השתמשו בו.";
   if (/access_denied/.test(code)) return "הכניסה בוטלה. אפשר לנסות שוב.";
   // from the gate
   if (code === "blocked") return "החשבון הזה חסום. לבירור אפשר לכתוב אל contact@inkognito.co.il.";
   if (code === "pending") return "החשבון ממתין לאישור. אפשר לכתוב אל contact@inkognito.co.il.";
   return "הכניסה לא הצליחה. אפשר לנסות שוב בעוד רגע.";
 }
-function showErr(msg) {
-  err.textContent = msg; email.setAttribute("aria-invalid", msg ? "true" : "false");
-  if (msg) email.focus();
+// the error under the form, marked on the field it is about
+function showErr(msg, field = email) {
+  err.textContent = msg;
+  for (const f of [email, pw]) f.setAttribute("aria-invalid", msg && f === field ? "true" : "false");
+  if (msg) field.focus();
 }
 
 let timer;
@@ -75,33 +81,56 @@ function startTimer() {
     if (n <= 0) { clearInterval(timer); resend.disabled = false; label.textContent = "שליחה חוזרת"; status.textContent = "אפשר לשלוח שוב"; }
   }, 1000);
 }
-const askLink = (addr) => sb.auth.signInWithOtp({ email: addr, options: { shouldCreateUser: true, emailRedirectTo: HERE } });
 const askConfirm = (addr) => sb.auth.resend({ type: "signup", email: addr, options: { emailRedirectTo: HERE } });
 const askReset = (addr) => sb.auth.resetPasswordForEmail(addr, { redirectTo: HERE });
 
-// the form's three ways: a link by email, sign in with a password, create an account with one
-let mode = "link";
+/* The form's three steps, as on other sites: sign in, create an account, and "forgot password"
+   (an email to set a new one). login.html?mode=signup opens on creating an account. */
+const MODES = {
+  signin: { h: "כניסה", why: "החשבון רק פותח את הכלי. המסמכים נשארים במחשב.", google: "כניסה", send: "כניסה", q: "אין לך חשבון?", go: "יצירת חשבון", to: "signup" },
+  signup: { h: "יצירת חשבון", why: "חינם בתקופת ההשקה. המסמכים נשארים במחשב.", google: "הרשמה", send: "יצירת חשבון", q: "כבר יש לך חשבון?", go: "כניסה", to: "signin" },
+  reset: { h: "שכחתי סיסמה", why: "נשלח למייל קישור, ובו בוחרים סיסמה חדשה.", google: "", send: "שליחת קישור", q: "", go: "חזרה לכניסה", to: "signin" },
+};
+let mode = "signin";
 function setMode(m) {
+  const M = MODES[m];
   mode = m;
-  pwWrap.hidden = pwLinks.hidden = m === "link";
+  document.title = M.h + " · אינקוגניטו";
+  $("ask-h").textContent = M.h;
+  $("ask-why").textContent = M.why;
+  $("social").hidden = !M.google;
+  $("g-verb").textContent = M.google;
+  pwWrap.hidden = m === "reset";
   pwHint.hidden = m !== "signup";
+  forgot.hidden = m !== "signin";
   pw.autocomplete = m === "signup" ? "new-password" : "current-password";
-  send.textContent = m === "link" ? "שליחת קישור כניסה" : m === "password" ? "כניסה" : "יצירת חשבון";
-  modeBtn.textContent = m === "link" ? "כניסה עם סיסמה" : "קבלת קישור כניסה במייל במקום";
-  signupBtn.textContent = m === "signup" ? "כבר יש לי סיסמה" : "יצירת חשבון עם סיסמה";
+  // a hidden hint is still read out when a field names it, so the field names it only when shown
+  pw.setAttribute("aria-describedby", m === "signup" ? "pw-hint email-err" : "email-err");
+  send.textContent = M.send;
+  $("switch-q").textContent = M.q;
+  $("switch-q").hidden = !M.q;
+  switchBtn.textContent = M.go;
+  $("fine").hidden = m === "reset";
+  reconfirm.hidden = true;
   showErr("");
 }
-modeBtn.addEventListener("click", () => { setMode(mode === "link" ? "password" : "link"); (mode === "link" ? email : pw).focus(); });
-signupBtn.addEventListener("click", () => { setMode(mode === "signup" ? "password" : "signup"); pw.focus(); });
+// a new step is announced by its heading
+const turn = (m) => { setMode(m); $("ask-h").focus(); };
+switchBtn.addEventListener("click", () => turn(MODES[mode].to));
+forgot.addEventListener("click", () => turn("reset"));
+const showable = (box, field) => box.addEventListener("change", () => { field.type = box.checked ? "text" : "password"; });
+showable($("show"), pw);
 
 // after an email went out: what was sent, and how to send it again
 let again = null;
-function sent(kind, addr) {
+function sent(what, addr) {
+  const signup = what === "signup";
   $("addr").textContent = addr;
-  $("sent-h").textContent = kind === "signup" ? "נשאר לאשר את המייל" : kind === "reset" ? "קישור לקביעת סיסמה נשלח" : "הקישור נשלח למייל";
-  $("sent-what").textContent = kind === "signup" ? "מייל לאישור החשבון נשלח אל" : "הקישור נשלח אל";
-  $("sent-next").textContent = kind === "signup" ? "אחרי האישור אפשר להיכנס עם הסיסמה." : "הוא תקף ל־15 דקות ופועל פעם אחת.";
-  again = kind === "signup" ? askConfirm : kind === "reset" ? askReset : askLink;
+  $("sent-h").textContent = signup ? "נשאר לאשר את המייל" : "נשאר לפתוח את המייל";
+  // Supabase sends a password link only to an address that has an account, and says nothing either way
+  $("sent-a").textContent = signup ? "מייל לאישור החשבון נשלח אל" : "אם יש חשבון עם הכתובת";
+  $("sent-b").textContent = signup ? ". לוחצים על הכפתור שבמייל, והחשבון מוכן." : ", יגיע אליה מייל עם קישור לקביעת סיסמה. הוא תקף ל־15 דקות.";
+  again = signup ? askConfirm : askReset;
   card.classList.add("is-sent");
   $("sent-h").focus();
   startTimer();
@@ -117,42 +146,50 @@ document.getElementById("mailform").addEventListener("submit", async (e) => {
   e.preventDefault();
   const v = checkEmail();
   if (!v || send.disabled) return;
-  if (mode !== "link" && !pw.value) { err.textContent = "צריך להקליד סיסמה."; pw.focus(); return; }
-  if (mode === "signup" && pw.value.length < MIN) { err.textContent = "הסיסמה צריכה לפחות " + MIN + " תווים."; pw.focus(); return; }
-  send.disabled = true;
-  if (mode === "link") {
-    const { error } = await askLink(v);
+  if (mode === "reset") {
+    send.disabled = true;
+    const { error } = await askReset(v);
     send.disabled = false;
-    if (error) { showErr(say(error)); return; }
-    return sent("link", v);
+    if (error) return showErr(say(error));
+    return sent("reset", v);
   }
-  if (mode === "password") {
+  if (!pw.value) return showErr("צריך להקליד סיסמה.", pw);
+  if (mode === "signup" && pw.value.length < MIN) return showErr("הסיסמה צריכה לפחות " + MIN + " תווים.", pw);
+  send.disabled = true;
+  if (mode === "signin") {
     const { data, error } = await sb.auth.signInWithPassword({ email: v, password: pw.value });
     send.disabled = false;
-    if (error || !data.session) { err.textContent = say(error); pw.focus(); return; }
+    if (error || !data.session) {
+      showErr(say(error), pw);
+      // an account whose email was never confirmed: the confirmation can be sent again from here
+      reconfirm.hidden = !(error && error.code === "email_not_confirmed");
+      return;
+    }
     return enter(data.session);
   }
   const { data, error } = await sb.auth.signUp({ email: v, password: pw.value, options: { emailRedirectTo: HERE } });
   send.disabled = false;
-  if (error) { err.textContent = say(error); pw.focus(); return; }
+  if (error) return showErr(say(error), pw);
   if (data.session) return enter(data.session); // only if the project does not ask to confirm the email
-  // an address that already has an account comes back without identities and no email is sent
-  if (data.user && Array.isArray(data.user.identities) && !data.user.identities.length) { err.textContent = say({ code: "user_already_exists" }); return; }
+  // an address that already has an account comes back without identities, and no email is sent
+  if (data.user && Array.isArray(data.user.identities) && !data.user.identities.length) return showErr(say({ code: "user_already_exists" }));
   sent("signup", v);
 });
-$("forgot").addEventListener("click", async () => {
+reconfirm.addEventListener("click", async () => {
   const v = checkEmail();
   if (!v) return;
-  const { error } = await askReset(v);
-  if (error) { showErr(say(error)); return; }
-  sent("reset", v);
+  reconfirm.disabled = true;
+  const { error } = await askConfirm(v);
+  reconfirm.disabled = false;
+  if (error) return showErr(say(error));
+  sent("signup", v);
 });
 resend.addEventListener("click", async () => {
   resend.disabled = true;
-  const { error } = await (again || askLink)(document.getElementById("addr").textContent);
+  const { error } = await (again || askConfirm)($("addr").textContent);
   if (error) { resend.disabled = false; status.textContent = say(error); return; }
   startTimer();
-  status.textContent = "קישור חדש נשלח";
+  status.textContent = "המייל נשלח שוב";
 });
 document.getElementById("change").addEventListener("click", () => { clearInterval(timer); card.classList.remove("is-sent"); email.focus(); });
 
@@ -161,21 +198,24 @@ document.getElementById("google").addEventListener("click", async () => {
   if (error) showErr(say(error));
 });
 
-/* the emailed link: one click spends the token and signs in. A password link (type=recovery)
-   asks for the new password first; the token is spent once, so a password Supabase refuses
-   (too weak) can be tried again without a new link. */
+/* The emailed link: one click spends the token. Confirming a new account signs in; a password
+   link (type=recovery) asks for the new password first. The token is spent once, so a password
+   Supabase refuses (too weak) can be tried again without a new link. */
 const go = $("confirm-go"), cerr = $("confirm-err"), newLink = $("confirm-new"), newpw = $("newpw");
 let verified = null;
-go.addEventListener("click", async () => {
+$("confirmform").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (go.disabled) return;
   cerr.textContent = "";
-  if (tokenType === "recovery" && newpw.value.length < MIN) { cerr.textContent = "הסיסמה צריכה לפחות " + MIN + " תווים."; newpw.focus(); return; }
+  if (kind === "recovery" && newpw.value.length < MIN) { cerr.textContent = "הסיסמה צריכה לפחות " + MIN + " תווים."; newpw.focus(); return; }
   go.disabled = true;
   if (!verified) {
-    const { data, error } = await sb.auth.verifyOtp({ token_hash: token, type: tokenType });
-    if (error || !data.session) { go.disabled = false; go.hidden = true; newLink.hidden = false; cerr.textContent = say(error); return; }
+    // "email" takes both a new account's confirmation and a sign-in link
+    const { data, error } = await sb.auth.verifyOtp({ token_hash: token, type: kind === "recovery" ? "recovery" : "email" });
+    if (error || !data.session) { go.hidden = $("newpw-wrap").hidden = true; newLink.hidden = false; cerr.textContent = say(error); return; }
     verified = data.session;
   }
-  if (tokenType === "recovery") {
+  if (kind === "recovery") {
     const { error } = await sb.auth.updateUser({ password: newpw.value });
     if (error) { go.disabled = false; cerr.textContent = say(error); newpw.focus(); return; }
     const { data } = await sb.auth.getSession();
@@ -183,15 +223,18 @@ go.addEventListener("click", async () => {
   }
   enter(verified);
 });
-newLink.addEventListener("click", () => { card.classList.remove("is-confirm"); email.focus(); });
+showable($("show-new"), newpw);
+// a used or expired link: a password link leads to asking for a new one, any other to signing in
+newLink.addEventListener("click", () => { card.classList.remove("is-confirm"); setMode(kind === "recovery" ? "reset" : "signin"); email.focus(); });
 
+setMode(new URLSearchParams(location.search).get("mode") === "signup" ? "signup" : "signin");
 if (token) {
-  if (tokenType === "recovery") {
-    $("confirm-h").textContent = "קביעת סיסמה";
-    $("confirm-why").textContent = "בוחרים סיסמה חדשה, ונכנסים.";
-    $("newpw-wrap").hidden = false;
-    go.textContent = "שמירה וכניסה";
-  }
+  const words = kind === "recovery" ? ["קביעת סיסמה", "בוחרים סיסמה חדשה, ונכנסים.", "שמירה וכניסה"]
+    : kind === "signup" ? ["אישור החשבון", "נשאר רק ללחוץ על הכפתור, והחשבון מוכן.", "אישור וכניסה"]
+    : null; // a sign-in link keeps the page's own words
+  if (words) { $("confirm-h").textContent = words[0]; $("confirm-why").textContent = words[1]; go.textContent = words[2]; }
+  $("newpw-wrap").hidden = kind !== "recovery";
+  newLink.textContent = kind === "recovery" ? "שליחת קישור חדש" : "חזרה לכניסה";
   card.classList.add("is-confirm");
   $("confirm-h").focus();
 } else if (refused) {
