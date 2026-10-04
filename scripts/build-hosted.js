@@ -20,7 +20,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { SITE_FILES } = require("./build-site.js");
-const { hostedApp, resourcesScript, LIBS, ORT_FILES, ortFrom, ortPin, ORT_DIR, FONTS, FONT_SUBSETS } = require("./hosted.js");
+const { hostedApp, hostedManifest, resourcesScript, LIBS, ORT_FILES, ortFrom, ortPin, ORT_DIR, FONTS, FONT_SUBSETS } = require("./hosted.js");
 
 const ROOT = path.resolve(__dirname, "..");
 const LIMIT = 25 * 1024 * 1024; // Cloudflare Pages: no file over 25 MiB
@@ -71,6 +71,7 @@ function build(out) {
     fs.copyFileSync(path.join(ROOT, f), to);
   }
   fs.writeFileSync(path.join(out, "app", "index.html"), hostedApp(fs.readFileSync(path.join(ROOT, "index.html"), "utf8")));
+  fs.writeFileSync(path.join(out, "app", "manifest.webmanifest"), hostedManifest(fs.readFileSync(path.join(ROOT, "manifest.webmanifest"), "utf8")));
 
   // the weights: joined from the repository's parts, checked, split again under the cap
   const eng = fs.readFileSync(path.join(ROOT, "redact-engine.js"), "utf8");

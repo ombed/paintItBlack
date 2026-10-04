@@ -9,6 +9,8 @@
       the hashes the tool already pins (scripts/build-hosted.js), handed to the tool through
       window.__resources (hosted-resources.js) or by address in the page, and the page's
       Content-Security-Policy names no other site but the project.
+   3. Its name: the hosted product is InKognito (אינקוגניטו), in the page's title, its header and
+      the install manifest. The public tool keeps its own name until users move over.
    e2e/cloud.spec.js and e2e/hosted-build.spec.js run the page this produces. */
 const fs = require("fs");
 const path = require("path");
@@ -59,6 +61,14 @@ function resourcesScript(ortParts) {
     "window.__resources = Object.assign(window.__resources || {}, " + JSON.stringify(map, null, 1) + ");\n";
 }
 
+const NAME = "אינקוגניטו", OLD_NAME = "השחרת מסמכים";
+// the install manifest's name, for the hosted tool
+function hostedManifest(json) {
+  const m = JSON.parse(json);
+  if (m.name !== OLD_NAME) throw new Error("hosted: manifest.webmanifest no longer names the tool " + OLD_NAME);
+  return JSON.stringify({ ...m, name: NAME, short_name: NAME }, null, 2) + "\n";
+}
+
 const FONT_LINKS = /<link rel="preconnect" href="https:\/\/fonts\.googleapis\.com">\s*<link rel="preconnect" href="https:\/\/fonts\.gstatic\.com" crossorigin>\s*<link href="https:\/\/fonts\.googleapis\.com\/css2\?[^"]+" rel="stylesheet">/g;
 const THIRD = /https:\/\/(?:unpkg\.com|cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)/;
 
@@ -81,10 +91,14 @@ function hostedApp(html) {
     if (!out.includes(l.url)) throw new Error("hosted: the page no longer loads " + l.url);
     out = out.split(l.url).join("./" + l.to);
   }
+  // the name
+  const OLD_TITLE = "<title>" + OLD_NAME + "</title>", OLD_HEADER = 'white-space:nowrap">' + OLD_NAME + "</span>";
+  if (!out.includes(OLD_TITLE) || !out.includes(OLD_HEADER)) throw new Error("hosted: the tool's name is no longer where it was");
+  out = out.split(OLD_TITLE).join("<title>" + NAME + "</title>").replace(OLD_HEADER, 'white-space:nowrap">' + NAME + "</span>");
   out = out.replace(anchor, `<script src="./hosted-resources.js"></script>\n<script src="../vendor/supabase-${supabaseVersion()}.js"></script>\n<script src="../config.js"></script>\n<script src="../cloud.js"></script>\n` + anchor);
   const left = out.match(new RegExp(THIRD.source + "[^\"'\\s)]*"));
   if (left) throw new Error("hosted: app/index.html still names another site: " + left[0]);
   return out;
 }
 
-module.exports = { hostedApp, resourcesScript, PROJECT, LIBS, ORT_FILES, ORT_V, ortFrom, ortPin, ORT_DIR, FONTS, FONT_SUBSETS };
+module.exports = { hostedApp, hostedManifest, NAME, resourcesScript, PROJECT, LIBS, ORT_FILES, ORT_V, ortFrom, ortPin, ORT_DIR, FONTS, FONT_SUBSETS };

@@ -35,6 +35,12 @@ try {
   ok(/<script src="\.\.\/cloud\.js"><\/script>/.test(app) && /connect-src 'self' https:\/\/cwsiranjlxbclmaqtucc\.supabase\.co/.test(app), "app/index.html carries the hosted injection");
   ok(!/<script[^>]*(cloud|config|supabase)/.test(fs.readFileSync(path.join(ROOT, "index.html"), "utf8")), "the repository's index.html (the public tool) does not");
 
+  console.log("\n— the hosted tool's name —");
+  ok((app.match(/<title>אינקוגניטו<\/title>/g) || []).length === 2 && !/השחרת מסמכים<\/(title|span)>/.test(app), "the page's title (twice) and header say אינקוגניטו");
+  const man = JSON.parse(read("app/manifest.webmanifest"));
+  ok(man.name === "אינקוגניטו" && man.short_name === "אינקוגניטו" && man.start_url === "./", "the install manifest names it, and nothing else in it changed");
+  ok(JSON.parse(fs.readFileSync(path.join(ROOT, "manifest.webmanifest"), "utf8")).name === "השחרת מסמכים", "the public tool keeps its own name");
+
   console.log("\n— the model, re-split under the cap —");
   const eng = read("app/redact-engine.js");
   const spec = eng.match(/weights:\{file:"([^"]+)",bytes:(\d+),\s*sha256:"([0-9a-f]{64})",\s*parts:\[([^\]]*)\]/);
