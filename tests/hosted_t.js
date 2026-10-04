@@ -35,6 +35,10 @@ try {
   ok(/<script src="\.\.\/cloud\.js"><\/script>/.test(app) && /connect-src 'self' https:\/\/cwsiranjlxbclmaqtucc\.supabase\.co/.test(app), "app/index.html carries the hosted injection");
   ok(!/<script[^>]*(cloud|config|supabase)/.test(fs.readFileSync(path.join(ROOT, "index.html"), "utf8")), "the repository's index.html (the public tool) does not");
 
+  console.log("\n— a place for the account button in the top bar —");
+  ok(/onTheme[^\n]*<\/button>\s*<span data-ink-account[^>]*><\/span>\s*<\/header>/.test(app), "beside the day/night button, inside the header");
+  ok(!/data-ink-account/.test(fs.readFileSync(path.join(ROOT, "index.html"), "utf8")), "not in the public tool");
+
   console.log("\n— the hosted tool's name —");
   ok((app.match(/<title>אינקוגניטו<\/title>/g) || []).length === 2 && !/השחרת מסמכים<\/(title|span)>/.test(app), "the page's title (twice) and header say אינקוגניטו");
   const man = JSON.parse(read("app/manifest.webmanifest"));

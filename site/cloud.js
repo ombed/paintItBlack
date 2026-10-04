@@ -165,9 +165,41 @@
     const row = el("div", {}, out, del); row.style.cssText = "display:flex;gap:18px;margin-top:6px";
     const pane = el("div", { id: "ink-account-panel", hidden: true }, who, swLabel, more, msg, row);
     pane.setAttribute("role", "region"); pane.setAttribute("aria-label", "חשבון");
-    pane.style.cssText = "position:absolute;bottom:44px;inset-inline-end:0;width:300px;max-width:calc(100vw - 24px);background:var(--panel,#fff);color:var(--ink,#111);border:1px solid var(--line,#ccc);border-radius:12px;padding:14px 16px;box-shadow:0 12px 34px rgba(0,0,0,.22)";
-    box.append(pane, btn);
-    document.body.append(box);
+    const paneLook = "position:absolute;inset-inline-end:0;width:300px;max-width:calc(100vw - 24px);z-index:70;background:var(--panel,#fff);color:var(--ink,#111);border:1px solid var(--line,#ccc);border-radius:12px;padding:14px 16px;box-shadow:0 12px 34px rgba(0,0,0,.22);text-align:start";
+    box.append(btn, pane);
+    /* In the top bar, beside the day/night button. The hosted build leaves an empty place there
+       (scripts/hosted.js) that only keeps the room. The button itself stays outside the tool's
+       page (the tool's page engine copies whatever is put inside what it draws) and is laid over
+       that place, again whenever the tool redraws or the window changes. The header stays at the
+       top while the page scrolls, so the button stays with it. Without a place: the corner. */
+    let mode = "";
+    const inTop = () => {
+      mode = "top";
+      box.style.cssText = "position:fixed;z-index:31;width:74px;height:34px;font-size:13px";
+      btn.style.cssText = "width:100%;height:34px;padding:0 8px;border-radius:9px;border:1px solid var(--line,#ccc);background:var(--panel,#fff);color:var(--ink2,#444);cursor:pointer;font:inherit;white-space:nowrap";
+      pane.style.cssText = paneLook + ";top:42px";
+    };
+    const inCorner = () => {
+      mode = "corner";
+      box.style.cssText = "position:fixed;bottom:10px;inset-inline-end:12px;z-index:70;font-family:inherit;font-size:13px";
+      btn.style.cssText = "padding:7px 14px;border-radius:999px;border:1px solid var(--line,#ccc);background:var(--panel,#fff);color:var(--ink,#111);cursor:pointer;font:inherit";
+      pane.style.cssText = paneLook + ";bottom:44px";
+    };
+    const place = () => {
+      if (!box.isConnected) document.body.append(box);
+      const slot = document.querySelector("[data-ink-account]");
+      if (slot && slot.getClientRects().length) {
+        if (mode !== "top") inTop();
+        const r = slot.getBoundingClientRect();
+        box.style.top = r.top + "px"; box.style.left = r.left + "px";
+      } else if (mode !== "corner") inCorner();
+    };
+    let queued = false;
+    const soon = () => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; place(); }); };
+    place();
+    new MutationObserver(soon).observe(document.body, { childList: true, subtree: true, attributes: true });
+    addEventListener("resize", soon);
+    addEventListener("scroll", soon, { passive: true });
 
     btn.addEventListener("click", () => { pane.hidden = !pane.hidden; btn.setAttribute("aria-expanded", String(!pane.hidden)); });
     // Escape closes it and returns to the button, as a popup should

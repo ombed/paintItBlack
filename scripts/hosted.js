@@ -91,6 +91,10 @@ function hostedApp(html) {
     if (!out.includes(l.url)) throw new Error("hosted: the page no longer loads " + l.url);
     out = out.split(l.url).join("./" + l.to);
   }
+  // a place for the account button in the top bar, beside the day/night button (site/cloud.js fills it)
+  const themeBtn = /(<button onClick="\{\{ onTheme \}\}"[^\n]*?<\/button>)(\s*<\/header>)/;
+  if ((out.match(new RegExp(themeBtn.source, "g")) || []).length !== 1) throw new Error("hosted: the top bar's day/night button is no longer where it was");
+  out = out.replace(themeBtn, '$1\n    <span data-ink-account aria-hidden="true" style="display:inline-block;flex:none;width:74px;height:34px"></span>$2');
   // the name
   const OLD_TITLE = "<title>" + OLD_NAME + "</title>", OLD_HEADER = 'white-space:nowrap">' + OLD_NAME + "</span>";
   if (!out.includes(OLD_TITLE) || !out.includes(OLD_HEADER)) throw new Error("hosted: the tool's name is no longer where it was");

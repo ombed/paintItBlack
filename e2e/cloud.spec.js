@@ -40,6 +40,12 @@ async function hosted(page, { session = true, logOn = true, state = {} } = {}) {
   return calls;
 }
 const submits = (calls) => calls.filter((c) => c.path === "/rest/v1/rpc/submit_log");
+// the account button lies over its place in the top bar (and exists once)
+async function inTopBar(page) {
+  const slot = await page.locator("header [data-ink-account]").boundingBox();
+  const box = await page.locator("#ink-account").boundingBox();
+  return !!(slot && box && Math.abs(slot.x - box.x) < 2 && Math.abs(slot.y - box.y) < 2 && (await page.locator("#ink-account").count()) === 1);
+}
 // the built tool, past its onboarding (as H.boot does for the public one)
 async function boot(page) {
   await page.addInitScript(() => { try { localStorage.setItem("redact-intro-seen", "1"); localStorage.setItem("redact-tour-seen", "*"); } catch (_) {} });
@@ -70,6 +76,8 @@ test("signed in: the account panel, the visit marked, the gate's cookie written"
   const calls = await hosted(page);
   await boot(page);
   await expect(page.getByRole("button", { name: "חשבון", exact: true })).toBeVisible();
+  // in the top bar, beside the day/night button
+  await expect.poll(() => inTopBar(page)).toBe(true);
   expect(calls.some((c) => c.path === "/rest/v1/rpc/touch")).toBe(true);
   expect((await page.context().cookies()).find((c) => c.name === "ink_at").value).toBe(JWT);
   await page.getByRole("button", { name: "חשבון", exact: true }).click();
@@ -102,6 +110,9 @@ test("each document's log goes up once when it ends, only what is new, with no t
   await runDoc(page, "two.docx");
   await newDoc(page);
   await expect.poll(() => submits(calls).length).toBe(2);
+  // the tool redrew its header between screens: the account button is still in the top bar, once
+  await expect.poll(() => inTopBar(page)).toBe(true);
+  await expect(page.getByRole("button", { name: "חשבון", exact: true })).toHaveCount(1);
   const lastT = Math.max(...first.p_log.events.map((e) => e.t));
   expect(submits(calls)[1].body.p_log.events.every((e) => e.t > lastT)).toBe(true);
   // each upload says where its slice starts, so a report times it from there
