@@ -5,10 +5,14 @@ Everything still to do before inkognito.co.il goes live, in order. Each step say
 branch `inkognito`, from the build plus three research reports (Cloudflare Pages, email with
 Resend, Israeli law) and an independent security review.
 
-**Already done:** the Supabase project (Frankfurt, migrations 0001–0005 live and verified),
-Google and email sign-in (tested), the sign-in page, the gate, the hosted build (`dist/`), the
-admin page, the legal pages' content, the domain bought and pointed at Cloudflare (waiting for
-the Israeli registry).
+**Already done** (by 5.10): the Supabase project (Frankfurt; migrations 0001–0005, 0007 and
+0008 live and verified), sign-in with Google or an email and a password, the gate, the hosted
+build (`dist/`), the admin page, the legal pages. The site runs on inkognito.co.il, kept out of
+search engines until launch (7). Its emails go out through Resend from the domain, and Google
+sign-in is open to every account (6).
+
+**Left:** `www` (5.4). Before announcing: Resend's paid plan (4.2) and the decision on Google's
+sign-in screen (6). Then launch day and her move (7). Optional: the daily sign-ups email (4.4).
 
 ---
 
@@ -30,6 +34,9 @@ the lightest level, and these accounts control the whole service.
      legal pages, and under our policy they would break.
    - **Web Analytics** (Analytics & Logs → Web Analytics, or Speed → Observatory → RUM):
      **disable** for the site. On free plans it can switch itself on, outside the EU.
+     (4.10: its script did appear once the domain was attached, and the setting was not where
+     these menus say. The pages now carry `no-transform`, which keeps Cloudflare's scripts out
+     whatever the setting; checked live.)
    - Bot Fight Mode and Rocket Loader: leave **off** (the defaults).
 4. **DMARC:** DNS → Add record → TXT, name `_dmarc`, value
    `v=DMARC1; p=none; rua=mailto:contact@inkognito.co.il`. (Or Email → DMARC Management.)
@@ -88,7 +95,7 @@ Gmail; decide later between a mail program that sends through Resend, or Google 
    keeps working. The sign-in page says so plainly for both caps. **Move Resend to a paid plan
    before announcing** to more than a small circle.
 3. **Authentication → URL Configuration** (done 4.10 with step 5.3, once https://inkognito.co.il/login
-   opened; then **delete the pages.dev entry**, so that no email can carry a pages.dev link again):
+   opened; the pages.dev entry then deleted, so that no email can carry a pages.dev link again):
    Site URL `https://inkognito.co.il/login`, with `/login`: when a request names no return page
    (an email sent from the dashboard) or names one not on the list, Supabase sends the person to
    the Site URL, and the sign-in page is the one that reads the link. (The landing page passes
@@ -108,7 +115,7 @@ Gmail; decide later between a mail program that sends through Resend, or Google 
    Email → **Confirm email ON**, **Secure email change ON**, email OTP expiration **900** (the
    confirmation and password links last 15 minutes; the sign-in page sends a new one).
 
-## 5. Cloudflare Pages: put the site live (owner with Claude, 30 minutes)
+## 5. Cloudflare Pages: put the site live (owner with Claude; done 4.10 except `www`, step 4)
 
 From the repository folder, on branch `inkognito`:
 
@@ -120,15 +127,15 @@ npx wrangler pages project create inkognito --production-branch=main
 npx wrangler pages deploy dist --project-name=inkognito --branch=main
 ```
 
-(`functions/` is picked up from the current folder; the project name becomes
-`inkognito.pages.dev` and can never change.)
+(`functions/` is picked up from the current folder. Cloudflare gave the project the address
+`inkognito-4f1.pages.dev`, which can never change.)
 
 1. Pages project → Settings → **Runtime → Fail closed.** Important: when the free plan's
    100,000 daily function requests run out, the default "fail open" serves the app's files
    *without the gate*. Fail closed shows an error page instead.
-2. Test on `https://inkognito.pages.dev` (Claude runs these): the landing page, `/login`, sign
-   in, the app opens, the admin page, and the gate probes:
-   `curl -si https://inkognito.pages.dev/app/` → 302 to `/login.html`, and the same for
+2. Test on `https://inkognito-4f1.pages.dev` (Claude runs these): the landing page, `/login`,
+   sign in, the app opens, the admin page, and the gate probes:
+   `curl -si https://inkognito-4f1.pages.dev/app/` → 302 to `/login.html`, and the same for
    `/app%2Fsupport.js`, `/%61pp/support.js`, `//app/support.js`, `/APP/support.js`,
    `/fonts/..%2Fapp%2Fsupport.js`. Anything that returns 200 is a stop.
 3. Pages → Custom domains → **Set up a domain → `inkognito.co.il`**. Wait for Active.
@@ -142,12 +149,13 @@ npx wrangler pages deploy dist --project-name=inkognito --branch=main
 5. Repeat the checks on `https://inkognito.co.il`, and view the source of `/privacy` to confirm
    nothing was injected (no `email-decode`, no `beacon.min.js`).
 
-## 6. Google sign-in for everyone (owner, 10 minutes, after step 5)
+## 6. Google sign-in for everyone (owner; done 5.10)
 
 Google Cloud → Google Auth Platform → **Branding:** homepage `https://inkognito.co.il`, privacy
 policy `https://inkognito.co.il/privacy`, authorized domain `inkognito.co.il` (if Google asks
 you to prove ownership, it gives a TXT record to add in Cloudflare DNS). No logo (a logo means a
-review of weeks). Then **Audience → Publish app**.
+review of weeks). Then **Audience → Publish app**. Done 5.10: In production, and tested with an
+account that was not a test user.
 
 Only the basic scopes (openid, email, profile), so publishing needs no review. But until Google
 verifies the brand, its sign-in screen names the app by the address Google returns to:
