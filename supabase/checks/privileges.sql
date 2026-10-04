@@ -1,10 +1,10 @@
 -- Live check: every privilege anon, authenticated and PUBLIC hold in public, as one line.
 -- It must equal the allowed list in tests/db_t.js ("the API roles hold exactly the
--- privileges they need"), currently these eleven, in any order:
+-- privileges they need"), currently these twelve, in any order:
 --   app_settings SELECT authenticated; app_settings UPDATE authenticated; delete_my_account() EXECUTE authenticated;
 --   profiles SELECT authenticated; usage_logs SELECT authenticated;
 --   profiles.approved UPDATE authenticated; profiles.blocked UPDATE authenticated;
---   is_admin() EXECUTE authenticated; set_log_enabled() EXECUTE authenticated;
+--   is_admin() EXECUTE authenticated; log_not_now() EXECUTE authenticated; set_log_enabled() EXECUTE authenticated;
 --   submit_log() EXECUTE authenticated; touch() EXECUTE authenticated
 with g as (
   select c.relname obj, a.grantee, a.privilege_type p from pg_class c

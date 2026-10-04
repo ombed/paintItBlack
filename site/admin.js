@@ -86,7 +86,7 @@
       cell(date(u.created_at)),
       cell(date(u.last_seen)),
       cell(String(u.documents || 0)),
-      cell(u.log_enabled === false ? "כבוי" : "פעיל"),
+      cell(u.log_enabled === true ? "פעיל" : u.log_enabled === false ? "כבוי" : "עוד אין תשובה"),
       cell(pill(u)),
       cell(actions),
     );

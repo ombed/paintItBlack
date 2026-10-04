@@ -60,7 +60,8 @@ test("signing up discloses the usage log, that it carries no text, and that it c
   const safe = page.locator(".safe");
   await expect(safe).toContainText("יומן שימוש");
   await expect(safe).toContainText("בלי טקסט מהמסמך");
-  await expect(safe).toContainText("לכבות");
+  await expect(safe).toContainText("נשאל");
+  await expect(safe).toContainText("לשנות את התשובה");
   await expect(safe.getByRole("link", { name: "מה נשלח" })).toHaveAttribute("href", "privacy.html");
 });
 

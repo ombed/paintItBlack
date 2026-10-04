@@ -1,5 +1,6 @@
 const { test, expect } = require("./base");
 const H = require("./helpers");
+const AxeBuilder = require("@axe-core/playwright").default;
 const path = require("path");
 const { build } = require("../scripts/build-hosted.js");
 
@@ -179,6 +180,81 @@ test("the public tool, without the hosted injection, never talks to the project"
   await page.waitForTimeout(500);
   expect(calls).toEqual([]);
   expect(await page.evaluate(() => "__inkHost" in window)).toBe(false);
+});
+
+// copy the redacted text to the AI: the moment the tool calls docSent. With items still open the
+// tool asks first ("להעתיק בכל זאת"), as for any user; the test answers it.
+async function sendDoc(page) {
+  await page.evaluate(() => { window.__copied = ""; navigator.clipboard.writeText = (t) => { window.__copied = t; return Promise.resolve(); }; });
+  await page.locator("[data-bar]").getByRole("button", { name: /העתקה ל-AI|הועתק/ }).click();
+  const anyway = page.getByRole("button", { name: "להעתיק בכל זאת" });
+  if (await anyway.isVisible({ timeout: 1500 }).catch(() => false)) await anyway.click();
+  await expect.poll(() => page.evaluate(() => (window.__copied || "").length)).toBeGreaterThan(0);
+}
+
+test("not asked yet: the first sent document asks; yes sends the whole log, the first document included", async ({ page }) => {
+  const calls = await hosted(page, { logOn: null });
+  await boot(page);
+  await runDoc(page, "one.docx");
+  await sendDoc(page);
+  const card = page.locator("#ink-ask");
+  await expect(card).toBeVisible();
+  await expect(page.locator("#ink-ask-h")).toBeFocused();
+  expect(submits(calls)).toHaveLength(0);
+  await card.getByText("מה בדיוק נשלח?").click();
+  const sample = await card.locator("pre").innerText();
+  expect(sample).toContain('"run"');
+  expect(sample).not.toMatch(/[֐-׿]/);
+  const r = await new AxeBuilder({ page }).include("#ink-ask").withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
+  expect(r.violations.map((v) => v.id)).toEqual([]);
+  await card.getByRole("button", { name: "כן, לשלוח" }).click();
+  await expect(card).toHaveCount(0);
+  expect(calls.find((c) => c.path === "/rest/v1/rpc/set_log_enabled").body).toEqual({ p_on: true });
+  await newDoc(page);
+  await expect.poll(() => submits(calls).length).toBe(1);
+  expect(submits(calls)[0].body.p_log.events.some((e) => e.ev === "run")).toBe(true);
+  expect(submits(calls)[0].body.p_log.from).toBe(0);
+});
+
+test("not now: nothing goes up and the card does not come back for the next documents", async ({ page }) => {
+  const calls = await hosted(page, { logOn: null });
+  await boot(page);
+  await runDoc(page, "one.docx");
+  await sendDoc(page);
+  await page.locator("#ink-ask").getByRole("button", { name: "לא עכשיו" }).click();
+  await expect(page.locator("#ink-ask")).toHaveCount(0);
+  await expect.poll(() => calls.filter((c) => c.path === "/rest/v1/rpc/log_not_now").length).toBe(1);
+  await newDoc(page);
+  await runDoc(page, "two.docx");
+  await sendDoc(page);
+  await page.waitForTimeout(500);
+  await expect(page.locator("#ink-ask")).toHaveCount(0);
+  await newDoc(page);
+  await page.waitForTimeout(500);
+  expect(submits(calls)).toHaveLength(0);
+});
+
+test("after one not-now, the fifth sent document asks again, and a second not-now is a no", async ({ page }) => {
+  const calls = await hosted(page, { logOn: null, state: { log_asks: 1 } });
+  await page.addInitScript((id) => { if (!localStorage.getItem("ink-sent:" + id)) localStorage.setItem("ink-sent:" + id, "3"); }, SESSION.user.id);
+  await boot(page);
+  await runDoc(page, "four.docx");
+  await sendDoc(page);
+  await page.waitForTimeout(500);
+  await expect(page.locator("#ink-ask")).toHaveCount(0);
+  await newDoc(page);
+  await runDoc(page, "five.docx");
+  await sendDoc(page);
+  await expect(page.locator("#ink-ask")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#ink-ask")).toHaveCount(0);
+  await expect.poll(() => calls.filter((c) => c.path === "/rest/v1/rpc/log_not_now").length).toBe(1);
+  await page.getByRole("button", { name: "חשבון", exact: true }).click();
+  await expect(page.getByLabel(/שליחת יומן שימוש/)).not.toBeChecked();
+  await page.getByRole("button", { name: "חשבון", exact: true }).click();
+  await newDoc(page);
+  await page.waitForTimeout(500);
+  expect(submits(calls)).toHaveLength(0);
 });
 
 /* A background tab: the browser slows its timers, so supabase-js's own refresh (every 30 s,

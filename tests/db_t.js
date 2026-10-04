@@ -59,7 +59,28 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
   await addUser(A, "a@example.com", "Alpha"); await addUser(B, "b@example.com", "Beta"); await addUser(OWNER, "owner@example.com", "Owner");
   await db.query("update public.profiles set is_admin = true where id = $1", [OWNER]);
   const pa = (await db.query("select * from public.profiles where id = $1", [A])).rows[0];
-  ok(pa && pa.email === "a@example.com" && pa.full_name === "Alpha" && pa.approved && !pa.blocked && !pa.is_admin && pa.log_enabled, "a new user is approved, not blocked, not admin, log on");
+  ok(pa && pa.email === "a@example.com" && pa.full_name === "Alpha" && pa.approved && !pa.blocked && !pa.is_admin && pa.log_enabled === null && pa.log_asks === 0, "a new user is approved, not blocked, not admin, and not yet asked about the log");
+
+  console.log("\n— the usage log only with active consent (0007) —");
+  const real0 = JSON.parse(PL.sessionLog("v58").export());
+  real0.events.push({ t: 1, ev: "run" });
+  ok((await tries(() => submit(A, real0))) === null && await count(A) === 0, "before an answer, a log is accepted and dropped: nothing is stored");
+  await as(A, () => db.query("select public.log_not_now()"));
+  let st = (await db.query("select log_enabled, log_asks from public.profiles where id = $1", [A])).rows[0];
+  ok(st.log_enabled === null && st.log_asks === 1, "the first \"not now\" is counted and leaves the question open");
+  await as(A, () => db.query("select public.log_not_now()"));
+  st = (await db.query("select log_enabled, log_asks from public.profiles where id = $1", [A])).rows[0];
+  ok(st.log_enabled === false && st.log_asks === 2, "the second \"not now\" is a no");
+  await as(A, () => db.query("select public.log_not_now()"));
+  ok((await db.query("select log_asks from public.profiles where id = $1", [A])).rows[0].log_asks === 2, "after a no, \"not now\" changes nothing");
+  await submit(A, real0);
+  ok(await count(A) === 0, "after a no, nothing is stored");
+  ok(/permission denied/.test(await tries(() => as(A, () => db.query("update public.profiles set log_asks = 0, log_enabled = true where id = $1", [A]))) || ""), "the answer cannot be changed around the functions");
+  await as(A, () => db.query("select public.set_log_enabled(true)"));
+  ok((await db.query("select log_enabled from public.profiles where id = $1", [A])).rows[0].log_enabled === true, "a yes later, from the account panel, counts");
+  // the remaining checks use accounts that said yes
+  const consent = (id) => db.query("update public.profiles set log_enabled = true where id = $1", [id]);
+  await consent(B); await consent(OWNER);
   await db.query("update public.app_settings set require_approval = true");
   const C = "00000000-0000-0000-0000-00000000000c"; await addUser(C, "c@example.com", "Gamma");
   ok((await db.query("select approved from public.profiles where id = $1", [C])).rows[0].approved === false, "with require_approval on, a new user waits");
@@ -95,7 +116,7 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
   console.log("\n— the review's channels are closed (0004) —");
   {
     const L = "00000000-0000-0000-0000-0000000000e1";
-    await addUser(L, "l@example.com", "Lima");
+    await addUser(L, "l@example.com", "Lima"); await consent(L);
     for (const [what, d] of [["an ID number", "123456789"], ["a list hiding a number", "alpha,beta,0123456789,gamma"], ["a number", 1234567812345678], ["a key list with a space", "alpha, beta"]])
       ok(/refused/.test(await tries(() => submit(L, { tool: "x", v: "v58", events: [{ t: 1, ev: "x", dropped: d }] })) || ""), "dropped as " + what + " is refused");
     ok((await tries(() => submit(L, { tool: "x", v: "v58", events: [{ t: 1, ev: "x", dropped: "name,email,phoneNumber," }] }))) === null, "dropped as the browser writes it (key names, cut at 60) is accepted");
@@ -113,7 +134,7 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
     ok(/refused/.test(await tries(() => submit(L, real, [{ kind: "NAME", gapAfter: "Ronit Levi" }])) || ""), "a leak report's space is only for its own codes, not for a name");
     // how much one account may send: 30 logs an hour (an honest one sends one per document)
     const R = "00000000-0000-0000-0000-0000000000e2";
-    await addUser(R, "r@example.com", "Romeo");
+    await addUser(R, "r@example.com", "Romeo"); await consent(R);
     let stored = 0, last = null;
     for (let i = 0; i < 31; i++) { last = await tries(() => submit(R, real)); if (last === null) stored++; }
     ok(stored === 30 && /too many/.test(last || ""), "the 31st log within an hour is refused (" + stored + " stored, then: " + last + ")");
@@ -160,7 +181,7 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
   // the first sign-in by email link carries no name; Google adds one to the account later
   await db.query("update public.app_settings set require_approval = false");
   const D = "00000000-0000-0000-0000-00000000000d";
-  await db.query("insert into auth.users (id, email) values ($1, 'd@example.com')", [D]);
+  await db.query("insert into auth.users (id, email) values ($1, 'd@example.com')", [D]); await consent(D);
   ok((await db.query("select full_name from public.profiles where id = $1", [D])).rows[0].full_name === null, "an email-link sign-in starts without a name");
   await db.query(`update auth.users set raw_user_meta_data = '{"full_name":"Delta","name":"Delta"}' where id = $1`, [D]);
   ok((await db.query("select full_name from public.profiles where id = $1", [D])).rows[0].full_name === "Delta", "Google's name fills the empty profile");
@@ -249,7 +270,7 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
   const allowed = ["app_settings SELECT authenticated", "app_settings UPDATE authenticated",
     "delete_my_account() EXECUTE authenticated", "is_admin() EXECUTE authenticated", "profiles SELECT authenticated",
     "profiles.approved UPDATE authenticated", "profiles.blocked UPDATE authenticated",
-    "set_log_enabled() EXECUTE authenticated", "submit_log() EXECUTE authenticated",
+    "log_not_now() EXECUTE authenticated", "set_log_enabled() EXECUTE authenticated", "submit_log() EXECUTE authenticated",
     "touch() EXECUTE authenticated", "usage_logs SELECT authenticated"];
   const extra = held.filter((x) => !allowed.includes(x)), missing = allowed.filter((x) => !held.includes(x));
   ok(!extra.length, "no privilege beyond the list" + (extra.length ? ": " + extra.join("; ") : ""));

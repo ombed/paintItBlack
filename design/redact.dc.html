@@ -2538,17 +2538,19 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const n=this.pendingReview().blocking;
     if(n) this.setState({err:`הועתק, אבל ${n===1?"פריט אחד":n+" פריטים"} בלי החלטה — הם יגיעו ל-AI כמו שהם.`});
   };
-  /* The end of a document (a new document, or leaving the page), for the hosted service only:
-     its cloud.js sets window.__inkHost, and nothing here sends anything. It gets the same
+  /* Two moments of a document, for the hosted service only: docSent (the redacted text was
+     copied or downloaded: the tool just did its job) and docEnd (a new document, or leaving the
+     page). Its cloud.js sets window.__inkHost, and nothing here sends anything. It gets the same
      text-free exports the package carries (the log's and the leak report's guards run here),
-     and decides itself what to upload. Without a host, as on GitHub Pages, this does nothing. */
-  docEnd = (how) => {
-    const h=window.__inkHost; if(!h||typeof h.docEnd!=="function") return;
+     and decides itself what to do. Without a host, as on GitHub Pages, this does nothing. */
+  toHost = (what, how) => {
+    const h=window.__inkHost; if(!h||typeof h[what]!=="function") return;
     try{
       const leaks=this.state.leaks.length&&window.PL?window.PL.leakReport(this.state.leaks,{version:this.log.v}):null;
-      h.docEnd({how, log:this.log.export(), leaks});
+      h[what]({how, log:this.log.export(), leaks});
     }catch(_){}
   };
+  docEnd = (how) => this.toHost("docEnd", how);
   // חבילת בדיקה (PLAN-v18 Q9): יומן הסשן ודוח הדליפה בקובץ zip אחד, בלי טקסט מהמסמך.
   // עד v56 היא הכילה גם את המסמך הנקי ופתחה מייל. עכשיו רק הורדה: היא שולחת אותה בעצמה, ואת
   // המסמך בנפרד, רק כשהיא מחליטה.
@@ -2637,6 +2639,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const s={...(this.state.sent||{})};
     for(const [real,fake] of Object.entries(this.currentMap())){ const a=s[real]||[]; if(fake&&!a.includes(fake)) s[real]=[...a,fake]; }
     this.setState({sent:s});
+    this.toHost("docSent", "sent");
   }
   sentAll(){
     const out={}, add=o=>{ for(const [r,a] of Object.entries(o||{})) for(const p of a||[]) (out[r]=out[r]||[]).includes(p)||out[r].push(p); };

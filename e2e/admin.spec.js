@@ -17,7 +17,7 @@ const session = (id) => ({ access_token: [b64({ alg: "HS256" }), b64({ sub: id, 
   user: { id, aud: "authenticated", role: "authenticated", email: "owner@example.co.il" } });
 const ago = (days) => new Date(Date.now() - days * 86400000).toISOString();
 const USERS = [
-  { id: "00000000-0000-0000-0000-00000000000c", email: "c@example.co.il", full_name: "<img src=x onerror=\"window.__pwned=1\">", created_at: ago(1), last_seen: ago(1), approved: false, blocked: false, is_admin: false, log_enabled: true, documents: 0 },
+  { id: "00000000-0000-0000-0000-00000000000c", email: "c@example.co.il", full_name: "<img src=x onerror=\"window.__pwned=1\">", created_at: ago(1), last_seen: ago(1), approved: false, blocked: false, is_admin: false, log_enabled: null, documents: 0 },
   { id: "00000000-0000-0000-0000-00000000000b", email: "b@example.co.il", full_name: "Beta", created_at: ago(3), last_seen: ago(2), approved: true, blocked: true, is_admin: false, log_enabled: false, documents: 4 },
   { id: "00000000-0000-0000-0000-00000000000a", email: "a@example.co.il", full_name: null, created_at: ago(20), last_seen: ago(12), approved: true, blocked: false, is_admin: false, log_enabled: true, documents: 7 },
   { id: OWNER, email: "owner@example.co.il", full_name: "Owner", created_at: ago(30), last_seen: ago(0), approved: true, blocked: false, is_admin: true, log_enabled: true, documents: 2 },
@@ -75,6 +75,7 @@ test("the owner sees every user newest first, the totals, and a typed name only 
   await expect(rowOf(page, "b@example.co.il")).toContainText("חסום");
   await expect(rowOf(page, "b@example.co.il")).toContainText("כבוי");
   await expect(rowOf(page, "c@example.co.il")).toContainText("ממתין לאישור");
+  await expect(rowOf(page, "c@example.co.il")).toContainText("עוד אין תשובה");
   await expect(rowOf(page, "owner@example.co.il").getByRole("button")).toHaveCount(0);
   const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
   expect(r.violations.map((v) => v.id)).toEqual([]);
