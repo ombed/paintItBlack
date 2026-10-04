@@ -111,9 +111,14 @@ try {
   ok(routes.version === 1 && JSON.stringify(routes.include) === '["/*"]', "_routes.json sends every request to the gate");
   ok(routes.exclude.length > 0 && routes.exclude.length + routes.include.length <= 100, "within Cloudflare's 100 route rules (" + (routes.exclude.length + 1) + ")");
   ok(routes.exclude.every((p) => !/[*:]/.test(p)), "the public files are named exactly, no patterns");
-  ok(routes.exclude.every((p) => files.includes(p.slice(1))), "each is a file the site has");
+  // a page is also served at its address without .html (/login.html redirects to /login, /index.html is /)
+  const served = (p) => files.includes(p.slice(1)) || files.includes(p === "/" ? "index.html" : p.slice(1) + ".html");
+  ok(routes.exclude.every(served), "each is a file the site has, or the address a page is served at");
   ok(!routes.exclude.some((p) => /^\/app(\/|$)/i.test(p) || /(^|\/)\./.test(p)), "none is under /app/, and no dot file");
   for (const p of ["/index.html", "/login.html", "/privacy.html", "/site.css", "/config.js", "/login.js"]) ok(routes.exclude.includes(p), p + " skips the gate");
+  // without these, every visit to the landing and sign-in pages ran the gate, and with "fail closed"
+  // an exhausted daily quota would have shut them too (4.10)
+  for (const p of ["/", "/login", "/privacy", "/terms", "/accessibility"]) ok(routes.exclude.includes(p), p + " (the address Cloudflare serves the page at) skips the gate");
 
   console.log("\n— it only replaces a folder it made —");
   const other = path.join(out, "mine"); fs.mkdirSync(other); fs.writeFileSync(path.join(other, "keep.txt"), "x");

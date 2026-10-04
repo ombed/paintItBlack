@@ -133,10 +133,16 @@ function build(out) {
 
   fs.writeFileSync(path.join(out, "_headers"), HEADERS);
 
-  // the public files skip the gate by exact name; everything else, /app/ above all, meets it
+  /* The public files skip the gate by exact name; everything else, /app/ above all, meets it. A
+     page also goes by the address Cloudflare serves it at: /login.html redirects to /login, and
+     /index.html is /. Without those, every visit to the landing and sign-in pages ran the gate (the
+     free plan's daily quota), and with "fail closed" set they would show Cloudflare's error page
+     once the quota ran out (4.10). */
   const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
-  const pub = walk(out).map((f) => "/" + path.relative(out, f).split(path.sep).join("/"))
-    .filter((p) => !/^\/app\//i.test(p) && !/(^|\/)\./.test(p) && !["/_headers", "/_routes.json"].includes(p)).sort();
+  const files = walk(out).map((f) => "/" + path.relative(out, f).split(path.sep).join("/"))
+    .filter((p) => !/^\/app\//i.test(p) && !/(^|\/)\./.test(p) && !["/_headers", "/_routes.json"].includes(p));
+  const pretty = files.filter((p) => /^\/[^/]+\.html$/.test(p)).map((p) => p === "/index.html" ? "/" : p.slice(0, -".html".length));
+  const pub = [...new Set([...files, ...pretty])].sort();
   if (pub.length + 1 > ROUTE_LIMIT) throw new Error("build-hosted: " + pub.length + " public files exceed Cloudflare's " + ROUTE_LIMIT + " route rules");
   fs.writeFileSync(path.join(out, "_routes.json"), JSON.stringify({ version: 1, include: ["/*"], exclude: pub }, null, 1));
   return out;
