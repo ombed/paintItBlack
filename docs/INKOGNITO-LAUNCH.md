@@ -71,7 +71,7 @@ Gmail; decide later between a mail program that sends through Resend, or Google 
    file in `supabase/templates/`, copied in an editor (never a terminal: it reverses Hebrew) and
    pasted into the Source view. Save each.
    - **Confirm signup**: subject `אישור החשבון באינקוגניטו`, body `confirm-signup.html`.
-   - **Reset Password**: subject `קביעת סיסמה לאינקוגניטו`, body `reset-password.html`.
+   - **Reset Password**: subject `איפוס סיסמה לאינקוגניטו`, body `reset-password.html`.
    - **Magic Link**: subject `קישור כניסה לאינקוגניטו`, body `magic-link.html`. The sign-in page
      no longer asks for one (sign-in is Google, or an email and a password, 4.10), but the
      dashboard can still send it.

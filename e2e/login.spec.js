@@ -188,7 +188,7 @@ test("forgot password: its own step; the link is sent without saying whether the
 test("the link to set a password asks for it, spends the token once, and opens the app", async ({ page }) => {
   const calls = await stub(page, { "/auth/v1/verify": { body: SESSION }, "/auth/v1/user": { body: USER } });
   await page.goto(LOGIN + "#confirm=rec123&type=recovery");
-  await expect(page.locator("#confirm-h")).toHaveText("קביעת סיסמה");
+  await expect(page.locator("#confirm-h")).toHaveText("איפוס סיסמה");
   await expect(page.locator("#newpw")).toBeVisible();
   await expect.poll(() => new URL(page.url()).hash).toBe("");
   await axe(page, "set password");

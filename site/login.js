@@ -129,7 +129,7 @@ function sent(what, addr) {
   $("sent-h").textContent = signup ? "נשאר לאשר את המייל" : "נשאר לפתוח את המייל";
   // Supabase sends a password link only to an address that has an account, and says nothing either way
   $("sent-a").textContent = signup ? "מייל לאישור החשבון נשלח אל" : "אם יש חשבון עם הכתובת";
-  $("sent-b").textContent = signup ? ". לוחצים על הכפתור שבמייל, והחשבון מוכן." : ", יגיע אליה מייל עם קישור לקביעת סיסמה. הוא תקף ל־15 דקות.";
+  $("sent-b").textContent = signup ? ". לוחצים על הכפתור שבמייל, והחשבון מוכן." : ", יגיע אליה מייל עם קישור לאיפוס הסיסמה. הוא תקף ל־15 דקות.";
   again = signup ? askConfirm : askReset;
   card.classList.add("is-sent");
   $("sent-h").focus();
@@ -229,7 +229,7 @@ newLink.addEventListener("click", () => { card.classList.remove("is-confirm"); s
 
 setMode(new URLSearchParams(location.search).get("mode") === "signup" ? "signup" : "signin");
 if (token) {
-  const words = kind === "recovery" ? ["קביעת סיסמה", "בוחרים סיסמה חדשה, ונכנסים.", "שמירה וכניסה"]
+  const words = kind === "recovery" ? ["איפוס סיסמה", "בוחרים סיסמה חדשה, ונכנסים.", "שמירה וכניסה"]
     : kind === "signup" ? ["אישור החשבון", "נשאר רק ללחוץ על הכפתור, והחשבון מוכן.", "אישור וכניסה"]
     : null; // a sign-in link keeps the page's own words
   if (words) { $("confirm-h").textContent = words[0]; $("confirm-why").textContent = words[1]; go.textContent = words[2]; }
