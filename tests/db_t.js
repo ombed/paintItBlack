@@ -30,6 +30,16 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
     alter default privileges in schema public grant all on tables to anon, authenticated;
     alter default privileges in schema public grant all on sequences to anon, authenticated;
     alter default privileges in schema public grant execute on functions to anon, authenticated;
+    -- the extensions 0004 uses, as stand-ins: Vault's view of the secrets, pg_net's call (here
+    -- recorded, never sent) and pg_cron's schedule
+    create schema vault; create table vault.stub_secrets (name text primary key, decrypted_secret text);
+    create view vault.decrypted_secrets as select name, decrypted_secret from vault.stub_secrets;
+    create schema net; create table net.calls (id serial, url text, body jsonb, headers jsonb, timeout_milliseconds int);
+    create function net.http_post(url text, body jsonb default '{}', params jsonb default '{}', headers jsonb default '{}', timeout_milliseconds int default 5000)
+      returns bigint language sql as $$ insert into net.calls (url, body, headers, timeout_milliseconds) values (url, body, headers, timeout_milliseconds) returning id::bigint $$;
+    create schema cron; create table cron.jobs (jobname text, schedule text, command text);
+    create function cron.schedule(job_name text, schedule text, command text)
+      returns bigint language sql as $$ insert into cron.jobs values (job_name, schedule, command) returning 1::bigint $$;
   `);
   const dir = path.join(__dirname, "..", "supabase", "migrations");
   for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".sql")).sort()) await db.exec(fs.readFileSync(path.join(dir, f), "utf8"));
@@ -80,6 +90,44 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
   ok(/refused/.test(await tries(() => submit(A, { tool: "x", v: "v58", events: [{ t: 1, ev: "x", dropped: "a b@c" }] })) || ""), "a dropped list that is not key names is refused");
   ok(/too large/.test(await tries(() => submit(A, { tool: "x", v: "v58", events: Array.from({ length: 30000 }, (_, i) => ({ t: i, ev: "click" })) })) || ""), "a huge log is refused");
   ok(await count(A) === 2, "nothing refused was stored");
+
+  // the security review of 4.10 found these channels and gaps; each is pinned here (0004)
+  console.log("\n— the review's channels are closed (0004) —");
+  {
+    const L = "00000000-0000-0000-0000-0000000000e1";
+    await addUser(L, "l@example.com", "Lima");
+    for (const [what, d] of [["an ID number", "123456789"], ["a list hiding a number", "alpha,beta,0123456789,gamma"], ["a number", 1234567812345678], ["a key list with a space", "alpha, beta"]])
+      ok(/refused/.test(await tries(() => submit(L, { tool: "x", v: "v58", events: [{ t: 1, ev: "x", dropped: d }] })) || ""), "dropped as " + what + " is refused");
+    ok((await tries(() => submit(L, { tool: "x", v: "v58", events: [{ t: 1, ev: "x", dropped: "name,email,phoneNumber," }] }))) === null, "dropped as the browser writes it (key names, cut at 60) is accepted");
+    const longNum = '{"tool":"x","v":"v58","events":[{"t":1,"ev":"x","n":0.' + "1234567890".repeat(100) + "}]}";
+    ok(/refused/.test(await tries(() => as(L, () => db.query("select public.submit_log($1::jsonb)", [longNum]))) || ""), "a number written with 1,000 digits is refused");
+    ok((await tries(() => submit(L, { tool: "x", v: "v58", events: [{ t: 1, ev: "x", ms: 12345.678, score: 0.912345678901234 }] }))) === null, "ordinary numbers (a time, a score) are accepted");
+    // the leak report's own value forms: the server and the browser's guard must agree
+    const shape = (o) => ({ v: "v58", kind: "NAME", words: 2, lens: [5, 3], prefix: null, before: "verb", after: "punct", gapBefore: "", gapAfter: ",", occurrences: 1, ...o });
+    for (const s of [{ gapAfter: "digits(9)" }, { gapBefore: "(" }, { gapBefore: ";" }, { gapAfter: "״" }, { gapAfter: "latin(4)" }, { gapAfter: "email" }, { gapAfter: "—" },
+      { layers: { model: { type: "PER", score: 0.91, bounds: "glued-left glued-right" } } }]) {
+      const rep = JSON.parse(PL.leakReport([shape(s)], { version: "v58" }));
+      ok(!rep.refused && (await tries(() => submit(L, real, rep))) === null, "a leak report the browser keeps is accepted by the server: " + JSON.stringify(s));
+    }
+    ok(/refused/.test(await tries(() => submit(L, forged("glued-left glued-right"))) || ""), "outside a leak report a value with a space is still refused");
+    ok(/refused/.test(await tries(() => submit(L, real, [{ kind: "NAME", gapAfter: "Ronit Levi" }])) || ""), "a leak report's space is only for its own codes, not for a name");
+    // how much one account may send: 30 logs an hour (an honest one sends one per document)
+    const R = "00000000-0000-0000-0000-0000000000e2";
+    await addUser(R, "r@example.com", "Romeo");
+    let stored = 0, last = null;
+    for (let i = 0; i < 31; i++) { last = await tries(() => submit(R, real)); if (last === null) stored++; }
+    ok(stored === 30 && /too many/.test(last || ""), "the 31st log within an hour is refused (" + stored + " stored, then: " + last + ")");
+    ok((await tries(() => submit(L, real))) === null, "another account is not affected");
+    ok(/too large/.test(await tries(() => submit(L, { tool: "x", v: "v58", events: Array.from({ length: 9000 }, (_, i) => ({ t: i, ev: "click", n: i })) })) || ""), "a log over 256 KB is refused");
+    // a name from a sign-in provider (or typed into user metadata) is capped
+    const N = "00000000-0000-0000-0000-0000000000e3";
+    await addUser(N, "n@example.com", "x".repeat(5000));
+    ok((await db.query("select length(full_name) n from public.profiles where id = $1", [N])).rows[0].n === 120, "a 5,000-character name is stored as 120");
+    await db.query("update public.profiles set full_name = null where id = $1", [N]);
+    await db.query(`update auth.users set raw_user_meta_data = jsonb_build_object('full_name', repeat('y', 5000)) where id = $1`, [N]);
+    ok((await db.query("select length(full_name) n from public.profiles where id = $1", [N])).rows[0].n === 120, "and when it arrives later");
+    await db.query("delete from auth.users where id = any($1::uuid[])", [[L, R, N]]);
+  }
 
   console.log("\n— the user's own switch, and blocking —");
   await as(A, () => db.query("select public.set_log_enabled(false)"));
@@ -132,6 +180,54 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
   ok(await count(D) === 0, "its logs are gone");
   ok((await db.query("select count(*)::int n from auth.users")).rows[0].n === 5 && await count(A) === 2, "nobody else's account or logs were touched");
   await db.query("delete from auth.users where id = $1", [E]);
+
+  console.log("\n— logs older than 12 months are deleted, as the privacy policy says (0005) —");
+  {
+    const job = (await db.query("select * from cron.jobs where jobname = 'prune-logs'")).rows[0];
+    ok(job && /^\d+ \d+ \* \* \*$/.test(job.schedule) && /private\.prune_logs\(\)/.test(job.command), "a nightly job is scheduled (" + (job && job.schedule) + ")");
+    await db.query(`insert into public.usage_logs (user_id, created_at, version, log) values
+      ($1, now() - interval '13 months', 'v50', '{"events":[]}'), ($1, now() - interval '11 months', 'v51', '{"events":[]}')`, [A]);
+    const before = await count(A);
+    const gone = (await db.query("select private.prune_logs() n")).rows[0].n;
+    ok(gone === 1 && await count(A) === before - 1, "the 13-month-old log is deleted, the 11-month-old one kept (" + gone + " deleted)");
+    await db.query("delete from public.usage_logs where version = 'v51'");
+    const e = await tries(async () => { await db.exec("set role authenticated"); try { await db.query("select private.prune_logs()"); } finally { await db.exec("reset role"); } });
+    ok(e && /permission denied/.test(e), "nobody signed in can call it");
+  }
+
+  console.log("\n— the daily sign-ups email (0006) —");
+  {
+    // "now" for the digest, in Israel time: tomorrow at the given hour, so today's sign-ups are "yesterday"
+    const at = (dayOffset, hhmm) => `((now() at time zone 'Asia/Jerusalem')::date + ${dayOffset})::timestamp + time '${hhmm}'`;
+    const send = (force, when) => db.query(`select private.send_signup_digest(${force}, (${when}) at time zone 'Asia/Jerusalem')`);
+    const calls = async () => (await db.query("select * from net.calls order by id")).rows;
+    const job = (await db.query("select * from cron.jobs where jobname = 'signup-digest'")).rows[0];
+    ok(job && job.schedule === "0 5,6 * * *" && /private\.send_signup_digest\(\)/.test(job.command), "scheduled at 05:00 and 06:00 UTC");
+    const today = (await db.query("select private.signup_count((now() at time zone 'Asia/Jerusalem')::date) n")).rows[0].n;
+    ok(today === 4, "today's sign-ups are counted in Israel time (" + today + ")");
+    const err = await tries(() => send(false, at(1, "08:30")));
+    ok(err && /Vault secrets/.test(err) && !(await calls()).length, "without the Vault secrets it fails loudly and sends nothing");
+    await db.query("insert into vault.stub_secrets values ('resend_digest_key', 're_test_key'), ('digest_to', 'owner@example.com')");
+    await send(false, at(1, "07:30"));
+    ok(!(await calls()).length, "at 07:xx Israel time (the other UTC run) nothing is sent");
+    await send(false, at(1, "08:30"));
+    const c = await calls();
+    ok(c.length === 1 && c[0].url === "https://api.resend.com/emails", "at 08:xx one email goes to Resend");
+    ok(c[0] && c[0].headers.Authorization === "Bearer re_test_key" && /^signup-digest\/\d{4}-\d\d-\d\d$/.test(c[0].headers["Idempotency-Key"]), "with the Vault key, and an idempotency key for the day");
+    ok(c[0] && JSON.stringify(c[0].body.to) === '["owner@example.com"]' && /4 נרשמים חדשים/.test(c[0].body.subject), "to the owner, the count in the subject: " + (c[0] && c[0].body.subject));
+    ok(c[0] && c[0].body.text.includes("admin.html"), "a link to the admin page");
+    ok(c[0] && !/@example\.com|Alpha|Beta|Gamma/.test(JSON.stringify(c[0].body.text) + c[0].body.subject), "and no user's name or email in it (minimisation)");
+    ok(c[0] && c[0].timeout_milliseconds === 10000, "a 10-second timeout (pg_net's default is too short)");
+    await send(false, at(5, "08:30"));
+    ok((await calls()).length === 1, "a day without sign-ups sends nothing");
+    await send(true, at(1, "13:00"));
+    const forced = (await calls())[1];
+    ok(forced && !("Idempotency-Key" in forced.headers), "a forced send goes at any hour, without the idempotency key");
+    for (const role of ["anon", "authenticated"]) {
+      const e = await tries(async () => { await db.exec("set role " + role); try { await db.query("select private.send_signup_digest(true)"); } finally { await db.exec("reset role"); } });
+      ok(e && /permission denied/.test(e), role + " cannot call it");
+    }
+  }
 
   // The checks above try one door at a time. Supabase's default grants open more doors than
   // anyone tries (its live advisor found two the checks missed), so pin the whole list: every

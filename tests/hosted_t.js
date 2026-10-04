@@ -43,7 +43,8 @@ try {
   ok(parts.length >= 8, "the weights come in " + parts.length + " parts");
   const dir = "app/models/dictabert-parse-ner-37f4d6f/";
   ok(parts.every((p) => files.includes(dir + p)), "every part the engine names is shipped");
-  const shippedParts = files.filter((f) => f.startsWith(dir + "onnx/") && /\.part\d+$/.test(f));
+  ok(parts.every((p) => /\.part\d+of8$/.test(p)), "each part's name carries the split (part1of8): a different split never reuses a cached name");
+  const shippedParts = files.filter((f) => f.startsWith(dir + "onnx/") && /\.part\d+(of\d+)?$/.test(f));
   ok(shippedParts.length === parts.length, "and no other part is");
   const joined = Buffer.concat(parts.map((p) => fs.readFileSync(path.join(dist, dir + p))));
   ok(spec && joined.length === Number(spec[2]), "joined, the parts are the stated size");
@@ -90,6 +91,16 @@ try {
   ok(!stray.length, "no tests, migrations, scripts or notes are published" + (stray.length ? ": " + stray.slice(0, 5).join(", ") : ""));
   const h = read("_headers");
   ok(/\/app\/\*[\s\S]*X-Robots-Tag: noindex/.test(h) && /X-Frame-Options: DENY/.test(h) && /X-Content-Type-Options: nosniff/.test(h), "_headers: no framing, no sniffing, the app not indexed");
+  ok(!/Cache-Control/i.test(h), "_headers sets no caching (the gate does: two rules on one path would join their values)");
+
+  console.log("\n— the gate runs in front of everything but the public files —");
+  const routes = JSON.parse(read("_routes.json"));
+  ok(routes.version === 1 && JSON.stringify(routes.include) === '["/*"]', "_routes.json sends every request to the gate");
+  ok(routes.exclude.length > 0 && routes.exclude.length + routes.include.length <= 100, "within Cloudflare's 100 route rules (" + (routes.exclude.length + 1) + ")");
+  ok(routes.exclude.every((p) => !/[*:]/.test(p)), "the public files are named exactly, no patterns");
+  ok(routes.exclude.every((p) => files.includes(p.slice(1))), "each is a file the site has");
+  ok(!routes.exclude.some((p) => /^\/app(\/|$)/i.test(p) || /(^|\/)\./.test(p)), "none is under /app/, and no dot file");
+  for (const p of ["/index.html", "/login.html", "/privacy.html", "/site.css", "/config.js", "/login.js"]) ok(routes.exclude.includes(p), p + " skips the gate");
 
   console.log("\n— it only replaces a folder it made —");
   const other = path.join(out, "mine"); fs.mkdirSync(other); fs.writeFileSync(path.join(other, "keep.txt"), "x");

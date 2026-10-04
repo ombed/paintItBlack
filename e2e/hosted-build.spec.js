@@ -40,7 +40,7 @@ test("the built tool opens under /app/ and its model loads from the re-split par
   expect(r.error).toBeUndefined();
   expect(r.names).toEqual(expect.arrayContaining(["דני כהן", "רונית לוי"]));
   expect(logs.some((l) => l.includes("קובץ המשקולות נבדק מול הגרסה הנעולה")), "the joined weights passed the pinned SHA-256").toBe(true);
-  const parts = new Set(asked.filter((u) => /\/dist\/app\/models\/[^/]+\/onnx\/model_quantized\.onnx\.part\d+$/.test(u)));
+  const parts = new Set(asked.filter((u) => /\/dist\/app\/models\/[^/]+\/onnx\/model_quantized\.onnx\.part\d+of8$/.test(u)));
   expect(parts.size).toBe(8);
   // the runtime's WebAssembly from the site itself, in its parts, and React and the fonts too
   expect(asked.filter((u) => /\/dist\/app\/vendor\/ort-[^/]+\/ort-wasm-simd-threaded\.asyncify\.wasm\.part\d$/.test(u)).length).toBeGreaterThanOrEqual(2);

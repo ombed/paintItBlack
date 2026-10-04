@@ -51,3 +51,6 @@ coverage/
 vendor/transformers-*.min.js
 vendor/pdfjs-*/
 site/vendor/
+
+# Cloudflare wrangler local state (pages dev)
+.wrangler/

@@ -5,11 +5,16 @@
 
    - the root: the landing site, sign-in and legal pages (site/), with the sign-in client;
    - /app/: exactly the files the tool loads (scripts/build-site.js SITE_FILES), its page with
-     the hosted injection (scripts/hosted.js), behind the gate (functions/app/_middleware.js);
+     the hosted injection (scripts/hosted.js), behind the gate (functions/_middleware.js, which
+     also sets their caching: private);
    - the model's weights re-split under Cloudflare's 25 MiB file cap, and this build's copy of
-     the engine told the new part names. Joined, they are the same bytes: the page checks the
-     SHA-256. The repository's model files and the public tool are untouched;
-   - _headers: no framing, no sniffing, the app kept out of search engines.
+     the engine told the new part names (partNofM: a different split never reuses a cached
+     name). Joined, they are the same bytes: the page checks the SHA-256. The repository's model
+     files and the public tool are untouched;
+   - _headers: no framing, no sniffing, the app kept out of search engines;
+   - _routes.json: the gate runs in front of every request except the site's own public files,
+     each named exactly (no pattern an encoded path could slip into). Exact names also keep
+     the landing page off the daily Functions quota.
    tests/hosted_t.js checks the result. */
 const fs = require("fs");
 const path = require("path");
@@ -30,8 +35,8 @@ const HEADERS = `/*
 
 /app/*
   X-Robots-Tag: noindex
-  Cache-Control: private, no-cache
 `;
+const ROUTE_LIMIT = 100; // Cloudflare Pages: at most 100 include and exclude rules together
 
 // an existing folder is replaced only if this script made it (the same rule as build-site.js)
 function safeToReplace(out) {
@@ -79,7 +84,7 @@ function build(out) {
   if (size > LIMIT) throw new Error("build-hosted: " + PARTS + " parts would still exceed 25 MiB");
   fs.mkdirSync(path.join(out, "app", dirOf), { recursive: true });
   for (let i = 0; i < PARTS; i++) {
-    const name = spec[1] + ".part" + (i + 1); // onnx/model_quantized.onnx.partN
+    const name = spec[1] + ".part" + (i + 1) + "of" + PARTS; // onnx/model_quantized.onnx.part1of8
     fs.writeFileSync(path.join(out, "app", path.posix.dirname(dirOf), name), whole.subarray(i * size, Math.min(whole.length, (i + 1) * size)));
     names.push(name);
   }
@@ -118,6 +123,13 @@ function build(out) {
   put("fonts/app-fonts.css", css);
 
   fs.writeFileSync(path.join(out, "_headers"), HEADERS);
+
+  // the public files skip the gate by exact name; everything else, /app/ above all, meets it
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
+  const pub = walk(out).map((f) => "/" + path.relative(out, f).split(path.sep).join("/"))
+    .filter((p) => !/^\/app\//i.test(p) && !/(^|\/)\./.test(p) && !["/_headers", "/_routes.json"].includes(p)).sort();
+  if (pub.length + 1 > ROUTE_LIMIT) throw new Error("build-hosted: " + pub.length + " public files exceed Cloudflare's " + ROUTE_LIMIT + " route rules");
+  fs.writeFileSync(path.join(out, "_routes.json"), JSON.stringify({ version: 1, include: ["/*"], exclude: pub }, null, 1));
   return out;
 }
 
