@@ -11,8 +11,9 @@ build (`dist/`), the admin page, the legal pages. The site runs on inkognito.co.
 search engines until launch (7). Its emails go out through Resend from the domain, and Google
 sign-in is open to every account (6).
 
-**Left:** `www` (5.4). Before announcing: Resend's paid plan (4.2) and the decision on Google's
-sign-in screen (6). Then launch day and her move (7). Optional: the daily sign-ups email (4.4).
+**Left:** `www` (5.4). Before announcing: Resend's paid plan (4.2), Supabase Pro (7) and the
+decision on Google's sign-in screen (6). Then launch day and her move (7). Optional: the daily
+sign-ups email (4.4).
 
 ---
 
@@ -93,7 +94,8 @@ Gmail; decide later between a mail program that sends through Resend, or Google 
    day** (3,000 a month), counted per UTC day. Past it, every email sign-up, resend and reset
    fails until midnight UTC (03:00 in Israel in summer, 02:00 in winter), while Google sign-in
    keeps working. The sign-in page says so plainly for both caps. **Move Resend to a paid plan
-   before announcing** to more than a small circle.
+   before announcing** to more than a small circle: Pro is $20 a month for 50,000 emails, with no
+   daily cap (resend.com/pricing, checked 5.10).
 3. **Authentication → URL Configuration** (done 4.10 with step 5.3, once https://inkognito.co.il/login
    opened; the pages.dev entry then deleted, so that no email can carry a pages.dev link again):
    Site URL `https://inkognito.co.il/login`, with `/login`: when a request names no return page
@@ -165,6 +167,15 @@ homepage's name). The fix is a Supabase custom domain, e.g. `auth.inkognito.co.i
 on the Pro plan), then brand verification. Decide before announcing widely: lawyers will see that
 address on the Google screen.
 
+Checked 5.10:
+- **Cost:** Pro is $25 a month, and the custom domain $10 a month more (supabase.com/pricing).
+- **Before verification:** Google names an unverified app by the address it returns to. With the
+  custom domain, the screen says `inkognito.co.il` as soon as the domain is set up. Brand
+  verification can then make it say the app's name.
+- **Our own sign-in flow on inkognito.co.il would avoid the cost, but isn't worth it.** Google
+  discourages the browser-only way (the "implicit flow"). The other ways either load Google's
+  script on the sign-in page, or need a server that holds the Google client secret.
+
 ## 7. Before announcing (owner + Claude)
 
 - Settled on 4.10: the courts clause (the competent courts in Israel, not exclusive), a narrow
@@ -183,6 +194,9 @@ address on the Google screen.
   submit `https://inkognito.co.il/sitemap.xml`. (The three step screenshots
   show no product name or version, so the rename needs no new ones.)
 - Her move from the GitHub Pages address, at a time agreed with her.
+- **Supabase Pro** ($25 a month) matters beyond Google's screen. The free plan keeps no backups,
+  and it pauses a project after a week with no activity: sign-in and the tool stop until the
+  project is restored in the dashboard. Pro also turns on leaked-password protection (8).
 
 ## 8. Later, when it grows
 
@@ -190,6 +204,10 @@ address on the Google screen.
   a written security procedure, access management, and processor terms.
 - On Supabase's paid plan: Authentication → Email → **Prevent use of leaked passwords**
   (HaveIBeenPwned). The security advisor lists it as off; the free plan cannot turn it on.
+- Supabase's performance advisor (5.10): two policies call `auth.uid()` once per row (`own
+  profile` on profiles, `anyone signed in reads settings` on app_settings). Write it as
+  `(select auth.uid())` in a migration once there are many users; at a few hundred it makes no
+  difference.
 - Before charging: open the tax files; the consumer-law identity details (name, ID, address)
   and the 14-day cancellation right may apply; marketing emails need opt-in and the word
   "פרסומת".
