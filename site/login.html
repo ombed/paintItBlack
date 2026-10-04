@@ -72,26 +72,26 @@
         <input class="field" id="email" type="email" required autocomplete="username" placeholder="name@example.co.il" aria-describedby="email-err">
         <div class="pw" id="pw-wrap">
           <label for="password">סיסמה</label>
-          <input class="field" id="password" type="password" autocomplete="current-password" aria-describedby="email-err">
+          <input class="field" id="password" type="password" autocomplete="current-password" spellcheck="false" autocapitalize="off" autocorrect="off" aria-describedby="email-err">
           <p class="hint" id="pw-hint" hidden>לפחות 8 תווים.</p>
           <div class="pw-row">
             <label class="show"><input type="checkbox" id="show"> הצגת הסיסמה</label>
             <button class="again" type="button" id="forgot">שכחתי סיסמה</button>
           </div>
         </div>
-        <p class="err" id="email-err"></p>
-        <button class="again" type="button" id="reconfirm" hidden>שליחת מייל האישור שוב</button>
+        <p class="err" id="email-err" role="alert"></p>
+        <button class="again" type="button" id="reconfirm" hidden>שליחת מייל האימות שוב</button>
         <button class="btn btn-ink send" type="submit" id="send">כניסה</button>
       </form>
       <p class="switch"><span id="switch-q">אין לך חשבון?</span> <button class="again" type="button" id="switch">יצירת חשבון</button></p>
       <p class="fine" id="fine">ההמשך מהווה הסכמה ל<a href="terms.html">תנאי השימוש</a> ול<a href="privacy.html">מדיניות הפרטיות</a>.</p>
-      <p class="safe">לחשבון אנחנו מקבלים רק כתובת מייל וסיסמה (נשמרת מוצפנת, וגם אנחנו לא רואים אותה), או שם ומייל מ־<bdi>Google</bdi>. המסמכים לא מגיעים אלינו. אחרי המסמך הראשון נשאל אם אפשר לשלוח יומן שימוש בלי טקסט מהמסמך, ואפשר לשנות את התשובה בכל עת (<a href="privacy.html">מה נשלח</a>).</p>
+      <p class="safe">לחשבון אנחנו מקבלים כתובת מייל וסיסמה (נשמרת מוצפנת, וגם אנחנו לא רואים אותה), או את מה ש־<bdi>Google</bdi> מעביר: שם, מייל, קישור לתמונת הפרופיל ומזהה החשבון. המסמכים לא מגיעים אלינו. אחרי המסמך הראשון נשאל אם אפשר לשלוח יומן שימוש בלי טקסט מהמסמך, ואפשר לשנות את התשובה בכל עת (<a href="privacy.html">מה נשלח</a>).</p>
     </div>
 
     <div class="sent">
       <div class="env" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
-      <h1 tabindex="-1" id="sent-h">נשאר לאשר את המייל</h1>
-      <p class="why"><span id="sent-a">מייל לאישור החשבון נשלח אל</span> <span class="addr" id="addr"></span><span id="sent-b">. לוחצים על הכפתור שבמייל, והחשבון מוכן.</span> לא הגיע? כדאי לבדוק בתיקיית הספאם.</p>
+      <h1 tabindex="-1" id="sent-h">נשאר לאמת את המייל</h1>
+      <p class="why"><span id="sent-a">מייל אימות נשלח אל</span> <span class="addr" id="addr"></span><span id="sent-b">. לוחצים על הכפתור שבמייל כדי לאמת את הכתובת.</span> לא הגיע? כדאי לבדוק בתיקיית הספאם.</p>
       <div class="open">
         <a href="https://mail.google.com" target="_blank" rel="noopener"><span>פתיחת <bdi>Gmail</bdi></span></a>
         <a href="https://outlook.live.com" target="_blank" rel="noopener"><span>פתיחת <bdi>Outlook</bdi></span></a>
@@ -100,6 +100,7 @@
         <button type="button" id="resend" disabled><span id="resend-label">אפשר לשלוח שוב בעוד <span id="t" aria-hidden="true">60</span> שניות</span></button>
         <button type="button" id="change">שינוי כתובת</button>
       </div>
+      <p class="err" id="sent-err" role="alert"></p>
       <p class="sr-only" role="status" id="status"></p>
     </div>
 
@@ -108,15 +109,15 @@
       <p class="why" id="confirm-why">הגעת מהקישור שנשלח למייל. נשאר רק ללחוץ על הכפתור.</p>
       <form id="confirmform" novalidate>
         <div class="pw" id="newpw-wrap" hidden>
-          <label for="newpw">סיסמה חדשה</label>
-          <input class="field" id="newpw" type="password" autocomplete="new-password" aria-describedby="newpw-hint confirm-err">
+          <label for="newpw" id="newpw-label">סיסמה חדשה</label>
+          <input class="field" id="newpw" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="off" autocorrect="off" aria-describedby="newpw-hint confirm-err">
           <p class="hint" id="newpw-hint">לפחות 8 תווים.</p>
           <div class="pw-row"><label class="show"><input type="checkbox" id="show-new"> הצגת הסיסמה</label></div>
         </div>
         <button class="btn btn-ink send" type="submit" id="confirm-go">כניסה</button>
       </form>
       <p class="err" role="alert" id="confirm-err"></p>
-      <button class="again" type="button" id="confirm-new" hidden>חזרה לכניסה</button>
+      <button class="again" type="button" id="confirm-new" aria-describedby="confirm-err" hidden>חזרה לכניסה</button>
     </div>
   </main>
 

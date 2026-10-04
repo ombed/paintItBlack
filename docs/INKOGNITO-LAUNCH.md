@@ -70,19 +70,26 @@ Gmail; decide later between a mail program that sends through Resend, or Google 
 2. **Authentication → Emails → Templates** (unlocked by step 1). Each body is the contents of a
    file in `supabase/templates/`, copied in an editor (never a terminal: it reverses Hebrew) and
    pasted into the Source view. Save each.
-   - **Confirm signup**: subject `אישור החשבון באינקוגניטו`, body `confirm-signup.html`.
+   - **Confirm signup**: subject `אימות כתובת המייל לאינקוגניטו`, body `confirm-signup.html`.
    - **Reset Password**: subject `איפוס סיסמה לאינקוגניטו`, body `reset-password.html`.
    - **Magic Link**: subject `קישור כניסה לאינקוגניטו`, body `magic-link.html`. The sign-in page
-     no longer asks for one (sign-in is Google, or an email and a password, 4.10), but the
-     dashboard can still send it.
+     never asks for one (sign-in is Google, or an email and a password, 4.10); only the
+     dashboard's "Send magic link" sends it, so its words do not assume the recipient asked.
    Then **Authentication → Sign In / Providers → Email**: minimum password length **8**, password
    requirements **none** (a "letters and digits" rule counts only English letters, so it would
    refuse a Hebrew password; length is what matters).
+   Then **Authentication → Rate Limits → emails per hour**: with custom SMTP Supabase allows only
+   30 an hour for the whole site, and every sign-up, resend and password reset counts. Raise it to
+   100. Resend's free plan sends 100 a day and 3,000 a month: a launch day busier than that needs
+   Resend's paid plan. (The sign-in page says so plainly when the cap is hit.)
 3. **Authentication → URL Configuration** (on launch day, once the site is live):
-   Site URL `https://inkognito.co.il`. Redirect URLs: add `https://inkognito.co.il/login` and
+   Site URL `https://inkognito.co.il/login`, with `/login`: when a request names no return page
+   (an email sent from the dashboard) or names one not on the list, Supabase sends the person to
+   the Site URL, and the sign-in page is the one that reads the link. (The landing page passes
+   such a link on as well.) Redirect URLs: add `https://inkognito.co.il/login` and
    `https://inkognito.co.il/login.html`. (Cloudflare serves `login.html` as `/login`, so the page
-   asks Supabase to return to `/login`. With the Site URL on the same host, Supabase accepts any
-   path there anyway.) Keep the 127.0.0.1 and localhost entries for testing.
+   asks Supabase to return to `/login`. Supabase accepts any path on the Site URL's host anyway.)
+   Keep the 127.0.0.1 and localhost entries for testing.
 4. **The daily sign-ups email** (optional, any time after step 3 of Resend):
    Database → Extensions → enable **pg_net**. Then SQL Editor, run (with your values):
    ```sql

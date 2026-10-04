@@ -18,7 +18,13 @@
   const secure = location.protocol === "https:" ? "; Secure" : "";
   let session = null, profile = null, sentT = -1, leavingTo = null;
 
-  const setCookie = (s) => { document.cookie = "ink_at=" + s.access_token + "; Path=/; Max-Age=" + Math.max(0, Math.floor(s.expires_at - Date.now() / 1000)) + "; SameSite=Lax" + secure; };
+  // the cookie lives as long as the token does, counted from the token itself: this computer's
+  // clock may be off, and an hour fast it would write a cookie that is already gone (as login.js)
+  const lifetime = (s) => {
+    try { const c = JSON.parse(atob(s.access_token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))); if (c.exp - c.iat > 0) return c.exp - c.iat; } catch (_) {}
+    return s.expires_in || 3600;
+  };
+  const setCookie = (s) => { document.cookie = "ink_at=" + s.access_token + "; Path=/; Max-Age=" + lifetime(s) + "; SameSite=Lax" + secure; };
   const clearCookie = () => { document.cookie = "ink_at=; Path=/; Max-Age=0; SameSite=Lax" + secure; };
   // once: signing out also fires SIGNED_OUT, and a second navigation would cut the first off
   let gone = false;

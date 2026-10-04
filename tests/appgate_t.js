@@ -82,10 +82,16 @@ const UID = "00000000-0000-0000-0000-00000000000a";
 
   console.log("\n— everything else goes to the sign-in page —");
   const refused = async (what, cookie, opts) => { G._reset(); const x = await run(cookie, opts); ok(!x.passed && x.res.status === 302 && /\/login\.html/.test(x.where), what + " is sent to sign in" + (x.passed ? " (it passed)" : "")); return x; };
-  await refused("no cookie", null);
+  // a refusal with a cookie names its reason and clears the cookie: with no reason, the sign-in
+  // page would send the same session straight back, in a loop (review 4.10)
+  const cleared = (x) => /^ink_at=; Path=\/; Max-Age=0; SameSite=Lax; Secure$/.test(x.res.headers.get("set-cookie") || "");
+  let x = await refused("no cookie", null);
+  ok(x.where === "/login.html" && !x.res.headers.get("set-cookie"), "…with no reason and no cookie to clear (" + x.where + ")");
   await refused("an empty cookie", ck(""));
-  await refused("garbage", ck("not.a.token"));
-  await refused("an expired token", ck(await token(K1, { exp: sec - 10 })));
+  x = await refused("garbage", ck("not.a.token"));
+  ok(/#error=session$/.test(x.where) && cleared(x), "…told the session no longer holds, and the cookie is cleared");
+  x = await refused("an expired token", ck(await token(K1, { exp: sec - 10 })));
+  ok(/#error=session$/.test(x.where) && cleared(x), "…told the session ended, and the cookie is cleared");
   await refused("a token signed by another key under the same id", ck(await token(STRANGER)));
   await refused("a token from another project", ck(await token(K1, { iss: "https://other.supabase.co/auth/v1" })));
   await refused("a token for another audience", ck(await token(K1, { aud: "someone-else" })));
@@ -100,11 +106,12 @@ const UID = "00000000-0000-0000-0000-00000000000a";
   await refused("a cookie whose name only ends in ink_at", "xink_at=" + (await token(K1)));
 
   console.log("\n— the account's state, on every request —");
-  let x = await refused("a blocked account", ck(await token(K1)), { sb: supabase({ profile: { approved: true, blocked: true } }) });
-  ok(/#error=blocked$/.test(x.where), "…and the sign-in page is told why (blocked)");
+  x = await refused("a blocked account", ck(await token(K1)), { sb: supabase({ profile: { approved: true, blocked: true } }) });
+  ok(/#error=blocked$/.test(x.where) && cleared(x), "…and the sign-in page is told why (blocked)");
   x = await refused("an account waiting for approval", ck(await token(K1)), { sb: supabase({ profile: { approved: false, blocked: false } }) });
-  ok(/#error=pending$/.test(x.where), "…and told why (pending)");
-  await refused("a deleted account (no profile)", ck(await token(K1)), { sb: supabase({ profile: null }) });
+  ok(/#error=pending$/.test(x.where) && cleared(x), "…and told why (pending)");
+  x = await refused("a deleted account (no profile)", ck(await token(K1)), { sb: supabase({ profile: null }) });
+  ok(/#error=gone$/.test(x.where) && cleared(x), "…and told why (gone), so it is not sent straight back in");
   // the review's finding: a file request without the navigation headers skipped this check
   await refused("a blocked account fetching a file (no navigation headers)", ck(await token(K1)), { nav: false, sb: supabase({ profile: { approved: true, blocked: true } }) });
   await refused("a blocked account fetching a model part", ck(await token(K1)), { nav: false, path: "/app/models/x/onnx/model_quantized.onnx.part3of8", sb: supabase({ profile: { approved: true, blocked: true } }) });
