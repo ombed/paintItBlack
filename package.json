@@ -23,7 +23,8 @@
     "log-report": "node scripts/log-report.js",
     "mutants": "node scripts/mutants.js",
     "prepare": "node scripts/vendor.js",
-    "vendor": "node scripts/vendor.js"
+    "vendor": "node scripts/vendor.js",
+    "build:hosted": "node scripts/build-hosted.js"
   },
   "repository": {
     "type": "git",
