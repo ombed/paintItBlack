@@ -9,7 +9,19 @@
      spends it. "אימות", not "אישור": on this site אישור is the operator's approval of an account.
      {{ .RedirectTo }} is the page that asked, which must be on the project's list of redirect URLs;
      the 15 minutes is the project's email OTP expiry (900 seconds). After that, the sign-in page
-     sends a new one. Same layout as magic-link.html. -->
+     sends a new one. Same layout as magic-link.html.
+     Paste into the dashboard everything from the DOCTYPE line to the end. The whole document,
+     not just the inner part, scores better with spam filters (a missing html tag counts against
+     it). No product tagline at the bottom: Supabase's guide advises against taglines in sign-in
+     emails (deliverability review, 4.10). -->
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>אימות כתובת המייל לאינקוגניטו</title>
+</head>
+<body style="margin:0;padding:0;background:#F2F3EF;">
 <div dir="rtl" lang="he" style="margin:0;padding:0;background:#F2F3EF;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F2F3EF;">
     <tr>
@@ -23,7 +35,7 @@
           <tr>
             <td dir="rtl" style="padding:24px 32px 0 32px;text-align:right;font-family:Arial,Helvetica,sans-serif;color:#161827;">
               <h1 style="margin:0 0 12px 0;font-size:22px;line-height:1.3;font-weight:bold;">אימות כתובת המייל</h1>
-              <p style="margin:0 0 24px 0;font-size:16px;line-height:1.6;color:#3A3D49;">נשאר לאמת את כתובת המייל. הכפתור פותח את דף הכניסה, ושם מקלידים את הסיסמה ולוחצים ״אימות וכניסה״.</p>
+              <p style="margin:0 0 24px 0;font-size:16px;line-height:1.6;color:#3A3D49;">נשאר לאמת את כתובת המייל. הכפתור פותח את דף הכניסה, ושם לוחצים ״אימות וכניסה״.</p>
             </td>
           </tr>
           <tr>
@@ -31,7 +43,7 @@
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td align="center" bgcolor="#1F5B44" style="border-radius:999px;">
-                    <a href="{{ .RedirectTo }}#confirm={{ .TokenHash }}&amp;type=signup" style="display:inline-block;padding:14px 32px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;color:#FFFFFF;text-decoration:none;border-radius:999px;">אימות כתובת המייל</a>
+                    <a href="{{ .RedirectTo }}#confirm={{ .TokenHash }}&amp;type=signup" style="display:inline-block;background-color:#1F5B44;padding:14px 32px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;color:#FFFFFF;text-decoration:none;border-radius:999px;">אימות כתובת המייל</a>
                   </td>
                 </tr>
               </table>
@@ -50,8 +62,9 @@
             </td>
           </tr>
         </table>
-        <p dir="rtl" style="margin:16px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#5B5E6B;">אינקוגניטו · השחרת מסמכים לפני AI</p>
       </td>
     </tr>
   </table>
 </div>
+</body>
+</html>

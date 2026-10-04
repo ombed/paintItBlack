@@ -67,9 +67,11 @@ Gmail; decide later between a mail program that sends through Resend, or Google 
    sender email `noreply@inkognito.co.il`, sender name `InKognito`, host `smtp.resend.com`,
    port `465`, username `resend`, password = the `supabase` key. Save.
    (A Hebrew sender name, אינקוגניטו, may work; test it once before switching.)
-2. **Authentication → Emails → Templates** (unlocked by step 1). Each body is the contents of a
-   file in `supabase/templates/`, copied in an editor (never a terminal: it reverses Hebrew) and
-   pasted into the Source view. Save each.
+2. **Authentication → Emails → Templates** (unlocked by step 1). Each body is a file in
+   `supabase/templates/`, from its `<!DOCTYPE html>` line to the end, copied in an editor (never a
+   terminal: it reverses Hebrew) and pasted into the Source view. Save each. Then leave them alone
+   for weeks: Supabase advises changing sign-in emails rarely and all at once, while a new domain
+   earns Gmail's trust (deliverability review 4.10; tests/mail_t.js holds what it settled).
    - **Confirm signup**: subject `אימות כתובת המייל לאינקוגניטו`, body `confirm-signup.html`.
    - **Reset Password**: subject `איפוס סיסמה לאינקוגניטו`, body `reset-password.html`.
    - **Magic Link**: subject `קישור כניסה לאינקוגניטו`, body `magic-link.html`. The sign-in page
@@ -82,7 +84,8 @@ Gmail; decide later between a mail program that sends through Resend, or Google 
    30 an hour for the whole site, and every sign-up, resend and password reset counts. Raise it to
    100. Resend's free plan sends 100 a day and 3,000 a month: a launch day busier than that needs
    Resend's paid plan. (The sign-in page says so plainly when the cap is hit.)
-3. **Authentication → URL Configuration** (on launch day, once the site is live):
+3. **Authentication → URL Configuration** (done 4.10 with step 5.3, once https://inkognito.co.il/login
+   opened; then **delete the pages.dev entry**, so that no email can carry a pages.dev link again):
    Site URL `https://inkognito.co.il/login`, with `/login`: when a request names no return page
    (an email sent from the dashboard) or names one not on the list, Supabase sends the person to
    the Site URL, and the sign-in page is the one that reads the link. (The landing page passes
