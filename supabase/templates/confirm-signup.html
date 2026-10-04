@@ -13,7 +13,9 @@
      Paste into the dashboard everything from the DOCTYPE line to the end. The whole document,
      not just the inner part, scores better with spam filters (a missing html tag counts against
      it). No product tagline at the bottom: Supabase's guide advises against taglines in sign-in
-     emails (deliverability review, 4.10). -->
+     emails (deliverability review, 4.10). Classic Outlook ignores the link's padding, so the
+     button's cell carries mso-padding-alt; Outlook-only wrappers in comments cannot be used,
+     because Supabase renders with Go's html/template, which drops comments. -->
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -42,7 +44,7 @@
             <td dir="rtl" align="right" style="padding:0 32px 24px 32px;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td align="center" bgcolor="#1F5B44" style="border-radius:999px;">
+                  <td align="center" bgcolor="#1F5B44" style="border-radius:999px;mso-padding-alt:14px 32px;">
                     <a href="{{ .RedirectTo }}#confirm={{ .TokenHash }}&amp;type=signup" style="display:inline-block;background-color:#1F5B44;padding:14px 32px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;color:#FFFFFF;text-decoration:none;border-radius:999px;">אימות כתובת המייל</a>
                   </td>
                 </tr>

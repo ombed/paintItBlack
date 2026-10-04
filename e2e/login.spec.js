@@ -22,6 +22,10 @@ const SESSION = { access_token: JWT, token_type: "bearer", expires_in: 3600, exp
   refresh_token: "r1", user: { id: "u1", aud: "authenticated", role: "authenticated", email: "a@example.co.il" } };
 const USER = { id: "u1", aud: "authenticated", role: "authenticated", email: "a@example.co.il", identities: [{ id: "i1", provider: "email" }] };
 const STORE = "sb-cwsiranjlxbclmaqtucc-auth-token";
+const MARK = String.fromCharCode(0x200b); // the invisible mark a repeated message ends in (login.js)
+// a token with its own lifetime (iat, exp), as Supabase's are
+const now = () => Math.floor(Date.now() / 1000);
+const jwt = (life, tag) => [b64({ alg: "HS256", typ: "JWT" }), b64({ sub: "u1", role: "authenticated", iat: now(), exp: now() + life }), tag].join(".");
 
 async function stub(page, answers = {}) {
   const calls = [];
@@ -63,7 +67,9 @@ test("signing in: Google, or an email and a password; the app opens with the gat
   await expect(heading(page)).toHaveText("כניסה");
   await expect(page.getByRole("button", { name: "כניסה עם Google" })).toBeVisible();
   await expect(page.locator("#password")).toHaveAttribute("autocomplete", "current-password");
-  await expect(page.locator("#email-err")).toHaveAttribute("role", "alert");
+  // errors are read out through the field's description, one channel: no role=alert on a box hidden while empty
+  await expect(page.locator("#password")).toHaveAttribute("aria-describedby", /email-err/);
+  expect(await page.locator("#email-err").getAttribute("role")).toBeNull();
   await axe(page, "sign in");
   await page.fill("#email", "a@example.co.il");
   await page.fill("#password", "correct horse 42");
@@ -103,7 +109,9 @@ test("a wrong password is said in Hebrew, on the password, and the page stays", 
   await expect(page.locator("#email-err")).toHaveText("המייל או הסיסמה לא נכונים.");
   await expect(page.locator("#password")).toBeFocused();
   await expect(page.locator("#password")).toHaveAttribute("aria-invalid", "true");
-  // a second try with Enter says it again (the alert is emptied and filled anew)
+  // a second try with Enter: the same words with an invisible mark, so the description changes and is heard again
+  await page.locator("#password").press("Enter");
+  await expect(page.locator("#email-err")).toHaveText("המייל או הסיסמה לא נכונים." + MARK);
   await page.locator("#password").press("Enter");
   await expect(page.locator("#email-err")).toHaveText("המייל או הסיסמה לא נכונים.");
   expect(new URL(page.url()).pathname).toBe(LOGIN);
@@ -129,7 +137,26 @@ test("too many tries, an email asked for again too soon, and the site's hourly c
   await page.getByRole("button", { name: "שליחת קישור" }).click();
   await expect(page.locator("#email-err")).toContainText("מאוחר יותר");
   await expect(page.locator("#email-err")).not.toContainText("לפני רגע");
+  // the site's cap is about no field: nothing is wrong with the address
+  await expect(page.locator("#email")).toHaveAttribute("aria-invalid", "false");
   await expect(page.locator("#sent-h")).toBeHidden();
+});
+
+// Resend's free plan stops at 100 a day; Supabase then answers 500 "Error sending ... email"
+test("the sender's daily cap is said as a cap, on no field, not as a failed sign-in", async ({ page }) => {
+  const down = (what) => ({ status: 500, body: { code: "unexpected_failure", message: "Error sending " + what + " email" } });
+  await stub(page, { "/auth/v1/signup": down("confirmation"), "/auth/v1/recover": down("recovery") });
+  await page.goto(LOGIN + "?mode=signup");
+  await page.fill("#email", "new@example.co.il");
+  await page.fill("#password", "long enough 1");
+  await create(page).click();
+  await expect(page.locator("#email-err")).toContainText("אי אפשר לשלוח מיילים כרגע");
+  await expect(page.locator("#password")).toHaveAttribute("aria-invalid", "false");
+  await expect(page.locator("#email")).toHaveAttribute("aria-invalid", "false");
+  await page.getByRole("button", { name: "כניסה", exact: true }).click();
+  await page.getByRole("button", { name: "שכחתי סיסמה" }).click();
+  await page.getByRole("button", { name: "שליחת קישור" }).click();
+  await expect(page.locator("#email-err")).toContainText("אי אפשר לשלוח מיילים כרגע");
 });
 
 test("creating an account: its own step, 8 characters, then an email verifies the address", async ({ page }) => {
@@ -175,6 +202,8 @@ test("a refused resend is shown on the page, not only to screen readers", async 
   await page.getByRole("button", { name: "שליחה חוזרת" }).click();
   await expect(page.locator("#sent-err")).toBeVisible();
   await expect(page.locator("#sent-err")).toContainText("מאוחר יותר");
+  // the button disabled itself while sending; focus comes back to it, not to the page
+  await expect(page.locator("#resend")).toBeFocused();
 });
 
 test("the landing page's sign-up buttons open on creating an account, and sign-in is one click away", async ({ page }) => {
@@ -283,7 +312,9 @@ test("the link that verifies a new account asks for the password, saves it, and 
   await page.goto(LOGIN + "#confirm=abc123hash&type=signup");
   await expect(page.locator("#confirm-h")).toHaveText("אימות כתובת המייל");
   await expect(page.locator("#newpw")).toBeVisible();
-  await expect(page.locator("#newpw-label")).toHaveText("סיסמה");
+  // the password typed here is the account's from now on (migration 0008 drops any earlier one), and the page says so
+  await expect(page.locator("#newpw-label")).toHaveText("סיסמה לחשבון");
+  await expect(page.locator("#confirm-why")).toContainText("תשמש לכניסה מעכשיו");
   await expect(page.locator("#newpw")).toHaveAttribute("autocomplete", "current-password");
   // the token is out of the address bar at once, and nothing was spent yet
   await expect.poll(() => new URL(page.url()).hash).toBe("");
@@ -300,12 +331,27 @@ test("the link that verifies a new account asks for the password, saves it, and 
   expect((await gateCookie(page)).value).toBe(JWT);
 });
 
-test("verifying with the same password as at sign-up (the usual case) goes in", async ({ page }) => {
-  await stub(page, { "/auth/v1/verify": { body: SESSION }, "/auth/v1/user": refusal(422, "same_password", "New password should be different from the old password.") });
+test("the address verified but the password not saved: said exactly so, and saved on the next click without a new link", async ({ page }) => {
+  let first = true;
+  const calls = await stub(page, {
+    "/auth/v1/verify": { body: SESSION },
+    "/auth/v1/user": (route) => {
+      if (route.request().method() !== "PUT") return route.fulfill({ contentType: "application/json", body: JSON.stringify(USER) });
+      if (first) { first = false; return route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ code: "unexpected_failure", message: "Database error" }) }); }
+      return route.fulfill({ contentType: "application/json", body: JSON.stringify(USER) });
+    },
+  });
   await page.goto(LOGIN + "#confirm=abc&type=signup");
   await page.fill("#newpw", "long enough 1");
   await page.getByRole("button", { name: "אימות וכניסה" }).click();
+  await expect(page.locator("#confirm-err")).toContainText("הכתובת אומתה, אבל הסיסמה לא נשמרה");
+  // nothing is wrong with the password itself; the button, which names the message, gets focus
+  await expect(page.locator("#newpw")).toHaveAttribute("aria-invalid", "false");
+  await expect(page.locator("#confirm-go")).toBeFocused();
+  await page.getByRole("button", { name: "אימות וכניסה" }).click();
   await page.waitForURL("**/site/app/");
+  expect(calls.filter((c) => c.path === "/auth/v1/verify")).toHaveLength(1);
+  expect(calls.filter((c) => c.path === "/auth/v1/user" && c.method === "PUT")).toHaveLength(2);
 });
 
 test("a click the network lost does not spend the link: the same button works again", async ({ page }) => {
@@ -319,6 +365,9 @@ test("a click the network lost does not spend the link: the same button works ag
   await page.getByRole("button", { name: "אימות וכניסה" }).click();
   await expect(page.locator("#confirm-err")).not.toBeEmpty();
   await expect(page.getByRole("button", { name: "אימות וכניסה" })).toBeEnabled();
+  // the message is read out with the button that gets focus
+  await expect(page.locator("#confirm-go")).toBeFocused();
+  await expect(page.locator("#confirm-go")).toHaveAttribute("aria-describedby", "confirm-err");
   await page.getByRole("button", { name: "אימות וכניסה" }).click();
   await page.waitForURL("**/site/app/");
   expect(calls.filter((c) => c.path === "/auth/v1/verify")).toHaveLength(2);
@@ -422,14 +471,72 @@ test("the gate says the session ended: renewed once on the server and back in; r
   expect(new URL(page.url()).pathname).toBe(LOGIN);
 });
 
-test("the gate says the account was deleted: signed out here, said so, and not sent back in", async ({ page }) => {
-  await stub(page, { "/auth/v1/user": { body: SESSION.user } });
+// (a network failure or a 5xx ends the same way, after supabase-js has retried for up to 30 s)
+test("the gate says the session ended, and the renewal is refused for now (rate limit): the session is kept, nothing signed out", async ({ page }) => {
+  const calls = await stub(page, { "/auth/v1/token": refusal(429, "over_request_rate_limit", "Request rate limit reached") });
+  await signedIn(page);
+  await page.goto(LOGIN + "#error=session");
+  await expect(page.locator("#email-err")).toContainText("יותר מדי ניסיונות");
+  expect(await page.evaluate((k) => localStorage.getItem(k), STORE)).not.toBeNull();
+  expect(calls.filter((c) => c.path === "/auth/v1/logout")).toHaveLength(0);
+  // a reason from the gate is about no field
+  await expect(page.locator("#email")).toHaveAttribute("aria-invalid", "false");
+});
+
+/* Two tool tabs restored together, both refused (review 4.10): both renew the same session, and
+   supabase-js discards the slower renewal because the other tab already rewrote storage. That tab
+   takes the other's session; it used to sign both out. */
+test("two tabs renewing the same session: the one whose renewal is discarded takes the other's and goes in", async ({ page }) => {
+  const OTHER = jwt(3600, "other-tab"), MINE = jwt(3600, "this-tab");
+  const calls = await stub(page, {
+    "/auth/v1/token": async (route) => {
+      // the other tab finishes first and writes its renewal to the shared storage
+      await page.evaluate(([k, s]) => localStorage.setItem(k, JSON.stringify(s)), [STORE, { ...SESSION, access_token: OTHER, refresh_token: "r-other" }]);
+      return route.fulfill({ contentType: "application/json", body: JSON.stringify({ ...SESSION, access_token: MINE, refresh_token: "r-mine" }) });
+    },
+  });
+  await signedIn(page);
+  await page.goto(LOGIN + "#error=session");
+  await page.waitForURL("**/site/app/");
+  expect((await gateCookie(page)).value).toBe(OTHER);
+  expect(calls.filter((c) => c.path === "/auth/v1/logout")).toHaveLength(0);
+});
+
+test("the gate says the account was deleted, and the server agrees: signed out here, said so, not sent back in", async ({ page }) => {
+  await stub(page, { "/auth/v1/user": refusal(403, "user_not_found", "User from sub claim in JWT does not exist") });
   await signedIn(page);
   await page.goto(LOGIN + "#error=gone");
   await expect(page.locator("#email-err")).toContainText("נמחק");
   await expect.poll(() => page.evaluate((k) => localStorage.getItem(k), STORE)).toBeNull();
   await page.waitForTimeout(1000);
   expect(new URL(page.url()).pathname).toBe(LOGIN);
+});
+
+// anyone can send a link ending in #error=gone (the landing page forwards it): the hash alone signs no one out
+test("a link that only claims the account was deleted signs no one out", async ({ page }) => {
+  const calls = await stub(page, { "/auth/v1/user": { body: SESSION.user } });
+  await signedIn(page);
+  await page.goto("/site/index.html#error=gone");
+  await page.waitForURL(/\/site\/login\.html/);
+  await expect(page.locator("#email-err")).not.toBeEmpty();
+  await expect(page.locator("#email-err")).not.toContainText("נמחק");
+  expect(await page.evaluate((k) => localStorage.getItem(k), STORE)).not.toBeNull();
+  expect(calls.filter((c) => c.path === "/auth/v1/logout")).toHaveLength(0);
+});
+
+test("the session's end is kept on this computer's clock, whatever the server's clock says", async ({ page }) => {
+  const T = jwt(3600, "fresh");
+  // the server's expires_at is two hours off (its clock and this computer's disagree); the token itself lives an hour
+  await stub(page, { "/auth/v1/token": { body: { ...SESSION, access_token: T, expires_at: now() + 3600 + 7200 } } });
+  await page.goto(LOGIN);
+  await page.fill("#email", "a@example.co.il");
+  await page.fill("#password", "correct horse 42");
+  await signIn(page).click();
+  await page.waitForURL("**/site/app/");
+  const kept = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)), STORE);
+  expect(Math.abs(kept.expires_at - (now() + 3600))).toBeLessThan(30);
+  const c = await gateCookie(page);
+  expect(Math.abs(c.expires - (now() + 3600))).toBeLessThan(30);
 });
 
 for (const [why, words] of [["blocked", "חסום"], ["pending", "ממתין לאישור"]])

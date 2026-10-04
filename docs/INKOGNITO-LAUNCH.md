@@ -82,8 +82,11 @@ Gmail; decide later between a mail program that sends through Resend, or Google 
    refuse a Hebrew password; length is what matters).
    Then **Authentication → Rate Limits → emails per hour**: with custom SMTP Supabase allows only
    30 an hour for the whole site, and every sign-up, resend and password reset counts. Raise it to
-   100. Resend's free plan sends 100 a day and 3,000 a month: a launch day busier than that needs
-   Resend's paid plan. (The sign-in page says so plainly when the cap is hit.)
+   100 (done 4.10). **The cap that will actually be hit first is Resend's free plan: 100 emails a
+   day** (3,000 a month), counted per UTC day. Past it, every email sign-up, resend and reset
+   fails until midnight UTC (03:00 in Israel in summer, 02:00 in winter), while Google sign-in
+   keeps working. The sign-in page says so plainly for both caps. **Move Resend to a paid plan
+   before announcing** to more than a small circle.
 3. **Authentication → URL Configuration** (done 4.10 with step 5.3, once https://inkognito.co.il/login
    opened; then **delete the pages.dev entry**, so that no email can carry a pages.dev link again):
    Site URL `https://inkognito.co.il/login`, with `/login`: when a request names no return page
@@ -169,6 +172,8 @@ review of weeks). Then **Audience → Publish app**.
 
 - At 10,000 users the data-security level rises from "managed by an individual" to "basic":
   a written security procedure, access management, and processor terms.
+- On Supabase's paid plan: Authentication → Email → **Prevent use of leaked passwords**
+  (HaveIBeenPwned). The security advisor lists it as off; the free plan cannot turn it on.
 - Before charging: open the tax files; the consumer-law identity details (name, ID, address)
   and the 14-day cancellation right may apply; marketing emails need opt-in and the word
   "פרסומת".

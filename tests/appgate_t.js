@@ -92,6 +92,8 @@ const UID = "00000000-0000-0000-0000-00000000000a";
   ok(/#error=session$/.test(x.where) && cleared(x), "…told the session no longer holds, and the cookie is cleared");
   x = await refused("an expired token", ck(await token(K1, { exp: sec - 10 })));
   ok(/#error=session$/.test(x.where) && cleared(x), "…told the session ended, and the cookie is cleared");
+  x = await refused("an expired token on a file request", ck(await token(K1, { exp: sec - 10 })), { nav: false, path: "/app/support.js" });
+  ok(/#error=session$/.test(x.where) && !x.res.headers.get("set-cookie"), "…but a file request does not clear the cookie (the page may have renewed it a moment before)");
   await refused("a token signed by another key under the same id", ck(await token(STRANGER)));
   await refused("a token from another project", ck(await token(K1, { iss: "https://other.supabase.co/auth/v1" })));
   await refused("a token for another audience", ck(await token(K1, { aud: "someone-else" })));
@@ -163,8 +165,11 @@ const UID = "00000000-0000-0000-0000-00000000000a";
   global.window = {};
   new Function("window", fs.readFileSync(path.join(__dirname, "..", "site", "config.js"), "utf8"))(global.window);
   ok(global.window.INK_AUTH.url === G.PROJECT && global.window.INK_AUTH.key === G.KEY, "site/config.js and lib/gate.mjs agree on the project and key");
-  const login = fs.readFileSync(path.join(__dirname, "..", "site", "login.js"), "utf8");
-  ok(login.includes('"' + G.COOKIE + '="'), "login.js writes the cookie the gate reads (" + G.COOKIE + ")");
+  // the cookie is written in one place, shared by the sign-in page, the admin page and the tool
+  const config = fs.readFileSync(path.join(__dirname, "..", "site", "config.js"), "utf8");
+  ok(config.includes('"' + G.COOKIE + '="') && typeof global.window.INK_AUTH.setCookie === "function", "site/config.js writes the cookie the gate reads (" + G.COOKIE + ")");
+  for (const f of ["login.js", "cloud.js", "admin.js"])
+    ok(/storage: (?:A|window\.INK_AUTH)\.storage/.test(fs.readFileSync(path.join(__dirname, "..", "site", f), "utf8")), f + " keeps its session on this computer's clock (config.js storage)");
   const mw = fs.readFileSync(path.join(__dirname, "..", "functions", "_middleware.js"), "utf8");
   ok(/from "\.\.\/lib\/gate\.mjs"/.test(mw) && /onRequest/.test(mw) && /site\(/.test(mw), "functions/_middleware.js runs this gate in front of every request");
   ok(!fs.existsSync(path.join(__dirname, "..", "functions", "app")), "no older gate on /app/ only is left beside it");

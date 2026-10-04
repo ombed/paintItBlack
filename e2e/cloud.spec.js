@@ -25,7 +25,7 @@ async function hosted(page, { session = true, logOn = true, state = {} } = {}) {
   const calls = [];
   await page.route(PROJECT + "/**", async (route) => {
     const req = route.request(), u = new URL(req.url());
-    calls.push({ path: u.pathname, body: req.postData() ? JSON.parse(req.postData()) : null, keepalive: false });
+    calls.push({ path: u.pathname, query: u.search, body: req.postData() ? JSON.parse(req.postData()) : null, keepalive: false });
     if (u.pathname === "/auth/v1/user") return route.fulfill({ json: SESSION.user });
     if (u.pathname === "/rest/v1/profiles") {
       const row = { email: "a@example.co.il", full_name: "Alpha", log_enabled: logOn, approved: true, blocked: false, ...state };
@@ -153,8 +153,29 @@ test("signing out ends the session and the cookie, and goes to sign-in", async (
   await page.getByRole("button", { name: "חשבון", exact: true }).click();
   await page.getByRole("button", { name: "יציאה מהחשבון" }).click();
   await page.waitForURL("**/login.html");
-  expect(calls.some((c) => c.path === "/auth/v1/logout")).toBe(true);
+  // this browser only (review 4.10): the account's other devices stay signed in
+  const out = calls.find((c) => c.path === "/auth/v1/logout");
+  expect(out && out.query).toContain("scope=local");
   expect((await page.context().cookies()).find((c) => c.name === "ink_at")).toBeUndefined();
+});
+
+test("a file the gate answered with the sign-in page is asked for again after renewing, and a missing cookie is written again", async ({ page }) => {
+  test.info().annotations.push({ type: "no-self-check" });
+  const calls = await hosted(page);
+  const NEW = [b64({ alg: "HS256", typ: "JWT" }), b64({ sub: "00000000-0000-0000-0000-00000000000a", role: "authenticated", iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + 3600 }), "renewed"].join(".");
+  await page.route(PROJECT + "/auth/v1/token**", (route) => { calls.push({ path: "/auth/v1/token" }); route.fulfill({ json: { ...SESSION, access_token: NEW, refresh_token: "r2" } }); });
+  let asked = 0;
+  // the gate refuses the first time (its token had ended, whatever this computer's clock said)
+  await page.route("**/dist/app/probe.txt", (route) => (++asked === 1 ? route.fulfill({ status: 302, headers: { location: "/dist/login.html" } }) : route.fulfill({ body: "the file" })));
+  await boot(page);
+  expect(await page.evaluate(() => fetch("./probe.txt").then((r) => r.text()))).toBe("the file");
+  expect(asked).toBe(2);
+  expect(calls.filter((c) => c.path === "/auth/v1/token")).toHaveLength(1);
+  // the gate cleared the cookie (or another tab replaced it): the next request writes it again
+  await page.context().clearCookies({ name: "ink_at" });
+  const sent = page.waitForRequest((r) => r.url().endsWith("/dist/app/hosted-resources.js?again"));
+  await page.evaluate(() => fetch("./hosted-resources.js?again").catch(() => {}));
+  expect((await (await sent).allHeaders()).cookie || "").toContain("ink_at=" + NEW);
 });
 
 test("deleting the account asks first, deletes, and leaves for the home page", async ({ page }) => {

@@ -79,7 +79,7 @@
             <button class="again" type="button" id="forgot">שכחתי סיסמה</button>
           </div>
         </div>
-        <p class="err" id="email-err" role="alert"></p>
+        <p class="err" id="email-err"></p>
         <button class="again" type="button" id="reconfirm" hidden>שליחת מייל האימות שוב</button>
         <button class="btn btn-ink send" type="submit" id="send">כניסה</button>
       </form>
@@ -114,9 +114,9 @@
           <p class="hint" id="newpw-hint">לפחות 8 תווים.</p>
           <div class="pw-row"><label class="show"><input type="checkbox" id="show-new"> הצגת הסיסמה</label></div>
         </div>
-        <button class="btn btn-ink send" type="submit" id="confirm-go">כניסה</button>
+        <button class="btn btn-ink send" type="submit" id="confirm-go" aria-describedby="confirm-err">כניסה</button>
       </form>
-      <p class="err" role="alert" id="confirm-err"></p>
+      <p class="err" id="confirm-err"></p>
       <button class="again" type="button" id="confirm-new" aria-describedby="confirm-err" hidden>חזרה לכניסה</button>
     </div>
   </main>

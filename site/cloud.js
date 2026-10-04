@@ -12,51 +12,57 @@
      the shape again and stores nothing without a yes (submit_log).
    - An account panel: the log switch, sign out, and deleting the account. */
 (function () {
-  const { url, key } = window.INK_AUTH;
-  const sb = window.supabase.createClient(url, key, { auth: { flowType: "implicit", persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
+  const A = window.INK_AUTH;
+  // the session is kept on this computer's clock, and the gate's cookie written, by config.js
+  const sb = window.supabase.createClient(A.url, A.key, { auth: { flowType: "implicit", persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: A.storage } });
   const ROOT = new URL("../", location.href).href, LOGIN = ROOT + "login.html";
-  const secure = location.protocol === "https:" ? "; Secure" : "";
   let session = null, profile = null, sentT = -1, leavingTo = null;
-
-  // the cookie lives as long as the token does, counted from the token itself: this computer's
-  // clock may be off, and an hour fast it would write a cookie that is already gone (as login.js)
-  const lifetime = (s) => {
-    try { const c = JSON.parse(atob(s.access_token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))); if (c.exp - c.iat > 0) return c.exp - c.iat; } catch (_) {}
-    return s.expires_in || 3600;
-  };
-  const setCookie = (s) => { document.cookie = "ink_at=" + s.access_token + "; Path=/; Max-Age=" + lifetime(s) + "; SameSite=Lax" + secure; };
-  const clearCookie = () => { document.cookie = "ink_at=; Path=/; Max-Age=0; SameSite=Lax" + secure; };
   // once: signing out also fires SIGNED_OUT, and a second navigation would cut the first off
   let gone = false;
-  const leave = (to) => { if (gone) return; gone = true; clearCookie(); location.replace(to); };
+  const leave = (to) => { if (gone) return; gone = true; A.clearCookie(); location.replace(to); };
 
   /* The gate reads the cookie on every request, and the token in it lasts an hour. A tab left in
      the background can outlive it (browsers slow its timers, so the regular refresh comes late),
      and the next file the tool asks for (the model's parts, on the first scan) would be refused.
-     So before the tool fetches anything from the site, a token within two minutes of its end is
-     renewed first. One renewal at a time; Supabase's own calls go to another origin and pass. */
+     So before the tool fetches anything from the site:
+     - a token within two minutes of its end (on this computer's clock, config.js) is renewed;
+     - a cookie that is missing (the gate cleared it, or another tab replaced it) is written again.
+     And a file the gate answered with the sign-in page (its token had ended anyway) is renewed and
+     asked for once more. One renewal at a time; Supabase's own calls go to another origin. */
   const siteFetch = window.fetch.bind(window);
   let renewing = null;
+  const renew = () => (renewing = renewing || sb.auth.refreshSession()
+    .then(({ data }) => { if (data && data.session) { session = data.session; A.setCookie(session); } })
+    .finally(() => { renewing = null; }));
   window.fetch = async function (input, init) {
+    let mine = false;
     try {
-      const u = new URL(typeof input === "string" ? input : (input && input.url) || "", location.href);
-      if (u.origin === location.origin && session && session.expires_at - Date.now() / 1000 < 120) {
-        renewing = renewing || sb.auth.refreshSession().then(({ data }) => { if (data && data.session) { session = data.session; setCookie(session); } }).finally(() => { renewing = null; });
-        await renewing;
+      mine = new URL(typeof input === "string" ? input : (input && input.url) || "", location.href).origin === location.origin;
+      if (mine && session) {
+        if (A.left(session) < 120) await renew();
+        else if (!document.cookie.split(/;\s*/).includes("ink_at=" + session.access_token)) A.setCookie(session);
       }
     } catch (_) {}
-    return siteFetch(input, init);
+    const r = await siteFetch(input, init);
+    const method = String((init && init.method) || (input && input.method) || "GET").toUpperCase();
+    // the gate sends to login.html, which Cloudflare serves as /login
+    const at = String(r.url).split(/[?#]/)[0];
+    if (mine && session && r.redirected && (at === LOGIN || at === ROOT + "login") && (method === "GET" || method === "HEAD")) {
+      try { await renew(); } catch (_) {}
+      return siteFetch(input, init);
+    }
+    return r;
   };
 
   sb.auth.onAuthStateChange((ev, s) => {
-    if (s) { session = s; setCookie(s); }
+    if (s) { session = s; A.setCookie(s); }
     if (ev === "SIGNED_OUT") leave(leavingTo || LOGIN);
   });
 
   sb.auth.getSession().then(async ({ data }) => {
     session = data.session;
     if (!session) return leave(LOGIN);
-    setCookie(session);
+    A.setCookie(session);
     sb.rpc("touch").then(() => {}, () => {});
     const r = await sb.from("profiles").select("email,full_name,log_enabled,log_asks,approved,blocked").eq("id", session.user.id).maybeSingle();
     // blocked or waiting: the gate already refuses every navigation; this also ends the session
@@ -84,9 +90,9 @@
     sentT = events[events.length - 1].t;
     const body = JSON.stringify({ p_log: { ...full, from, events }, p_leaks: leaks ? JSON.parse(leaks) : null });
     // keepalive lets the request outlive a closing page; browsers cap such a body at 64 KB
-    fetch(url + "/rest/v1/rpc/submit_log", {
+    fetch(A.url + "/rest/v1/rpc/submit_log", {
       method: "POST", keepalive: how === "leave" && body.length < 60000, body,
-      headers: { apikey: key, authorization: "Bearer " + session.access_token, "content-type": "application/json" },
+      headers: { apikey: A.key, authorization: "Bearer " + session.access_token, "content-type": "application/json" },
     }).catch(() => {});
   }
   /* A document was sent: the moment to ask, when the tool has just done its job. The first sent
@@ -220,7 +226,8 @@
       profile.log_enabled = on;
       msg.textContent = on ? "היומן יישלח בסוף כל מסמך." : "היומן לא יישלח יותר.";
     });
-    out.addEventListener("click", async () => { await sb.auth.signOut().catch(() => {}); leave(LOGIN); });
+    // this browser only: the account's other devices stay signed in
+    out.addEventListener("click", async () => { await sb.auth.signOut({ scope: "local" }).catch(() => {}); leave(LOGIN); });
     del.addEventListener("click", async () => {
       if (!confirm("למחוק את החשבון? פרטי החשבון וכל יומני השימוש יימחקו לצמיתות. רשימות התיקים וההגדרות שבמחשב הזה לא נמחקות.")) return;
       const { error } = await sb.rpc("delete_my_account");

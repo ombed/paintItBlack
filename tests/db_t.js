@@ -22,7 +22,8 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
   await db.exec(`
     create role anon nologin; create role authenticated nologin;
     create schema auth;
-    create table auth.users (id uuid primary key, email text, raw_user_meta_data jsonb not null default '{}');
+    create table auth.users (id uuid primary key, email text, raw_user_meta_data jsonb not null default '{}',
+      encrypted_password varchar(255), email_confirmed_at timestamptz);
     create function auth.uid() returns uuid language sql stable as
       $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
     grant usage on schema public, auth to anon, authenticated;
@@ -201,6 +202,23 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
   ok(await count(D) === 0, "its logs are gone");
   ok((await db.query("select count(*)::int n from auth.users")).rows[0].n === 5 && await count(A) === 2, "nobody else's account or logs were touched");
   await db.query("delete from auth.users where id = $1", [E]);
+
+  // pre-account takeover (review 4.10): whoever signed up first chose the password, and confirming
+  // never touched it; the confirming update now drops it, in the same transaction
+  console.log("\n— confirming an address drops any password set before it (0008) —");
+  const P = "00000000-0000-0000-0000-0000000000c1", G = "00000000-0000-0000-0000-0000000000c2";
+  const pw = async (id) => (await db.query("select encrypted_password p from auth.users where id = $1", [id])).rows[0].p;
+  await db.query("insert into auth.users (id, email, encrypted_password) values ($1, 'p@example.com', 'first-signer-hash')", [P]);
+  await db.query("update auth.users set email_confirmed_at = now() where id = $1", [P]);
+  ok(await pw(P) === "", "the first confirmation drops the password set before it (the first signer's)");
+  await db.query("update auth.users set encrypted_password = 'inbox-holder-hash' where id = $1", [P]);
+  ok(await pw(P) === "inbox-holder-hash", "the password saved after it, by whoever opened the email, stays");
+  await db.query("update auth.users set email_confirmed_at = now(), raw_user_meta_data = '{\"x\":1}' where id = $1", [P]);
+  ok(await pw(P) === "inbox-holder-hash", "a later confirmation (an email change) does not drop it");
+  await db.query("insert into auth.users (id, email, encrypted_password, email_confirmed_at) values ($1, 'g@example.com', 'set-later-hash', now())", [G]);
+  await db.query("update auth.users set raw_user_meta_data = '{\"full_name\":\"Gee\"}' where id = $1", [G]);
+  ok(await pw(G) === "set-later-hash", "an account that arrives confirmed (Google) is never touched");
+  await db.query("delete from auth.users where id = any($1::uuid[])", [[P, G]]);
 
   console.log("\n— logs older than 12 months are deleted, as the privacy policy says (0005) —");
   {

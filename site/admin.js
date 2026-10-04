@@ -6,7 +6,8 @@
    the setting. The page holds nothing itself and shows nothing without the owner's sign-in.
    Every value from the database is set as text, never as HTML: names are typed by users. */
 (function () {
-  const sb = window.supabase.createClient(window.INK_AUTH.url, window.INK_AUTH.key, { auth: { flowType: "implicit", persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
+  // the session on this computer's clock, as on the other pages (config.js)
+  const sb = window.supabase.createClient(window.INK_AUTH.url, window.INK_AUTH.key, { auth: { flowType: "implicit", persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: window.INK_AUTH.storage } });
   const $ = (id) => document.getElementById(id);
   const say = (t) => { $("msg").textContent = t; };
   const DAY = 86400000;
@@ -123,8 +124,9 @@
   });
 
   $("out").addEventListener("click", async () => {
-    await sb.auth.signOut().catch(() => {});
-    document.cookie = "ink_at=; Path=/; Max-Age=0; SameSite=Lax" + (location.protocol === "https:" ? "; Secure" : "");
+    // this browser only: the account's other devices stay signed in
+    await sb.auth.signOut({ scope: "local" }).catch(() => {});
+    window.INK_AUTH.clearCookie();
     location.replace("index.html");
   });
 

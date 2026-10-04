@@ -34,6 +34,9 @@ for (const [name, type] of Object.entries(MAILS)) {
   ok(doc.includes(">" + link + "</p>"), "the copy-this-link line is the button's own link");
   ok(!/https?:\/\//.test(doc.replace(/<!DOCTYPE[^>]*>/, "")) && !/pages\.dev|SiteURL|ConfirmationURL/.test(doc), "no address written in: no pages.dev, no SiteURL or ConfirmationURL");
   ok(/<a href="[^"]*" style="display:inline-block;background-color:#1F5B44;/.test(doc), "the button's colour is on the link itself");
+  // classic Outlook (common in law offices) ignores the link's padding; comments are dropped by
+  // Supabase's html/template, so no Outlook-only wrapper can do it
+  ok(/<td align="center" bgcolor="#1F5B44" style="[^"]*mso-padding-alt:14px 32px;/.test(doc) && !/<!--/.test(doc), "the button keeps its size in classic Outlook, with no comment in the pasted part");
   ok(!/<img|<script|@font-face|<link /i.test(doc), "no images, scripts or web fonts");
   ok(!/השחרת מסמכים|\bAI\b/.test(doc), "no product tagline");
   ok(!/מקלידים את הסיסמה/.test(doc), "no line telling the reader to type the password");
