@@ -42,6 +42,15 @@ https://:project.pages.dev/*
 https://:version.:project.pages.dev/*
   X-Robots-Tag: noindex
 `;
+/* The real domain was attached before launch (4.10), so that the sign-in emails' links are on the
+   domain that sends them (Gmail put the first ones in spam: a day-old domain, links to pages.dev).
+   Until the owner launches, it stays out of search engines too. At launch: true, build, deploy
+   (docs/INKOGNITO-LAUNCH.md, step 7). */
+const LAUNCHED = false;
+const HEADERS_NOW = HEADERS + (LAUNCHED ? "" : `
+https://inkognito.co.il/*
+  X-Robots-Tag: noindex
+`);
 const ROUTE_LIMIT = 100; // Cloudflare Pages: at most 100 include and exclude rules together
 
 // an existing folder is replaced only if this script made it (the same rule as build-site.js)
@@ -131,7 +140,7 @@ function build(out) {
   }
   put("fonts/app-fonts.css", css);
 
-  fs.writeFileSync(path.join(out, "_headers"), HEADERS);
+  fs.writeFileSync(path.join(out, "_headers"), HEADERS_NOW);
 
   /* The public files skip the gate by exact name; everything else, /app/ above all, meets it. A
      page also goes by the address Cloudflare serves it at: /login.html redirects to /login, and
@@ -154,4 +163,4 @@ if (require.main === module) {
   console.log("wrote the hosted site to " + out);
 }
 
-module.exports = { build, LIMIT };
+module.exports = { build, LIMIT, LAUNCHED };

@@ -6,7 +6,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const crypto = require("crypto");
-const { build, LIMIT } = require("../scripts/build-hosted.js");
+const { build, LIMIT, LAUNCHED } = require("../scripts/build-hosted.js");
 const { SITE_FILES } = require("../scripts/build-site.js");
 
 let pass = 0, fail = 0;
@@ -105,6 +105,9 @@ try {
   ok(/https:\/\/:project\.pages\.dev\/\*\s*\n\s*X-Robots-Tag: noindex/.test(h) && /https:\/\/:version\.:project\.pages\.dev\/\*\s*\n\s*X-Robots-Tag: noindex/.test(h), "the pages.dev copies (production and previews) are kept out of search engines");
   ok(files.includes("sitemap.xml") && /https:\/\/inkognito\.co\.il\/privacy/.test(read("sitemap.xml")) && /Sitemap: https:\/\/inkognito\.co\.il\/sitemap\.xml/.test(read("robots.txt")), "a sitemap of the public pages, named in robots.txt");
   ok(!/Cache-Control/i.test(h), "_headers sets no caching (the gate does: two rules on one path would join their values)");
+  // the real domain is attached before launch (4.10); until then it is kept out of search engines too
+  const early = /https:\/\/inkognito\.co\.il\/\*\s*\n\s*X-Robots-Tag: noindex/.test(h);
+  ok(LAUNCHED ? !early : early, LAUNCHED ? "launched: inkognito.co.il is open to search engines" : "before launch: inkognito.co.il is kept out of search engines");
 
   console.log("\n— the gate runs in front of everything but the public files —");
   const routes = JSON.parse(read("_routes.json"));

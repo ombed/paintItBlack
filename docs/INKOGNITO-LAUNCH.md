@@ -126,6 +126,11 @@ npx wrangler pages deploy dist --project-name=inkognito --branch=main
    `/app%2Fsupport.js`, `/%61pp/support.js`, `//app/support.js`, `/APP/support.js`,
    `/fonts/..%2Fapp%2Fsupport.js`. Anything that returns 200 is a stop.
 3. Pages → Custom domains → **Set up a domain → `inkognito.co.il`**. Wait for Active.
+   (Done early, 4.10, before the launch: the first sign-in emails went to Gmail spam with
+   SPF, DKIM and DMARC all passing. A day-old domain with no website, and links to pages.dev. On
+   the real domain the links match the sender. Until launch the build keeps it out of search
+   engines: `LAUNCHED = false` in scripts/build-hosted.js. Supabase URL Configuration, step 4.3,
+   goes with it.)
 4. `www`: Cloudflare's way is a **Bulk Redirect** (www.inkognito.co.il → https://inkognito.co.il,
    301, keep path and query) plus a proxied DNS record `A www 192.0.2.1`. Don't attach www to Pages.
 5. Repeat the checks on `https://inkognito.co.il`, and view the source of `/privacy` to confirm
@@ -150,8 +155,10 @@ review of weeks). Then **Audience → Publish app**.
   31 December.
 - Search engines (done 4.10): the home, privacy, terms and accessibility pages are indexable
   under their inkognito.co.il addresses (canonical links, sitemap.xml); the tool, admin, sign-in
-  and 404 pages, and every pages.dev copy, are kept out. After launch, add the site in Google
-  Search Console and submit `https://inkognito.co.il/sitemap.xml`. (The three step screenshots
+  and 404 pages, and every pages.dev copy, are kept out. **On launch day, Claude sets
+  `LAUNCHED = true` in scripts/build-hosted.js, builds and deploys**: until then the whole
+  domain sends `X-Robots-Tag: noindex`. After launch, add the site in Google Search Console and
+  submit `https://inkognito.co.il/sitemap.xml`. (The three step screenshots
   show no product name or version, so the rename needs no new ones.)
 - Her move from the GitHub Pages address, at a time agreed with her.
 
