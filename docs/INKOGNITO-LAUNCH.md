@@ -132,8 +132,8 @@ review of weeks). Then **Audience → Publish app**.
 - The database definitions document (מסמך הגדרות מאגר): drafted for you outside the repository
   (`../inkognito-private/database-definitions.he.md`); keep it, and review it every year by
   31 December.
-- The landing page: remove `noindex` from the pages you want found, and new screenshots (the
-  current ones show the old name and v57).
+- The landing page: remove `noindex` from the pages you want found. (The three step screenshots
+  show no product name or version, so the rename needs no new ones.)
 - Her move from the GitHub Pages address, at a time agreed with her.
 
 ## 8. Later, when it grows
