@@ -74,6 +74,12 @@ test("signed in: the account panel, the visit marked, the gate's cookie written"
   await page.getByRole("button", { name: "חשבון", exact: true }).click();
   await expect(page.locator("#ink-account-panel")).toContainText("a@example.co.il");
   await expect(page.getByLabel(/שליחת יומן שימוש/)).toBeChecked();
+  // Escape closes it and puts the focus back on the button
+  await page.getByLabel(/שליחת יומן שימוש/).focus();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#ink-account-panel")).toBeHidden();
+  await expect(page.getByRole("button", { name: "חשבון", exact: true })).toBeFocused();
+  await expect(page.getByRole("button", { name: "חשבון", exact: true })).toHaveAttribute("aria-expanded", "false");
 });
 
 test("each document's log goes up once when it ends, only what is new, with no text", async ({ page }) => {

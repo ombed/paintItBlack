@@ -107,6 +107,11 @@
     document.body.append(box);
 
     btn.addEventListener("click", () => { pane.hidden = !pane.hidden; btn.setAttribute("aria-expanded", String(!pane.hidden)); });
+    // Escape closes it and returns to the button, as a popup should
+    box.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape" || pane.hidden) return;
+      pane.hidden = true; btn.setAttribute("aria-expanded", "false"); btn.focus();
+    });
     sw.addEventListener("change", async () => {
       const on = sw.checked;
       const { error } = await sb.rpc("set_log_enabled", { p_on: on });
