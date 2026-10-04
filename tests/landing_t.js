@@ -43,7 +43,8 @@ for (const p of pages) {
   ok(!wrong.length, p + ": the one contact address" + (wrong.length ? ", not " + wrong.join(", ") : ""));
   ok(!/\[(?:להשלים|שם|מייל|כתובת|תאריך|טלפון|מחוז)[^\]]*\]|טיוטה, ממתינה/.test(h), p + ": no placeholder or draft label left");
   if (!/^(login|admin)\.html$/.test(p)) {
-    ok(/href="(?:index\.html)?#?privacy|href="privacy\.html"/.test(h) && /href="terms\.html"/.test(h) && /href="accessibility\.html"/.test(h), p + ": the footer links the privacy policy, terms and accessibility statement");
+    // relative, or from the root (404.html is served at any depth)
+    ok(/href="\/?(?:index\.html)?#?privacy|href="\/?privacy\.html"/.test(h) && /href="\/?terms\.html"/.test(h) && /href="\/?accessibility\.html"/.test(h), p + ": the footer links the privacy policy, terms and accessibility statement");
   }
 }
 

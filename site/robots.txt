@@ -1,0 +1,5 @@
+# The tool and the admin page are behind sign-in and not for search engines.
+User-agent: *
+Disallow: /app/
+Disallow: /admin
+Disallow: /login
