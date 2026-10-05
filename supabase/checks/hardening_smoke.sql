@@ -7,9 +7,16 @@ do $$
 declare uid uuid := gen_random_uuid(); r text := ''; n int; i int;
   okrep jsonb := '{"tool":"paintItBlack","v":"v58","count":1,"shapes":[{"v":"v58","kind":"NAME","words":2,"gapBefore":"(","gapAfter":"digits(9)","layers":{"model":{"type":"PER","score":0.91,"bounds":"glued-left glued-right"}}}]}';
 begin
+  -- a Google sign-up with a 500-character name, in Supabase's order: the account, its identity, then
+  -- the confirming update (since 0009 names come from the Google identity)
   insert into auth.users (id, instance_id, aud, role, email, raw_user_meta_data, created_at, updated_at)
-  values (uid, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'smoke-h@example.invalid', jsonb_build_object('full_name', repeat('x', 500)), now(), now());
-  select length(full_name) into n from public.profiles where id = uid; r := 'name_len=' || n;
+  values (uid, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'smoke-h@example.invalid', '{}', now(), now());
+  insert into auth.identities (id, provider_id, user_id, identity_data, provider, created_at, updated_at)
+  values (gen_random_uuid(), 'smoke-h-' || uid, uid, jsonb_build_object('full_name', repeat('x', 500), 'email_verified', true), 'google', now(), now());
+  update auth.users set email_confirmed_at = now() where id = uid;
+  select length(full_name) into n from public.profiles where id = uid; r := 'name_len=' || coalesce(n::text, 'none');
+  -- the log needs a yes since 0007
+  update public.profiles set log_enabled = true where id = uid;
   perform set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', uid::text, true);
   set local role authenticated;

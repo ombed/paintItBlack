@@ -5,8 +5,8 @@
 do $$
 declare uid uuid := gen_random_uuid(); r text := ''; n int;
 begin
-  insert into auth.users (id, instance_id, aud, role, email, raw_user_meta_data, created_at, updated_at)
-  values (uid, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'smoke-r@example.invalid', '{}', now(), now());
+  insert into auth.users (id, instance_id, aud, role, email, raw_user_meta_data, created_at, updated_at, email_confirmed_at)
+  values (uid, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'smoke-r@example.invalid', '{}', now(), now(), now());
   insert into public.usage_logs (user_id, created_at, version, log) values
     (uid, now() - interval '13 months', 'v50', '{"events":[]}'), (uid, now() - interval '11 months', 'v51', '{"events":[]}');
   n := private.prune_logs(); r := 'pruned=' || n;

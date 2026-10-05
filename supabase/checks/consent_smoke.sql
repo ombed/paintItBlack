@@ -3,8 +3,8 @@
 do $$
 declare uid uuid := gen_random_uuid(); r text := ''; st record;
 begin
-  insert into auth.users (id, instance_id, aud, role, email, raw_user_meta_data, created_at, updated_at)
-  values (uid, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'smoke-c@example.invalid', '{}', now(), now());
+  insert into auth.users (id, instance_id, aud, role, email, raw_user_meta_data, created_at, updated_at, email_confirmed_at)
+  values (uid, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'smoke-c@example.invalid', '{}', now(), now(), now());
   select log_enabled, log_asks into st from public.profiles where id = uid; r := 'new=' || coalesce(st.log_enabled::text, 'null') || '/' || st.log_asks;
   perform set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
   perform set_config('request.jwt.claim.sub', uid::text, true);

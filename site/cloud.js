@@ -115,7 +115,13 @@
     return p;
   };
 
-  // the document's text-free log, once: events after the last upload, if a document ran in them
+  /* The document's text-free log, once: events after the last upload, if a document ran in them.
+     Past one of the server's limits for logs (an account's or the whole service's day of logs, or
+     the counts of an hour and a day: migration 0009) the answer is 429, and no log goes up from
+     this page for the next hour: the next would be refused too. The documents of that hour are
+     passed over (their logs never go up, then or later), nothing is shown, and the tool works the
+     same. Any other refusal is about that one log. */
+  let overUntil = 0;
   function docEnd({ how, log, leaks }) {
     counted = false;
     if (!session || !profile || profile.log_enabled !== true) return;
@@ -133,12 +139,13 @@
     // where this slice of the page load starts, so a report times it from there (scripts/log-report.js)
     const from = Math.max(0, after);
     sentT = events[events.length - 1].t;
+    if (Date.now() < overUntil) return;
     const body = JSON.stringify({ p_log: { ...full, from, events }, p_leaks: report });
     // keepalive lets the request outlive a closing page; browsers cap such a body at 64 KB
     fetch(A.url + "/rest/v1/rpc/submit_log", {
       method: "POST", keepalive: how === "leave" && body.length < 60000, body,
       headers: { apikey: A.key, authorization: "Bearer " + session.access_token, "content-type": "application/json" },
-    }).catch(() => {});
+    }).then((r) => { if (r.status === 429) overUntil = Date.now() + 60 * 60 * 1000; }, () => {});
   }
   /* A document was sent: the moment to ask, when the tool has just done its job. The first sent
      document asks; after one "not now", the fifth asks again; then never. Counted per account in

@@ -124,6 +124,10 @@ Gmail; decide later between a mail program that sends through Resend, or Google 
 5. Check (already so): Authentication → Sign In / Providers → **anonymous sign-ins OFF**;
    Email → **Confirm email ON**, **Secure email change ON**, email OTP expiration **900** (the
    confirmation and password links last 15 minutes; the sign-in page sends a new one).
+6. **Adding someone by hand** (Authentication → Users → Add user → Create new user): the password
+   typed there is dropped the moment the address is confirmed, "Auto Confirm" included. Supabase
+   confirms such an account with an update, and 0008 drops any password set before that update.
+   The person then signs in with Google, or sets a password with "forgot password".
 
 ## 5. Cloudflare Pages: put the site live (owner with Claude; done 4.10 except `www`, step 4)
 
@@ -228,6 +232,16 @@ Checked 5.10:
     admin page as "active" and counts in the totals and the daily email. The fix: create the
     profile when the address is confirmed.
 
+  Written as `supabase/migrations/0009_budget_names_confirmed.sql` (5.10), with an account's logs
+  capped at 250 KB a day and the service's at 700 KB, and what its two reviews added: sign-up
+  metadata over 4 KB is emptied, sign-ups never confirmed are deleted after 7 days (privacy page,
+  section 6), and a Google identity that did not vouch for an address goes when the address is
+  confirmed. To apply (Claude, with the owner): the preflight in the SQL editor, its numbers kept
+  (the free plan keeps no backups); 0009 in one go; `supabase/checks/budget_names_smoke.sql` and
+  the other checks; then one real email sign-up and one real Google sign-up. If a sign-up or a
+  confirmation fails afterwards, `supabase/rollback/0009_restore_signups.sql` makes them work again
+  at once; `supabase/rollback/0009_full.sql` goes back to 0008.
+
 ## 8. Later, when it grows
 
 - The admin page reads at most 1,000 rows (Supabase's default page), for the user list and for
@@ -242,9 +256,23 @@ Checked 5.10:
 - On Supabase's paid plan: Authentication → Email → **Prevent use of leaked passwords**
   (HaveIBeenPwned). The security advisor lists it as off; the free plan cannot turn it on.
 - Supabase's performance advisor (5.10): two policies call `auth.uid()` once per row (`own
-  profile` on profiles, `anyone signed in reads settings` on app_settings). Write it as
-  `(select auth.uid())` in a migration once there are many users; at a few hundred it makes no
-  difference.
+  profile` on profiles, `anyone signed in reads settings` on app_settings), and four call
+  `is_admin()` the same way (`own profile` and the owner's three; on the log download, once per
+  log). Write them as `(select auth.uid())` and `(select public.is_admin())` in a migration once
+  there are many users; at a few hundred it makes no difference. (Left out of 0009: changing a
+  policy locks its table against every reader, the gate's included, for the migration's moment.)
+- **Logs refused (0009).** If logs stop arriving and Supabase's API logs show 429 on `submit_log`,
+  see who used the last 24 hours (SQL editor):
+  `select user_id, count(*), sum(pg_column_size(log) + coalesce(pg_column_size(leaks), 0) + 256) from public.usage_logs where created_at > now() - interval '1 day' group by 1 order by 3 desc;`
+  Blocking an account on the admin page gives its share of the service's day back at once; its
+  logs go with `delete from public.usage_logs where user_id = '<id>';`. On Pro (8 GB), the two
+  numbers in `private.log_limit` can be ten times larger and still leave room.
+- **Refused logs are not counted** (review of 0009). An account that said yes to the log can send
+  logs that fail the shape check as fast as it likes, each costing the server up to a few tenths
+  of a second; the limits count only stored logs. If the site slows down and the API logs show
+  many `submit_log` 400s from one account, block it. A later migration can count refusals.
+- **Sign-in sessions** stay until sign-out on the free plan, one per sign-in (the preflight of 0009
+  shows their table's size). On Pro: Authentication → Sessions, a time-box.
 - Before charging: open the tax files; the consumer-law identity details (name, ID, address)
   and the 14-day cancellation right may apply; marketing emails need opt-in and the word
   "פרסומת".

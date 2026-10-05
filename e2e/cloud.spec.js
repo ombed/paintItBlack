@@ -7,7 +7,8 @@ const { build } = require("../scripts/build-hosted.js");
 /* The hosted tool as the hosted build makes it (scripts/build-hosted.js into dist/, served here
    at /dist/; site/cloud.js in its page), against a stand-in for Supabase. What it pins:
    - the text-free log goes up once per document, when it ends, and only what is new;
-   - nothing goes up while the user's switch is off;
+   - nothing goes up while the user's switch is off, nor for an hour after the server answers that
+     a limit is reached (429); any other refusal is about that one log;
    - signing out and deleting the account end the session and the gate's cookie;
    - without a session the tool sends the person to sign in;
    - the public tool, without the injection, never talks to the project at all. */
@@ -24,7 +25,7 @@ const DOC = ["פרוטוקול", "רחל פרידמן: אני מבקשת לפת�
 /* The account as the server holds it: the answers change it as migration 0007 does (a "not now"
    counts only while there is no answer, and the second is a no). Two tabs share one with
    { server: calls.row }. */
-async function hosted(page, { session = true, logOn = true, state = {}, server = null } = {}) {
+async function hosted(page, { session = true, logOn = true, state = {}, server = null, submitStatus = 204 } = {}) {
   const calls = [];
   const row = server || { email: "a@example.co.il", full_name: "Alpha", log_enabled: logOn, log_asks: 0, approved: true, blocked: false, ...state };
   calls.row = row;
@@ -36,6 +37,11 @@ async function hosted(page, { session = true, logOn = true, state = {}, server =
     if (u.pathname === "/rest/v1/profiles") return route.fulfill({ json: /object/.test(req.headers().accept || "") ? { ...row } : [{ ...row }] });
     if (u.pathname === "/rest/v1/rpc/set_log_enabled") row.log_enabled = body.p_on;
     if (u.pathname === "/rest/v1/rpc/log_not_now" && row.log_enabled === null) { row.log_asks += 1; row.log_enabled = row.log_asks >= 2 ? false : null; }
+    // a refused log, as PostgREST answers it: 429 is a limit reached (migration 0009), 400 anything else
+    if (u.pathname === "/rest/v1/rpc/submit_log" && submitStatus !== 204) {
+      const limit = submitStatus === 429;
+      return route.fulfill({ status: submitStatus, json: { code: limit ? "PT429" : "P0001", message: limit ? "log budget used up for today: try again tomorrow" : "log too large", details: null, hint: null } });
+    }
     return route.fulfill({ status: u.pathname.startsWith("/rest/v1/rpc/") ? 204 : 200, body: "" });
   });
   // where the account panel sends people: stand-ins, so a test ends where it lands
@@ -123,6 +129,58 @@ test("each document's log goes up once when it ends, only what is new, with no t
   // each upload says where its slice starts, so a report times it from there
   expect(first.p_log.from).toBe(0);
   expect(submits(calls)[1].body.p_log.from).toBe(lastT);
+});
+
+test("past the server's limit for logs (429), nothing goes up for an hour, and nothing is shown", async ({ page }) => {
+  const calls = await hosted(page, { submitStatus: 429 });
+  await boot(page);
+  await runDoc(page, "one.docx");
+  await newDoc(page);
+  await expect.poll(() => submits(calls).length).toBe(1);
+  await runDoc(page, "two.docx");
+  await newDoc(page);
+  await page.waitForTimeout(500);
+  expect(submits(calls)).toHaveLength(1);
+  await expect(page.locator("#ink-ask")).toHaveCount(0);
+  await expect(page.locator("#ink-account-msg")).toHaveText("");
+});
+
+/* The limits are windows of an hour and a day: a tab left open all day tries again after the hour,
+   with the next document's own log only (the clock jumps 61 minutes; the token is renewed as in
+   the long-pause test below). */
+test("an hour after a 429, the next document's log goes up again, without the hour's documents", async ({ page }) => {
+  const NEW = [b64({ alg: "HS256", typ: "JWT" }), b64({ sub: SESSION.user.id, role: "authenticated", exp: Math.floor(Date.now() / 1000) + 7200, n: 2 }), "sig2"].join(".");
+  await page.clock.install();
+  const calls = await hosted(page, { submitStatus: 429 });
+  await page.route(PROJECT + "/auth/v1/token**", (route) => route.fulfill({ json: { ...SESSION, access_token: NEW, refresh_token: "r2", expires_in: 7200, expires_at: Math.floor(Date.now() / 1000) + 7200 } }));
+  await boot(page);
+  await runDoc(page, "one.docx");
+  await newDoc(page);
+  await expect.poll(() => submits(calls).length).toBe(1);
+  await runDoc(page, "two.docx");
+  await newDoc(page);
+  await page.waitForTimeout(500);
+  expect(submits(calls)).toHaveLength(1);
+  await page.clock.setSystemTime(Date.now() + 61 * 60 * 1000);
+  await runDoc(page, "three.docx");
+  await newDoc(page);
+  await expect.poll(() => submits(calls).length).toBe(2);
+  // it starts after the second document, passed over in the hour, and carries the third, whose
+  // times (counted from the page's start) come after the jump
+  const first = submits(calls)[0].body.p_log, second = submits(calls)[1].body.p_log;
+  expect(second.from).toBeGreaterThan(Math.max(...first.events.map((e) => e.t)));
+  expect(second.events.some((e) => e.ev === "run" && e.t > 60 * 60 * 1000)).toBe(true);
+});
+
+test("any other refusal is about that one log: the next document's still goes up", async ({ page }) => {
+  const calls = await hosted(page, { submitStatus: 400 });
+  await boot(page);
+  await runDoc(page, "one.docx");
+  await newDoc(page);
+  await expect.poll(() => submits(calls).length).toBe(1);
+  await runDoc(page, "two.docx");
+  await newDoc(page);
+  await expect.poll(() => submits(calls).length).toBe(2);
 });
 
 test("with the switch off, nothing goes up", async ({ page }) => {
