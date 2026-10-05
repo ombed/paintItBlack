@@ -54,3 +54,4 @@ site/vendor/
 
 # Cloudflare wrangler local state (pages dev)
 .wrangler/
+.dev.vars

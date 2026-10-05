@@ -5,23 +5,32 @@ Everything still to do before inkognito.co.il goes live, in order. Each step say
 branch `inkognito`, from the build plus three research reports (Cloudflare Pages, email with
 Resend, Israeli law) and an independent security review.
 
-**Already done** (by 5.10): the Supabase project (Frankfurt; migrations 0001–0005, 0007 and
-0008 live and verified), sign-in with Google or an email and a password, the gate, the hosted
-build (`dist/`), the admin page, the legal pages. The site runs on inkognito.co.il, kept out of
-search engines until launch (7). Its emails go out through Resend from the domain, and Google
-sign-in is open to every account (6).
+**Already done** (by 5.10):
+- **The Supabase project** (Frankfurt). Migrations 0001–0010 are all live and verified.
+  - 0009 (5.10): a byte budget for logs, names only from Google, profiles only once confirmed.
+  - 0010 (5.10): the keep-awake request.
+  - 0006 (5.10): the daily sign-ups email. A test was sent.
+- **Sign-in** with Google, or with an email and a password.
+- **The rest of the build:** the gate, the hosted build (`dist/`), the admin page and the legal
+  pages.
+- **The site runs on inkognito.co.il**, with www redirected to it (5.4). It is kept out of search
+  engines until launch (7).
+- **Email:** it goes out through Resend from contact@inkognito.co.il (4.1). The templates were
+  pasted in their final versions on 5.10.
+- **Google sign-in** is open to every account (6).
+- **The tool speaks to its users in the plural** (v59, public tool and hosted alike).
 
-**Left:** `www` (5.4), and the browser-cache setting (1.3). Before announcing:
-- Resend's paid plan (4.2);
-- Supabase Pro (7);
-- the decision on Google's sign-in screen (6);
-- from the night review, three decisions and one database migration (7).
-
-Then launch day and her move (7). Optional: the daily sign-ups email (4.4).
+**Left:**
+- The owner's full test on the live site (sign-up, confirmation, reset, Google, a document, the
+  admin page).
+- Then launch day (7): `LAUNCHED = true`, Search Console, and the move from the GitHub Pages
+  address.
+- Deferred by the owner on 5.10 ("not for now"): Resend's paid plan (4.2), Supabase Pro (7), and
+  a custom domain for Google's sign-in screen (6). Revisit them when users arrive.
 
 ---
 
-## 0. Two-step sign-in on every account (owner, 10 minutes)
+## 0. Two-step sign-in on every account (owner; done 4.10)
 
 Supabase, Cloudflare, Google (the account that owns the OAuth client), Resend (once created),
 GitHub, MyNames. Israel's data-security regulations ask for adequate sign-in protection even at
@@ -43,10 +52,13 @@ the lightest level, and these accounts control the whole service.
      these menus say. The pages now carry `no-transform`, which keeps Cloudflare's scripts out
      whatever the setting; checked live.)
    - Bot Fight Mode and Rocket Loader: leave **off** (the defaults).
-   - **Caching → Configuration → Browser Cache TTL: "Respect Existing Headers".** **Left (5.10).**
-     The default (4 hours) replaces the site's own "check again every time" on the scripts
-     (config.js, login.js, cloud.js…). After each deploy, a browser could then run a new page with
-     an old script for up to 4 hours, until a hard reload. The pages are not affected.
+   - **Browser Cache TTL.** The zone's default (4 hours) replaces the site's own "check again every
+     time" on the public scripts (config.js, login.js, cloud.js…), so after a deploy a browser
+     could run a new page with an old script. The owner's dashboard did not offer "Respect
+     Existing Headers" (5.10), so it is solved in the build instead (386ecc3). Every page names its
+     public scripts and styles with a content hash (`config.js?v=a5ade2eb53`), so a new page always
+     loads its own version. The tool's files under /app/ are `private`, which Cloudflare leaves
+     alone.
 4. **DMARC:** DNS → Add record → TXT, name `_dmarc`, value
    `v=DMARC1; p=none; rua=mailto:contact@inkognito.co.il`. (Or Email → DMARC Management.)
    Tighten to `quarantine` later, once reports are clean.
@@ -80,8 +92,9 @@ Gmail; decide later between a mail program that sends through Resend, or Google 
 ## 4. Supabase (owner, 15 minutes; https://supabase.com/dashboard/project/cwsiranjlxbclmaqtucc)
 
 1. **Authentication → Emails → SMTP Settings → Enable custom SMTP:**
-   sender email `noreply@inkognito.co.il`, sender name `InKognito`, host `smtp.resend.com`,
-   port `465`, username `resend`, password = the `supabase` key. Save.
+   sender email `contact@inkognito.co.il` (switched from noreply@ on 5.10, so that a reply reaches
+   the owner), sender name `InKognito`, host `smtp.resend.com`, port `465`, username `resend`,
+   password = the `supabase` key. Save.
    (A Hebrew sender name, אינקוגניטו, may work; test it once before switching.)
 2. **Authentication → Emails → Templates** (unlocked by step 1). Each body is a file in
    `supabase/templates/`, from its `<!DOCTYPE html>` line to the end, copied in an editor (never a
@@ -96,14 +109,12 @@ Gmail; decide later between a mail program that sends through Resend, or Google 
    Then **Authentication → Sign In / Providers → Email**: minimum password length **8**, password
    requirements **none** (a "letters and digits" rule counts only English letters, so it would
    refuse a Hebrew password; length is what matters).
-   Then **Authentication → Rate Limits → emails per hour**: with custom SMTP Supabase allows only
-   30 an hour for the whole site, and every sign-up, resend and password reset counts. Raise it to
-   100 (done 4.10). **The cap that will actually be hit first is Resend's free plan: 100 emails a
-   day** (3,000 a month), counted per UTC day. Past it, every email sign-up, resend and reset
-   fails until midnight UTC (03:00 in Israel in summer, 02:00 in winter), while Google sign-in
-   keeps working. The sign-in page says so plainly for both caps. **Move Resend to a paid plan
-   before announcing** to more than a small circle: Pro is $20 a month for 50,000 emails, with no
-   daily cap (resend.com/pricing, checked 5.10).
+   Then **Authentication → Rate Limits → emails per hour**: raised to 100 for the whole site
+   (done 4.10); every sign-up, resend and password reset counts. Resend's free plan also has a
+   daily cap, and the sign-in page says so plainly when either cap is reached. **Move Resend to a
+   paid plan before announcing** to more than a small circle (deferred by the owner, 5.10). The
+   numbers are in `../inkognito-private/limits.md`.
+   The templates were pasted again in their final versions on 5.10.
 3. **Authentication → URL Configuration** (done 4.10 with step 5.3, once https://inkognito.co.il/login
    opened; the pages.dev entry then deleted, so that no email can carry a pages.dev link again):
    Site URL `https://inkognito.co.il/login`, with `/login`: when a request names no return page
@@ -113,14 +124,15 @@ Gmail; decide later between a mail program that sends through Resend, or Google 
    `https://inkognito.co.il/login.html`. (Cloudflare serves `login.html` as `/login`, so the page
    asks Supabase to return to `/login`. Supabase accepts any path on the Site URL's host anyway.)
    Keep the 127.0.0.1 and localhost entries for testing.
-4. **The daily sign-ups email** (optional, any time after step 3 of Resend):
-   Database → Extensions → enable **pg_net**. Then SQL Editor, run (with your values):
+4. **The daily sign-ups email** (done 5.10): the owner put the two secrets in Vault
+   (`resend_digest_key`, the `digest` key from Resend, and `digest_to`). Claude enabled **pg_net**
+   and applied `supabase/migrations/0006_signup_digest.sql`, and sent a test that Resend accepted.
+   The email carries only the number of new sign-ups and a link to the admin page, at 08:00 Israel
+   time on days after a sign-up. To redo it on a new project (with your values):
    ```sql
    select vault.create_secret('<the digest key from Resend>', 'resend_digest_key');
    select vault.create_secret('<your email address>', 'digest_to');
    ```
-   Then tell Claude to apply `supabase/migrations/0006_signup_digest.sql` and send a test. The
-   email carries only the number of new sign-ups and a link to the admin page.
 5. Check (already so): Authentication → Sign In / Providers → **anonymous sign-ins OFF**;
    Email → **Confirm email ON**, **Secure email change ON**, email OTP expiration **900** (the
    confirmation and password links last 15 minutes; the sign-in page sends a new one).
@@ -144,9 +156,9 @@ npx wrangler pages deploy dist --project-name=inkognito --branch=main
 (`functions/` is picked up from the current folder. Cloudflare gave the project the address
 `inkognito-4f1.pages.dev`, which can never change.)
 
-1. Pages project → Settings → **Runtime → Fail closed.** Important: when the free plan's
-   100,000 daily function requests run out, the default "fail open" serves the app's files
-   *without the gate*. Fail closed shows an error page instead.
+1. Pages project → Settings → **Runtime → Fail closed.** Important: when the free plan's daily
+   function requests run out, the default "fail open" serves the app's files *without the gate*.
+   Fail closed shows an error page instead.
 2. Test on `https://inkognito-4f1.pages.dev` (Claude runs these): the landing page, `/login`,
    sign in, the app opens, the admin page, and the gate probes:
    `curl -si https://inkognito-4f1.pages.dev/app/` → 302 to `/login.html`, and the same for
@@ -158,11 +170,13 @@ npx wrangler pages deploy dist --project-name=inkognito --branch=main
    the real domain the links match the sender. Until launch the build keeps it out of search
    engines: `LAUNCHED = false` in scripts/build-hosted.js. Supabase URL Configuration, step 4.3,
    goes with it.)
-4. `www`: Cloudflare's way is a **Bulk Redirect** (www.inkognito.co.il → https://inkognito.co.il,
-   301, keep path and query) plus a proxied DNS record `A www 192.0.2.1`. Don't attach www to Pages.
+4. `www` (done 5.10): a **Bulk Redirect** (www.inkognito.co.il → https://inkognito.co.il, 301,
+   keeping path and query) plus a proxied DNS record `A www 192.0.2.1`. www is not attached to
+   Pages. Checked live: `https://www.inkognito.co.il/privacy?x=1` and `http://www…/login` answer
+   301 to the same path on https://inkognito.co.il.
 5. Repeat the checks on `https://inkognito.co.il`, and view the source of `/privacy` to confirm
-   nothing was injected (no `email-decode`, no `beacon.min.js`). Once step 1.3's cache setting is
-   in: `curl -sI https://inkognito.co.il/config.js` shows `max-age=0`, not `max-age=14400`.
+   nothing was injected (no `email-decode`, no `beacon.min.js`). Every public script and style the
+   pages name carries `?v=` and its content hash (1.3), and each of those addresses answers 200.
 
 ## 6. Google sign-in for everyone (owner; done 5.10)
 
@@ -207,20 +221,21 @@ Checked 5.10:
   submit `https://inkognito.co.il/sitemap.xml`. (The three step screenshots
   show no product name or version, so the rename needs no new ones.)
 - Her move from the GitHub Pages address, at a time agreed with her.
-- **Supabase Pro** ($25 a month) matters beyond Google's screen. The free plan keeps no backups,
-  and it pauses a project after a week with no activity: sign-in and the tool stop until the
-  project is restored in the dashboard. Pro also turns on leaked-password protection (8).
-- From the night review (5.10), for the owner to decide:
-  - **The site's code on GitHub.** The home page says "the whole code is open on GitHub", but the
-    site's own code is on the `inkognito` branch, which is not pushed: sign-in, the gate,
-    cloud.js and the database. At launch, either publish the branch, or Claude changes the
-    sentence to "the tool's code".
-  - **How long mail to contact@ is kept.** The privacy page now says that this mail, and the
-    replies to it, sit in the operator's Gmail. Section 6 should give it a period.
-  - **The tool speaks to a woman.** It was written for one client: the tour and a few notes say
-    לחצי, הוסיפי, הקלידי. The site itself is gender-neutral.
-- **One database migration (Claude, with tests, after a go-ahead).** Three findings from the night
-  review (5.10), each low on its own:
+- **Supabase Pro** ($25 a month) matters beyond Google's screen: the free plan keeps no backups,
+  and Pro also turns on leaked-password protection (8). Deferred by the owner (5.10). A free
+  project also pauses after a quiet week, and sign-in and the tool would stop until it is
+  restored in the dashboard. So since 5.10 the database asks its own API one tiny question every
+  four hours (0010, `public.ping()` with the site's public key). If that ever stops, Supabase
+  still emails the owner a week before it pauses.
+- From the night review (5.10), decided by the owner on 5.10:
+  - **The site's code on GitHub:** publish the `inkognito` branch, after a scan for anything
+    private (done: nothing secret or personal; the scan's small points are fixed in this file).
+  - **Mail to contact@ is kept 12 months** (privacy page, section 6). Once a month, in Gmail:
+    `to:contact@inkognito.co.il older_than:1y`, select all, delete.
+  - **The tool speaks to its users in the plural** (v59, PR #77; tests/address_t.js keeps it so).
+    The site's own pages were already neutral.
+- **One database migration: applied 5.10.** Three findings from the night review, each low on
+  its own:
   - **Storage has no byte budget.** One account may store about 39 MB of logs a day (100 logs of up
     to 384 KB). The free plan's 500 MB would then fill in about 13 days, and the database goes
     read-only. The fix: one size cap per call, a daily byte budget per account, and a daily cap
@@ -236,17 +251,24 @@ Checked 5.10:
   capped at 250 KB a day and the service's at 700 KB, and what its two reviews added: sign-up
   metadata over 4 KB is emptied, sign-ups never confirmed are deleted after 7 days (privacy page,
   section 6), and a Google identity that did not vouch for an address goes when the address is
-  confirmed. To apply (Claude, with the owner): the preflight in the SQL editor, its numbers kept
-  (the free plan keeps no backups); 0009 in one go; `supabase/checks/budget_names_smoke.sql` and
-  the other checks; then one real email sign-up and one real Google sign-up. If a sign-up or a
-  confirmation fails afterwards, `supabase/rollback/0009_restore_signups.sql` makes them work again
-  at once; `supabase/rollback/0009_full.sql` goes back to 0008.
+  confirmed.
+  Applied 5.10 by Claude:
+  - **The preflight first** (counts only): nothing to stop on, both privileges present, no
+    profile to remove and no name to change, 2 Google identities that both vouched, 3 accounts,
+    0 logs, the database 11 MB.
+  - **Then 0009 in one go.** Its 13 functions match the repository's byte for byte.
+  - **Then the live checks.** `budget_names_smoke.sql`, confirm, consent, delete, hardening,
+    retention and smoke each printed its expected line and left nothing behind. privileges.sql
+    shows the 13. The security advisor shows nothing new.
+  - **Still to do:** one real email sign-up and one real Google sign-up, in the owner's full test.
+  If a sign-up or a confirmation fails afterwards, `supabase/rollback/0009_restore_signups.sql`
+  makes them work again at once; `supabase/rollback/0009_full.sql` goes back to 0008.
 
 ## 8. Later, when it grows
 
-- The admin page reads at most 1,000 rows (Supabase's default page), for the user list and for
-  the log download alike, and doesn't say when it stopped. Page through with `.range()` before
-  there are 1,000 users or logs.
+- Done 5.10 (80de769): the admin page reads every user and every log page by page, in a fixed
+  order, up to the count the database gives. It no longer stops silently at Supabase's
+  1,000-row page.
 - The tool's page (337 KB) goes out uncompressed. `no-transform`, which keeps Cloudflare's
   scripts out, also stops Cloudflare compressing it; gzipped it is about 94 KB. The gate can
   compress it itself (`content-encoding: gzip`). Check it live with a session.
