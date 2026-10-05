@@ -122,8 +122,16 @@ try {
   /* The real domain is attached before launch (4.10); until then it is kept out of search engines,
      under every name the site answers at: a rule for the host alone missed "inkognito.co.il." with
      its final dot (review 5.10). */
-  const early = /(^|\n)\/\*[ \t]*\n[ \t]*X-Robots-Tag: noindex/.test(h);
+  const blocks = h.split(/\n(?=\S)/).map((b) => { const [p, ...l] = b.trim().split("\n"); return { p: p.trim(), lines: l.map((x) => x.trim()).filter(Boolean) }; });
+  const every = blocks.filter((b) => b.p === "/*");
+  const early = every.length === 1 && every[0].lines.includes("X-Robots-Tag: noindex");
   ok(LAUNCHED ? !early : early, LAUNCHED ? "launched: inkognito.co.il is open to search engines" : "before launch: every address is kept out of search engines");
+  /* Cloudflare keeps one rule per pattern: a second "/*" rule for the noindex took the security
+     headers off every page (seen live, 5.10). So no pattern twice, and the rule for every address
+     still carries them. */
+  const patterns = blocks.map((b) => b.p);
+  ok(new Set(patterns).size === patterns.length, "no pattern has two rules in _headers (" + patterns.length + " rules)");
+  ok(every.length === 1 && ["X-Content-Type-Options: nosniff", "X-Frame-Options: DENY", "Referrer-Policy: strict-origin-when-cross-origin", "Permissions-Policy: camera=(), microphone=(), geolocation=()"].every((x) => every[0].lines.includes(x)), "the rule for every address carries the security headers");
   // a crawler must be allowed to fetch a page to read its noindex: robots.txt blocks none of them (5.10)
   const disallow = read("robots.txt").split("\n").map((l) => (l.match(/^Disallow:\s*(\S+)/i) || [])[1]).filter(Boolean);
   const noindexPages = files.filter((f) => /^[^/]+\.html$/.test(f) && /<meta name="robots" content="[^"]*noindex/.test(read(f)));

@@ -28,12 +28,22 @@ const LIMIT = 25 * 1024 * 1024; // Cloudflare Pages: no file over 25 MiB
 const PARTS = 8;
 const MARK = ".inkognito-build";
 
-const HEADERS = `/*
+/* The real domain was attached before launch (4.10), so that the sign-in emails' links are on the
+   domain that sends them (Gmail put the first ones in spam: a day-old domain, links to pages.dev).
+   Until the owner launches, it stays out of search engines too, under every name the site answers
+   at: the noindex sits in the rule for every address, since a rule for inkognito.co.il alone missed
+   "inkognito.co.il." with its final dot (review 5.10). In that rule, not in a second "/*" one:
+   Cloudflare keeps one rule per pattern, and a second "/*" took the security headers off every
+   page (seen live, 5.10; tests/hosted_t.js now refuses a repeated pattern). Where it meets another
+   noindex rule, Cloudflare joins the two into "noindex, noindex", which means the same. At launch:
+   true, build, deploy (docs/INKOGNITO-LAUNCH.md, step 7). */
+const LAUNCHED = false;
+const HEADERS_NOW = `/*
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-
+${LAUNCHED ? "" : "  X-Robots-Tag: noindex\n"}
 /app/*
   X-Robots-Tag: noindex
 
@@ -43,18 +53,6 @@ https://:project.pages.dev/*
 https://:version.:project.pages.dev/*
   X-Robots-Tag: noindex
 `;
-/* The real domain was attached before launch (4.10), so that the sign-in emails' links are on the
-   domain that sends them (Gmail put the first ones in spam: a day-old domain, links to pages.dev).
-   Until the owner launches, it stays out of search engines too, under every name the site answers
-   at: the rule has no host, since one for inkognito.co.il alone missed "inkognito.co.il." with its
-   final dot (review 5.10). Where it meets another noindex rule, Cloudflare joins the two into
-   "noindex, noindex", which means the same. At launch: true, build, deploy (docs/INKOGNITO-LAUNCH.md,
-   step 7). */
-const LAUNCHED = false;
-const HEADERS_NOW = HEADERS + (LAUNCHED ? "" : `
-/*
-  X-Robots-Tag: noindex
-`);
 const ROUTE_LIMIT = 100; // Cloudflare Pages: at most 100 include and exclude rules together
 const HEADER_LIMIT = 100; // Cloudflare Pages: at most 100 rules in _headers
 
