@@ -45,11 +45,14 @@ https://:version.:project.pages.dev/*
 `;
 /* The real domain was attached before launch (4.10), so that the sign-in emails' links are on the
    domain that sends them (Gmail put the first ones in spam: a day-old domain, links to pages.dev).
-   Until the owner launches, it stays out of search engines too. At launch: true, build, deploy
-   (docs/INKOGNITO-LAUNCH.md, step 7). */
+   Until the owner launches, it stays out of search engines too, under every name the site answers
+   at: the rule has no host, since one for inkognito.co.il alone missed "inkognito.co.il." with its
+   final dot (review 5.10). Where it meets another noindex rule, Cloudflare joins the two into
+   "noindex, noindex", which means the same. At launch: true, build, deploy (docs/INKOGNITO-LAUNCH.md,
+   step 7). */
 const LAUNCHED = false;
 const HEADERS_NOW = HEADERS + (LAUNCHED ? "" : `
-https://inkognito.co.il/*
+/*
   X-Robots-Tag: noindex
 `);
 const ROUTE_LIMIT = 100; // Cloudflare Pages: at most 100 include and exclude rules together

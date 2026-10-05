@@ -1,7 +1,6 @@
-# The tool and the admin page are behind sign-in and not for search engines.
+# The tool is behind sign-in. The sign-in, admin and 404 pages carry noindex themselves, and a
+# crawler has to be allowed to fetch a page to read its noindex, so they are not blocked here.
 User-agent: *
 Disallow: /app/
-Disallow: /admin
-Disallow: /login
 
 Sitemap: https://inkognito.co.il/sitemap.xml

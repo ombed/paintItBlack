@@ -45,6 +45,11 @@ try {
   ok(man.name === "אינקוגניטו" && man.short_name === "אינקוגניטו" && man.start_url === "./", "the install manifest names it, and nothing else in it changed");
   ok(JSON.parse(fs.readFileSync(path.join(ROOT, "manifest.webmanifest"), "utf8")).name === "השחרת מסמכים", "the public tool keeps its own name");
 
+  console.log("\n— what the hosted tool says about sending —");
+  ok(!app.includes("לא נשלח מעצמו") && !app.includes("ב-issue"), "it does not say that nothing is sent by itself, nor suggest a public issue");
+  ok(app.includes("הוא נשלח מעצמו בסוף כל מסמך"), "it says the log goes up by itself, for whoever agreed");
+  ok(fs.readFileSync(path.join(ROOT, "index.html"), "utf8").includes("שום דבר לא נשלח מעצמו"), "the public tool keeps its own words, true there");
+
   console.log("\n— the model, re-split under the cap —");
   const eng = read("app/redact-engine.js");
   const spec = eng.match(/weights:\{file:"([^"]+)",bytes:(\d+),\s*sha256:"([0-9a-f]{64})",\s*parts:\[([^\]]*)\]/);
@@ -114,9 +119,16 @@ try {
   const pagesServed = files.filter((f) => /^[^/]+\.html$/.test(f)).flatMap((f) => ["/" + f, f === "index.html" ? "/" : "/" + f.slice(0, -5)]);
   ok(pagesServed.every((p) => withCc.some((r) => r.p === p)) && withCc.every((r) => pagesServed.includes(r.p)), "every page has it, at both addresses, and nothing else does (" + withCc.length + " rules)");
   ok(new Set(withCc.map((r) => r.p)).size === withCc.length, "no page address has two such rules");
-  // the real domain is attached before launch (4.10); until then it is kept out of search engines too
-  const early = /https:\/\/inkognito\.co\.il\/\*\s*\n\s*X-Robots-Tag: noindex/.test(h);
-  ok(LAUNCHED ? !early : early, LAUNCHED ? "launched: inkognito.co.il is open to search engines" : "before launch: inkognito.co.il is kept out of search engines");
+  /* The real domain is attached before launch (4.10); until then it is kept out of search engines,
+     under every name the site answers at: a rule for the host alone missed "inkognito.co.il." with
+     its final dot (review 5.10). */
+  const early = /(^|\n)\/\*[ \t]*\n[ \t]*X-Robots-Tag: noindex/.test(h);
+  ok(LAUNCHED ? !early : early, LAUNCHED ? "launched: inkognito.co.il is open to search engines" : "before launch: every address is kept out of search engines");
+  // a crawler must be allowed to fetch a page to read its noindex: robots.txt blocks none of them (5.10)
+  const disallow = read("robots.txt").split("\n").map((l) => (l.match(/^Disallow:\s*(\S+)/i) || [])[1]).filter(Boolean);
+  const noindexPages = files.filter((f) => /^[^/]+\.html$/.test(f) && /<meta name="robots" content="[^"]*noindex/.test(read(f)));
+  const blocked = noindexPages.flatMap((f) => ["/" + f, "/" + f.slice(0, -5)]).filter((p) => disallow.some((d) => p.startsWith(d)));
+  ok(noindexPages.length >= 3 && !blocked.length, "robots.txt lets crawlers read the noindex of " + noindexPages.length + " pages" + (blocked.length ? "; it blocks " + blocked.join(", ") : ""));
 
   console.log("\n— the gate runs in front of everything but the public files —");
   const routes = JSON.parse(read("_routes.json"));
