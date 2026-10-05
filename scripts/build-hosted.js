@@ -156,6 +156,23 @@ function build(out) {
   if (pub.length + 1 > ROUTE_LIMIT) throw new Error("build-hosted: " + pub.length + " public files exceed Cloudflare's " + ROUTE_LIMIT + " route rules");
   fs.writeFileSync(path.join(out, "_routes.json"), JSON.stringify({ version: 1, include: ["/*"], exclude: pub }, null, 1));
 
+  /* Every page names its public scripts and styles by a version taken from their content
+     (config.js?v=…). Cloudflare's zone setting "Browser Cache TTL" (4 hours by default) lets a
+     browser keep a public script for hours, while the pages are checked on every visit: after a
+     deploy, a fresh page could run an old script (5.10; the dashboard did not offer "Respect
+     Existing Headers"). A new version is a new address. The tool's own files under /app/ keep
+     their names: the gate serves them "private, no-cache", which Cloudflare leaves alone, and the
+     tool's service worker knows them by name. */
+  for (const page of walk(out).filter((f) => f.endsWith(".html"))) {
+    const html = fs.readFileSync(page, "utf8").replace(/\b(src|href)="([^"?#:]+\.(?:js|css))"/g, (m, attr, ref) => {
+      const file = ref.startsWith("/") ? path.join(out, ref) : path.resolve(path.dirname(page), ref);
+      if (path.relative(out, file).split(path.sep)[0] === "app") return m;
+      if (!fs.existsSync(file)) throw new Error("build-hosted: " + path.relative(out, page) + " names " + ref + ", which the site does not have");
+      return attr + '="' + ref + "?v=" + crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex").slice(0, 10) + '"';
+    });
+    fs.writeFileSync(page, html);
+  }
+
   /* Cloudflare adds its own scripts to a page on the way out when the zone has them on: Web
      Analytics' beacon was found on the real domain (4.10), and it breaks "nothing is loaded from
      another site". "no-transform" tells Cloudflare not to touch a page. Only on the pages, at both

@@ -32,7 +32,7 @@ try {
   const model = SITE_FILES.filter((f) => /\.part\d+$/.test(f));
   for (const f of SITE_FILES.filter((f) => !model.includes(f))) ok(files.includes("app/" + f), "app/ has " + f);
   const app = read("app/index.html");
-  ok(/<script src="\.\.\/cloud\.js"><\/script>/.test(app) && /connect-src 'self' https:\/\/cwsiranjlxbclmaqtucc\.supabase\.co/.test(app), "app/index.html carries the hosted injection");
+  ok(/<script src="\.\.\/cloud\.js\?v=[0-9a-f]{10}"><\/script>/.test(app) && /connect-src 'self' https:\/\/cwsiranjlxbclmaqtucc\.supabase\.co/.test(app), "app/index.html carries the hosted injection");
   ok(!/<script[^>]*(cloud|config|supabase)/.test(fs.readFileSync(path.join(ROOT, "index.html"), "utf8")), "the repository's index.html (the public tool) does not");
 
   console.log("\n— a place for the account button in the top bar —");
@@ -137,6 +137,22 @@ try {
   const noindexPages = files.filter((f) => /^[^/]+\.html$/.test(f) && /<meta name="robots" content="[^"]*noindex/.test(read(f)));
   const blocked = noindexPages.flatMap((f) => ["/" + f, "/" + f.slice(0, -5)]).filter((p) => disallow.some((d) => p.startsWith(d)));
   ok(noindexPages.length >= 3 && !blocked.length, "robots.txt lets crawlers read the noindex of " + noindexPages.length + " pages" + (blocked.length ? "; it blocks " + blocked.join(", ") : ""));
+
+  console.log("\n— a page always gets the scripts it was built with —");
+  /* Cloudflare's zone setting Browser Cache TTL (4 hours by default) lets a browser keep a public
+     script for hours, while the pages are checked on every visit: after a deploy, a fresh page could
+     run an old script (5.10). So every page names its public scripts and styles by a version taken
+     from their content. The tool's own files under /app/ are the gate's ("private, no-cache", which
+     Cloudflare leaves alone) and keep their names: its service worker knows them by name. */
+  const hash10 = (f) => crypto.createHash("sha256").update(fs.readFileSync(path.join(dist, f))).digest("hex").slice(0, 10);
+  const refs = files.filter((f) => f.endsWith(".html")).flatMap((f) => [...read(f).matchAll(/\b(?:src|href)="([^"#:]+\.(?:js|css)(?:\?[^"]*)?)"/g)].map((m) => ({ page: f, ref: m[1] })));
+  const target = ({ page, ref }) => { const p = ref.split("?")[0]; return path.posix.normalize(p.startsWith("/") ? p.slice(1) : path.posix.join(path.posix.dirname(page), p)); };
+  const pubRefs = refs.filter((r) => !target(r).startsWith("app/"));
+  ok(pubRefs.length >= 20, "the pages name " + pubRefs.length + " public scripts and styles");
+  const unversioned = pubRefs.filter((r) => !files.includes(target(r)) || r.ref.split("?")[1] !== "v=" + hash10(target(r)));
+  ok(!unversioned.length, "each by the version of its content" + (unversioned.length ? ": " + unversioned.slice(0, 4).map((r) => r.page + " → " + r.ref).join(", ") : ""));
+  ok(pubRefs.some((r) => r.page === "app/index.html" && /^\.\.\/config\.js\?v=/.test(r.ref)), "the tool's page too, for the scripts it takes from the site");
+  ok(refs.filter((r) => target(r).startsWith("app/")).every((r) => !r.ref.includes("?")), "the tool's own files keep their names");
 
   console.log("\n— the gate runs in front of everything but the public files —");
   const routes = JSON.parse(read("_routes.json"));
