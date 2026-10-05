@@ -49,7 +49,8 @@ for (const p of pages) {
   const mails = [...h.matchAll(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g)].map((m) => m[0]);
   const wrong = [...new Set(mails.filter((m) => m !== CONTACT && !/@example\.co\.il$/.test(m)))];
   ok(!wrong.length, p + ": the one contact address" + (wrong.length ? ", not " + wrong.join(", ") : ""));
-  ok(!/\[(?:להשלים|שם|מייל|כתובת|תאריך|טלפון|מחוז)[^\]]*\]|טיוטה, ממתינה/.test(h), p + ": no placeholder or draft label left");
+  // the design samples (6.10) say «[שם המפעיל]» and «[יישוב]» where the real pages name the operator
+  ok(!/\[(?:להשלים|שם|מייל|כתובת|תאריך|טלפון|מחוז|יישוב)[^\]]*\]|טיוטה, ממתינה/.test(h), p + ": no placeholder or draft label left");
   if (!/^(login|admin)\.html$/.test(p)) {
     // relative, or from the root (404.html is served at any depth)
     ok(/href="\/?(?:index\.html)?#?privacy|href="\/?privacy\.html"/.test(h) && /href="\/?terms\.html"/.test(h) && /href="\/?accessibility\.html"/.test(h), p + ": the footer links the privacy policy, terms and accessibility statement");

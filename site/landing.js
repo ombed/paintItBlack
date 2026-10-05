@@ -1,9 +1,42 @@
-/* Landing page: sticky nav border and the phone menu.
+/* The site's pages: the phone menu, and on the home page the passage you can point at and the tally.
    An emailed link, or a sign-in, that Supabase sent to its fallback address (the Site URL, e.g. for
    an email sent from the dashboard) lands here: it goes on to the sign-in page, the one page that
    reads it (review 4.10). */
-if (/^#(?:confirm|error|access_token)=/.test(location.hash)) location.replace("login.html" + location.hash);
-const nav = document.getElementById("nav"), menu = nav.querySelector(".menu-btn");
-addEventListener("scroll", () => nav.classList.toggle("scrolled", scrollY > 8), { passive: true });
-menu.addEventListener("click", () => { const open = nav.classList.toggle("open"); menu.setAttribute("aria-expanded", open); });
-nav.querySelectorAll(".sheet a").forEach((a) => a.addEventListener("click", () => { nav.classList.remove("open"); menu.setAttribute("aria-expanded", "false"); }));
+(() => {
+  if (/^#(?:confirm|error|access_token)=/.test(location.hash)) location.replace("login.html" + location.hash);
+
+  // the phone menu: the green bar's button opens a sheet of links; a link, or Escape, closes it
+  const menu = document.querySelector(".menu-btn"), sheet = document.getElementById("sheet");
+  if (menu && sheet) {
+    const show = (open) => { sheet.hidden = !open; menu.setAttribute("aria-expanded", String(open)); };
+    menu.addEventListener("click", () => show(sheet.hidden));
+    sheet.addEventListener("click", (e) => { if (e.target.closest("a")) show(false); });
+    addEventListener("keydown", (e) => { if (e.key === "Escape" && !sheet.hidden) { show(false); menu.focus(); } });
+  }
+
+  // the passage: pointing at a name, or reaching it with Tab, lights every place that person
+  // appears (the original, what the AI gets, the answer) and dims the rest
+  const demo = document.getElementById("demo");
+  if (demo) {
+    const all = demo.querySelectorAll("[data-p]");
+    const light = (p) => { demo.classList.toggle("focus", !!p); all.forEach((el) => el.classList.toggle("on", el.dataset.p === p)); };
+    demo.querySelectorAll(".nm").forEach((n) => {
+      n.addEventListener("mouseenter", () => light(n.dataset.p));
+      n.addEventListener("focus", () => light(n.dataset.p));
+      n.addEventListener("mouseleave", () => light(null));
+      n.addEventListener("blur", () => light(null));
+    });
+  }
+
+  // the tally: one mark for each identifying detail in the test set, hollow for the ones missed
+  const dots = document.querySelector(".dots");
+  if (dots) {
+    const found = Number(dots.dataset.found), total = Number(dots.dataset.total), marks = document.createDocumentFragment();
+    for (let i = 0; i < total; i++) {
+      const m = document.createElement("i");
+      if (i >= found) m.className = "miss";
+      marks.append(m);
+    }
+    dots.append(marks);
+  }
+})();

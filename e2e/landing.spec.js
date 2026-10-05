@@ -1,0 +1,130 @@
+const { test, expect } = require("./base");
+const AxeBuilder = require("@axe-core/playwright").default;
+
+/* The home page (site/index.html), in the law-report design (6.10). What it pins:
+   - the spine stays still while the page scrolls; on a phone it is a green bar whose menu opens a
+     sheet of links, and a link or Escape closes it;
+   - the passage you can point at: a name, by mouse or by Tab, lights every place that person
+     appears (the original, what the AI gets, the answer) and dims the rest;
+   - the tally: one mark per identifying detail in the test set, as many hollow as the figure says
+     were missed;
+   - nothing is cut or scrolls sideways down to 320 px; reduced motion turns the motion off;
+   - WCAG 2.1 AA by axe, at desktop and phone width.
+   The base fixture also fails a test on anything the page's Content-Security-Policy refuses. */
+const HOME = "/site/index.html";
+
+async function axe(page, where) {
+  const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
+  expect(r.violations.map((v) => `${where}: ${v.id} (${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(" | ")})`)).toEqual([]);
+}
+
+test("the passage: a name lights every place that person appears, by mouse and by keyboard", async ({ page }) => {
+  await page.goto(HOME);
+  const demo = page.locator("#demo");
+  await demo.locator('.nm[data-p="b"]').first().hover();
+  await expect(demo).toHaveClass(/\bfocus\b/);
+  // the same person: twice in the original, twice in the AI's copy (as Adler), once in the answer
+  await expect(demo.locator(".on")).toHaveCount(5);
+  await expect(demo.locator('.on:not([data-p="b"])')).toHaveCount(0);
+  await page.mouse.move(1, 1);
+  await expect(demo).not.toHaveClass(/\bfocus\b/);
+  await expect(demo.locator(".on")).toHaveCount(0);
+
+  // Tab goes from the hero's last link to the names, in reading order, each with a focus ring
+  await page.getByRole("link", { name: "לראות איך זה עובד" }).focus();
+  await page.keyboard.press("Tab");
+  const first = demo.locator(".nm").first();
+  await expect(first).toBeFocused();
+  await expect(first).toHaveText("עו״ד נעמה ברק");
+  expect(await first.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe("solid");
+  await expect(demo.locator('.on[data-p="a"]')).toHaveCount(2);
+  await page.keyboard.press("Tab");
+  await expect(demo.locator(".nm").nth(1)).toBeFocused();
+  await expect(demo.locator('.on[data-p="b"]')).toHaveCount(5);
+  await expect(demo.locator('.on[data-p="a"]')).toHaveCount(0);
+  for (let i = 0; i < 4; i++) await page.keyboard.press("Tab");
+  await expect(demo.locator(".on")).toHaveCount(0);
+  await expect(demo).not.toHaveClass(/\bfocus\b/);
+});
+
+test("the tally: one mark per identifying detail, as many hollow as the figure says were missed", async ({ page }) => {
+  await page.goto(HOME);
+  const [found, total] = (await page.locator(".tally .n").innerText()).match(/\d+/g).map(Number);
+  await expect(page.locator(".dots i")).toHaveCount(total);
+  await expect(page.locator(".dots i.miss")).toHaveCount(total - found);
+  // the marks are a picture of the figure, which says it in words
+  await expect(page.locator(".dots")).toHaveAttribute("aria-hidden", "true");
+});
+
+test("on a desktop the spine holds the index and stays still while the page scrolls", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(HOME);
+  await expect(page.getByRole("navigation", { name: "ראשי" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "תפריט" })).toBeHidden();
+  const mark = page.locator(".spine .mark");
+  const before = await mark.boundingBox();
+  await page.evaluate(() => window.scrollTo(0, 2400));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(2000);
+  expect((await mark.boundingBox()).y).toBeCloseTo(before.y, 0);
+});
+
+test("on a phone the spine is a green bar: its menu opens the links, and a link or Escape closes them", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.emulateMedia({ reducedMotion: "reduce" }); // jump to the anchor at once, to measure it
+  await page.goto(HOME);
+  const menu = page.getByRole("button", { name: "תפריט" }), sheet = page.locator("#sheet");
+  await expect(menu).toHaveAttribute("aria-expanded", "false");
+  await expect(sheet).toBeHidden();
+  await expect(page.getByRole("navigation", { name: "ראשי" })).toBeHidden();
+  await expect(page.locator(".spine-end").getByRole("link", { name: "להרשמה חינם" })).toBeVisible();
+
+  await menu.click();
+  await expect(menu).toHaveAttribute("aria-expanded", "true");
+  await expect(sheet).toBeVisible();
+  await sheet.getByRole("link", { name: "כמה זה מדויק" }).click();
+  await expect(sheet).toBeHidden();
+  await expect(menu).toHaveAttribute("aria-expanded", "false");
+  await expect(page).toHaveURL(/#accuracy$/);
+  // the sticky bar does not cover the heading it jumped to
+  const bar = await page.locator(".spine").boundingBox(), h = await page.locator("#h-acc").boundingBox();
+  expect(h.y).toBeGreaterThanOrEqual(bar.y + bar.height);
+
+  await menu.click();
+  await expect(sheet).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(sheet).toBeHidden();
+  await expect(menu).toBeFocused();
+});
+
+for (const width of [1440, 1180, 860, 390, 320])
+  test(`nothing is cut or scrolls sideways at ${width} px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(HOME);
+    // the page hides sideways overflow, so measure the boxes: none may reach past either edge
+    const out = await page.evaluate(() => [...document.querySelectorAll("body *")]
+      .filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && (r.left < -1 || r.right > innerWidth + 1); })
+      .map((el) => el.tagName.toLowerCase() + (el.className ? "." + String(el.className).split(" ")[0] : "")).slice(0, 6));
+    expect(out).toEqual([]);
+  });
+
+test("reduced motion: no smooth scrolling and no transitions", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto(HOME);
+  const css = await page.evaluate(() => ({
+    scroll: getComputedStyle(document.documentElement).scrollBehavior,
+    moving: [".nm", ".al", ".btn", ".faq summary"].map((s) => getComputedStyle(document.querySelector(s)).transitionDuration)
+      .concat(getComputedStyle(document.querySelector(".faq summary"), "::after").transitionDuration),
+  }));
+  expect(css.scroll).toBe("auto");
+  expect(css.moving.filter((d) => d.split(",").some((x) => parseFloat(x) > 0))).toEqual([]);
+});
+
+for (const [where, width] of [["desktop", 1440], ["phone", 390]])
+  test(`WCAG 2.1 AA by axe (${where})`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(HOME);
+    await axe(page, where);
+    await page.locator(".faq details").first().locator("summary").click();
+    if (where === "phone") await page.getByRole("button", { name: "תפריט" }).click();
+    await axe(page, where + ", a question and the menu open");
+  });

@@ -9,29 +9,32 @@
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="site.css">
 <style>
+  /* the owner's page keeps its own plain layout, in the site's colours (it has no spine) */
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 var(--gut); }
   .head { padding: 14px 0; }
   .head .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .head .mark { font-size: 26px; }
   .admin { padding-block: 8px 64px; }
-  .admin h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(28px, 4vw, 36px); margin: 16px 0 6px; }
-  .admin .status { color: var(--graphite); font-size: 14.5px; margin: 0 0 24px; }
+  .admin h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(28px, 4vw, 36px); max-width: none; margin: 16px 0 6px; }
+  .admin .status { color: var(--ink-2); font-size: 14.5px; margin: 0 0 24px; }
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0 0 28px; padding: 0; list-style: none; }
-  .stats li { background: var(--sheet); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px; }
+  .stats li { background: #fff; border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px; }
   .stats b { display: block; font-family: var(--serif); font-size: 30px; line-height: 1.1; }
-  .stats span { color: var(--graphite); font-size: 14px; }
+  .stats span { color: var(--ink-2); font-size: 14px; }
   .controls { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; margin: 0 0 22px; }
   .switch { display: flex; gap: 10px; align-items: center; font-weight: 500; cursor: pointer; }
-  .switch input { width: 20px; height: 20px; accent-color: var(--alias); }
-  .hint { color: var(--graphite); font-size: 14px; margin: 4px 0 0; max-width: 44rem; }
+  .switch input { width: 20px; height: 20px; accent-color: var(--cloth); }
+  .hint { color: var(--ink-2); font-size: 14px; margin: 4px 0 0; max-width: 44rem; }
   .linkish { font: inherit; background: none; border: 0; padding: 10px 0; text-decoration: underline; cursor: pointer; color: var(--ink); }
-  .scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 12px; background: var(--sheet); }
+  .scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 12px; background: #fff; }
   table { border-collapse: collapse; width: 100%; min-width: 860px; font-size: 14.5px; }
   caption { text-align: start; padding: 12px 14px 4px; font-weight: 600; }
   th, td { text-align: start; padding: 10px 14px; border-top: 1px solid var(--rule); vertical-align: middle; }
-  th { font-weight: 600; color: var(--graphite); font-size: 13.5px; }
+  th { font-weight: 600; color: var(--ink-2); font-size: 13.5px; }
   td bdi { unicode-bidi: isolate; }
   td .act { font: inherit; font-size: 14px; background: none; border: 1px solid var(--rule); border-radius: 999px; padding: 6px 12px; cursor: pointer; color: var(--ink); min-height: 32px; }
   td .act.danger { color: #B3261E; border-color: #E6B8B4; }
-  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; background: var(--alias-soft); color: var(--alias); }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; background: #E4EBE6; color: var(--cloth); }
   .pill.wait { background: #FFF3D6; color: #6B4E00; }
   .pill.off { background: #FBE3E1; color: #8C1D18; }
   #msg:empty { display: none; }
