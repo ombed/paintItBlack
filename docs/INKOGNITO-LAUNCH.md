@@ -11,9 +11,13 @@ build (`dist/`), the admin page, the legal pages. The site runs on inkognito.co.
 search engines until launch (7). Its emails go out through Resend from the domain, and Google
 sign-in is open to every account (6).
 
-**Left:** `www` (5.4). Before announcing: Resend's paid plan (4.2), Supabase Pro (7) and the
-decision on Google's sign-in screen (6). Then launch day and her move (7). Optional: the daily
-sign-ups email (4.4).
+**Left:** `www` (5.4), and the browser-cache setting (1.3). Before announcing:
+- Resend's paid plan (4.2);
+- Supabase Pro (7);
+- the decision on Google's sign-in screen (6);
+- from the night review, three decisions and one database migration (7).
+
+Then launch day and her move (7). Optional: the daily sign-ups email (4.4).
 
 ---
 
@@ -39,6 +43,10 @@ the lightest level, and these accounts control the whole service.
      these menus say. The pages now carry `no-transform`, which keeps Cloudflare's scripts out
      whatever the setting; checked live.)
    - Bot Fight Mode and Rocket Loader: leave **off** (the defaults).
+   - **Caching → Configuration → Browser Cache TTL: "Respect Existing Headers".** **Left (5.10).**
+     The default (4 hours) replaces the site's own "check again every time" on the scripts
+     (config.js, login.js, cloud.js…). After each deploy, a browser could then run a new page with
+     an old script for up to 4 hours, until a hard reload. The pages are not affected.
 4. **DMARC:** DNS → Add record → TXT, name `_dmarc`, value
    `v=DMARC1; p=none; rua=mailto:contact@inkognito.co.il`. (Or Email → DMARC Management.)
    Tighten to `quarantine` later, once reports are clean.
@@ -149,7 +157,8 @@ npx wrangler pages deploy dist --project-name=inkognito --branch=main
 4. `www`: Cloudflare's way is a **Bulk Redirect** (www.inkognito.co.il → https://inkognito.co.il,
    301, keep path and query) plus a proxied DNS record `A www 192.0.2.1`. Don't attach www to Pages.
 5. Repeat the checks on `https://inkognito.co.il`, and view the source of `/privacy` to confirm
-   nothing was injected (no `email-decode`, no `beacon.min.js`).
+   nothing was injected (no `email-decode`, no `beacon.min.js`). Once step 1.3's cache setting is
+   in: `curl -sI https://inkognito.co.il/config.js` shows `max-age=0`, not `max-age=14400`.
 
 ## 6. Google sign-in for everyone (owner; done 5.10)
 
@@ -197,8 +206,36 @@ Checked 5.10:
 - **Supabase Pro** ($25 a month) matters beyond Google's screen. The free plan keeps no backups,
   and it pauses a project after a week with no activity: sign-in and the tool stop until the
   project is restored in the dashboard. Pro also turns on leaked-password protection (8).
+- From the night review (5.10), for the owner to decide:
+  - **The site's code on GitHub.** The home page says "the whole code is open on GitHub", but the
+    site's own code is on the `inkognito` branch, which is not pushed: sign-in, the gate,
+    cloud.js and the database. At launch, either publish the branch, or Claude changes the
+    sentence to "the tool's code".
+  - **How long mail to contact@ is kept.** The privacy page now says that this mail, and the
+    replies to it, sit in the operator's Gmail. Section 6 should give it a period.
+  - **The tool speaks to a woman.** It was written for one client: the tour and a few notes say
+    לחצי, הוסיפי, הקלידי. The site itself is gender-neutral.
+- **One database migration (Claude, with tests, after a go-ahead).** Three findings from the night
+  review (5.10), each low on its own:
+  - **Storage has no byte budget.** One account may store about 39 MB of logs a day (100 logs of up
+    to 384 KB). The free plan's 500 MB would then fill in about 13 days, and the database goes
+    read-only. The fix: one size cap per call, a daily byte budget per account, and a daily cap
+    across all accounts.
+  - **The first person to register an address sets its name for good.** A stranger can sign up
+    with someone's address and a made-up name. The real owner keeps that name in their account
+    panel and on the admin page. The fix: take the name only from Google's identity.
+  - **Unconfirmed sign-ups count as users.** An address that was never confirmed shows on the
+    admin page as "active" and counts in the totals and the daily email. The fix: create the
+    profile when the address is confirmed.
 
 ## 8. Later, when it grows
+
+- The admin page reads at most 1,000 rows (Supabase's default page), for the user list and for
+  the log download alike, and doesn't say when it stopped. Page through with `.range()` before
+  there are 1,000 users or logs.
+- The tool's page (337 KB) goes out uncompressed. `no-transform`, which keeps Cloudflare's
+  scripts out, also stops Cloudflare compressing it; gzipped it is about 94 KB. The gate can
+  compress it itself (`content-encoding: gzip`). Check it live with a session.
 
 - At 10,000 users the data-security level rises from "managed by an individual" to "basic":
   a written security procedure, access management, and processor terms.
