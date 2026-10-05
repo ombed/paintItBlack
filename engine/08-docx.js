@@ -381,10 +381,10 @@ async function redactDocx(buf,subs,allow,opt){
         applied.push({value:blk.text.slice(s,e),
           label:inf.of?(inf.place?"מקום (חלק)":"שם (חלק)"):"אחידות",part:partName(blk.part),
           why:inf.of?(inf.place
-                ?(inf.wordy?`שם הרחוב מתוך «${inf.of}» — אבל גם מילה. הוחלף רק כשעומד לבד; ודאי שזה המקום`
+                ?(inf.wordy?`שם הרחוב מתוך «${inf.of}» — אבל גם מילה. הוחלף רק כשעומד לבד; ודאו שזה המקום`
                            :`שם הרחוב מתוך «${inf.of}» שכבר הוחלף, ומופיע כאן לבד`)
                 :inf.wordy
-                ?`חלק מהשם «${inf.of}» — אבל גם מילה. הוחלף רק כשעומד לבד; ודאי שזה האדם`
+                ?`חלק מהשם «${inf.of}» — אבל גם מילה. הוחלף רק כשעומד לבד; ודאו שזה האדם`
                 :`חלק מהשם «${inf.of}» שכבר הוחלף, ומופיע כאן לבד`)
                     :"אותו ערך זוהה במקום אחר במסמך, אז הוחלף גם כאן",
           // חלק חד-משמעי של שם מהרשימה (שלוש אותיות ומעלה, לא מילה) מוחלף בלי
@@ -394,8 +394,8 @@ async function redactDocx(buf,subs,allow,opt){
     rep.sweep+=applyReps(blk,reps)}
   for(const c of eng.collided){
     flagged.push({value:c.rep,label:"התנגשות תחליף",part:"המסמך",review:true,src:"collide",collideOf:c.value,
-      why:`«${c.value}» הוחלף ב«${c.rep}» כפי שבחרת, אבל «${c.rep}» הוא גם אדם אמיתי במסמך הזה, `+
-          `ושני האנשים ייראו כאחד. אפשר לבחור תחליף אחר בכרטיס של «${c.value}», או להוסיף את «${c.rep}» האמיתי/ת לרשימה`,
+      why:`«${c.value}» הוחלף ב«${c.rep}» כפי שבחרתם, אבל «${c.rep}» הוא גם אדם אמיתי במסמך הזה, `+
+          `ושני האנשים ייראו כאחד. אפשר לבחור תחליף אחר בכרטיס של «${c.value}», או להוסיף לרשימה את האדם האמיתי בשם «${c.rep}»`,
       ctx:""});
   }
   for(const pa of partAmbig){
@@ -493,8 +493,8 @@ async function redactDocx(buf,subs,allow,opt){
     if(hitBases.has(nv)||eng.alias[s.value])continue;
     const nearHit=near.find(x=>norm(x.near.target).trim()===nv);
     flagged.push({value:s.value,label:"לא נמצא",part:"המסמך",review:true,src:"nohit",ctx:"",
-      why:nearHit?`לא מופיע במסמך בכתיב הזה, אבל נמצא «${nearHit.value}» — ראי למעלה`
-                 :"לא מופיע במסמך הזה בכלל. אם זה שם מהתיק — בסדר; אם ציפית שיימצא, בדקי כתיב"});
+      why:nearHit?`לא מופיע במסמך בכתיב הזה, אבל נמצא «${nearHit.value}» — ראו למעלה`
+                 :"לא מופיע במסמך הזה בכלל. אם זה שם מהתיק — בסדר; אם ציפיתם שיימצא, בדקו כתיב"});
   }
   const blob=await zip(keep);
   const outBuf=await blob.arrayBuffer();
@@ -1221,7 +1221,7 @@ async function nerRun(blocks,onProgress){
   console.log(`זיהוי: ${parts.length} קטעים (${chars}/${text.length} תווים) · `+
     `${raw} חיזויים גולמיים · ${withOff} עם היסט מהצינור · `+
     `${ents.length} ישויות · ${out.length} אחרי סינון`);
-  if(!raw)console.log("⚠ המודל לא החזיר שום חיזוי — בדקי את מבנה הפלט למעלה");
+  if(!raw)console.log("⚠ המודל לא החזיר שום חיזוי — בדקו את מבנה הפלט למעלה");
   else if(!ents.length)console.log("⚠ חיזויים התקבלו אך לא הצליחו להתיישר לטקסט");
   return out;
 }
@@ -1242,7 +1242,7 @@ function cleanEntry(raw){
   let m;while((m=TITLE_RX.exec(v))){v=v.slice(m[0].length).trim();note=`בלי «${m[0].trim()}»`}
   let kind="NAME";
   if(ORG_RX.test(v))kind="ORG";
-  else if(likelyOrg(v)){kind="ORG";note="נראה כגוף — לחצי על הסמל אם זה אדם"}
+  else if(likelyOrg(v)){kind="ORG";note="נראה כגוף — אם זה אדם, בחרו «אדם» ברשימת הסוג"}
   return {v:trimEdges(v),note,kind};
 }
 

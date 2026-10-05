@@ -576,7 +576,7 @@ function findPlaces(text){
     const k=s+":"+e; if(seen.has(k))continue; seen.add(k);
     const risky=nm.length<=3||AMBIG.has(nm);
     out.push({s,e,type:"PLACE_CITY",label:"יישוב",text:text.slice(s,e),
-      why:"שם יישוב מוכר"+(risky?" — אבל המילה דו-משמעית, אשר ידנית":""),
+      why:"שם יישוב מוכר"+(risky?" — אבל המילה דו-משמעית, אשרו ידנית":""),
       apply:!risky,src:"pattern",prio:2,conf:risky?"medium":"high",
       review:risky,place:nm});
   }
@@ -606,7 +606,7 @@ function findPlaces(text){
        if([c2,c1].some(x=>PUBLIC_ORG.test(x)||PUBLIC_ORG.test(x.replace(/^[בהולמכש]/,""))))continue;}
       const risky=nm.length<=3||AMBIG.has(nm)||(one&&(COMMON.has(nm)||WORDLIKE.has(nm)||KNOWN_FIRST.has(nm)||STOP.has(nm)||FEM.has(nm)||MASC.has(nm)||docTokG.has("ה"+nm)));
       out.push({s,e,type:"PLACE_CITY",label:"יישוב",text:text.slice(s,e),
-        why:"שם יישוב מהמאגר"+(risky?" — אבל המילה דו-משמעית, אשר ידנית":""),
+        why:"שם יישוב מהמאגר"+(risky?" — אבל המילה דו-משמעית, אשרו ידנית":""),
         apply:!risky,src:"pattern",prio:2,conf:risky?"medium":"high",
         review:risky,place:nm});
     }

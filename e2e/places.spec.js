@@ -29,7 +29,7 @@ test("a settlement name that is also an ordinary word is not offered for replace
   await H.goOn(page);
 
   // the places screen: two real towns, and no row for the ordinary word
-  const rows = page.locator('div:has(> button:text-is("אל תחליף"))');
+  const rows = page.locator('div:has(> button:text-is("אל תחליפו"))');
   await expect(rows.first()).toBeVisible({ timeout: 10000 });
   const offered = await rows.locator("> span").first().allTextContents();
   const names = await rows.locator('span[data-tip="1"]').allTextContents();

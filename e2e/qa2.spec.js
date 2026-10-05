@@ -110,7 +110,7 @@ test("H1: a pseudonym changed after the text was sent still restores the answer 
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("גלית ורד");
   // the same class: "don't replace" on another person after the text was sent (QA round 1, class probe)
   await page.locator('[data-mark][data-val="רחל פרידמן"]').first().click();
-  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליף" }).click();
+  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליפו" }).click();
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("רחל פרידמן");
 
   await page.getByRole("button", { name: "החזרת שמות מתשובת AI" }).click();

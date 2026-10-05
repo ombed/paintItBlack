@@ -48,7 +48,7 @@ test("each correction says what caused it, and the log still carries no text", a
   await expect.poll(() => page.locator("[data-work] section").first().innerText(), { timeout: 15000 }).toContain("משה כהן");
   // "don't replace" on a name the model and the speaker layer both found
   await page.locator('[data-mark][data-val="אבנר שטרן"]').first().click();
-  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליף" }).click();
+  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליפו" }).click();
   await expect.poll(() => page.locator("[data-work] section").first().innerText(), { timeout: 15000 }).toContain("אבנר שטרן");
   // a name she has to add herself
   const add = page.getByPlaceholder("ערך שפוספס");

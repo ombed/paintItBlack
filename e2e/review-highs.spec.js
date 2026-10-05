@@ -178,10 +178,10 @@ test("removing the last rule is saved too: the case does not keep a list she emp
   expect((await stored()).removed).toEqual(["רחל פרידמן"]);
 });
 
-/* H8: «אל תחליף» on a place, in the second document of a case. The rule arrives from the case
+/* H8: «אל תחליפו» on a place, in the second document of a case. The rule arrives from the case
    profile, the button added the allowance and left the rule, and the allowance knew fewer prefix
    forms than the rule: "בחיפה" stayed and "שבחיפה" was replaced in the same document. */
-test("«אל תחליף» on a place holds for every prefix form, also when the case already had a rule for it", async ({ page }) => {
+test("«אל תחליפו» on a place holds for every prefix form, also when the case already had a rule for it", async ({ page }) => {
   const prof = { v: 1, name: "תיק מקומות", created: new Date().toISOString(), updated: new Date().toISOString(), mode: "real",
     rules: [{ value: "חיפה", kind: "PLACE", replacement: "אשדוד", auto: false }], allow: [], map: { "חיפה": "אשדוד" } };
   await H.serveEngineWithStub(page);
@@ -193,9 +193,9 @@ test("«אל תחליף» on a place holds for every prefix form, also when the 
   await H.startScan(page);
   await expect(H.goButton(page).or(H.skipButton(page)).first()).toBeVisible({ timeout: 10000 });
   if (await H.goButton(page).isVisible()) await H.goOn(page); else await H.skipButton(page).click();
-  const row = page.locator('div:has(> button:text-is("אל תחליף"))').filter({ hasText: "חיפה" }).first();
+  const row = page.locator('div:has(> button:text-is("אל תחליפו"))').filter({ hasText: "חיפה" }).first();
   await expect(row).toBeVisible({ timeout: 15000 });
-  await row.getByRole("button", { name: "אל תחליף" }).click();
+  await row.getByRole("button", { name: "אל תחליפו" }).click();
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה|המשך לעיבוד/ }).first();
   await run.click();
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });

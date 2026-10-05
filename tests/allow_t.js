@@ -1,6 +1,6 @@
 /* The allow list and the prefix letter.
 
-   "אל תחליף" on a value writes it to the allow list, and the allow list
+   "אל תחליפו" on a value writes it to the allow list, and the allow list
    deliberately matches that value with one prefix letter in front, so that
    allowing "תל אביב" also keeps "בתל אביב". But ש is a prefix letter, so
    allowing "רון" also kept "שרון" — a different person — as ש plus רון. Nothing
@@ -44,7 +44,7 @@ console.log("\n— allowing רון does not keep שרון —");
 }
 
 {
-  /* Review H8. "אל תחליף" on a place kept its rule beside the allowance, and the allowance knew
+  /* Review H8. "אל תחליפו" on a place kept its rule beside the allowance, and the allowance knew
      15 of the 22 prefix forms the rules know, so "שבחיפה" was replaced after she had said not to.
      Every form the engine can write for a rule must be covered by the same value when allowed.
      The forms come from the engine's own variants(), not from a list typed here. */

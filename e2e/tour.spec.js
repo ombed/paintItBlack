@@ -42,7 +42,7 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   await tour.getByRole("button", { name: "המשך", exact: true }).click();
   await expect(tour).toContainText("יישובים", { timeout: 20000 });
   // the panel moves only once the places screen is really there, rows and notes included
-  await expect(page.locator('div:has(> button:text-is("אל תחליף"))').first()).toBeVisible();
+  await expect(page.locator('div:has(> button:text-is("אל תחליפו"))').first()).toBeVisible();
   expect(await page.locator("[data-tags]").count()).toBeGreaterThan(0);
   await expect(tour).toContainText("3 מתוך 7");
   // the spotlight moved to the places card

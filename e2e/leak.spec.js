@@ -51,7 +51,7 @@ test("marking a missed name records a shape with no text, and the copy carries n
 
   // the clean section shows the count and copies the report
   await page.getByRole("button", { name: /מה נוקה מהקובץ/ }).click();
-  await expect(page.getByText("שמות שסימנת בעצמך: 1")).toBeVisible();
+  await expect(page.getByText("שמות שסימנתם בעצמכם: 1")).toBeVisible();
   const copied = await copiedReport(page);
   const rep = JSON.parse(copied);
   expect(rep.count).toBe(1);
@@ -111,6 +111,6 @@ test("a new document starts with an empty leak report", async ({ page }) => {
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
   await markByHand(page, "וסילייבסקי");
   await page.getByRole("button", { name: /מה נוקה מהקובץ/ }).click();
-  await expect(page.getByText("שמות שסימנת בעצמך: 1")).toBeVisible();
+  await expect(page.getByText("שמות שסימנתם בעצמכם: 1")).toBeVisible();
   expect(JSON.parse(await copiedReport(page)).count).toBe(1);
 });

@@ -34,7 +34,7 @@ test("a body scan that throws turns the bar red, not green, and export asks firs
   await expect(bar).toContainText("הבדיקה האחרונה לא הושלמה");
   await expect(bar).toContainText("החיפוש אחר שמות שלא ברשימה נכשל באמצע");
   await page.getByRole("button", { name: "הורדת Word" }).click();
-  await expect(page.locator("[data-export-ask]")).toContainText("ייתכנו שמות שלא הוצעו לך");
+  await expect(page.locator("[data-export-ask]")).toContainText("ייתכנו שמות שלא הוצעו לכם");
   // and it still lets her take the file, knowingly
   const dl = page.waitForEvent("download");
   await page.getByRole("button", { name: "להוריד בכל זאת" }).click();

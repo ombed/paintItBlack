@@ -24,7 +24,7 @@ async function typePlace(page, v) {
   await input.fill(v); await input.press("Enter");
   await H.peopleRows(page).filter({ hasText: v }).getByRole("combobox").selectOption("PLACE");
 }
-const mapRow = (page, town) => page.locator('div:has(> button:text-is("אל תחליף"))').filter({ hasText: town }).first();
+const mapRow = (page, town) => page.locator('div:has(> button:text-is("אל תחליפו"))').filter({ hasText: town }).first();
 const applied = (page) => page.evaluate(() => Object.fromEntries(window.__pib.state().res.applied.map((r) => [r.base || r.value, r.baseRep || r.rep])));
 async function toCheck(page) {
   await page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first().click();
@@ -63,7 +63,7 @@ test("a place she typed that the gazetteer does not know has its own row, and th
   await H.goOn(page);
   const row = page.locator("[data-wrap]").filter({ hasText: "נווה צדק" }).first();
   await expect(row).toBeVisible({ timeout: 15000 });
-  await expect(row).toContainText("הוספת במסך השמות");
+  await expect(row).toContainText("הוספתם במסך השמות");
   const shown = await row.getByRole("textbox").inputValue();
   expect(shown.length).toBeGreaterThan(1);
   await row.getByRole("textbox").fill("גבעת עדה");

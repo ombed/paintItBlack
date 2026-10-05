@@ -1544,7 +1544,7 @@ function findPlaces(text){
     const k=s+":"+e; if(seen.has(k))continue; seen.add(k);
     const risky=nm.length<=3||AMBIG.has(nm);
     out.push({s,e,type:"PLACE_CITY",label:"יישוב",text:text.slice(s,e),
-      why:"שם יישוב מוכר"+(risky?" — אבל המילה דו-משמעית, אשר ידנית":""),
+      why:"שם יישוב מוכר"+(risky?" — אבל המילה דו-משמעית, אשרו ידנית":""),
       apply:!risky,src:"pattern",prio:2,conf:risky?"medium":"high",
       review:risky,place:nm});
   }
@@ -1574,7 +1574,7 @@ function findPlaces(text){
        if([c2,c1].some(x=>PUBLIC_ORG.test(x)||PUBLIC_ORG.test(x.replace(/^[בהולמכש]/,""))))continue;}
       const risky=nm.length<=3||AMBIG.has(nm)||(one&&(COMMON.has(nm)||WORDLIKE.has(nm)||KNOWN_FIRST.has(nm)||STOP.has(nm)||FEM.has(nm)||MASC.has(nm)||docTokG.has("ה"+nm)));
       out.push({s,e,type:"PLACE_CITY",label:"יישוב",text:text.slice(s,e),
-        why:"שם יישוב מהמאגר"+(risky?" — אבל המילה דו-משמעית, אשר ידנית":""),
+        why:"שם יישוב מהמאגר"+(risky?" — אבל המילה דו-משמעית, אשרו ידנית":""),
         apply:!risky,src:"pattern",prio:2,conf:risky?"medium":"high",
         review:risky,place:nm});
     }
@@ -1898,9 +1898,9 @@ class Engine{
     }
     this.rules.sort((a,b)=>b.rx.source.length-a.rx.source.length);
     // הרשימה הלבנה חייבת לתפוס גם צורות עם אות שימוש ("בתל אביב"),
-    // אחרת "אל תחליף" נכשל בשקט על כל מילה עם ב/ל/מ/ה לפניה.
+    // אחרת "אל תחליפו" נכשל בשקט על כל מילה עם ב/ל/מ/ה לפניה.
     // אותן אותיות שימוש שהכללים עצמם מכירים (SING ו-DBL ב-02-hebrew.js), ולא רשימה נפרדת:
-    // הרשימה שעמדה כאן הכירה 15 מתוך 22 הצורות, ו"שבחיפה" הוחלף גם אחרי "אל תחליף" (ביקורת H8)
+    // הרשימה שעמדה כאן הכירה 15 מתוך 22 הצורות, ו"שבחיפה" הוחלף גם אחרי "אל תחליפו" (ביקורת H8)
     const ALLOW_PRE="(?:"+[...DBL,...SING].join("|")+")?";
     this.allow=(allow||[]).map(a=>new RegExp(
       "(?<![\\u0590-\\u05ff])"+ALLOW_PRE+
@@ -1939,7 +1939,7 @@ class Engine{
   detect(text){
     const n=norm(text),zones=[];
     const AGE=ageZones(n);
-    // רשימת ההיתר תופסת גם צורות עם אות שימוש, ו-ש היא אות שימוש: "אל תחליף" על
+    // רשימת ההיתר תופסת גם צורות עם אות שימוש, ו-ש היא אות שימוש: "אל תחליפו" על
     // "רון" היה חוסם גם את "שרון", שני אנשים. אם המילה המלאה עם האות היא בעצמה
     // ערך ברשימה, זה אינו "ש+רון" אלא "שרון", והאזור לא נפתח.
     const listed=this._listed||(this._listed=new Set(this.subs.map(s=>norm(s.value).trim()).filter(Boolean)));
@@ -1973,7 +1973,7 @@ class Engine{
           style:r.style||null,
           // "שכונת X", "מושב X": מילת הסוג שלפני המקום קובעת מאיזה סוג יהיה התחליף
           kind:(r.kind==="PLACE"&&typeof placeKind==="function")?placeKind(n,s):null,
-          why:r.auto?"התגלה אוטומטית מההקשר":(r.pre?`מהרשימה שהגדרת, עם אות השימוש "${r.pre}" שנשמרה`:"מהרשימה שהגדרת"),
+          why:r.auto?"התגלה אוטומטית מההקשר":(r.pre?`מהרשימה שהגדרתם, עם אות השימוש "${r.pre}" שנשמרה`:"מהרשימה שהגדרתם"),
           review:!!r.pre,conf:"high"});
       }}
     for(const h of findPatterns(text,this.opt.on,this.opt.flag)){
@@ -2444,10 +2444,10 @@ async function redactDocx(buf,subs,allow,opt){
         applied.push({value:blk.text.slice(s,e),
           label:inf.of?(inf.place?"מקום (חלק)":"שם (חלק)"):"אחידות",part:partName(blk.part),
           why:inf.of?(inf.place
-                ?(inf.wordy?`שם הרחוב מתוך «${inf.of}» — אבל גם מילה. הוחלף רק כשעומד לבד; ודאי שזה המקום`
+                ?(inf.wordy?`שם הרחוב מתוך «${inf.of}» — אבל גם מילה. הוחלף רק כשעומד לבד; ודאו שזה המקום`
                            :`שם הרחוב מתוך «${inf.of}» שכבר הוחלף, ומופיע כאן לבד`)
                 :inf.wordy
-                ?`חלק מהשם «${inf.of}» — אבל גם מילה. הוחלף רק כשעומד לבד; ודאי שזה האדם`
+                ?`חלק מהשם «${inf.of}» — אבל גם מילה. הוחלף רק כשעומד לבד; ודאו שזה האדם`
                 :`חלק מהשם «${inf.of}» שכבר הוחלף, ומופיע כאן לבד`)
                     :"אותו ערך זוהה במקום אחר במסמך, אז הוחלף גם כאן",
           // חלק חד-משמעי של שם מהרשימה (שלוש אותיות ומעלה, לא מילה) מוחלף בלי
@@ -2457,8 +2457,8 @@ async function redactDocx(buf,subs,allow,opt){
     rep.sweep+=applyReps(blk,reps)}
   for(const c of eng.collided){
     flagged.push({value:c.rep,label:"התנגשות תחליף",part:"המסמך",review:true,src:"collide",collideOf:c.value,
-      why:`«${c.value}» הוחלף ב«${c.rep}» כפי שבחרת, אבל «${c.rep}» הוא גם אדם אמיתי במסמך הזה, `+
-          `ושני האנשים ייראו כאחד. אפשר לבחור תחליף אחר בכרטיס של «${c.value}», או להוסיף את «${c.rep}» האמיתי/ת לרשימה`,
+      why:`«${c.value}» הוחלף ב«${c.rep}» כפי שבחרתם, אבל «${c.rep}» הוא גם אדם אמיתי במסמך הזה, `+
+          `ושני האנשים ייראו כאחד. אפשר לבחור תחליף אחר בכרטיס של «${c.value}», או להוסיף לרשימה את האדם האמיתי בשם «${c.rep}»`,
       ctx:""});
   }
   for(const pa of partAmbig){
@@ -2556,8 +2556,8 @@ async function redactDocx(buf,subs,allow,opt){
     if(hitBases.has(nv)||eng.alias[s.value])continue;
     const nearHit=near.find(x=>norm(x.near.target).trim()===nv);
     flagged.push({value:s.value,label:"לא נמצא",part:"המסמך",review:true,src:"nohit",ctx:"",
-      why:nearHit?`לא מופיע במסמך בכתיב הזה, אבל נמצא «${nearHit.value}» — ראי למעלה`
-                 :"לא מופיע במסמך הזה בכלל. אם זה שם מהתיק — בסדר; אם ציפית שיימצא, בדקי כתיב"});
+      why:nearHit?`לא מופיע במסמך בכתיב הזה, אבל נמצא «${nearHit.value}» — ראו למעלה`
+                 :"לא מופיע במסמך הזה בכלל. אם זה שם מהתיק — בסדר; אם ציפיתם שיימצא, בדקו כתיב"});
   }
   const blob=await zip(keep);
   const outBuf=await blob.arrayBuffer();
@@ -3284,7 +3284,7 @@ async function nerRun(blocks,onProgress){
   console.log(`זיהוי: ${parts.length} קטעים (${chars}/${text.length} תווים) · `+
     `${raw} חיזויים גולמיים · ${withOff} עם היסט מהצינור · `+
     `${ents.length} ישויות · ${out.length} אחרי סינון`);
-  if(!raw)console.log("⚠ המודל לא החזיר שום חיזוי — בדקי את מבנה הפלט למעלה");
+  if(!raw)console.log("⚠ המודל לא החזיר שום חיזוי — בדקו את מבנה הפלט למעלה");
   else if(!ents.length)console.log("⚠ חיזויים התקבלו אך לא הצליחו להתיישר לטקסט");
   return out;
 }
@@ -3305,7 +3305,7 @@ function cleanEntry(raw){
   let m;while((m=TITLE_RX.exec(v))){v=v.slice(m[0].length).trim();note=`בלי «${m[0].trim()}»`}
   let kind="NAME";
   if(ORG_RX.test(v))kind="ORG";
-  else if(likelyOrg(v)){kind="ORG";note="נראה כגוף — לחצי על הסמל אם זה אדם"}
+  else if(likelyOrg(v)){kind="ORG";note="נראה כגוף — אם זה אדם, בחרו «אדם» ברשימת הסוג"}
   return {v:trimEdges(v),note,kind};
 }
 

@@ -1,7 +1,7 @@
 {
   "name": "השחרת מסמכים",
   "short_name": "השחרה",
-  "description": "הסרת פרטים מזהים ממסמכי Word לפני שליחה לכלי AI. הכל רץ במחשב שלך.",
+  "description": "הסרת פרטים מזהים ממסמכי Word לפני שליחה לכלי AI. הכל רץ במחשב שלכם.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

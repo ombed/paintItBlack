@@ -544,7 +544,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
             <span data-tip="1" data-kbd tabindex="0" role="button" onMouseEnter="{{ g.onTipIn }}" onMouseLeave="{{ g.onTipOut }}" onClick="{{ g.onTipTap }}" title="{{ g.tipHint }}" style="min-width:130px;font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ g.from }}</span>
             <span style="color:var(--ink3)">←</span>
             <input value="{{ g.to }}" aria-label="היישוב שיבוא במקום {{ g.from }}" onChange="{{ g.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
-            <button onClick="{{ g.onRemove }}" title="להשאיר את שם היישוב כמו שהוא" style="font-size:12.5px;color:var(--ink2);padding:7px 11px;border-radius:8px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)">אל תחליף</button>
+            <button onClick="{{ g.onRemove }}" title="להשאיר את שם היישוב כמו שהוא" style="font-size:12.5px;color:var(--ink2);padding:7px 11px;border-radius:8px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)">אל תחליפו</button>
           </div>
           <sc-if value="{{ g.tagNote }}"><div data-tags style="padding:0 18px 9px 160px;margin-top:-6px;font-size:11.5px;color:var(--ink3);border-bottom:1px solid var(--line2)">{{ g.tagNote }}</div></sc-if>
         </sc-for>
@@ -669,7 +669,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
       </div>
       <div data-legend style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:7px 18px;border-bottom:1px solid var(--line2);font-size:12px;color:var(--ink2);background:var(--panel)">
         <span><span style="background:var(--accent-soft);color:var(--accent-ink);border-bottom:2px solid var(--accent);padding:0 4px;border-radius:3px">שם בדוי</span> הוחלף</span>
-        <sc-if value="{{ hasFlagMarks }}"><span><span style="background:var(--warn-soft);color:var(--warn);border-bottom:2px dashed var(--warn);padding:0 4px;border-radius:3px">מילה<sup style="font-size:9px;font-weight:700">?</sup></span> מחכה להחלטה שלך</span></sc-if>
+        <sc-if value="{{ hasFlagMarks }}"><span><span style="background:var(--warn-soft);color:var(--warn);border-bottom:2px dashed var(--warn);padding:0 4px;border-radius:3px">מילה<sup style="font-size:9px;font-weight:700">?</sup></span> מחכה להחלטה שלכם</span></sc-if>
         <span><span style="border:1px dashed var(--line);color:var(--ink3);padding:0 4px;border-radius:3px;font-size:11px">∅</span> נמחק</span>
         <sc-if value="{{ legendDate }}"><span data-legend-date><span style="background:var(--accent-soft);color:var(--accent-ink);border-bottom:2px dotted var(--accent);padding:0 4px;border-radius:3px">12.3.26</span> תאריך מוזז — המקורי חוזר בהחזרה</span></sc-if>
         <span style="color:var(--ink3)">לחיצה על סימון פותחת עריכה במקום</span>
@@ -719,7 +719,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
             <div style="padding:0 15px 15px">
               <sc-if value="{{ hasAllowed }}">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 0 8px;font-size:12.5px;color:var(--ink2);border-bottom:1px solid var(--line2);margin-bottom:8px">
-                  <span title="שמות שביקשת להשאיר כמו שהם. הם יגיעו ל-AI כפי שהם כתובים.">נשארים כמו שהם:</span>
+                  <span title="שמות שביקשתם להשאיר כמו שהם. הם יגיעו ל-AI כפי שהם כתובים.">נשארים כמו שהם:</span>
                   <sc-for list="{{ allowedItems }}" as="x" hint-placeholder-count="2">
                     <button onClick="{{ x.onUndo }}" title="לחזור ולהחליף" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:12.5px;max-width:100%;min-width:0;overflow-wrap:anywhere;text-align:start">{{ x.name }} <span style="color:var(--ink3)">↩</span></button>
                   </sc-for>
@@ -805,7 +805,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
                       <sc-if value="{{ g.formSel }}">
                         <div data-form-act style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--ink2)">
                           <span>הצורה «{{ g.formSelText }}» בלבד:</span>
-                          <button onClick="{{ g.onFormAllow }}" style="padding:4px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px">אל תחליף</button>
+                          <button onClick="{{ g.onFormAllow }}" style="padding:4px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px">אל תחליפו</button>
                         </div>
                       </sc-if>
                     </sc-if>
@@ -830,7 +830,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
                     <sc-if value="{{ g.isApplied }}">
                       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center">
                         <sc-if value="{{ g.review }}"><button onClick="{{ g.onApprove }}" title="ההחלפה נכונה — להסיר את התג «לאישור»" style="padding:4px 12px;border-radius:12px;background:var(--accent-soft);color:var(--accent-ink);font-size:12px;font-weight:500">אישור</button></sc-if>
-                        <button onClick="{{ g.onQuickAllow }}" title="להשאיר את הטקסט המקורי" style="padding:4px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px;color:var(--ink2)" style-hover="background:var(--panel2)">אל תחליף</button>
+                        <button onClick="{{ g.onQuickAllow }}" title="להשאיר את הטקסט המקורי" style="padding:4px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px;color:var(--ink2)" style-hover="background:var(--panel2)">אל תחליפו</button>
                         <sc-if value="{{ g.fromList }}"><button onClick="{{ g.onDropRule }}" title="זה לא שם — להסיר מהרשימה ולהחזיר את הטקסט" style="padding:4px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px;color:var(--bad)" style-hover="background:var(--bad-soft)">לא שם — הסרה מהרשימה</button></sc-if>
                         <span style="font-size:11.5px;color:var(--ink3)">לחיצה על הכרטיס: תחליף אחר</span>
                       </div>
@@ -885,7 +885,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
               </div>
               <sc-if value="{{ hasLeaks }}">
                 <div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--warn-soft);font-size:12.5px;line-height:1.55">
-                  <b style="font-weight:500;color:var(--warn)">שמות שסימנת בעצמך: {{ leakCount }}</b>
+                  <b style="font-weight:500;color:var(--warn)">שמות שסימנתם בעצמכם: {{ leakCount }}</b>
                   <p style="margin:4px 0 8px;color:var(--ink2)">כל סימון כזה הוא שם שהכלי פספס. דוח הדליפה מתאר את הצורה של המקרה — אורכי מילים, מה עמד לפני ואחרי, מה כל שכבה חשבה — בלי הטקסט ובלי השם. אפשר להדביק אותו ב-issue.</p>
                   <button onClick="{{ onCopyLeaks }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--warn);font-size:12.5px;font-weight:500;color:var(--warn)">{{ leakCopyLabel }}</button>
                 </div>
@@ -1016,12 +1016,12 @@ button:disabled{opacity:.55;cursor:not-allowed}
           </div>
         </sc-if>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:8px;border-top:1px solid var(--line2)">
-          <button onClick="{{ onInlineAllow }}" style="padding:6px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px">אל תחליף</button>
+          <button onClick="{{ onInlineAllow }}" style="padding:6px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px">אל תחליפו</button>
           <sc-if value="{{ inlineFromList }}"><button onClick="{{ onInlineNotName }}" style="padding:6px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px;color:var(--bad)">לא שם — הסרה מהרשימה</button></sc-if>
         </div>
       </sc-if>
       <sc-if value="{{ inlineFlag }}">
-        <div style="font-size:12.5px;color:var(--ink2);margin-bottom:8px">נמצא ומחכה להחלטה שלך. להחליף בתור:</div>
+        <div style="font-size:12.5px;color:var(--ink2);margin-bottom:8px">נמצא ומחכה להחלטה שלכם. להחליף בתור:</div>
         <div style="display:flex;gap:5px;flex-wrap:wrap">
           <sc-for list="{{ inlineKinds }}" as="k" hint-placeholder-count="4">
             <button onClick="{{ k.onClick }}" style="padding:6px 11px;border-radius:14px;border:1px solid var(--line);font-size:12.5px" style-hover="background:var(--accent-soft);color:var(--accent)">{{ k.label }}</button>
@@ -1665,7 +1665,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     return out;
   }
   /* חזרה לרשימה ממסך הבדיקה (H1): הרשימה מראה את המצב הנוכחי. אדם שנוסף שם —
-     דרך "הוספה ידנית" או סימון בטקסט — מופיע כשבב; מי שהוסר שם ("אל תחליף",
+     דרך "הוספה ידנית" או סימון בטקסט — מופיע כשבב; מי שהוסר שם ("אל תחליפו",
      "לא שם") יורד מהרשימה ונראה ב"נשארים כמו שהם". אחרת "המשך" בנה את הכללים
      מרשימה ישנה ומחק בשקט את ההחלטות שנעשו אחריה. */
   showList(){
@@ -1696,7 +1696,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.setState({peo:list, sugAsk:false, ...this.unkeep(added)});
   }
   /* שם שנוסף לרשימה הוא ההחלטה החדשה (H3 בביקורת השנייה): "לא אדם" על הצעה שם
-     אותו ב"אל תחליף", והקלדה של אותו שם אחר כך הוסיפה שבב שנראה רגיל, אבל רשימת
+     אותו ב"אל תחליפו", והקלדה של אותו שם אחר כך הוסיפה שבב שנראה רגיל, אבל רשימת
      ההיתר עדיין חסמה אותו, והשם יצא בטקסט עם "האימות נכשל". ההוספה מסירה אותו
      מרשימת ההיתר ומרצועת "נשארים כמו שהם". */
   unkeep(values){
@@ -1720,9 +1720,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   cycleKind = i => { const list=[...this.state.peo]; const ks=["NAME","ORG","PLACE"];
     list[i]={...list[i], kind:ks[(ks.indexOf(list[i].kind)+1)%ks.length], note:""};
     this.setState({peo:list}); };
-  // מחיקה מהרשימה היא החלטה: השם נכנס ל"אל תחליף", אחרת שכבת הפעלים והמודל מציעים
+  // מחיקה מהרשימה היא החלטה: השם נכנס ל"אל תחליפו", אחרת שכבת הפעלים והמודל מציעים
   // אותו שוב במסך הבדיקה. שם שנוסף ביד ונמחק אינו החלטה על המסמך.
-  /* ה-✕ על שבב היה מחיקה שקטה: השם נכנס ל"אל תחליף" לתמיד, בלי שום סימן על המסך,
+  /* ה-✕ על שבב היה מחיקה שקטה: השם נכנס ל"אל תחליפו" לתמיד, בלי שום סימן על המסך,
      בלי דרך חזרה במסך הזה, ובלי רישום ביומן. שם שהמודל מצא כמה
      פעמים יכול היה לצאת בסוף מהכלי, והיומן לא יכול היה לומר אם זה מה שקרה. עכשיו המחיקה
      גלויה — רצועת "נשארים כמו שהם" עם ↩ — ונרשמת. */
@@ -1750,7 +1750,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.log.add("restore-peo",{});
     this.setState({peo:[...this.state.peo, k], peoKept:this.state.peoKept.filter(x=>x.value!==value),
       allow:this.state.allow.filter(a=>a!==value)}); };
-  // "אל תחליף" במסך הבדיקה, מכל מקור: אותה רצועה, אותו ↩
+  // "אל תחליפו" במסך הבדיקה, מכל מקור: אותה רצועה, אותו ↩
   // שלושת אלה משנים את הרשימה, ולכן הם צעד בהיסטוריה כמו כל החלטה אחרת (ביקורת L7)
   allowRestore = value => {
     this.pushHistory(); this.log.add("restore-allow",{});
@@ -1817,7 +1817,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const all = E.geoNames(text);
       // כל מה שנמצא, ולא רק מה שנכנס למפת המרחקים
       const every = E.placesFound ? E.placesFound(text) : all.map(n=>({name:n, mappable:true, ambiguous:false}));
-      /* "אל תחליף" נשמר ברשימת ההיתר, שנשמרת בפרופיל התיק. הרצועה של היישובים
+      /* "אל תחליפו" נשמר ברשימת ההיתר, שנשמרת בפרופיל התיק. הרצועה של היישובים
          שנשארים כמו שהם נגזרת עכשיו ממנה, במקום להיות רשימה שנייה שנצברת לצדה.
          הרשימה השנייה לא נשמרה בפרופיל, לא התאפסה בפתיחת קובץ חדש, ולא הופחתה
          מהשורות המוצעות, ולכן אותו יישוב הופיע גם ברצועה וגם כשורה להחלפה.
@@ -1946,8 +1946,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const geo=E.geoMap(this.state.geoNames, v, this._geoAvoid, this._geoForbid);
     const kept={}; if(geo) geo.map.forEach((m,i)=>{ if(byName[m.from]!=null) kept[i]=byName[m.from]; });
     const n=Object.keys(kept).length;
-    this.setState({geoV:v, geo, geoEdits:kept, notice:n?`${n===1?"התחליף שהקלדת נשאר":n+" התחליפים שהקלדת נשארו"}; השאר הוחלפו בקבוצה חדשה.`:this.state.notice, noticeUndo:false}); };
-  /* "אל תחליף" על יישוב אחד (Q7 בגרסה 3): שאר הזוגות לא זזים. עד כאן המפה חושבה
+    this.setState({geoV:v, geo, geoEdits:kept, notice:n?`${n===1?"התחליף שהקלדתם נשאר":n+" התחליפים שהקלדתם נשארו"}; השאר הוחלפו בקבוצה חדשה.`:this.state.notice, noticeUndo:false}); };
+  /* "אל תחליפו" על יישוב אחד (Q7 בגרסה 3): שאר הזוגות לא זזים. עד כאן המפה חושבה
      מחדש ומה שאישרה השתנה מאחורי גבה; עם פחות משני יישובים המפה התפרקה והשאר קיבלו
      שמות אקראיים מהמאגר הלא-מתויג ("אשדוד" הפכה ל"אמונים"). עכשיו הזוגות שאושרו
      נשמרים, ומפה שהתפרקה מוסרת את שמותיה לרשימת "יישובים נוספים" כמו שהם. */
@@ -1962,7 +1962,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(kept.length>=2) geo={...old, map:kept};
     else if(kept.length===1&&!extra.some(x=>E.norm(x.name).trim()===E.norm(kept[0].from).trim()))
       extra=[{name:kept[0].from, ambiguous:false, to:kept[0].to, on:true}, ...extra];
-    // "אל תחליף" על יישוב מוריד גם את הכלל שלו, כמו addAllow ו-notAName (ביקורת H8): במסמך שני בתיק
+    // "אל תחליפו" על יישוב מוריד גם את הכלל שלו, כמו addAllow ו-notAName (ביקורת H8): במסמך שני בתיק
     // הכלל הגיע מהפרופיל, נשאר לצד ההיתר, והחליף את היישוב בכל צורה שההיתר לא הכיר
     const nm=E.norm(name).trim(), rules=(this.state.rules||[]).filter(r=>E.norm(r.value).trim()!==nm);
     this.setState({geoNames:names, allow, rules, geoEdits:{}, geoV:0,
@@ -2117,7 +2117,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   }
   /* ביטול.
 
-     כל החלטה במסך הבדיקה הייתה חד-כיוונית: "אל תחליף" על הכרטיס הלא נכון, מיזוג
+     כל החלטה במסך הבדיקה הייתה חד-כיוונית: "אל תחליפו" על הכרטיס הלא נכון, מיזוג
      של שני אנשים בטעות, תחליף שהוקלד שגוי — לא הייתה דרך חזרה חוץ מלשחזר את
      ההחלטה ההפוכה ביד, וכשלא זוכרים מה בדיוק השתנה גם זה לא עוזר.
 
@@ -2238,7 +2238,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.setState({removed:(this.state.removed||[]).filter(x=>E.norm(x).trim()!==E.norm(value).trim()),
       rules:[...this.state.rules, this.mkRule({value, kind, replacement:rep})],
       allow:this.state.allow.filter(a=>nrm(a)!==nrm(value)),
-      notice:allowGone.length?`«${value}» יוחלף; ההיתר «אל תחליף» שהיה עליו הוסר.`:"",
+      notice:allowGone.length?`«${value}» יוחלף; ההיתר «אל תחליפו» שהיה עליו הוסר.`:"",
       addV:"", addR:"", popup:null, err:""}, ()=>this.rerun());
   };
   async recordLeak(value, kind){
@@ -2350,7 +2350,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   nearList(){
     const RES=this.state.res;
     const E=this.state.E, n=v=>E.norm(E.trimEdges(v)).trim();
-    // השוואה מנורמלת: "שביל הלב" עם גרש בקצה הוא אותו ערך שכבר ברשימה או ב"אל תחליף"
+    // השוואה מנורמלת: "שביל הלב" עם גרש בקצה הוא אותו ערך שכבר ברשימה או ב"אל תחליפו"
     return (RES.verification.near||[]).filter(x=>!this.state.allow.some(a=>n(a)===n(x.value)) &&
       !this.state.rules.some(r=>n(r.value)===n(x.value)));
   }
@@ -2726,19 +2726,19 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   ].join("\n");
   static TOUR=[
     {screen:"entry", title:"קובץ או טקסט", next:"טעינת המסמך לדוגמה", target:"[data-tour-target=upload]",
-     text:"כאן מעלים קובץ Word או מדביקים טקסט. עכשיו: לחצי על «טעינת המסמך לדוגמה»."},
+     text:"כאן מעלים קובץ Word או מדביקים טקסט. עכשיו: לחצו על «טעינת המסמך לדוגמה»."},
     {screen:"people", title:"מי בתיק — הרשימה", next:"המשך", target:"[data-tour-target=people]",
-     text:"אלה האנשים שנמצאו במסמך. ✕ משאיר שם כמו שהוא. עכשיו: הוסיפי שם בשדה למטה, או לחצי «המשך»."},
+     text:"אלה האנשים שנמצאו במסמך. ✕ משאיר שם כמו שהוא. עכשיו: הוסיפו שם בשדה למטה, או לחצו «המשך»."},
     {screen:"places", title:"יישובים", next:"החלת הקבוצה", target:"[data-tour-target=places]",
-     text:"כל יישוב מקבל יישוב דומה לו: עיר בעיר, מושב במושב. עכשיו: לחצי «החלת הקבוצה»."},
+     text:"כל יישוב מקבל יישוב דומה לו: עיר בעיר, מושב במושב. עכשיו: לחצו «החלת הקבוצה»."},
     {screen:"work", title:"מסך הבדיקה", next:"המשך", target:"[data-work] section",
-     text:"קו מלא — הוחלף. קו מקווקו עם ? — מחכה לך. ∅ — נמחק. עכשיו: לחצי על מילה מסומנת, ותיפתח עריכה במקום."},
+     text:"קו מלא — הוחלף. קו מקווקו עם ? — מחכה לכם. ∅ — נמחק. עכשיו: לחצו על מילה מסומנת, ותיפתח עריכה במקום."},
     {screen:"work", title:"שמירה", next:"המשך", open:"profile", target:"[data-tour-target=case]",
-     text:"עם שם תיק, אותו אדם מקבל אותו שם בדוי גם במסמך הבא. עכשיו: הקלידי שם תיק בשדה המסומן."},
+     text:"עם שם תיק, אותו אדם מקבל אותו שם בדוי גם במסמך הבא. עכשיו: הקלידו שם תיק בשדה המסומן."},
     {screen:"work", title:"העתקה ל-AI, ובחזרה", next:"המשך", target:"[data-tour-target=copy]",
      text:"הכפתור המסומן מעתיק את הטקסט המושחר ל-AI. כשהתשובה חוזרת: «החזרת שמות מתשובת AI» למעלה מחזיר את השמות."},
     {screen:"work", title:"זהו", next:"סיום",
-     text:"זהו. המסמך הבדוי נמחק עכשיו ושום דבר ממנו לא נשמר. עכשיו: לחצי «סיום» והעלי תיק אמיתי."},
+     text:"זהו. המסמך הבדוי נמחק עכשיו ושום דבר ממנו לא נשמר. עכשיו: לחצו «סיום» והעלו תיק אמיתי."},
   ];
   tourStart = async () => {
     if(!this.state.E) return this.afterEngine(()=>this.tourStart());
@@ -2999,7 +2999,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   };
   /* עריכה במקום (Q1 בגרסה 3): לחיצה על סימון במסמך פותחת ליד המילה את כל הפעולות
      של הכרטיס — תחליף עם תצוגה מקדימה של המשפט, שלוש הבחירות, "אותו אדם כמו",
-     "אל תחליף", "לא שם". כך אפשר לעבוד מתוך הטקסט ולא מהצד. הפאנל
+     "אל תחליפו", "לא שם". כך אפשר לעבוד מתוך הטקסט ולא מהצד. הפאנל
      נשאר כמו שהיה; כל פעולה כאן היא אותה פעולה, נרשמת ביומן עם origin:"inline". */
   /* בדיקה עצמית (docs/QUALITY-PLAN.md, שכבה 2). ההבטחות של המוצר, נבדקות על המסך שבו
      המשתמשת נמצאת עכשיו, בלי קשר למה שהבדיקה שהגיעה לכאן בדקה:
@@ -3458,7 +3458,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           return (same?same:"")+(d.length?(same?"  ·  ":"")+"שונה: "+d.map(k=>k+" ("+S.E.atlasTags(m.from)[k]+" ← "+t[k]+")").join(", "):""); })(),
         onChange:e=>this.setState({geoEdits:{...S.geoEdits, [i]:e.target.value}}),
         onRemove:()=>this.geoRemove(m.from), ...this.tipProps(m.from)})),
-      // מחיקה במסך השמות ו"אל תחליף" במסך הבדיקה: שניהם גלויים ושניהם עם ↩
+      // מחיקה במסך השמות ו"אל תחליפו" במסך הבדיקה: שניהם גלויים ושניהם עם ↩
       hasKept:(S.peoKept||[]).length>0,
       keptItems:(S.peoKept||[]).map(k=>({name:k.value, onUndo:()=>this.peoRestore(k.value)})),
       hasAllowed:S.screen==="work"&&(S.allow||[]).length>0,
@@ -3470,8 +3470,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       hasExtra:(S.geoExtra||[]).length>0,
       extraRows:(S.geoExtra||[]).map(x=>({
         name:x.name, to:x.to, isOn:x.on, listed:!!x.listed,
-        note:x.ambiguous?"לא רק שם יישוב":x.typed?"הוספת במסך השמות":"",
-        toggleLabel:x.on?"אל תחליף":"להחליף",
+        note:x.ambiguous?"לא רק שם יישוב":x.typed?"הוספתם במסך השמות":"",
+        toggleLabel:x.on?"אל תחליפו":"להחליף",
         toggleStyle:"font-size:12.5px;padding:7px 11px;border-radius:8px;white-space:nowrap;border:1px solid "+
           (x.on?"var(--line)":"var(--accent)")+";color:"+(x.on?"var(--ink2)":"var(--accent-ink)"),
         rowStyle:"display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--line2);"+
@@ -3519,7 +3519,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       /* התיבה הזאת הציעה סוגים בלבד — אדם, גוף, מקום — כלומר רק "כן, זה פרט
          מזהה". כשמסמנים מילה כדי לומר בדיוק את ההפך, שהיא מילה רגילה ולא שם,
          לא הייתה שום אפשרות שמתאימה, והדרך היחידה הייתה למצוא את הכרטיס שלה
-         במסילה. addAllow כבר קיים ומשמש את "אל תחליף" שעל הכרטיסים; כאן הוא
+         במסילה. addAllow כבר קיים ומשמש את "אל תחליפו" שעל הכרטיסים; כאן הוא
          נגיש מהמסמך עצמו. */
       popupKinds:KINDS.map(([k,l])=>({label:this.kindLabel(l), wide:"",
           onClick:()=>{ this.addRule(S.popup.text, k, "", "mark"); getSelection().removeAllRanges(); }}))
@@ -3616,7 +3616,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           const fkey="f|"+E.norm(m.val||"").trim();
           const fl=RES.flagged.find(x=>x.value===m.val)||{};
           segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:b.text.slice(m.s,m.e), badge:"?", pre:"", kind:"flag",
-            title:"נמצא ומחכה להחלטה שלך — לחיצה פותחת עריכה במקום",
+            title:"נמצא ומחכה להחלטה שלכם — לחיצה פותחת עריכה במקום",
             // צורה ולא רק צבע (Q2 בגרסה 3): קו מקווקו עבה ותג "?" — נראה גם על מסך חיוור
             style:"cursor:pointer;border-radius:3px;box-decoration-break:clone;padding:1px 2px;"+
               "background:var(--warn-soft);color:var(--warn);border-bottom:2px dashed var(--warn);font-weight:500;",
@@ -3752,7 +3752,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           onFormAllow:e=>{ e.stopPropagation(); this.log.add("allow-form",{}); this.setState({formSel:null}); this.addAllow(selKey); },
         };
       })(),
-      // הפעולות גלויות בלי לחיצה: "אל תחליף" משאיר את הטקסט, "הסרה מהרשימה" מוחקת
+      // הפעולות גלויות בלי לחיצה: "אל תחליפו" משאיר את הטקסט, "הסרה מהרשימה" מוחקת
       // את השם שהמודל טעה בו. עד עכשיו הן הופיעו רק אחרי לחיצה על הכרטיס, בלי רמז.
       isApplied:!!g.ap, isFlagged:!g.ap, fromList:g.src==="list"||g.src==="sweep",
       onQuickAllow:e=>{ e.stopPropagation(); this.addAllow(g.value); },
@@ -3772,7 +3772,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           styleNameBtn:btn(cur==="name"||cur==="label"), styleBlankBtn:btn(cur==="blank"), styleBlackBtn:btn(cur==="black"),
           blankWarn:cur==="blank"&&/^שם/.test(g.label||""),
           // התחליף שהיא בחרה הוא גם שם אמיתי במסמך. הבחירה נשארת, והכרטיס אומר את זה (Q14 בגרסה 2).
-          collideWarn:g.collide?`«${g.collide}» מופיע במסמך גם כשם אמיתי, ושני האנשים ייראו כאחד. אפשר לבחור תחליף אחר כאן, או להוסיף את «${g.collide}» האמיתי/ת לרשימה.`:"",
+          collideWarn:g.collide?`«${g.collide}» מופיע במסמך גם כשם אמיתי, ושני האנשים ייראו כאחד. אפשר לבחור תחליף אחר כאן, או להוסיף לרשימה את האדם האמיתי בשם «${g.collide}».`:"",
         };
       })(),
       onDropRule:e=>{ e.stopPropagation(); this.notAName(g.base||g.value, g.value); },
@@ -3810,7 +3810,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.hasMine = S.rules.length>0 || S.allow.length>0;
     v.mineItems = S.rules.map(r=>({kind:this.kindLabel(E.KINDLBL[r.kind]||r.kind), value:r.value, rep:r.replacement||"",
       onDel:()=>this.dropRule(r.value)}))
-      .concat(S.allow.map(a=>({kind:"אל תחליף", value:a, rep:"", onDel:()=>{
+      .concat(S.allow.map(a=>({kind:"אל תחליפו", value:a, rep:"", onDel:()=>{
         this.pushHistory(); this.log.add("drop-allow",{});
         this.setState({allow:S.allow.filter(x=>x!==a), notice:`«${a}» כבר אינו מותר, ויוחלף אם יימצא.`}, ()=>this.rerun()); }})));
 
@@ -3837,7 +3837,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     } else if(PR.soft.length||ver.embedded.length||this.nearPartial()){ kind="warn";
       const bits=[], np=this.nearPartial();
       if(np) bits.push(`הבדיקה של כתיב דומה עברה רק על ${np.read} מתוך ${np.of} השמות ברשימה`);
-      if(PR.soft.length) bits.push((PR.soft.length===1?"מקום או גוף אחד ממתין":PR.soft.length+" מקומות או גופים ממתינים")+" בפאנל «לבדיקה» — ההחלטה שלך");
+      if(PR.soft.length) bits.push((PR.soft.length===1?"מקום או גוף אחד ממתין":PR.soft.length+" מקומות או גופים ממתינים")+" בפאנל «לבדיקה» — ההחלטה שלכם");
       if(ver.embedded.length) bits.push(ver.embedded.length+" תמונות או קבצים מוטמעים שלא נסרקו");
       title="השמות והמספרים הוחלפו; נשאר מה שאינו חוסם";
       text=bits.join(" · ")+(ver.embedded.length?". טקסט בתוך תמונה או קובץ מוטמע אינו נסרק.":".");
@@ -3863,7 +3863,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.exportAsk=!!S.exportAsk&&(PR.blocking>0||vFail||vPartial);
     v.exportAskText=vFail
       ? "האימות נכשל: "+(vLeaks.length===1?"ערך מזהה אחד":vLeaks.length+" ערכים מזהים")+" עדיין בקובץ ("+[...new Set(vLeaks.map(l=>E.partName(l.part)))].slice(0,3).join(", ")+"). קובץ שיוצא עכשיו נושא אותם."
-      : vPartial&&!PR.blocking ? this.scanIncompleteText()+", ולכן ייתכנו שמות שלא הוצעו לך."
+      : vPartial&&!PR.blocking ? this.scanIncompleteText()+", ולכן ייתכנו שמות שלא הוצעו לכם."
       : (PR.blocking===1?"פריט אחד עדיין בלי החלטה":PR.blocking+" פריטים עדיין בלי החלטה")+" — "+listNames([...PR.people.map(x=>x.value), ...PR.numbers.map(x=>x.value), ...PR.sug.map(x=>x.value), ...PR.near.map(x=>x.value)]);
     v.exportAnyLabel=S.exportAsk==="download"?"להוריד בכל זאת":"להעתיק בכל זאת";
     v.onExportShow=()=>{ this.log.add("export-ask",{act:"show"}); this.setState({exportAsk:"", open:this.openWith("review"), pane:"find"}); };

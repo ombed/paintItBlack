@@ -179,7 +179,7 @@ test("a tooltip opened while the screen rises ends on its word", async ({ page }
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   await H.goOn(page);
   // the moment the places rows exist, while the screen still rises: hover the first town
-  const town = page.locator('div:has(> button:text-is("אל תחליף")) span[data-tip="1"]').first();
+  const town = page.locator('div:has(> button:text-is("אל תחליפו")) span[data-tip="1"]').first();
   await town.waitFor({ state: "attached", timeout: 15000 });
   const b = await town.boundingBox();
   await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);

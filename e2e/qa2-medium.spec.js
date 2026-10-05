@@ -226,7 +226,7 @@ test("L1, L2, L4: the spotlight sits exactly on its target, step 5 marks the cas
 test("L5: the notice is centred on the screen in RTL", async ({ page }) => {
   await toWork(page, DOC);
   await page.locator('[data-mark][data-val="מרים לוין"]').first().click();
-  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליף" }).click();
+  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליפו" }).click();
   const n = page.locator("[data-notice]");
   await expect(n).toBeVisible();
   const b = await n.boundingBox(), w = page.viewportSize().width;
@@ -289,7 +289,7 @@ test("L12: 'קבוצה אחרת' keeps what she typed and replaces the rest", as
   const before = await other.inputValue();
   await page.getByRole("button", { name: "קבוצה אחרת" }).click();
   await expect(page.getByLabel("היישוב שיבוא במקום חולון")).toHaveValue("ירוחם");
-  await expect(page.locator("[data-notice]")).toContainText("התחליף שהקלדת נשאר");
+  await expect(page.locator("[data-notice]")).toContainText("התחליף שהקלדתם נשאר");
   expect(await page.getByLabel("היישוב שיבוא במקום נתניה").inputValue()).not.toBe(before);
 });
 
@@ -353,7 +353,7 @@ test("L11: a rejected manual add leaves no undo step", async ({ page }) => {
   await toWork(page, DOC);
   // one real change
   await page.locator('[data-mark][data-val="מרים לוין"]').first().click();
-  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליף" }).click();
+  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליפו" }).click();
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("מרים לוין");
   // two adds that are refused
   for (let k = 0; k < 2; k++) {
@@ -377,7 +377,7 @@ test("L15: a case deleted in another tab is not re-created by this one", async (
   await expect(page.locator("[data-notice]")).toContainText("נמחק בלשונית אחרת");
   // the next change here does not bring it back
   await page.locator('[data-mark][data-val="מרים לוין"]').first().click();
-  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליף" }).click();
+  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליפו" }).click();
   await page.waitForTimeout(800);
   expect(await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem("redact-cases") || "{}")))).not.toContain("לוין נ׳ לוין");
 });

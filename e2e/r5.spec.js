@@ -55,7 +55,7 @@ test("one card per person: the prefixed forms are chips, and one form can be kep
   await expect(lForm.locator("span").first()).toHaveText("ל");
   // keep only that form
   await lForm.click();
-  await card.locator("[data-form-act]").getByRole("button", { name: "אל תחליף" }).click();
+  await card.locator("[data-form-act]").getByRole("button", { name: "אל תחליפו" }).click();
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("לאסתר לוין");
   const text = await sheet(page).innerText();
   expect(text).not.toMatch(/(^|[^ל])אסתר לוין/);

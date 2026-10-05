@@ -46,7 +46,7 @@ test("two rail sections stay open together", async ({ page }) => {
    changed the list without a step in the history, so undo jumped over them. */
 test("bringing a kept name back to replacement is one undo step", async ({ page }) => {
   const card = page.locator("[data-group]").filter({ hasText: "רונית לוי" }).first();
-  await card.getByRole("button", { name: "אל תחליף" }).click();
+  await card.getByRole("button", { name: "אל תחליפו" }).click();
   await expect(doc(page)).toContainText("רונית לוי הגישה בקשה");
   await page.getByRole("button", { name: /רונית לוי ↩/ }).click();
   await expect(doc(page)).not.toContainText("רונית לוי");
