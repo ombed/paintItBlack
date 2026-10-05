@@ -6,7 +6,8 @@ const AxeBuilder = require("@axe-core/playwright").default;
    owner; the owner sees every user, newest first, with the right totals; approving and blocking
    send exactly those two fields (the database allows no others); the owner cannot block
    themselves; a name a user typed is shown as text, never run; the logs download as one file
-   with account ids only, no names or emails; and the sign-in page brings the owner back here. */
+   with account ids only, no names or emails; past the 1,000 rows Supabase gives in one answer,
+   nothing is left out; and the sign-in page brings the owner back here. */
 
 const PROJECT = "https://cwsiranjlxbclmaqtucc.supabase.co";
 const PAGE = "/site/admin.html";
@@ -22,18 +23,26 @@ const USERS = [
   { id: "00000000-0000-0000-0000-00000000000a", email: "a@example.co.il", full_name: null, created_at: ago(20), last_seen: ago(12), approved: true, blocked: false, is_admin: false, log_enabled: true, documents: 7 },
   { id: OWNER, email: "owner@example.co.il", full_name: "Owner", created_at: ago(30), last_seen: ago(0), approved: true, blocked: false, is_admin: true, log_enabled: true, documents: 2 },
 ];
-const LOGS = [{ user_id: USERS[2].id, created_at: ago(1), version: "v58", log: { tool: "paintItBlack", v: "v58", events: [{ t: 1, ev: "run" }] }, leaks: null }];
+const LOGS = [{ id: 1, user_id: USERS[2].id, created_at: ago(1), version: "v58", log: { tool: "paintItBlack", v: "v58", events: [{ t: 1, ev: "run" }] }, leaks: null }];
 
-async function stub(page, { signedIn = true, admin = true } = {}) {
+async function stub(page, { signedIn = true, admin = true, users = USERS, logs = LOGS, maxRows = 1000 } = {}) {
   const calls = [];
   await page.route(PROJECT + "/**", async (route) => {
     const req = route.request(), u = new URL(req.url());
     calls.push({ method: req.method(), path: u.pathname, query: u.search, body: req.postData() ? JSON.parse(req.postData()) : null });
     const wantsObject = /vnd\.pgrst\.object/.test(req.headers().accept || "");
+    // as PostgREST pages: offset and limit, never more than the server's max rows, and the total
+    // in Content-Range when the request asks for a count
+    const rows = (all) => {
+      const from = Number(u.searchParams.get("offset") || 0);
+      const part = all.slice(from, from + Math.min(Number(u.searchParams.get("limit") || Infinity), maxRows));
+      const range = (part.length ? from + "-" + (from + part.length - 1) : "*") + "/" + all.length;
+      return route.fulfill({ json: part, headers: /count=exact/.test(req.headers().prefer || "") ? { "content-range": range, "access-control-expose-headers": "content-range" } : {} });
+    };
     if (u.pathname === "/rest/v1/rpc/is_admin") return route.fulfill({ json: admin });
-    if (u.pathname === "/rest/v1/profiles" && req.method() === "GET") return route.fulfill({ json: USERS });
+    if (u.pathname === "/rest/v1/profiles" && req.method() === "GET") return rows(users);
     if (u.pathname === "/rest/v1/app_settings" && req.method() === "GET") return route.fulfill({ json: wantsObject ? { require_approval: false } : [{ require_approval: false }] });
-    if (u.pathname === "/rest/v1/usage_logs") return route.fulfill({ json: LOGS });
+    if (u.pathname === "/rest/v1/usage_logs") return rows(logs);
     return route.fulfill({ status: 204, body: "" });
   });
   if (signedIn) await page.addInitScript((s) => { localStorage.setItem("sb-cwsiranjlxbclmaqtucc-auth-token", JSON.stringify(s)); }, session(OWNER));
@@ -122,6 +131,25 @@ test("the logs download as one file the log report reads, with account ids and n
   expect(text).not.toMatch(/@|full_name|Beta|Owner/);
   const { reportExport } = require("../scripts/log-report.js");
   expect(reportExport(out)).toContain("1 log");
+});
+
+/* Supabase answers at most 1,000 rows a request, or fewer if its "max rows" is set lower, and says
+   nothing when it stops there: the page read 1,000 users and 1,000 logs and showed them as all. */
+for (const maxRows of [1000, 300]) test(`with ${maxRows} rows an answer, the owner still sees every user and downloads every log`, async ({ page }) => {
+  const users = Array.from({ length: 2345 }, (_, i) => ({ ...USERS[2], id: "10000000-0000-0000-0000-" + String(i).padStart(12, "0"), email: "u" + i + "@example.co.il", created_at: ago(i / 1000), documents: 1 }));
+  const logs = Array.from({ length: 1234 }, (_, i) => ({ ...LOGS[0], id: 1234 - i, created_at: ago(i / 1000) }));
+  await stub(page, { users, logs, maxRows });
+  await page.goto(PAGE);
+  await expect(page.locator("#n-users")).toHaveText("2345");
+  await expect(page.locator("#n-docs")).toHaveText("2345");
+  await expect(page.locator("#rows tr")).toHaveCount(2345);
+  await expect(page.locator("#rows tr").last()).toContainText("u2344@example.co.il");
+  const [dl] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: /הורדת יומני השימוש/ }).click()]);
+  const out = JSON.parse(await (await dl.createReadStream()).toArray().then((c) => Buffer.concat(c).toString("utf8")));
+  expect(out.count).toBe(1234);
+  expect(new Set(out.logs.map((l) => l.at)).size).toBe(1234);
+  expect(out.logs[1233].at).toBe(logs[1233].created_at);
+  await expect(page.locator("#msg")).toHaveText("הורד קובץ עם 1234 יומנים.");
 });
 
 test("the sign-in page brings the owner back to this page, and to nothing else", async ({ page }) => {

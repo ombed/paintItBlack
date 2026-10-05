@@ -32,9 +32,28 @@
     await load();
   }
 
+  /* Supabase answers at most 1,000 rows a request (its "max rows", which can be set lower) and says
+     nothing when it stops there. So a list is read page by page, in a fixed order, up to the count
+     the database gives. A row added meanwhile can show up on two pages: it is kept once. */
+  async function all(query, size, onPage) {
+    const rows = [], seen = new Set();
+    let total = null;
+    for (let from = 0; ;) {
+      const { data, error, count } = await query().range(from, from + size - 1);
+      if (error) return { error };
+      if (typeof count === "number") total = count;
+      const fresh = data.filter((r) => !seen.has(r.id));
+      for (const r of fresh) { seen.add(r.id); rows.push(r); }
+      from += data.length;
+      if (onPage) onPage(rows.length);
+      if (!fresh.length || (total !== null ? from >= total : data.length < size)) return { data: rows };
+    }
+  }
+
   async function load() {
     const [p, s] = await Promise.all([
-      sb.from("profiles").select("id,email,full_name,created_at,last_seen,approved,blocked,is_admin,log_enabled,documents").order("created_at", { ascending: false }),
+      all(() => sb.from("profiles").select("id,email,full_name,created_at,last_seen,approved,blocked,is_admin,log_enabled,documents", { count: "exact" })
+        .order("created_at", { ascending: false }).order("id", { ascending: false }), 1000),
       sb.from("app_settings").select("require_approval").maybeSingle(),
     ]);
     if (p.error || s.error) return show("failed");
@@ -111,7 +130,9 @@
   // the logs, as one file scripts/log-report.js reads: who by account id only, never name or email
   $("logs").addEventListener("click", async () => {
     say("מכין את הקובץ…");
-    const { data, error } = await sb.from("usage_logs").select("user_id,created_at,version,log,leaks").order("created_at", { ascending: false }).limit(1000);
+    // a few hundred a request: a log can be large
+    const { data, error } = await all(() => sb.from("usage_logs").select("id,user_id,created_at,version,log,leaks", { count: "exact" })
+      .order("created_at", { ascending: false }).order("id", { ascending: false }), 200, (n) => say("מכין את הקובץ… " + n + " יומנים"));
     if (error) { say("ההורדה נכשלה. אפשר לנסות שוב."); return; }
     const out = { export: "inkognito-logs", exported: new Date().toISOString(), count: data.length,
       logs: data.map((l) => ({ at: l.created_at, user: l.user_id, v: l.version, log: l.log, leaks: l.leaks })) };
