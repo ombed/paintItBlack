@@ -50,28 +50,33 @@ b,strong{font-weight:600}
 /* the spine: never moves while the page works */
 .spine{background:var(--cloth);color:var(--cloth-ink);position:relative}
 .spine::after{content:"";position:absolute;inset-block:0;inset-inline-end:0;width:12px;background:linear-gradient(to left,rgba(0,0,0,.22),transparent);pointer-events:none}
-.spine-in{position:sticky;top:0;height:100vh;height:100dvh;display:flex;flex-direction:column;gap:36px;padding:40px 36px 32px;overflow-y:auto}
+/* its spacing tightens on shorter windows (as designed from 900px up) so that it fits without a
+   scrollbar of its own; one is left, thin and gilt, only for what still cannot fit */
+.spine-in{--sgap:clamp(14px,4vh,36px);position:sticky;top:0;height:100vh;height:100dvh;display:flex;flex-direction:column;gap:var(--sgap);padding:clamp(20px,4.45vh,40px) 36px clamp(16px,3.6vh,32px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(216,182,90,.5) transparent}
 /* the wordmark: ink on the page, cream over a gilt stroke on the cloth */
 .mark{position:relative;display:inline-block;align-self:flex-start;font-family:var(--serif);font-weight:900;font-size:40px;line-height:1;color:var(--ink);text-decoration:none;isolation:isolate;padding:8px 0}
 .mark::after{content:"";position:absolute;right:-3px;bottom:0;width:2.15em;height:.3em;background:var(--ink);z-index:-1;
   clip-path:polygon(0 38%,6% 12%,31% 22%,58% 6%,84% 20%,100% 8%,97% 72%,71% 92%,44% 78%,18% 96%,3% 80%)}
 .spine .mark{color:var(--cloth-ink)}
 .spine .mark::after{background:var(--gilt)}
-.tagline{font-size:14px;line-height:1.4;color:var(--cloth-ink);margin-top:-22px}
+.tagline{font-size:14px;line-height:1.4;color:var(--cloth-ink);margin-top:calc(14px - var(--sgap))}
 .index ul{border-top:1px solid rgba(216,182,90,.4)}
 .index li{border-bottom:1px solid rgba(216,182,90,.4)}
-.index a{display:flex;align-items:baseline;gap:10px;padding:12px 0;text-decoration:none;font-size:16px;color:var(--cloth-ink)}
+.index a{display:flex;align-items:baseline;gap:10px;padding:clamp(7px,1.34vh,12px) 0;text-decoration:none;font-size:16px;color:var(--cloth-ink)}
 .index a::after{content:"";flex:1;border-bottom:1px dotted rgba(216,182,90,.65);transform:translateY(-5px)}
 .index a:hover,.index a[aria-current]{color:var(--gilt)}
 .login[aria-current],.sheet a[aria-current]{color:var(--gilt);text-decoration-thickness:2px}
-.keys{display:grid;gap:14px;margin-top:auto}
+.keys{display:grid;gap:clamp(8px,1.6vh,14px);margin-top:auto}
 .keys li{font-size:14px;line-height:1.45;color:#D6CFB4}
 .keys b{display:block;font-family:var(--serif);font-weight:700;font-size:19px;color:var(--gilt)}
-.spine-end{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:20px;border-top:1px solid rgba(216,182,90,.4)}
+.spine-end{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:clamp(12px,2.25vh,20px);border-top:1px solid rgba(216,182,90,.4)}
 .login{font-size:16px;color:var(--cloth-ink)}
 .spine-end .btn{min-height:44px;padding:0 20px;font-size:16px}
 .menu-btn{display:none}
 .sheet{display:none}
+/* short windows: the four facts keep only their gilt heads, then step aside, as on a phone */
+@media (min-width:861px) and (max-height:710px){.keys li>span{display:none}}
+@media (min-width:861px) and (max-height:580px){.keys{display:none}.spine-end{margin-top:auto}}
 
 /* ---------- the pages ---------- */
 .pages{min-width:0}
@@ -186,7 +191,7 @@ h1{font-family:var(--serif);font-weight:700;font-size:clamp(48px,6.2vw,92px);lin
 /* ---------- narrower ---------- */
 @media (max-width:1180px){
   :root{--spine-w:280px}
-  .spine-in{padding:32px 26px 26px}
+  .spine-in{padding:clamp(20px,3.6vh,32px) 26px clamp(16px,2.9vh,26px)}
     .steps{grid-template-columns:1fr;max-width:640px}
   .topics{grid-template-columns:1fr}
   .topics>div:nth-child(2){border-top:0}

@@ -68,6 +68,21 @@ test("on a desktop the spine holds the index and stays still while the page scro
   expect((await mark.boundingBox()).y).toBeCloseTo(before.y, 0);
 });
 
+// the owner found the spine's own scrollbar confusing (6.10): it fits instead, the four facts
+// keeping only their heads on a short window and stepping aside on a shorter one
+test("on a desktop the spine fits the window without a scrollbar of its own, down to 480 px tall", async ({ page }) => {
+  for (const [w, h, keys] of [[1440, 900, "all"], [1440, 760, "all"], [1440, 680, "heads"], [1180, 640, "heads"], [1440, 560, "none"], [1180, 480, "none"]]) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto(HOME);
+    const got = await page.evaluate(() => {
+      const s = document.querySelector(".spine-in"), k = document.querySelector(".keys");
+      const shown = getComputedStyle(k).display === "none" ? "none" : getComputedStyle(k.querySelector("li > span")).display === "none" ? "heads" : "all";
+      return { over: s.scrollHeight - s.clientHeight, keys: shown, signup: s.querySelector(".spine-end .btn").getBoundingClientRect().bottom <= window.innerHeight };
+    });
+    expect(got, `${w}x${h}`).toEqual({ over: 0, keys, signup: true });
+  }
+});
+
 test("on a phone the spine is a green bar: its menu opens the links, and a link or Escape closes them", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 800 });
   await page.emulateMedia({ reducedMotion: "reduce" }); // jump to the anchor at once, to measure it
