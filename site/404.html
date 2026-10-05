@@ -8,31 +8,64 @@
 <title>העמוד לא נמצא · אינקוגניטו</title>
 <link rel="stylesheet" href="/fonts/fonts.css">
 <link rel="stylesheet" href="/site.css">
-<style>
-  .head { padding: 14px 0; }
-  .lost { padding-block: 10vh 64px; max-width: calc(40rem + 2 * var(--gutter)); }
-  .lost h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(30px, 5vw, 40px); margin: 0 0 12px; }
-  .lost p { color: var(--graphite); margin: 0 0 28px; }
-</style>
 </head>
-<body>
-  <a class="skip" href="#main">דילוג לתוכן</a>
-  <header class="head">
-    <div class="wrap"><a class="mark" href="/">אינקוגניטו</a></div>
+<body class="lost-page">
+<a class="skip" href="#main">דילוג לתוכן</a>
+<div class="book">
+
+  <header class="spine" id="spine">
+    <div class="spine-in">
+      <a class="mark" href="/">אינקוגניטו</a>
+      <p class="tagline">השחרת מסמכים לפני AI</p>
+      <nav class="index" aria-label="ראשי">
+        <ul>
+          <li><a href="/#how">איך זה עובד</a></li>
+          <li><a href="/#privacy">פרטיות ואבטחה</a></li>
+          <li><a href="/#accuracy">כמה זה מדויק</a></li>
+          <li><a href="/#faq">שאלות נפוצות</a></li>
+        </ul>
+      </nav>
+      <ul class="keys">
+        <li><b>בדפדפן</b> <span>הזיהוי וההחלפה רצים במחשב שלך</span></li>
+        <li><b><bdi>Word</bdi> ו־<bdi>PDF</bdi></b> <span>נקראים ישירות, בלי המרה</span></li>
+        <li><b>בעברית</b> <span>כולל אותיות שימוש ושגיאות כתיב</span></li>
+        <li><b>כל כלי AI</b> <span>כל כלי שאפשר להדביק בו טקסט</span></li>
+      </ul>
+      <div class="spine-end">
+        <a class="login" href="/login.html">כניסה</a>
+        <a class="btn btn-gilt" href="/login.html?mode=signup">להרשמה חינם</a>
+      </div>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="sheet" aria-label="תפריט"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+    </div>
+    <div class="sheet" id="sheet" hidden>
+      <ul>
+        <li><a href="/#how">איך זה עובד</a></li>
+        <li><a href="/#privacy">פרטיות ואבטחה</a></li>
+        <li><a href="/#accuracy">כמה זה מדויק</a></li>
+        <li><a href="/#faq">שאלות נפוצות</a></li>
+        <li><a href="/login.html">כניסה</a></li>
+      </ul>
+    </div>
   </header>
-  <main id="main" class="wrap lost">
+
+  <div class="pages">
+  <main id="main">
+    <section class="lost">
     <h1>העמוד לא נמצא</h1>
     <p>אולי הכתובת השתנתה, או שנפלה בה טעות.</p>
     <a class="btn btn-ink" href="/">לעמוד הבית</a>
+    </section>
   </main>
-  <footer>
-    <div class="wrap">
-      <a class="mark" href="/">אינקוגניטו</a>
-      <nav aria-label="מידע ומסמכים משפטיים">
-        <a href="/terms.html">תנאי שימוש</a><a href="/privacy.html">מדיניות פרטיות</a><a href="/accessibility.html">הצהרת נגישות</a><a href="mailto:contact@inkognito.co.il">יצירת קשר</a>
-      </nav>
-      <span>© 2026 אינקוגניטו</span>
-    </div>
+
+  <footer class="foot">
+    <a class="mark" href="/">אינקוגניטו</a>
+    <nav aria-label="מידע ומסמכים משפטיים">
+      <a href="/terms.html">תנאי שימוש</a><a href="/privacy.html">מדיניות פרטיות</a><a href="/accessibility.html">הצהרת נגישות</a><a href="mailto:contact@inkognito.co.il">יצירת קשר</a>
+    </nav>
+    <span>© 2026 אינקוגניטו</span>
   </footer>
+  </div>
+</div>
+<script src="/landing.js"></script>
 </body>
 </html>

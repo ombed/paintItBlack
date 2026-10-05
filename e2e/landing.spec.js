@@ -1,7 +1,10 @@
 const { test, expect } = require("./base");
 const AxeBuilder = require("@axe-core/playwright").default;
+const fs = require("fs");
+const path = require("path");
 
-/* The home page (site/index.html), in the law-report design (6.10). What it pins:
+/* The home page (site/index.html), in the law-report design (6.10), and the site's other pages,
+   which share its frame. What it pins:
    - the spine stays still while the page scrolls; on a phone it is a green bar whose menu opens a
      sheet of links, and a link or Escape closes it;
    - the passage you can point at: a name, by mouse or by Tab, lights every place that person
@@ -9,13 +12,28 @@ const AxeBuilder = require("@axe-core/playwright").default;
    - the tally: one mark per identifying detail in the test set, as many hollow as the figure says
      were missed;
    - nothing is cut or scrolls sideways down to 320 px; reduced motion turns the motion off;
-   - WCAG 2.1 AA by axe, at desktop and phone width.
+   - WCAG 2.1 AA by axe, at desktop and phone width;
+   - the other pages (legal, sign-in, 404): the same spine and phone menu, nothing cut, axe; the
+     sign-in page is marked as current, and reads an emailed link itself, even at its short address.
    The base fixture also fails a test on anything the page's Content-Security-Policy refuses. */
 const HOME = "/site/index.html";
+const SITE = path.join(__dirname, "..", "site");
+const PROJECT = "https://cwsiranjlxbclmaqtucc.supabase.co";
 
 async function axe(page, where) {
   const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
   expect(r.violations.map((v) => `${where}: ${v.id} (${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(" | ")})`)).toEqual([]);
+}
+// the pages hide sideways overflow, so measure the boxes: none may reach past either edge
+const cutOff = (page) => page.evaluate(() => [...document.querySelectorAll("body *")]
+  .filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && (r.left < -1 || r.right > window.innerWidth + 1); })
+  .map((el) => el.tagName.toLowerCase() + (el.className ? "." + String(el.className).split(" ")[0] : "")).slice(0, 6));
+// the 404 names its files from the root, since it is served at any depth: serve the site there too
+async function siteAtRoot(page) {
+  await page.route(/^http:\/\/127\.0\.0\.1:4173\/(?!site\/)[^?#]+/, (route) => {
+    const f = path.join(SITE, new URL(route.request().url()).pathname);
+    return fs.existsSync(f) && fs.statSync(f).isFile() ? route.fulfill({ path: f }) : route.continue();
+  });
 }
 
 test("the passage: a name lights every place that person appears, by mouse and by keyboard", async ({ page }) => {
@@ -115,11 +133,7 @@ for (const width of [1440, 1180, 860, 390, 320])
   test(`nothing is cut or scrolls sideways at ${width} px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto(HOME);
-    // the page hides sideways overflow, so measure the boxes: none may reach past either edge
-    const out = await page.evaluate(() => [...document.querySelectorAll("body *")]
-      .filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && (r.left < -1 || r.right > innerWidth + 1); })
-      .map((el) => el.tagName.toLowerCase() + (el.className ? "." + String(el.className).split(" ")[0] : "")).slice(0, 6));
-    expect(out).toEqual([]);
+    expect(await cutOff(page)).toEqual([]);
   });
 
 test("reduced motion: no smooth scrolling and no transitions", async ({ page }) => {
@@ -142,4 +156,43 @@ for (const [where, width] of [["desktop", 1440], ["phone", 390]])
     await page.locator(".faq details").first().locator("summary").click();
     if (where === "phone") await page.getByRole("button", { name: "תפריט" }).click();
     await axe(page, where + ", a question and the menu open");
+  });
+
+for (const p of ["privacy.html", "terms.html", "accessibility.html", "404.html", "login.html"])
+  test(`${p} has the home page's frame: the spine, its phone menu, nothing cut at 320 px, and axe`, async ({ page }) => {
+    await siteAtRoot(page);
+    await page.route(PROJECT + "/**", (route) => route.fulfill({ json: {} }));
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/site/" + p);
+    await expect(page.getByRole("navigation", { name: "ראשי" })).toBeVisible();
+    await axe(page, p + " at 1440");
+    await page.setViewportSize({ width: 320, height: 800 });
+    const menu = page.getByRole("button", { name: "תפריט" });
+    await menu.click();
+    await expect(page.locator("#sheet")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#sheet")).toBeHidden();
+    await expect(menu).toBeFocused();
+    expect(await cutOff(page)).toEqual([]);
+    await axe(page, p + " at 320");
+  });
+
+test("the sign-in page is marked as the current page, in the spine and in the phone menu", async ({ page }) => {
+  await page.route(PROJECT + "/**", (route) => route.fulfill({ json: {} }));
+  await page.goto("/site/login.html");
+  await expect(page.locator('.spine-end a[aria-current="page"]')).toHaveText("כניסה");
+  await expect(page.locator('#sheet a[aria-current="page"]')).toHaveText("כניסה");
+  await expect(page.locator("[aria-current]")).toHaveCount(2);
+});
+
+/* Cloudflare serves the sign-in page as /login too: sending an emailed link on from there, to
+   /login.html, which redirects to /login, would never end. login.js clears #confirm and #error
+   at once, but a sign-in link's #access_token stays until Supabase's client reads it, later. */
+for (const link of ["#confirm=abc&type=signup", "#access_token=abc&token_type=bearer&expires_in=3600&type=magiclink"])
+  test(`the sign-in page reads an emailed link itself, even at its short address, and never sends it on (${link.split("=")[0]})`, async ({ page }) => {
+    await page.route(PROJECT + "/**", (route) => route.fulfill({ json: {} }));
+    await page.route("**/site/login", (route) => route.fulfill({ path: path.join(SITE, "login.html") }));
+    await page.goto("/site/login" + link);
+    await page.waitForTimeout(800);
+    expect(new URL(page.url()).pathname).toBe("/site/login");
   });

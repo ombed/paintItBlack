@@ -8,58 +8,50 @@
 <title>כניסה · אינקוגניטו</title>
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="site.css">
-<style>
-  [hidden] { display: none !important; }
-  body { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
-  .head { padding: 14px var(--gutter); }
-  .card { width: min(420px, calc(100% - 32px)); margin: 4vh auto 0; align-self: start; }
-  .card h1 { font-family: var(--serif); font-weight: 700; font-size: 34px; line-height: 1.15; margin: 0; }
-  .card h1:focus { outline: none; }
-  .card .why { color: var(--graphite); margin: 10px 0 28px; }
-  .g { width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 12px; background: #fff; color: #1f1f1f; border: 1px solid #747775; border-radius: 999px; padding: 12px 18px; font: 500 16px var(--sans); cursor: pointer; }
-  .g svg { width: 20px; height: 20px; }
-  .or { display: flex; align-items: center; gap: 14px; color: var(--graphite); font-size: 14px; margin: 22px 0; }
-  .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
-  label { display: block; font-weight: 500; font-size: 15px; margin-bottom: 6px; }
-  .pw { margin-top: 14px; }
-  .hint { font-size: 13.5px; color: var(--graphite); margin: 6px 0 0; }
-  .pw-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 16px; margin-top: 2px; }
-  label.show { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 8px 0; font-weight: 400; font-size: 14.5px; cursor: pointer; }
-  label.show input { width: 18px; height: 18px; margin: 0; accent-color: var(--ink); }
-  .again { font: inherit; background: none; border: 0; padding: 8px 0; text-decoration: underline; cursor: pointer; color: var(--ink); }
-  .pw-row .again { font-size: 14.5px; }
-  .field { width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid var(--field); border-radius: 10px; font: 16px var(--sans); background: var(--sheet); direction: ltr; text-align: left; }
-  .field[aria-invalid="true"] { border-color: #B3261E; border-width: 2px; }
-  .err { color: #B3261E; font-size: 14.5px; margin: 8px 0 0; }
-  .err:empty { display: none; }
-  .send { width: 100%; margin-top: 12px; min-height: 48px; }
-  .switch { margin: 18px 0 0; text-align: center; font-size: 15px; }
-  .fine { font-size: 13.5px; color: var(--graphite); margin: 22px 0 0; line-height: 1.6; }
-  .fine a { color: var(--ink); display: inline-block; padding-block: 6px; }
-  .safe { margin-top: 20px; padding: 14px 16px; border-radius: 12px; background: var(--alias-soft); font-size: 14.5px; }
-  .sent { display: none; }
-  .is-sent .ask { display: none; }
-  .is-sent .sent { display: block; }
-  .confirm { display: none; }
-  .is-confirm .ask { display: none; }
-  .is-confirm .confirm { display: block; }
-  .confirm .err { margin-top: 14px; }
-  .confirm .again { padding: 10px 0; margin-top: 6px; }
-  .env { width: 56px; height: 56px; border-radius: 16px; background: var(--alias-soft); display: grid; place-items: center; margin-bottom: 20px; color: var(--alias); }
-  .env svg { width: 28px; height: 28px; }
-  .sent .addr { font-weight: 600; direction: ltr; unicode-bidi: isolate; }
-  .open { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-  .open a { flex: 1; min-width: 140px; min-height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--rule); border-radius: 999px; text-decoration: none; font-weight: 500; background: var(--sheet); }
-  .sent .row { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 22px; font-size: 15px; }
-  .sent .row button { font: inherit; background: none; border: 0; padding: 10px 0; text-decoration: underline; cursor: pointer; color: var(--ink); }
-  .sent .row button[disabled] { color: var(--graphite); text-decoration: none; cursor: default; }
-  .foot { padding: 28px var(--gutter); font-size: 13.5px; color: var(--graphite); }
-</style>
 </head>
-<body>
-  <header class="head"><a class="mark" href="index.html">אינקוגניטו</a></header>
+<body class="signin-page">
+<a class="skip" href="#main">דילוג לתוכן</a>
+<div class="book">
 
-  <main class="card" id="card">
+  <header class="spine" id="spine">
+    <div class="spine-in">
+      <a class="mark" href="index.html">אינקוגניטו</a>
+      <p class="tagline">השחרת מסמכים לפני AI</p>
+      <nav class="index" aria-label="ראשי">
+        <ul>
+          <li><a href="index.html#how">איך זה עובד</a></li>
+          <li><a href="index.html#privacy">פרטיות ואבטחה</a></li>
+          <li><a href="index.html#accuracy">כמה זה מדויק</a></li>
+          <li><a href="index.html#faq">שאלות נפוצות</a></li>
+        </ul>
+      </nav>
+      <ul class="keys">
+        <li><b>בדפדפן</b> <span>הזיהוי וההחלפה רצים במחשב שלך</span></li>
+        <li><b><bdi>Word</bdi> ו־<bdi>PDF</bdi></b> <span>נקראים ישירות, בלי המרה</span></li>
+        <li><b>בעברית</b> <span>כולל אותיות שימוש ושגיאות כתיב</span></li>
+        <li><b>כל כלי AI</b> <span>כל כלי שאפשר להדביק בו טקסט</span></li>
+      </ul>
+      <div class="spine-end">
+        <a class="login" href="login.html" aria-current="page">כניסה</a>
+        <a class="btn btn-gilt" href="login.html?mode=signup">להרשמה חינם</a>
+      </div>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="sheet" aria-label="תפריט"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+    </div>
+    <div class="sheet" id="sheet" hidden>
+      <ul>
+        <li><a href="index.html#how">איך זה עובד</a></li>
+        <li><a href="index.html#privacy">פרטיות ואבטחה</a></li>
+        <li><a href="index.html#accuracy">כמה זה מדויק</a></li>
+        <li><a href="index.html#faq">שאלות נפוצות</a></li>
+        <li><a href="login.html" aria-current="page">כניסה</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <div class="pages">
+  <main id="main">
+    <section class="signin">
+      <div class="card" id="card">
     <div class="ask">
       <h1 tabindex="-1" id="ask-h">כניסה</h1>
       <p class="why" id="ask-why">החשבון רק פותח את הכלי. המסמכים נשארים במחשב.</p>
@@ -119,10 +111,15 @@
       <p class="err" id="confirm-err"></p>
       <button class="again" type="button" id="confirm-new" aria-describedby="confirm-err" hidden>חזרה לכניסה</button>
     </div>
+      </div>
+    </section>
   </main>
+  </div>
+</div>
 
   <script src="vendor/supabase-2.117.2.js"></script>
   <script src="config.js"></script>
   <script src="login.js"></script>
+  <script src="landing.js"></script>
 </body>
 </html>

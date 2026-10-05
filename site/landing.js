@@ -3,7 +3,11 @@
    an email sent from the dashboard) lands here: it goes on to the sign-in page, the one page that
    reads it (review 4.10). */
 (() => {
-  if (/^#(?:confirm|error|access_token)=/.test(location.hash)) location.replace("login.html" + location.hash);
+  // the sign-in page sits beside this script, whatever the page's depth (the 404 is served anywhere).
+  // It reads such a link itself, and is also served as /login, so it never sends one on: from
+  // /login to /login.html, which Cloudflare redirects to /login, would never end
+  const login = new URL("login.html", document.currentScript ? document.currentScript.src : location.href).pathname;
+  if (!document.body.classList.contains("signin-page") && /^#(?:confirm|error|access_token)=/.test(location.hash)) location.replace(login + location.hash);
 
   // the phone menu: the green bar's button opens a sheet of links; a link, or Escape, closes it
   const menu = document.querySelector(".menu-btn"), sheet = document.getElementById("sheet");

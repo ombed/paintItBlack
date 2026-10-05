@@ -8,24 +8,49 @@
 <title>הצהרת נגישות · אינקוגניטו</title>
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="site.css">
-<style>
-  .head { padding: 14px 0; }
-  .legal { max-width: calc(46rem + 2 * var(--gutter)); padding-block: 16px 64px; line-height: 1.8; }
-  .legal h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(30px, 5vw, 40px); line-height: 1.2; margin: 24px 0 8px; }
-  .legal .status { color: var(--graphite); font-size: 15px; margin: 0 0 32px; }
-  .legal h2 { font-family: var(--serif); font-weight: 700; font-size: 22px; line-height: 1.35; margin: 40px 0 10px; }
-  .legal p { margin: 0 0 12px; }
-  .legal ul { margin: 0 0 12px; padding-inline-start: 1.4em; }
-  .legal li { margin-bottom: 6px; }
-</style>
 </head>
-<body>
-  <a class="skip" href="#main">דילוג לתוכן</a>
-  <header class="head">
-    <div class="wrap"><a class="mark" href="index.html">אינקוגניטו</a></div>
+<body class="legal-page">
+<a class="skip" href="#main">דילוג לתוכן</a>
+<div class="book">
+
+  <header class="spine" id="spine">
+    <div class="spine-in">
+      <a class="mark" href="index.html">אינקוגניטו</a>
+      <p class="tagline">השחרת מסמכים לפני AI</p>
+      <nav class="index" aria-label="ראשי">
+        <ul>
+          <li><a href="index.html#how">איך זה עובד</a></li>
+          <li><a href="index.html#privacy">פרטיות ואבטחה</a></li>
+          <li><a href="index.html#accuracy">כמה זה מדויק</a></li>
+          <li><a href="index.html#faq">שאלות נפוצות</a></li>
+        </ul>
+      </nav>
+      <ul class="keys">
+        <li><b>בדפדפן</b> <span>הזיהוי וההחלפה רצים במחשב שלך</span></li>
+        <li><b><bdi>Word</bdi> ו־<bdi>PDF</bdi></b> <span>נקראים ישירות, בלי המרה</span></li>
+        <li><b>בעברית</b> <span>כולל אותיות שימוש ושגיאות כתיב</span></li>
+        <li><b>כל כלי AI</b> <span>כל כלי שאפשר להדביק בו טקסט</span></li>
+      </ul>
+      <div class="spine-end">
+        <a class="login" href="login.html">כניסה</a>
+        <a class="btn btn-gilt" href="login.html?mode=signup">להרשמה חינם</a>
+      </div>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="sheet" aria-label="תפריט"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+    </div>
+    <div class="sheet" id="sheet" hidden>
+      <ul>
+        <li><a href="index.html#how">איך זה עובד</a></li>
+        <li><a href="index.html#privacy">פרטיות ואבטחה</a></li>
+        <li><a href="index.html#accuracy">כמה זה מדויק</a></li>
+        <li><a href="index.html#faq">שאלות נפוצות</a></li>
+        <li><a href="login.html">כניסה</a></li>
+      </ul>
+    </div>
   </header>
 
-  <main id="main" class="wrap legal">
+  <div class="pages">
+  <main id="main">
+    <article class="legal">
     <h1>הצהרת נגישות</h1>
     <p class="status">עודכן: 4 באוקטובר 2026</p>
 
@@ -57,16 +82,18 @@
 
     <h2>6. תאריך ההצהרה</h2>
     <p>ההצהרה עודכנה בתאריך 4 באוקטובר 2026.</p>
+    </article>
   </main>
 
-  <footer>
-    <div class="wrap">
-      <a class="mark" href="index.html">אינקוגניטו</a>
-      <nav aria-label="מידע ומסמכים משפטיים">
-        <a href="terms.html">תנאי שימוש</a><a href="privacy.html">מדיניות פרטיות</a><a href="index.html#privacy">אבטחה</a><a href="accessibility.html" aria-current="page">הצהרת נגישות</a><a href="https://github.com/ombed/paintItBlack">הקוד ב־GitHub</a><a href="mailto:contact@inkognito.co.il">יצירת קשר</a>
-      </nav>
-      <span>© 2026 אינקוגניטו</span>
-    </div>
+  <footer class="foot">
+    <a class="mark" href="index.html">אינקוגניטו</a>
+    <nav aria-label="מידע ומסמכים משפטיים">
+      <a href="terms.html">תנאי שימוש</a><a href="privacy.html">מדיניות פרטיות</a><a href="index.html#privacy">אבטחה</a><a href="accessibility.html" aria-current="page">הצהרת נגישות</a><a href="https://github.com/ombed/paintItBlack">הקוד ב־GitHub</a><a href="mailto:contact@inkognito.co.il">יצירת קשר</a>
+    </nav>
+    <span>© 2026 אינקוגניטו</span>
   </footer>
+  </div>
+</div>
+<script src="landing.js"></script>
 </body>
 </html>

@@ -55,6 +55,10 @@ for (const p of pages) {
     // relative, or from the root (404.html is served at any depth)
     ok(/href="\/?(?:index\.html)?#?privacy|href="\/?privacy\.html"/.test(h) && /href="\/?terms\.html"/.test(h) && /href="\/?accessibility\.html"/.test(h), p + ": the footer links the privacy policy, terms and accessibility statement");
   }
+  // one book (the law-report design, 6.10): every public page has the home page's spine, and the
+  // script that opens its menu on a phone; the owner's page keeps its own plain layout
+  if (p !== "admin.html")
+    ok(/<header class="spine" id="spine">/.test(h) && /<button class="menu-btn"[^>]*aria-controls="sheet"/.test(h) && /<script src="\/?landing\.js"><\/script>/.test(h), p + ": the home page's spine, with its phone menu and the script that opens it");
 }
 
 console.log("\n— the way in —");
