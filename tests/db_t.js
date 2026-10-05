@@ -31,13 +31,15 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
     alter default privileges in schema public grant all on tables to anon, authenticated;
     alter default privileges in schema public grant all on sequences to anon, authenticated;
     alter default privileges in schema public grant execute on functions to anon, authenticated;
-    -- the extensions 0004 uses, as stand-ins: Vault's view of the secrets, pg_net's call (here
-    -- recorded, never sent) and pg_cron's schedule
+    -- the extensions the migrations use, as stand-ins: Vault's view of the secrets, pg_net's
+    -- calls (here recorded, never sent) and pg_cron's schedule
     create schema vault; create table vault.stub_secrets (name text primary key, decrypted_secret text);
     create view vault.decrypted_secrets as select name, decrypted_secret from vault.stub_secrets;
     create schema net; create table net.calls (id serial, url text, body jsonb, headers jsonb, timeout_milliseconds int);
     create function net.http_post(url text, body jsonb default '{}', params jsonb default '{}', headers jsonb default '{}', timeout_milliseconds int default 5000)
       returns bigint language sql as $$ insert into net.calls (url, body, headers, timeout_milliseconds) values (url, body, headers, timeout_milliseconds) returning id::bigint $$;
+    create function net.http_get(url text, params jsonb default '{}', headers jsonb default '{}', timeout_milliseconds int default 5000)
+      returns bigint language sql as $$ insert into net.calls (url, headers, timeout_milliseconds) values (url, headers, timeout_milliseconds) returning id::bigint $$;
     create schema cron; create table cron.jobs (jobname text, schedule text, command text);
     create function cron.schedule(job_name text, schedule text, command text)
       returns bigint language sql as $$ insert into cron.jobs values (job_name, schedule, command) returning 1::bigint $$;
@@ -268,6 +270,22 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
     }
   }
 
+  console.log("\n— a quiet week does not pause the free project (0010) —");
+  {
+    const job = (await db.query("select * from cron.jobs where jobname = 'keep-awake'")).rows[0];
+    ok(job && job.schedule === "17 */4 * * *", "a request every four hours, \"a few each day\" (" + (job && job.schedule) + ")");
+    // the job's own command, run as pg_cron would, and the request it makes
+    const last = (await db.query("select coalesce(max(id), 0) m from net.calls")).rows[0].m;
+    if (job) await db.exec(job.command);
+    const made = (await db.query("select * from net.calls where id > $1", [last])).rows;
+    const cfg = fs.readFileSync(path.join(__dirname, "..", "site", "config.js"), "utf8");
+    const site = { url: /url: "([^"]+)"/.exec(cfg)[1], key: /key: "([^"]+)"/.exec(cfg)[1] };
+    ok(made.length === 1 && made[0].url === site.url + "/rest/v1/rpc/ping", "it asks this project's own API, as a browser would: " + (made[0] && made[0].url));
+    ok(made[0] && made[0].headers.apikey === site.key && Object.keys(made[0].headers).length === 1, "with the site's public key from site/config.js, and nothing else: no secret key");
+    ok((await as(null, () => db.query("select public.ping() p"))).rows[0].p === true, "anon may call ping(), and it answers true");
+    ok(/permission denied/.test(await tries(() => as(A, () => db.query("select public.ping()"))) || ""), "a signed-in account may not: nothing it does needs it");
+  }
+
   // The checks above try one door at a time. Supabase's default grants open more doors than
   // anyone tries (its live advisor found two the checks missed), so pin the whole list: every
   // privilege the API roles hold in public, on tables, sequences, columns and functions.
@@ -289,7 +307,7 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
     "delete_my_account() EXECUTE authenticated", "is_admin() EXECUTE authenticated", "profiles SELECT authenticated",
     "profiles.approved UPDATE authenticated", "profiles.blocked UPDATE authenticated",
     "log_not_now() EXECUTE authenticated", "set_log_enabled() EXECUTE authenticated", "submit_log() EXECUTE authenticated",
-    "touch() EXECUTE authenticated", "usage_logs SELECT authenticated"];
+    "touch() EXECUTE authenticated", "usage_logs SELECT authenticated", "ping() EXECUTE anon"];
   const extra = held.filter((x) => !allowed.includes(x)), missing = allowed.filter((x) => !held.includes(x));
   ok(!extra.length, "no privilege beyond the list" + (extra.length ? ": " + extra.join("; ") : ""));
   ok(!missing.length, "every listed privilege is held" + (missing.length ? ": " + missing.join("; ") : ""));
