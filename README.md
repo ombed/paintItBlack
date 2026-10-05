@@ -1,12 +1,12 @@
-# paintItBlack
+# InKognito
 
-paintItBlack removes identifying details (people, places, organisations, ID and phone numbers) from Hebrew Word and PDF documents before they are pasted into an AI tool.
+InKognito removes identifying details (people, places, organisations, ID and phone numbers) from Hebrew Word and PDF documents before they are pasted into an AI tool.
 Each detail is replaced with a consistent substitute, and when the AI answers, the tool puts the real names back into the answer.
 Everything runs in the browser. There is no server, and the document never leaves the computer.
 It was built for a real client, a lawyer, and shaped by her feedback and her session logs, which record timings and clicks but never text.
 The interface is in Hebrew; the Hebrew documentation follows this section.
 
-**Live:** https://ombed.github.io/paintItBlack/ · **Demo (36 s):** [docs/demo/demo.mp4](docs/demo/demo.mp4), on an invented court transcript from the benchmark corpus
+**Live:** https://ombed.github.io/inkognito/ · **Demo (36 s):** [docs/demo/demo.mp4](docs/demo/demo.mp4), on an invented court transcript from the benchmark corpus
 
 ![Demo: load a document, review the people found, redact, paste an AI answer, get the real names back](docs/demo/demo.gif)
 

@@ -1,6 +1,6 @@
 ---
 name: session-triage
-description: Triage the user's session package for paintItBlack (a zip holding session-log.json, maybe leak-report.json) into a plain summary for the owner and a ranked engineering list, without fixing anything. Use when a package arrives, or when asked what a session showed.
+description: Triage the user's session package for InKognito (a zip holding session-log.json, maybe leak-report.json) into a plain summary for the owner and a ranked engineering list, without fixing anything. Use when a package arrives, or when asked what a session showed.
 ---
 
 # Session triage

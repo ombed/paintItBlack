@@ -34,7 +34,7 @@ for (const f of swFiles) ok("sw.js caches " + f + " but the site does not ship i
   ok("sw.js has a MINE fetch pattern", !!m);
   if (m) {
     const MINE = eval(m[1]);
-    for (const f of swFiles) ok("sw.js caches " + f + " but does not serve it from the cache", MINE.test("/paintItBlack/" + f));
+    for (const f of swFiles) ok("sw.js caches " + f + " but does not serve it from the cache", MINE.test("/inkognito/" + f));
   }
 }
 

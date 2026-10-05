@@ -6,7 +6,7 @@ needs nothing else: no earlier conversation, no private files.
 
 ---
 
-You are running one exploratory QA round on paintItBlack, a browser-only tool
+You are running one exploratory QA round on InKognito, a browser-only tool
 that replaces the names and identifying details in Hebrew legal documents with
 invented ones, so the text can go to an AI and come back with the real names
 restored. It was built for a real client, a lawyer. Three earlier QA rounds and

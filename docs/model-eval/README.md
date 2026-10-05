@@ -1,6 +1,6 @@
 # Choosing the name-recognition model (September 2026)
 
-This folder is the full record of how paintItBlack chose the model that suggests names, bodies and
+This folder is the full record of how InKognito chose the model that suggests names, bodies and
 places in the user's documents. It covers what was tried, how it was judged, what each decision was, and
 all the data behind it. The work ran on 23–24 September 2026 and ended in **v56**.
 

@@ -103,8 +103,8 @@ jobs:
         run: |
           test -n "$WANT"
           for i in $(seq 1 30); do
-            page=$(curl -fsS "https://ombed.github.io/paintItBlack/index.html?verify=$RANDOM" | grep -o 'גרסה v[0-9]*' | head -1 | grep -o 'v[0-9]*' || true)
-            worker=$(curl -fsS "https://ombed.github.io/paintItBlack/sw.js?verify=$RANDOM" | grep -o 'v[0-9][0-9]*' | head -1 || true)
+            page=$(curl -fsS "https://ombed.github.io/inkognito/index.html?verify=$RANDOM" | grep -o 'גרסה v[0-9]*' | head -1 | grep -o 'v[0-9]*' || true)
+            worker=$(curl -fsS "https://ombed.github.io/inkognito/sw.js?verify=$RANDOM" | grep -o 'v[0-9][0-9]*' | head -1 || true)
             echo "attempt $i: page=$page worker=$worker want=$WANT"
             if [ "$page" = "$WANT" ] && [ "$worker" = "$WANT" ]; then exit 0; fi
             sleep 10

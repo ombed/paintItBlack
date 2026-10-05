@@ -1,4 +1,4 @@
-# paintItBlack — the step-up plan
+# InKognito — the step-up plan
 
 > **מצב, 7.9.2026.** ספרינטים A ו-B הושלמו, וכך גם פריטי המחקר ורוב ספרינט C.
 > ההחלטות שנגזרו מכאן, והמדידות שלהן, נמצאות ב-`docs/PLAN-v18.md`,

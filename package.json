@@ -1,5 +1,5 @@
 {
-  "name": "paintitblack-tests",
+  "name": "inkognito-tests",
   "version": "1.0.0",
   "description": "Browser checks for the redaction tool",
   "directories": {
@@ -28,7 +28,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github-new:ombed/paintItBlack.git"
+    "url": "git@github-new:ombed/inkognito.git"
   },
   "author": "",
   "license": "PolyForm-Shield-1.0.0",
