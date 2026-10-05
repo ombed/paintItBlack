@@ -5,11 +5,16 @@
    - The usage log, only with active consent (migration 0007; the owner's decision, 4.10): the
      first time a document is sent (copied or downloaded), a card asks. "כן, לשלוח" is a yes;
      "לא עכשיו" asks once more, after the fifth sent document, and a second "not now" is a no.
-     Nothing is uploaded before a yes, and after a yes the log since the page opened goes up, so
-     the first document is not lost. The tool calls window.__inkHost.docEnd() when a document
-     ends (a new document, or leaving the page) with its own text-free exports; only the events
-     since the last upload go, and only if a document was processed in them. The server checks
-     the shape again and stores nothing without a yes (submit_log).
+     Nothing is uploaded before a yes. A first yes, with no answer before it, sends the log since
+     the page opened, so the first document is not lost; a yes that follows a "not now" or a no
+     sends only what comes after it (review 5.10: switching off and on again sent what was done
+     while off). The tool calls window.__inkHost.docEnd() when a document ends (a new document,
+     or leaving the page) with its own text-free exports; only the events since the last upload
+     go, and only if a document was processed in them. The server checks the shape again and
+     stores nothing without a yes (submit_log).
+   - The answer is the account's, as the server holds it: another tab, or the panel, may have
+     given it. A tab reads it again before it asks, after a "not now", and when it comes back to
+     the front.
    - An account panel: the log switch, sign out, and deleting the account. */
 (function () {
   const A = window.INK_AUTH;
@@ -17,6 +22,11 @@
   const sb = window.supabase.createClient(A.url, A.key, { auth: { flowType: "implicit", persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: A.storage } });
   const ROOT = new URL("../", location.href).href, LOGIN = ROOT + "login.html";
   let session = null, profile = null, sentT = -1, leavingTo = null;
+  /* refused: the account has answered something other than yes, here or before ("not now", or a
+     no). cutAt: the moment of a yes that came after such an answer, on this computer's clock (the
+     log counts its times from its "started", on the same clock). Nothing recorded at or before it
+     goes up: what was done while the answer was no stays out, even after the yes. */
+  let refused = false, cutAt = 0;
   // once: signing out also fires SIGNED_OUT, and a second navigation would cut the first off
   let gone = false;
   const leave = (to) => { if (gone) return; gone = true; A.clearCookie(); location.replace(to); };
@@ -74,21 +84,56 @@
     }
     // no answer from the database: treat the log as not agreed to (nothing is sent)
     profile = r.data || { email: session.user.email || "", full_name: null, log_enabled: false, log_asks: 2 };
+    refused = profile.log_enabled === false || (profile.log_asks || 0) > 0;
     // this runs in the page's head: a quick answer can arrive before the body exists
     if (document.body) panel(); else addEventListener("DOMContentLoaded", panel, { once: true });
+    // back in front: another tab may have answered meanwhile
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") fresh(); });
   });
+
+  /* The account's answer as the server holds it now. A yes given elsewhere counts here from the
+     moment this tab learns of it: what this tab did before stays out. An answer given in this tab
+     moves `epoch`, and a reading that started before it is dropped: it may predate the answer. */
+  let reading = null, epoch = 0;
+  const fresh = () => {
+    const at = epoch;
+    if (reading && reading.at === at) return reading;
+    const p = sb.from("profiles").select("log_enabled,log_asks").eq("id", session.user.id).maybeSingle().then(({ data }) => {
+      if (!data || !profile || at !== epoch) return;
+      if (data.log_enabled === true && profile.log_enabled !== true) cutAt = Date.now();
+      if (data.log_enabled === false || (data.log_asks || 0) > 0) refused = true;
+      profile.log_enabled = data.log_enabled;
+      profile.log_asks = data.log_asks;
+      syncSwitch();
+      // answered elsewhere: a card still open here would ask about nothing
+      const card = document.getElementById("ink-ask");
+      if (card && data.log_enabled !== null) card.remove();
+    }, () => {});
+    p.at = at;
+    reading = p;
+    p.then(() => { if (reading === p) reading = null; });
+    return p;
+  };
 
   // the document's text-free log, once: events after the last upload, if a document ran in them
   function docEnd({ how, log, leaks }) {
+    counted = false;
     if (!session || !profile || profile.log_enabled !== true) return;
-    let full;
-    try { full = JSON.parse(log); } catch (_) { return; }
-    const events = (full.events || []).filter((e) => e.t > sentT);
+    let full, report = null;
+    try { full = JSON.parse(log); if (leaks) report = JSON.parse(leaks); } catch (_) { return; }
+    // nothing from before a yes that followed a refusal: the log's times count from its start
+    const after = Math.max(sentT, cutAt ? cutAt - Date.parse(full.started) : -1);
+    const events = (full.events || []).filter((e) => e.t > after);
     if (!events.some((e) => e.ev === "run")) return;
+    // the same cut for the names marked as missed (each carries the moment it was marked)
+    if (report && cutAt) {
+      const shapes = (report.shapes || []).filter((s) => Date.parse(s.when) > cutAt);
+      report = shapes.length ? { ...report, count: shapes.length, shapes } : null;
+    }
     // where this slice of the page load starts, so a report times it from there (scripts/log-report.js)
-    const from = Math.max(0, sentT);
+    const from = Math.max(0, after);
     sentT = events[events.length - 1].t;
-    const body = JSON.stringify({ p_log: { ...full, from, events }, p_leaks: leaks ? JSON.parse(leaks) : null });
+    const body = JSON.stringify({ p_log: { ...full, from, events }, p_leaks: report });
     // keepalive lets the request outlive a closing page; browsers cap such a body at 64 KB
     fetch(A.url + "/rest/v1/rpc/submit_log", {
       method: "POST", keepalive: how === "leave" && body.length < 60000, body,
@@ -97,29 +142,39 @@
   }
   /* A document was sent: the moment to ask, when the tool has just done its job. The first sent
      document asks; after one "not now", the fifth asks again; then never. Counted per account in
-     this browser. */
-  let asked = false;
-  function docSent({ log }) {
-    if (!session || !profile || profile.log_enabled !== null || asked) return;
+     this browser, once per document (a copy and a download of one document are one), and again
+     after a "not now" in the same page load (review 5.10). */
+  let asked = false, counted = false;
+  const due = (n) => ((profile.log_asks || 0) === 0 ? n >= 1 : profile.log_asks === 1 && n >= 5);
+  function docSent({ log, leaks }) {
+    if (!session || !profile || profile.log_enabled !== null || asked || counted) return;
+    counted = true;
     const k = "ink-sent:" + session.user.id;
     let n = 0;
     try { n = (Number(localStorage.getItem(k)) || 0) + 1; localStorage.setItem(k, String(n)); } catch (_) { n = 1; }
-    if ((profile.log_asks || 0) === 0 ? n >= 1 : (profile.log_asks === 1 && n >= 5)) { asked = true; askCard(log); }
+    if (!due(n)) return;
+    // ask only if the account still has not answered, and the count still calls for it
+    asked = true;
+    fresh().then(() => { if (profile.log_enabled === null && due(n)) askCard(log, leaks); else asked = false; });
   }
   window.__inkHost = { docEnd, docSent };
 
-  function askCard(log) {
+  function askCard(log, leaks) {
     const el = (tag, attrs, ...kids) => { const n = document.createElement(tag); Object.assign(n, attrs || {}); kids.forEach((k) => n.append(k)); return n; };
-    // what would be sent: the tool's own export, which carries no text
+    // what would be sent: the tool's own exports, which carry no text, the report on missed names included
     let sample = "";
-    try { const j = JSON.parse(log); sample = JSON.stringify({ ...j, events: (j.events || []).slice(0, 12) }, null, 1); } catch (_) {}
+    try {
+      const j = JSON.parse(log), log12 = { ...j, events: (j.events || []).slice(0, 12) };
+      sample = JSON.stringify(leaks ? { log: log12, leaks: JSON.parse(leaks) } : log12, null, 1);
+    } catch (_) {}
     const h = el("h2", { id: "ink-ask-h", tabIndex: -1, textContent: "עזרו לנו לשפר את הזיהוי" });
     h.style.cssText = "font-size:16px;margin:0 0 6px;outline:none";
-    const p = el("p", { textContent: "בסוף כל מסמך יישלח יומן קצר: לחיצות, זמנים וספירות. בלי שום טקסט מהמסמך. אפשר לשנות את זה בכל עת בחלונית החשבון." });
+    const p = el("p", { textContent: "בסוף כל מסמך יישלח יומן קצר: לחיצות, זמנים וספירות. אם סימנתם שם שהכלי פספס, יישלח גם תיאור של הצורה שלו. השם עצמו ומילים מהמסמך לא נשלחים. אפשר לשנות את זה בכל עת בחלונית החשבון. " },
+      el("a", { href: ROOT + "privacy.html", target: "_blank", rel: "noopener", textContent: "הפירוט המלא" }));
     p.style.cssText = "margin:0 0 8px;color:var(--ink2,#444);line-height:1.5";
     // it scrolls, so the keyboard must reach it
     const pre = el("pre", { textContent: sample, tabIndex: 0 });
-    pre.setAttribute("aria-label", "דוגמה ליומן שנשלח"); pre.dir = "ltr"; pre.style.cssText = "max-height:180px;overflow:auto;font-size:11.5px;background:var(--panel2,#f4f4f1);padding:8px;border-radius:8px;margin:6px 0 0";
+    pre.setAttribute("aria-label", "דוגמה למה שנשלח"); pre.dir = "ltr"; pre.style.cssText = "max-height:180px;overflow:auto;font-size:11.5px;background:var(--panel2,#f4f4f1);padding:8px;border-radius:8px;margin:6px 0 0";
     const det = el("details", {}, el("summary", { textContent: "מה בדיוק נשלח?" }), pre);
     det.style.cssText = "margin:0 0 12px;cursor:pointer";
     const yes = el("button", { type: "button", textContent: "כן, לשלוח" });
@@ -135,19 +190,25 @@
     h.focus();
     const close = () => card.remove();
     yes.addEventListener("click", async () => {
+      const at = Date.now();
       const { error } = await sb.rpc("set_log_enabled", { p_on: true });
       if (error) { p.textContent = "השינוי לא נשמר. אפשר לנסות שוב."; return; }
+      epoch++;
+      if (refused) cutAt = at;
       profile.log_enabled = true; syncSwitch(); close();
     });
     const notNow = async () => {
+      if (!card.isConnected) return;
       close();
-      // what happened before the answer stays out, even if a yes comes later from the panel
-      try { const ev = JSON.parse(log).events || []; if (ev.length) sentT = Math.max(sentT, ev[ev.length - 1].t); } catch (_) {}
+      // whatever the server makes of it, nothing done until a later yes goes up
+      epoch++;
+      refused = true;
       const { error } = await sb.rpc("log_not_now");
       if (error) return;
-      profile.log_asks = (profile.log_asks || 0) + 1;
-      if (profile.log_asks >= 2) profile.log_enabled = false;
-      syncSwitch();
+      // the server's answer, not a guess: another tab or the panel may have answered first
+      await fresh();
+      // counting resumes: the reminder can come in this page load
+      asked = false;
     };
     no.addEventListener("click", notNow);
     card.addEventListener("keydown", (e) => { if (e.key === "Escape") notNow(); });
@@ -220,10 +281,18 @@
       pane.hidden = true; btn.setAttribute("aria-expanded", "false"); btn.focus();
     });
     sw.addEventListener("change", async () => {
-      const on = sw.checked;
+      const on = sw.checked, at = Date.now(), was = profile.log_enabled;
+      epoch++;
+      // off holds in this tab at once: a document that ends while the request is on its way stays here
+      if (!on) { profile.log_enabled = false; refused = true; }
       const { error } = await sb.rpc("set_log_enabled", { p_on: on });
-      if (error) { sw.checked = !on; msg.textContent = "השינוי לא נשמר. אפשר לנסות שוב."; return; }
+      epoch++;
+      if (error) { profile.log_enabled = was; sw.checked = !on; msg.textContent = "השינוי לא נשמר. אפשר לנסות שוב."; return; }
+      if (on && refused) cutAt = at;
       profile.log_enabled = on;
+      // the switch has answered the card's question
+      const card = document.getElementById("ink-ask");
+      if (card) card.remove();
       msg.textContent = on ? "היומן יישלח בסוף כל מסמך." : "היומן לא יישלח יותר.";
     });
     // this browser only: the account's other devices stay signed in

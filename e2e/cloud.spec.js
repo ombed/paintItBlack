@@ -21,16 +21,21 @@ const SESSION = { access_token: JWT, token_type: "bearer", expires_in: 3600, exp
   user: { id: "00000000-0000-0000-0000-00000000000a", aud: "authenticated", role: "authenticated", email: "a@example.co.il" } };
 const DOC = ["פרוטוקול", "רחל פרידמן: אני מבקשת לפתוח.", "אבנר שטרן: הגעתי.", "רחל פרידמן: תודה."].join("\n");
 
-async function hosted(page, { session = true, logOn = true, state = {} } = {}) {
+/* The account as the server holds it: the answers change it as migration 0007 does (a "not now"
+   counts only while there is no answer, and the second is a no). Two tabs share one with
+   { server: calls.row }. */
+async function hosted(page, { session = true, logOn = true, state = {}, server = null } = {}) {
   const calls = [];
+  const row = server || { email: "a@example.co.il", full_name: "Alpha", log_enabled: logOn, log_asks: 0, approved: true, blocked: false, ...state };
+  calls.row = row;
   await page.route(PROJECT + "/**", async (route) => {
     const req = route.request(), u = new URL(req.url());
-    calls.push({ path: u.pathname, query: u.search, body: req.postData() ? JSON.parse(req.postData()) : null, keepalive: false });
+    const body = req.postData() ? JSON.parse(req.postData()) : null;
+    calls.push({ path: u.pathname, query: u.search, body, keepalive: false, at: Date.now() });
     if (u.pathname === "/auth/v1/user") return route.fulfill({ json: SESSION.user });
-    if (u.pathname === "/rest/v1/profiles") {
-      const row = { email: "a@example.co.il", full_name: "Alpha", log_enabled: logOn, approved: true, blocked: false, ...state };
-      return route.fulfill({ json: /object/.test(req.headers().accept || "") ? row : [row] });
-    }
+    if (u.pathname === "/rest/v1/profiles") return route.fulfill({ json: /object/.test(req.headers().accept || "") ? { ...row } : [{ ...row }] });
+    if (u.pathname === "/rest/v1/rpc/set_log_enabled") row.log_enabled = body.p_on;
+    if (u.pathname === "/rest/v1/rpc/log_not_now" && row.log_enabled === null) { row.log_asks += 1; row.log_enabled = row.log_asks >= 2 ? false : null; }
     return route.fulfill({ status: u.pathname.startsWith("/rest/v1/rpc/") ? 204 : 200, body: "" });
   });
   // where the account panel sends people: stand-ins, so a test ends where it lands
@@ -54,8 +59,8 @@ async function boot(page) {
   await expect(page.getByText("לפני שמתחילים")).toHaveCount(0);
 }
 
-async function runDoc(page, name) {
-  await H.upload(page, name, DOC);
+async function runDoc(page, name, doc = DOC) {
+  await H.upload(page, name, doc);
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 15000 });
   await H.goOn(page);
@@ -287,6 +292,178 @@ test("after one not-now, the fifth sent document asks again, and a second not-no
   await newDoc(page);
   await page.waitForTimeout(500);
   expect(submits(calls)).toHaveLength(0);
+});
+
+/* A refusal reaches back (review 5.10): what is done while the answer is "not now" or no never goes
+   up, not even after a later yes. Only a first yes, with no answer before it, sends the page load
+   from its start. The moments are taken on the page's clock, which the log's times count on. */
+const pageNow = (page) => page.evaluate(() => Date.now());
+async function panelSwitch(page, on) {
+  await page.getByRole("button", { name: "חשבון", exact: true }).click();
+  const before = await pageNow(page);
+  if (on) await page.getByLabel(/שליחת יומן שימוש/).check(); else await page.getByLabel(/שליחת יומן שימוש/).uncheck();
+  await expect(page.locator("#ink-account-msg")).toContainText(on ? "יישלח בסוף" : "לא יישלח");
+  await page.getByRole("button", { name: "חשבון", exact: true }).click();
+  return before;
+}
+// nothing in an upload from at or before a moment
+const allAfter = (sub, moment) => {
+  const cut = moment - Date.parse(sub.body.p_log.started);
+  return sub.body.p_log.events.every((e) => e.t > cut) && sub.body.p_log.from >= cut;
+};
+
+test("switched off and on again: what was done while it was off never goes up", async ({ page }) => {
+  const calls = await hosted(page);
+  await boot(page);
+  await runDoc(page, "one.docx");
+  await newDoc(page);
+  await expect.poll(() => submits(calls).length).toBe(1);
+  await panelSwitch(page, false);
+  await runDoc(page, "private.docx");
+  await sendDoc(page);
+  await newDoc(page);
+  const on = await panelSwitch(page, true);
+  await runDoc(page, "three.docx");
+  await newDoc(page);
+  await expect.poll(() => submits(calls).length).toBe(2);
+  expect(allAfter(submits(calls)[1], on)).toBe(true);
+});
+
+test("a no from an earlier visit, then switched on: only what comes after the yes goes up", async ({ page }) => {
+  const calls = await hosted(page, { logOn: false, state: { log_asks: 2 } });
+  await boot(page);
+  await runDoc(page, "private.docx");
+  const on = await panelSwitch(page, true);
+  // the document worked on under the no ends after the yes: none of it goes up
+  await newDoc(page);
+  await page.waitForTimeout(500);
+  expect(submits(calls)).toHaveLength(0);
+  await runDoc(page, "two.docx");
+  await newDoc(page);
+  await expect.poll(() => submits(calls).length).toBe(1);
+  expect(allAfter(submits(calls)[0], on)).toBe(true);
+});
+
+test("not now, then a yes from the panel: only what comes after the yes goes up", async ({ page }) => {
+  const calls = await hosted(page, { logOn: null });
+  await boot(page);
+  await runDoc(page, "one.docx");
+  await sendDoc(page);
+  await page.locator("#ink-ask").getByRole("button", { name: "לא עכשיו" }).click();
+  await expect.poll(() => calls.row.log_asks).toBe(1);
+  await newDoc(page);
+  await runDoc(page, "two.docx");
+  const on = await panelSwitch(page, true);
+  await newDoc(page);
+  await runDoc(page, "three.docx");
+  await newDoc(page);
+  await expect.poll(() => submits(calls).length).toBe(1);
+  await page.waitForTimeout(500);
+  expect(submits(calls)).toHaveLength(1);
+  expect(allAfter(submits(calls)[0], on)).toBe(true);
+});
+
+test("the switch answers an open card: the card closes, and a first yes there sends the page load", async ({ page }) => {
+  const calls = await hosted(page, { logOn: null });
+  await boot(page);
+  await runDoc(page, "one.docx");
+  await sendDoc(page);
+  await expect(page.locator("#ink-ask")).toBeVisible();
+  await panelSwitch(page, true);
+  await expect(page.locator("#ink-ask")).toHaveCount(0);
+  expect(calls.filter((c) => c.path === "/rest/v1/rpc/log_not_now")).toHaveLength(0);
+  await newDoc(page);
+  await expect.poll(() => submits(calls).length).toBe(1);
+  expect(submits(calls)[0].body.p_log.from).toBe(0);
+});
+
+test("after a not-now, counting goes on in the same page load, once per document", async ({ page }) => {
+  const calls = await hosted(page, { logOn: null });
+  const k = "ink-sent:" + SESSION.user.id;
+  await boot(page);
+  await runDoc(page, "one.docx");
+  await sendDoc(page);
+  await page.locator("#ink-ask").getByRole("button", { name: "לא עכשיו" }).click();
+  await expect.poll(() => calls.row.log_asks).toBe(1);
+  await newDoc(page);
+  // documents two and three, as if sent
+  await page.evaluate((key) => localStorage.setItem(key, "3"), k);
+  // the fourth, copied twice: one count, no card
+  await runDoc(page, "four.docx");
+  await sendDoc(page);
+  await sendDoc(page);
+  await expect.poll(() => page.evaluate((key) => localStorage.getItem(key), k)).toBe("4");
+  await expect(page.locator("#ink-ask")).toHaveCount(0);
+  await newDoc(page);
+  // the fifth asks again, in the same page load
+  await runDoc(page, "five.docx");
+  await sendDoc(page);
+  await expect(page.locator("#ink-ask")).toBeVisible();
+});
+
+test("two tabs: after a yes in one, a not-now on the other's card keeps the account's yes", async ({ page }) => {
+  const calls = await hosted(page, { logOn: null });
+  const other = await page.context().newPage();
+  await H.serveEngineWithStub(other);
+  await other.addInitScript(() => { window.__ner = { names: () => [], cached: true }; });
+  const callsB = await hosted(other, { server: calls.row });
+  await boot(other);
+  await runDoc(other, "b.docx");
+  await sendDoc(other);
+  await expect(other.locator("#ink-ask")).toBeVisible();
+  await boot(page);
+  await runDoc(page, "a.docx");
+  await sendDoc(page);
+  await page.locator("#ink-ask").getByRole("button", { name: "כן, לשלוח" }).click();
+  await expect.poll(() => calls.row.log_enabled).toBe(true);
+  await other.locator("#ink-ask").getByRole("button", { name: "לא עכשיו" }).click();
+  // the server kept the yes; the other tab now shows it, and its next document goes up
+  await expect.poll(() => calls.row.log_enabled).toBe(true);
+  await other.getByRole("button", { name: "חשבון", exact: true }).click();
+  await expect(other.getByLabel(/שליחת יומן שימוש/)).toBeChecked();
+  await other.getByRole("button", { name: "חשבון", exact: true }).click();
+  await newDoc(other);
+  await runDoc(other, "b2.docx");
+  await newDoc(other);
+  await expect.poll(() => submits(callsB).length).toBe(1);
+  await other.close();
+});
+
+// select a word on the check screen and mark it as a person, as in e2e/leak.spec.js
+async function markByHand(page, word) {
+  const sheet = page.locator("[data-work] section").first();
+  await expect(sheet).toContainText(word);
+  await page.evaluate((w) => {
+    const root = document.querySelector("[data-work] section");
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let node; while ((node = walker.nextNode())) { const i = node.textContent.indexOf(w); if (i >= 0) {
+      const r = document.createRange(); r.setStart(node, i); r.setEnd(node, i + w.length);
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      node.parentElement.closest("[onmouseup], div").dispatchEvent(new MouseEvent("mouseup", { bubbles: true })); break; } }
+  }, word);
+  const popup = page.locator("[data-popup]");
+  await expect(popup).toBeVisible();
+  await popup.getByRole("button", { name: "אדם", exact: true }).click();
+  await expect(sheet).not.toContainText(word);
+}
+
+test("the card names the report on missed names, links the details, and its sample shows the report", async ({ page }) => {
+  const calls = await hosted(page, { logOn: null });
+  await boot(page);
+  await runDoc(page, "one.docx", DOC + "\nהשכן קרבוטינסקי הגיע באיחור.");
+  await markByHand(page, "קרבוטינסקי");
+  await sendDoc(page);
+  const card = page.locator("#ink-ask");
+  await expect(card).toContainText("שם שהכלי פספס");
+  await expect(card.getByRole("link", { name: "הפירוט המלא" })).toHaveAttribute("href", /privacy\.html$/);
+  await card.getByText("מה בדיוק נשלח?").click();
+  const sample = JSON.parse(await card.locator("pre").innerText());
+  expect(sample.leaks.shapes[0].lens).toEqual([10]);
+  expect(JSON.stringify(sample)).not.toMatch(/[֐-׿]{3,}/);
+  await card.getByRole("button", { name: "כן, לשלוח" }).click();
+  await newDoc(page);
+  await expect.poll(() => submits(calls).length).toBe(1);
+  expect(submits(calls)[0].body.p_leaks.shapes[0].lens).toEqual([10]);
 });
 
 /* A background tab: the browser slows its timers, so supabase-js's own refresh (every 30 s,
