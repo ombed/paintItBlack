@@ -17,7 +17,7 @@ const ok = (c, m) => { c ? pass++ : (fail++, console.log("  ✗ " + m)); };
 const SITE = path.join(__dirname, "..", "site");
 const PROJECT = "https://cwsiranjlxbclmaqtucc.supabase.co";
 const CONTACT = "contact@inkognito.co.il";
-const OUT = ["https://github.com/ombed/paintItBlack", "https://mail.google.com", "https://outlook.live.com"];
+const OUT = ["https://github.com/ombed/inkognito", "https://mail.google.com", "https://outlook.live.com"];
 const pages = fs.readdirSync(SITE).filter((f) => f.endsWith(".html"));
 const scripts = fs.readdirSync(SITE).filter((f) => f.endsWith(".js"));
 
