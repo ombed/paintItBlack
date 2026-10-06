@@ -49,13 +49,13 @@ const UID = "00000000-0000-0000-0000-00000000000a";
     return f;
   }
   // a request through the site's front door (what Cloudflare calls), to a raw address
-  async function run(cookie, { nav = true, sb = supabase(), at = now, path: p = "/app/", type = null } = {}) {
+  async function run(cookie, { nav = true, sb = supabase(), at = now, path: p = "/app/", type = null, status = 200 } = {}) {
     const headers = { accept: nav ? "text/html" : "*/*" };
     if (nav) headers["sec-fetch-mode"] = "navigate";
     if (cookie !== null) headers.cookie = cookie;
     let passed = false;
     const served = { "cache-control": "public, max-age=0, must-revalidate", ...(type ? { "content-type": type } : {}) };
-    const res = await G.site({ request: new Request("https://inkognito.co.il" + p, { headers }), next: async () => { passed = true; return new Response("the file", { headers: served }); } }, { fetchImpl: sb, now: at });
+    const res = await G.site({ request: new Request("https://inkognito.co.il" + p, { headers }), next: async () => { passed = true; return new Response("the file", { status, headers: served }); } }, { fetchImpl: sb, now: at });
     return { res, passed, where: res.headers.get("location") || "", sb };
   }
   const ck = (t) => "theme=dark; " + G.COOKIE + "=" + t + "; other=1";
@@ -73,6 +73,62 @@ const UID = "00000000-0000-0000-0000-00000000000a";
   ok(r.passed && !r.sb.calls.length, "a public page passes with no cookie and no call to Supabase");
   r = await run(null, { path: "/app%2Findex.html", nav: false });
   ok(!r.passed && r.res.status === 302, "an encoded way into /app/ meets the gate (the router may not see /app/ in it)");
+
+  console.log("\n— /.well-known/<name>: the one dot path that is public —");
+  /* Tools ask a site for its own files there (RFC 8615: security.txt, an app's links, the page to
+     change a password); they met the sign-in page instead of a 404, and the site could not publish
+     one (the independent review of 6.10). Exactly one plain name passes: letters, digits, ".", "_"
+     and "-", not starting with a dot, without "..". Every way around that stays private: each
+     attack the gate already refuses, aimed at .well-known, and its encoded forms. */
+  for (const n of ["security.txt", "change-password", "apple-app-site-association", "assetlinks.json", "ai-plugin.json", "openid-configuration", "A_b-9.x"])
+    ok(!G.isPrivate("/.well-known/" + n), "/.well-known/" + n + " is public");
+  for (const p of [
+    // no name, or more than one level
+    "/.well-known", "/.well-known/", "/.well-known/a/b", "/.well-known/acme-challenge/token", "/.well-known/security.txt/",
+    // dot segments and dot files, in it or past it
+    "/.well-known/.", "/.well-known/..", "/.well-known/../app/x.js", "/.well-known/./security.txt", "/.well-known/a..b", "/.well-known/..security.txt", "/.well-known/.env",
+    // double slashes and backslashes
+    "/.well-known//security.txt", "//.well-known/security.txt", "/.well-known\\security.txt", "\\.well-known\\security.txt", "/.well-known/\\..\\app\\x.js",
+    "/.well-known/a\\b", "/.well-known/security.txt\\",
+    // its encoded forms: %2e (a dot), %2f (a slash), %5c (a backslash), in either case, and any other escape
+    "/%2ewell-known/security.txt", "/%2Ewell-known/security.txt", "/.well-known%2fsecurity.txt", "/.well-known%2Fsecurity.txt",
+    "/.well-known%5csecurity.txt", "/.well-known%5Csecurity.txt", "/.well-known/%2e", "/.well-known/%2e%2e/app/x.js", "/.well-known/%2E%2E%2Fapp%2Findex.html",
+    "/.well-known/..%2fapp%2fx.js", "/.well-known/..%5capp%5cx.js", "/.well-known%2f..%2fapp%2fx.js", "/.well-known/security%2etxt", "/.well-known/%73ecurity.txt",
+    "/.well-known/security.txt%00", "/.well-known/a%20b",
+    // not exactly it
+    "/app/.well-known/security.txt", "/fonts/.well-known/security.txt", "/.well-knownx/security.txt", "/.well-known-x/security.txt", "/.WELL-KNOWN/security.txt",
+    "/.well-known/security.txt;x", "/.well-known/a:b", "/.well-known/sécurité", "/.well-known/security.txt\n"])
+    ok(G.isPrivate(p), JSON.stringify(p) + " is private");
+  // through the front door, as Cloudflare hands over the address: the file server answers, with its 404 for a file the site does not have
+  G._reset();
+  r = await run(null, { path: "/.well-known/security.txt", nav: false, status: 404, type: "text/html; charset=utf-8" });
+  ok(r.passed && r.res.status === 404 && !r.sb.calls.length && !r.where, "/.well-known/security.txt reaches the file server, with no cookie and no call to Supabase: a missing file is its 404 (" + r.res.status + ")");
+  r = await run(ck("not.a.token"), { path: "/.well-known/security.txt?next=/app/", nav: true, status: 404, type: "text/html; charset=utf-8" });
+  ok(r.passed && r.res.status === 404 && !r.sb.calls.length && !r.res.headers.get("set-cookie"), "…whatever the cookie and the query (the cookie is left alone)");
+  for (const p of ["/.well-known/%2e%2e/app/index.html", "/.well-known/.%2e/app/index.html", "/.well-known/../app/index.html", "/.well-known/..%2fapp%2findex.html",
+    "/.well-known/..%5capp%5cindex.html", "/%2ewell-known/security.txt", "/.well-known%2fsecurity.txt", "/.well-known%5csecurity.txt", "/.well-known/a/b",
+    "/.well-known/\\..\\app\\x.js", "/.well-known/.env", "//.well-known/security.txt", "/.well-known/"]) {
+    G._reset();
+    const x = await run(null, { path: p, nav: false });
+    ok(!x.passed && x.res.status === 302 && x.where === "/login.html", JSON.stringify(p) + " at the front door meets the gate (" + x.res.status + " " + x.where + ")");
+  }
+  // and 20,000 addresses made of those pieces, raw and as the URL parser reads them: whatever passes
+  // there is one plain name that decoding, a backslash or a dot segment cannot turn into another file
+  const PIECES = ["a", "Z", "0", ".", "..", "-", "_", "/", "//", "\\", "%", "%2e", "%2E", "%2f", "%2F", "%5c", "%5C", "%25", "%00", ".%2e", "app", ";", "?", " ", "\n", "\u0000", "．", "é"];
+  let seed = 610, through = 0;
+  const pick = (n) => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed % n; };
+  const unescape = (s) => { try { return decodeURIComponent(s); } catch { return null; } };
+  const strays = [];
+  for (let i = 0; i < 20000; i++) {
+    let s = ["/.well-known/", "/.well-known", "//.well-known/", "/%2ewell-known/"][pick(4)];
+    for (let k = 1 + pick(5); k > 0; k--) s += PIECES[pick(PIECES.length)];
+    for (const p of [s, new URL("https://inkognito.co.il" + s).pathname]) {
+      if (G.isPrivate(p) || !/^\/\.well-known(\/|$)/.test(p)) continue;
+      through++;
+      if (!/^\/\.well-known\/[A-Za-z0-9_-][A-Za-z0-9._-]*$/.test(p) || p.includes("..") || [unescape(p), p.replace(/\\/g, "/"), path.posix.normalize(p)].some((v) => v !== p)) strays.push(JSON.stringify(p));
+    }
+  }
+  ok(through > 100 && !strays.length, through + " of 40,000 random addresses passed as /.well-known/<name>, each a plain name" + (strays.length ? "; not: " + strays.slice(0, 5).join(", ") : ""));
 
   console.log("\n— a genuine, current sign-in passes —");
   G._reset();
