@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The old address of the tool, after the move to inkognito.co.il (6.10.2026). scripts/build-forward.js
+     publishes this page as index.html and as 404.html; e2e/moved.spec.js and tests/forward_t.js check it.
+     The policy allows only this page's own script and style, by their hashes: nothing is fetched, and
+     nothing can be sent anywhere. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-YfpafsEyFyUE0zNF7IuyEn7b7mmRgdsjvkIt9351twE='; style-src 'sha256-4S/1EjRVR9L0D5pgFX2klMz6OfAcONDneW6vqgtit6I='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="robots" content="noindex">
+<meta name="inkognito" content="moved">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#1D3A2E">
+<link rel="canonical" href="https://inkognito.co.il/">
+<link rel="icon" href="data:,">
+<title>אינקוגניטו: הכלי עבר לכתובת חדשה</title>
+<style>
+:root{--bg:#ECEDE7;--panel:#FAFAF7;--panel2:#F1F1EC;--ink:#15171B;--control:#6B7077;--accent:#1D3A2E;--accent-hover:#25483A;
+  --cloth:#1D3A2E;--cloth-ink:#EDE6CC;--gilt:#D8B65A}
+html.dark{--bg:#0E1512;--panel:#151F1A;--panel2:#1B2721;--ink:#EDE6CC;--control:#9A9682;--accent:#D8B65A;--accent-hover:#E6C772}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg)}
+body{color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Arial,"Noto Sans Hebrew",sans-serif;-webkit-font-smoothing:antialiased}
+header{display:flex;align-items:center;height:56px;padding:0 22px;background:var(--cloth);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18)}
+html.dark header{box-shadow:inset 0 -1px 0 rgba(216,182,90,.3)}
+.wordmark{position:relative;display:inline-block;isolation:isolate;padding:6px 0;white-space:nowrap;
+  font:900 24px/1 "Frank Ruhl Libre","David","Times New Roman",serif;color:var(--cloth-ink)}
+.wordmark::after{content:"";position:absolute;right:-3px;bottom:0;width:2.15em;height:.3em;background:var(--gilt);z-index:-1;
+  clip-path:polygon(0 38%,6% 12%,31% 22%,58% 6%,84% 20%,100% 8%,97% 72%,71% 92%,44% 78%,18% 96%,3% 80%)}
+main{max-width:660px;margin:0 auto;padding:44px 22px 72px}
+p{margin:0 0 16px;max-width:62ch}
+#moved>p:first-child{font-size:20px;line-height:1.55;font-weight:500;margin-bottom:20px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+#download,#go{font:inherit;font-size:15px;line-height:1.3;letter-spacing:.01em;padding:12px 20px;border-radius:10px;text-align:center;cursor:pointer}
+#download{border:0;background:var(--accent);color:var(--panel);font-weight:600}
+#download:hover{background:var(--accent-hover)}
+#go{border:1px solid var(--control);background:var(--panel);color:var(--ink);font-weight:500;text-decoration:none}
+#go:hover{background:var(--panel2)}
+a{color:var(--ink)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (max-width:480px){header{padding:0 16px}main{padding:28px 16px 48px}#moved>p:first-child{font-size:18px}.actions>*{flex:1 1 100%}}
+@media print{header{background:none;box-shadow:none;border-bottom:1px solid currentColor}.wordmark{color:inherit}.actions{display:none}}
+</style>
+<script>
+(() => {
+  // day or night as in the tool: the one chosen there (redact-theme), else the system's
+  let theme = null;
+  try { theme = localStorage.getItem("redact-theme"); } catch (_) {}
+  try { if (!theme) theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; } catch (_) {}
+  if (theme === "dark") document.documentElement.classList.add("dark");
+
+  // what the tool saved in this browser, under its own keys (the public tool had no account suffix)
+  const read = (k) => {
+    try { const v = JSON.parse(localStorage.getItem(k) || "null"); return v && typeof v === "object" && !Array.isArray(v) ? v : null; } catch (_) { return null; }
+  };
+  const saved = () => { const cases = read("redact-cases"); return { cases: cases && Object.keys(cases).length ? cases : null, last: read("redact-profile-last") }; };
+  const now = saved();
+  // nothing to take along: straight to the new address
+  if (!now.cases && !now.last) { location.replace("https://inkognito.co.il/"); return; }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("moved").hidden = false;
+    document.getElementById("download").addEventListener("click", () => {
+      // one file of every case, built here; nothing leaves the browser. The tool reads this format
+      // («ייבוא תיקים מקובץ», importCases in its index.html)
+      const { cases, last } = saved(), exported = new Date().toISOString();
+      const file = { inkognito: "cases", v: 1, exported, cases: cases || {}, last };
+      const url = URL.createObjectURL(new Blob([JSON.stringify(file, null, 1)], { type: "application/json" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "inkognito-cases-" + exported.slice(0, 10) + ".json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+    });
+  });
+})();
+</script>
+</head>
+<body>
+<header><span class="wordmark">אינקוגניטו</span></header>
+<main>
+<div id="moved" hidden>
+<p>הכלי עבר לכתובת חדשה: inkognito.co.il. בכתובת החדשה עובדים עם חשבון (חינם).</p>
+<p>התיקים ששמרתם בדפדפן הזה לא עוברים לבד. כדי להעביר אותם, מורידים אותם כאן לקובץ, ואחרי ההרשמה בוחרים «ייבוא תיקים מקובץ».</p>
+<p>הקובץ מכיל את שמות הלקוחות שבתיקים: שמרו אותו כמו כל מסמך של תיק.</p>
+<div class="actions"><button type="button" id="download">הורדת התיקים לקובץ</button><a id="go" href="https://inkognito.co.il/login?mode=signup">מעבר לאינקוגניטו</a></div>
+</div>
+<noscript><p><a href="https://inkognito.co.il/">inkognito.co.il</a></p></noscript>
+</main>
+</body>
+</html>

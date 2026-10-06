@@ -61,6 +61,11 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   await expect(tour).toContainText("מסך הבדיקה");
   await expect(tour).toContainText("4 מתוך 7");
+  // the step explains the marks as they are drawn: a deleted number is a chip with an eraser (it was the text
+  // ∅ until 6.10, and the step still said «∅ — נמחק.»)
+  await expect(tour).toContainText("סמל המחק — נמחק.");
+  await expect(tour).not.toContainText("∅");
+  await expect(page.locator('[data-mark] svg[data-icon="eraser"]').first()).toBeVisible();
   const text = await page.locator("[data-work] section").first().innerText();
   // a complete redaction: no person, no number, no date left in the sample
   for (const s of ["שרעבי", "לודמילה", "כץ", "314277062", "052-6613874", "11.2.2026"]) expect(text).not.toContain(s);

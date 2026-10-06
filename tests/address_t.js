@@ -17,8 +17,10 @@ const ok = (c, m) => { c ? pass++ : (fail++, console.log("  ✗ " + m)); };
 
 const ROOT = path.join(__dirname, "..");
 const H = "\\u0590-\\u05FF";
-// everything whose text reaches the screen, the report or the downloaded package
-const FILES = ["index.html", "redact-engine.js", "page-logic.js", "pdf-text.js", "text-to-docx.js", "support.js", "sw.js", "manifest.webmanifest"];
+// everything whose text reaches the screen, the report or the downloaded package, and the issue form a
+// user fills in to report a leak (it said «אם לחצת» until 6.10)
+const FILES = ["index.html", "redact-engine.js", "page-logic.js", "pdf-text.js", "text-to-docx.js", "support.js", "sw.js", "manifest.webmanifest",
+  ".github/ISSUE_TEMPLATE/leak.yml"];
 // comments are for developers and may quote the old words; "//" after ":" is a URL, not a comment
 const strip = (t) => t.replace(/<!--[\s\S]*?-->/g, " ").replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:\\])\/\/[^\n]*/g, "$1");
 const SINGULAR = [

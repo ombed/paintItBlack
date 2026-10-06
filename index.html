@@ -278,7 +278,7 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v61");
+  console.log("השחרת מסמכים — גרסה v62");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -324,8 +324,8 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
         console.log("עובד שירות: "+served);
         var el=document.getElementById("ver"); if(!el) return;
         if(chip===null) chip=el.innerHTML; else el.innerHTML=chip;
-        if(served==="v61") return;
-        el.innerHTML='גרסה v61 · <b style="color:var(--warn)">מוגש '+served+
+        if(served==="v62") return;
+        el.innerHTML='גרסה v62 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       var ask=function(){ if(sw.controller) sw.controller.postMessage("version") };
@@ -388,8 +388,8 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
         <button onClick="{{ onTourClose }}" aria-label="סגירת הסיור" style="margin-inline-start:auto;width:24px;height:24px;border-radius:50%;color:var(--ink3);display:grid;place-items:center"><svg class="ic" data-icon="x" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
       </div>
       <div aria-live="polite"><b style="display:block;font-weight:500;font-size:17px;margin-bottom:6px">{{ tourTitle }}</b>
-      <p style="margin:0 0 12px;font-size:13px;color:var(--ink2);line-height:1.6">{{ tourText }}</p></div>
-      <sc-if value="{{ tourNudge }}"><p data-tour-nudge role="status" style="margin:-4px 0 12px;font-size:12.5px;color:var(--warn);line-height:1.5">בסיור אפשר ללחוץ רק באזור המואר. כדי לצאת מהסיור — ✕ למעלה.</p></sc-if>
+      <p style="margin:0 0 12px;font-size:13px;color:var(--ink2);line-height:1.6">{{ tourText }}</p>
+      <sc-if value="{{ tourNudge }}"><p data-tour-nudge style="margin:-4px 0 12px;font-size:12.5px;color:var(--warn);line-height:1.5">בסיור אפשר ללחוץ רק באזור המואר. כדי לצאת מהסיור — ✕ למעלה.</p></sc-if></div><!-- ההערה נאמרת בתוך אזור החי של הכרטיס, שכבר במסך כשהיא מגיעה (הביקורת של 6.10) -->
       <div style="display:flex;gap:7px;align-items:center">
         <button onClick="{{ onTourNext }}" style="padding:8px 16px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:600;letter-spacing:.01em">{{ tourNextLabel }}</button>
         <sc-if value="{{ tourHasBack }}"><button onClick="{{ onTourBack }}" style="padding:8px 12px;border-radius:9px;border:1px solid var(--line);font-size:13px">חזרה</button></sc-if>
@@ -425,13 +425,13 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
       <sc-if value="{{ engineFailed }}"><button data-engine-retry onClick="{{ onEngineRetry }}" style="padding:6px 12px;border-radius:9px;background:var(--bad);color:var(--panel);font-size:12.5px;font-weight:500">טעינה מחדש</button></sc-if>
     </div>
   </sc-if>
-  <sc-if value="{{ notice }}">
-    <div data-notice role="status" aria-live="polite" style="position:fixed;bottom:calc(var(--bar-h, 64px) + 14px);left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;color:var(--ink)">
+  <div role="status" aria-live="polite"><!-- ההודעה נאמרת: אזור המצב כבר בדף כשהיא מגיעה, ולא עולה איתה (הביקורת של 6.10) --><sc-if value="{{ notice }}">
+    <div data-notice style="position:fixed;bottom:calc(var(--bar-h, 64px) + 14px);left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;color:var(--ink)">
       <span>{{ notice }}</span>
       <sc-if value="{{ noticeUndo }}"><button onClick="{{ onNoticeUndo }}" style="padding:4px 10px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">ביטול <svg class="ic" data-icon="undo" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg></button></sc-if>
       <button onClick="{{ onNoticeClose }}" aria-label="סגירה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center"><svg class="ic" data-icon="x" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
     </div>
-  </sc-if>
+  </sc-if></div>
 
   <!-- ═════ מסך פתיחה ═════ -->
   <sc-if value="{{ isEntry }}" hint-placeholder-val="{{ true }}">
@@ -465,10 +465,11 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
         <textarea dir="auto" value="{{ pasteText }}" onChange="{{ onPasteText }}" placeholder="הדבקת טקסט לבדיקה…" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font:13.5px/1.6 Rubik,sans-serif;min-height:64px;resize:vertical"></textarea>
       </div>
       <sc-if value="{{ fileErr }}">
-        <div data-file-err id="file-err" role="alert" style="grid-column:1/-1;padding:11px 14px;border-radius:12px;background:var(--bad-soft);color:var(--bad);font-size:13.5px;line-height:1.5">{{ fileErr }}</div>
+        <div data-file-err id="file-err" role="alert" key="{{ fileErrKey }}" style="grid-column:1/-1;padding:11px 14px;border-radius:12px;background:var(--bad-soft);color:var(--bad);font-size:13.5px;line-height:1.5">{{ fileErr }}</div>
       </sc-if>
-      <sc-if value="{{ hasPending }}">
-        <div data-pend style="grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--line)">
+    </div><!-- הקובץ שנטען ושאלת המודל בטלפון נאמרים לקורא מסך: אזור המצב כבר במסך כשהם מגיעים (הביקורת של 6.10). הוא מחוץ לרשת, כדי שלא יוסיף לה שורה ריקה, באותו מרווח, ומצויר מעל הצל של הכרטיסים שמעליו כמו בתוכה -->
+    <div role="status" aria-atomic="false" style="position:relative"><sc-if value="{{ hasPending }}">
+        <div data-pend style="margin-top:12px;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--line)">
           <span style="width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--panel);display:grid;place-items:center;font-size:13px;flex:none"><svg class="ic" data-icon="check" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
           <div style="min-width:0">
             <b style="display:block;font-weight:500;font-size:14px">{{ pendName }}</b>
@@ -479,13 +480,12 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
         </div>
       </sc-if>
       <sc-if value="{{ nerAsk }}">
-        <div data-ner-ask role="group" aria-label="הורדת מודל הזיהוי" style="grid-column:1/-1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-size:13.5px;line-height:1.5">
+        <div data-ner-ask role="group" aria-label="הורדת מודל הזיהוי" style="margin-top:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-size:13.5px;line-height:1.5">
           <span style="flex:1 1 240px">להוריד את מודל הזיהוי? כ-185MB, פעם אחת, ואחר כך הוא נשמר בטלפון. הוא מוצא יותר שמות; על חבילת גלישה עדיף Wi-Fi.</span>
           <button onClick="{{ onNerAskYes }}" style="padding:9px 14px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:600;letter-spacing:.01em">להוריד את המודל</button>
           <button onClick="{{ onNerAskNo }}" style="padding:9px 14px;border-radius:9px;border:1px solid var(--line);font-size:13px">בלי המודל</button>
         </div>
-      </sc-if>
-    </div>
+      </sc-if></div>
 
     <sc-if value="{{ hasCases }}">
       <div style="margin-top:12px;padding:12px 16px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow)">
@@ -529,6 +529,8 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
         <button onClick="{{ onResumeLast }}" style="padding:9px 16px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:600;letter-spacing:.01em;white-space:nowrap">המשך עם הפרופיל</button>
       </div>
     </sc-if>
+    <!-- כל התיקים מקובץ אחד (importCases): הקובץ שירד בכתובת הישנה, גם כשאין עדיין אף תיק שמור -->
+    <div style="margin-top:12px"><button data-import-cases onClick="{{ onImportCases }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel);font-size:12.5px;font-weight:500;color:var(--ink)" style-hover="background:var(--panel2)">ייבוא תיקים מקובץ</button></div>
 
     <!-- ההגדרות מאחורי כותרת שנפתחת (UX #3): ברירות המחדל טובות, והמסך נקרא כמו "להגדיר קודם".
          במחשב פתוח — יש מקום; בטלפון סגור, שם העמוד היה באורך 1,744 פיקסלים. -->
@@ -703,15 +705,15 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
       </label>
     </sc-if>
     <sc-if value="{{ nerFailed }}">
-      <div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <div role="alert" style="margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <span style="flex:1;min-width:200px">{{ peoNote }}</span>
         <button onClick="{{ onRetryScan }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--warn);font-size:12.5px;font-weight:500;color:var(--warn)">ניסיון נוסף</button>
       </div>
     </sc-if>
-    <sc-if value="{{ nerOk }}"><p style="margin:11px 0 0;font-size:13px;color:var(--ink2);line-height:1.55">{{ peoNote }}</p></sc-if>
+    <div role="status"><sc-if value="{{ nerOk }}"><p style="margin:11px 0 0;font-size:13px;color:var(--ink2);line-height:1.55">{{ peoNote }}</p></sc-if></div><!-- מה שהסריקה מצאה, ומה שלא נוסף, נאמרים: אזור המצב נשאר במסך גם כשהמודל נכשל ושב (הביקורת של 6.10) -->
 
     <sc-if value="{{ sugPrompt }}">
-      <div data-sug-prompt style="margin-top:18px;padding:10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:13px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <div data-sug-prompt role="alert" style="margin-top:18px;padding:10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:13px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <span style="flex:1 1 220px">{{ sugPromptText }}</span>
         <button onClick="{{ onPeoAddAllGo }}" style="padding:6px 12px;border-radius:9px;background:var(--warn);color:var(--panel);font-size:12.5px;font-weight:500">הוספת כולם והמשך</button>
         <button onClick="{{ onPeoGoAnyway }}" style="padding:6px 12px;border-radius:9px;border:1px solid var(--warn);color:var(--warn);font-size:12.5px">להמשיך בלעדיהם</button>
@@ -864,10 +866,10 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
       <button onClick="{{ onRvGo }}" disabled="{{ rvEmpty }}" style="{{ rvGoStyle }}">החזרת שמות</button>
       <button onClick="{{ onLoadProf }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">ייבוא פרופיל תיק מקובץ</button>
     </div>
-    <sc-if value="{{ rvErr }}"><div style="margin-top:10px;padding:10px 13px;border-radius:10px;background:var(--bad-soft);color:var(--bad);font-size:13.5px">{{ rvErr }}</div></sc-if>
+    <sc-if value="{{ rvErr }}"><div role="alert" key="{{ rvKey }}" style="margin-top:10px;padding:10px 13px;border-radius:10px;background:var(--bad-soft);color:var(--bad);font-size:13.5px">{{ rvErr }}</div></sc-if>
+    <div role="status"><sc-if value="{{ rvOut }}"><h2 data-rv-result key="{{ rvKey }}" style="margin:24px 0 8px;font-size:16px;font-weight:500">{{ rvHead }}</h2></sc-if></div><!-- השגיאה והתוצאה נאמרות לקורא מסך: אזור המצב כבר במסך כשהתוצאה מגיעה (בדיקה חיה, 6.10), וכל החזרה מעלה אותן כאלמנט חדש (rvKey), כך שגם תוצאה או שגיאה זהות לקודמות נאמרות שוב (הביקורת של 6.10) -->
     <sc-if value="{{ rvOut }}">
-      <h2 data-rv-result style="margin:24px 0 8px;font-size:16px;font-weight:500">{{ rvHead }}</h2>
-      <div data-rv-out dir="auto" style="background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;font:15px/1.9 'Noto Serif Hebrew',serif;white-space:pre-wrap">{{ rvOut }}</div>
+      <div data-rv-out dir="rtl" style="background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;font:15px/1.9 'Noto Serif Hebrew',serif;white-space:pre-wrap;unicode-bidi:plaintext;text-align:start">{{ rvOut }}</div><!-- כל פסקה בכיוון של האות הראשונה שלה, כמו בתיבת ההדבקה; dir="auto" נתן לתשובה כולה כיוון אחד (בדיקה חיה, 6.10) -->
       <button onClick="{{ onRvCopy }}" style="{{ rvCopyStyle }};margin-top:11px">{{ rvCopyLabel }}</button>
     </sc-if>
   </main>
@@ -1188,7 +1190,7 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
     <div style="max-width:1520px;margin:0 auto;display:flex;align-items:center;gap:12px">
       <sc-if value="{{ barErr }}">
         <span style="width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;font-weight:600;color:var(--bad);background:var(--bad-soft)">!</span>
-        <div data-bar-text style="flex:1;min-width:0;font-size:13px;color:var(--bad);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{ barErr }}">{{ barErr }}</div>
+        <div data-bar-text role="alert" style="flex:1;min-width:0;font-size:13px;color:var(--bad);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{ barErr }}">{{ barErr }}</div>
         <button onClick="{{ onClearErr }}" aria-label="סגירה" style="width:26px;height:26px;border-radius:50%;color:var(--ink3);display:grid;place-items:center" style-hover="background:var(--panel2);color:var(--ink)"><svg class="ic" data-icon="x" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
       </sc-if>
       <sc-if value="{{ barOk }}">
@@ -1291,7 +1293,7 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
 
 </div>
 </x-dc>
-<footer><div id="ver">גרסה v61</div></footer>
+<footer><div id="ver">גרסה v62</div></footer>
 <script type="text/x-dc" data-dc-script data-props="{&quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
 class Component extends DCLogic {
@@ -1327,7 +1329,7 @@ class Component extends DCLogic {
       if(!c){ const t=e.matches?"dark":"light"; this.applyTheme(t); this.setState({theme:t}); } }); }catch(_){} }
     // הסיור מוצע פעם אחת לכל גרסה: המפתח נושא את מספר הגרסה, ו-"*" (מהבדיקות) מכסה את כולן
     let seen=false; try{ const t=localStorage.getItem("redact-tour-seen"); seen = localStorage.getItem("redact-intro-seen")==="1" && (t==="*"||t===this.ver()); }catch(_){}
-    let lastProfile=null; try{ const j=localStorage.getItem("redact-profile-last"); const p=j&&JSON.parse(j); if(p&&p.v===1&&(p.rules||[]).length) lastProfile=p; }catch(_){}
+    const lastProfile=this.readLast();
     this.setState({theme:th, intro:!seen, lastProfile, cases:this.readCases()});
     // יומן הסשן (PLAN-v18 Q16): זמנים ואירועים בלי טקסט, בדפדפן בלבד, מיוצא בכפתור ליד דוח הדליפה
     const ver=((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"");
@@ -1433,7 +1435,7 @@ class Component extends DCLogic {
        והרצועות לא התעדכנו. שינוי ברשימת התיקים מלשונית אחרת מרענן את הרצועה; ואם התיק של
        הלשונית הזאת נמחק שם, הלשונית הזאת מפסיקה לשמור אליו ואומרת את זה. */
     this._storage=e=>{
-      if(e.key!=="redact-cases") return;
+      if(e.key!==this.caseKey("redact-cases")) return;
       const cases=this.readCases(), cn=this.state.caseName;
       let had=false; try{ had=!!(cn&&JSON.parse(e.oldValue||"{}")[cn]); }catch(_){}
       if(had&&!cases.some(c=>c.name===cn)) this.setState({cases, caseName:"", profile:null, notice:`התיק «${cn}» נמחק בלשונית אחרת. המסמך הזה כבר לא נשמר אליו.`, noticeUndo:false});
@@ -1583,6 +1585,44 @@ class Component extends DCLogic {
     const f = e.dataTransfer && e.dataTransfer.files[0]; if(f) this.load(f); };
   onFile = e => { const f=e.target.files[0]; if(f) this.load(f); e.target.value=""; };
 
+  /* מה ששייך למסמך מתאפס כאן, ברשימה אחת, בכל דרך שבה מסמך אחד נגמר והבא מתחיל: «מסמך חדש», קובץ Word
+     או PDF, טקסט מודבק, המסמך לדוגמה, ופתיחת הסיור וסגירתו. מסמך שנטען הוא המסמך הבא גם כשהגיעו אליו
+     בכפתורי החזרה (בדיקה חיה, 6.10). עד כאן לכל דרך הייתה רשימה משלה: «מסמך חדש» איפס כחמישים מפתחות
+     והטעינה שמונה, והמסמך הבא מצא את האנשים, ההצעות, היישובים, ההחלטות והסריקה של הקודם — «מי בתיק»
+     הראה את אנשי המסמך הקודם, ו«המשך» החיל אותם על הבא (הביקורת של 6.10). tests/state_t.js קורא את
+     הרשימה הזאת ואת מה שכל דרך מוסיפה עליה, ונכשל על מפתח של מסמך שנשאר מחוצה לה.
+     keepCase: תיק שנשאר מחובר שומר את מה שהתיק עצמו שומר (profileObj) — הכללים, רשימת ההיתר, מי
+     שהוסר והכינויים שנשלחו — כך שאותו אדם מקבל אותו כינוי במסמך הבא בתיק. «מסמך חדש» מנתק את התיק (C3). */
+  docReset(keepCase){
+    const S=this.state;
+    /* המסמך שהיה פתוח נגמר כאן, פעם אחת, לפני שמה שלו נמחק: השירות המתארח מגדיר docEnd ושולח בה את יומן
+       השימוש ואת דוח השמות שפוספסו של המסמך שנגמר, ויומן הסשן מסמן "new-doc", שלפיו scripts/log-report.js
+       מפריד בין מסמכים. עד כאן רק «מסמך חדש» סיים מסמך, ומסמך שנטען אחרי כפתורי החזרה, או סיור שנפתח מעל
+       מסמך, איבד את הדוח ואיחד שני מסמכים ביומן (הביקורת של 6.10). המסמך לדוגמה של הסיור אינו מסמך שלה */
+    if((S.buf||S.res)&&!S.tour){
+      if(typeof this.docEnd==="function") this.docEnd("new-doc");
+      this.log.add("new-doc",{});
+    }
+    this._undo=[]; this._redo=[]; this._modelFound=null; this._lastScan=null; this._scannedBuf=null;
+    // סריקה של המסמך הקודם שעוד רצה ברקע (אחרי «לא לחכות למודל») נגמרת איתו: התשובה שלה נכתבה לכללים של הבא
+    this._scan=(this._scan||0)+1; this._goneAhead=null;
+    const reset={screen:"entry", err:"", fileErr:"", name:"", buf:null, origBlocks:[], pending:false, pendMeta:"", nerAsk:false, pasteText:"",
+      // מי בתיק
+      cands:[], peo:[], peoSug:[], peoKept:[], peoNotSame:[], peoIn:"", peoNote:"", nerUsed:false, sugAsk:false, trimPeo:null,
+      scanning:false, nerBox:false, nerFailed:false, nerStall:false,
+      // מקומות
+      geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, geoExcluded:[],
+      // מסך הבדיקה
+      res:null, sel:null, hot:null, query:"", cat:"", filter:"all", addV:"", addR:"", addK:"NAME", inline:null, inlineDraft:"", popup:null, tip:null,
+      repDraft:"", approved:[], formSel:null, markIdx:0, docView:"red", exportAsk:"", notice:"", leaks:[], copied:false, copyLabel:"העתקה ל-AI", undoN:0, redoN:0,
+      // החזרת שמות
+      rvIn:"", rvOut:"", rvCount:0,
+      // מה שהתיק שומר (profileObj)
+      rules:[], allow:[], removed:[], sent:{}};
+    if(keepCase&&(S.profile||S.caseName)) for(const k of ["rules","allow","removed","sent"]) delete reset[k];
+    return reset;
+  }
+
   async load(f){
     /* קובץ שנבחר לפני שהמנוע סיים להיטען נשמר ונקרא כשהוא מגיע. עד כאן load חזר בשקט, ובקו
        איטי קובץ שנבחר מיד אחרי פתיחת הדף פשוט לא עשה דבר (נמצא ב-CI של אצוות הביקורת) */
@@ -1590,7 +1630,7 @@ class Component extends DCLogic {
     if(!E) return this.afterEngine(()=>this.load(f));
     /* שגיאות קובץ ליד כרטיס הקובץ, עם מה לעשות (UX #4), ובזמן הבחירה ולא אחרי
        "המשך" (ביקורת QA 010): קובץ שאינו docx תקין, או docx בלי טקסט, לא מקבל ✓. */
-    const bad=(m,code)=>{ this.log.add("file-reject",{why:code||"other"}); this.setState({fileErr:m, err:"", pending:false, name:"", buf:null}); };
+    const bad=(m,code)=>{ this.log.add("file-reject",{why:code||"other"}); this._fileErrN=(this._fileErrN||0)+1; this.setState({fileErr:m, err:"", pending:false, name:"", buf:null}); };
     if(!/\.(docx|pdf)$/i.test(f.name)) return bad("נדרש קובץ Word (docx) או PDF. קובץ doc ישן — לשמור מחדש ב-Word בתור docx.", "type");
     let buf; try{ buf = await f.arrayBuffer(); }catch(_){ return bad("לא הצלחנו לפתוח את הקובץ. אם הוא שמור בענן (OneDrive, Dropbox) — להוריד עותק למחשב; אם הוא פתוח ב-Word — לסגור אותו, ולבחור אותו שוב.", "read"); }
     if(/\.pdf$/i.test(f.name)) return this.loadPdf(buf, f);
@@ -1601,7 +1641,7 @@ class Component extends DCLogic {
     if(!chars) return bad("במסמך אין טקסט לקריאה. אם זה סריקה או תמונה, צריך קודם להמיר אותו לטקסט.", "empty");
     const size = chars>=1000 ? `כ-${(chars/1000).toFixed(1)} אלף תווים` : `${chars} תווים`;
     const meta=`${blocks.length===1?"פסקה אחת":blocks.length+" פסקאות"} · ${size} · ${Math.round(f.size/1024)} KB`;
-    this.setState({origBlocks:blocks.map(b=>({part:b.part, text:b.text})), err:"", fileErr:"", nerAsk:false, name:f.name, buf, pending:true, pendMeta:meta});
+    this.setState({...this.docReset(true), origBlocks:blocks.map(b=>({part:b.part, text:b.text})), err:"", fileErr:"", nerAsk:false, name:f.name, buf, pending:true, pendMeta:meta});
   }
 
   async loadPdf(raw, f){
@@ -1616,7 +1656,7 @@ class Component extends DCLogic {
       const {textToDocx} = await import((window.__resources && window.__resources.todocx) || "./text-to-docx.js");
       const buf = await textToDocx(text);
       const blocks = await this.blocksOf(buf);
-      this.setState({screen:"entry", buf, name:f.name, pending:true, nerAsk:false, fileErr:"", err:"",
+      this.setState({...this.docReset(true), screen:"entry", buf, name:f.name, pending:true, nerAsk:false, fileErr:"", err:"",
         origBlocks:blocks.map(b=>({part:b.part, text:b.text})),
         pendMeta:`${pages===1?"עמוד אחד":pages+" עמודים"} · ${blocks.length} פסקאות · טקסט חולץ מ-PDF`});
       // עמוד שהוא תמונה בתוך PDF של טקסט (עמוד חתום שנסרק): מה שכתוב בו לא נקרא ולא יוחלף
@@ -1698,7 +1738,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const buf = await textToDocx(txt);
       const blocks = await this.blocksOf(buf);
       const chars = txt.length;
-      this.setState({err:"", buf, name:"טקסט שהודבק", pending:true, nerAsk:false,
+      // הטקסט שבתיבה הוא המסמך הזה, ונשאר בה; טקסט של מסמך קודם נמחק עם כל השאר
+      this.setState({...this.docReset(true), pasteText:this.state.pasteText, err:"", buf, name:"טקסט שהודבק", pending:true, nerAsk:false,
         origBlocks:blocks.map(b=>({part:b.part, text:b.text})),
         pendMeta:`${blocks.length===1?"פסקה אחת":blocks.length+" פסקאות"} · ${chars>=1000?`כ-${(chars/1000).toFixed(1)} אלף תווים`:chars+" תווים"} · טקסט מודבק`});
     }catch(e){ this.setState({err:"הכנת הטקסט נכשלה: "+(e.message||e)}); }
@@ -1930,6 +1971,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       list.push({value:r.value, kind:r.kind, note:"נוסף במסך הבדיקה", auto:!!r.auto, g:r.g||null, sameAs:r.sameAs||undefined});
     this.setState({screen:"people", err:"", peo:list, peoKept:kept});
   }
+  /* צעד בכותרת מוביל לרשימה של המסמך הזה. מסמך שעוד לא נסרק — גם כשהגיעו אליו בכפתורי החזרה, אחרי מסמך
+     שכבר עבר את כל הדרך — נסרק קודם, כמו ב«המשך — איתור שמות במסמך». עד כאן «מי בתיק» הראה את מה שהיה
+     ברשימה, ו«מקומות» המשיך בלי רשימה, והשמות של המסמך נשארו בטקסט (הביקורת של 6.10) */
+  unscanned(){ const S=this.state; return !!S.buf&&!!S.o.auto&&this._scannedBuf!==S.buf; }
   peoAddAll(){
     const open=this.openSugs(); if(!open.length) return;
     this.log.add("add-all",{n:open.length});
@@ -2908,20 +2953,62 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       // הבחירה על מספרים ועל תאריכים היא של התיק, לא של הלשונית (Q1 בגרסה 5)
       styles:{num:this.state.o.numStyle||"blank", date:this.state.o.dateStyle||"name"}};
   }
+  /* התיקים שמורים לכל חשבון בנפרד (המעבר ל-inkognito.co.il, 6.10.2026): השירות המאורח מריץ את הדף הזה
+     לכל חשבון, וכמה חשבונות יכולים לעבוד על אותו מחשב. כל קריאה, כתיבה ומחיקה של שני מפתחות התיקים,
+     "redact-cases" ו-"redact-profile-last", וגם הבדיקה של אירוע ה-storage שלהם, עוברות כאן: בלי
+     window.__inkStoreSuffix (הכלי הציבורי) המפתח הוא בדיוק מה שהיה, והתיקים שכבר שמורים ממשיכים לעבוד;
+     כשהדף המאורח קובע אותו לחשבון המחובר, המפתח הוא k + ":" + הסיומת. מפתחות התצוגה (redact-theme,
+     redact-intro-seen, redact-tour-seen) נשארים משותפים. tests/casekey_t.js, e2e/case-store.spec.js */
+  caseKey(k){ const s=window.__inkStoreSuffix; return s===undefined||s===null||s===""?k:k+":"+s; }
+  /* מחיקת כל התיקים השמורים במחשב הזה, של כל חשבון: שני המפתחות עצמם, וכל מפתח שהוא אחד מהם ואחריו ":".
+     זה המקום היחיד שלא עובר דרך caseKey, כי הוא לא של חשבון אחד. אף כפתור לא קורא לה עדיין: מחיקת המודל
+     (modelForget) מחקה איתה את כל התיקים, בלי שאלה ובמילים שמדברות רק על המודל (הביקורת העצמאית, 6.10).
+     היא תקבל כפתור משלה, במילים שאושרו ועם שאלה לפני המחיקה. tests/casekey_t.js */
+  static CASE_KEYS=["redact-cases","redact-profile-last"];
+  forgetCases(){
+    try{
+      const K=this.constructor.CASE_KEYS, gone=[];
+      for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(K.some(c=>k===c||k.startsWith(c+":"))) gone.push(k); }
+      for(const k of gone) localStorage.removeItem(k);
+    }catch(_){}
+  }
+  /* מה שהמסך קורא מפרופיל של תיק, בסוג שהכלי עצמו כותב (הביקורת העצמאית, 6.10). ייבוא התיקים בדק רק את
+     המעטפת של הקובץ, ובכל רשומה רק v:1 ושם, ושמר את הרשומה כמו שהיא: רשומה שבה rules היה אובייקט, מספר או
+     true נשמרה, ומאז מסך הכניסה לא עלה בכלל, בכל טעינה, עד שכל התיקים נמחקו. זו הבדיקה היחידה, לכל מה שנכנס
+     ולכל מה שנקרא בחזרה: קובץ פרופיל (onProfFile), כל רשומה בקובץ תיקים והפרופיל האחרון שבו (importCases,
+     שדוחה את כל הקובץ בגלל רשומה אחת), וכל קריאה של תיק שמור (readCases, readLast, writeCase), כך שרשומה
+     שנכתבה בגרסה אחרת או בלשונית אחרת מדולגת ולא מפילה את המסך. שדה חסר מותר, כמו בקבצים ישנים (בלי removed,
+     sent או styles, ובקובץ הראשון גם בלי שם); שדה שקיים חייב להיות מהסוג שהכלי כותב. named: רשומה ברשימת
+     התיקים, ולכן עם שם. tests/profile_t.js, e2e/case-store.spec.js */
+  static profileOk(p, named){
+    const obj=x=>!!x&&typeof x==="object"&&!Array.isArray(x), str=x=>typeof x==="string";
+    const opt=(x,f)=>x===undefined||x===null||f(x), strs=x=>Array.isArray(x)&&x.every(str);
+    return obj(p)&&p.v===1&&(named?str(p.name)&&p.name!=="":opt(p.name,str))
+      &&Array.isArray(p.rules)&&p.rules.every(r=>obj(r)&&str(r.value)&&["replacement","kind","style","sameAs"].every(k=>opt(r[k],str)))
+      &&opt(p.map,m=>obj(m)&&Object.values(m).every(str))&&opt(p.allow,strs)&&opt(p.removed,strs)
+      &&opt(p.sent,s=>obj(s)&&Object.values(s).every(strs))&&opt(p.styles,s=>obj(s)&&opt(s.num,str)&&opt(s.date,str))
+      &&["mode","created","updated"].every(k=>opt(p[k],str));
+  }
   // הפרופיל הוא ההבטחה שאותו אדם מקבל את אותו שם בכל מסמך בתיק. עד עכשיו הוא
   // חי רק כקובץ שהיא זוכרת לשמור; עכשיו הוא נכתב לדפדפן אחרי כל שינוי, מוצע
   // בכניסה הבאה, ומזהיר לפני יציאה בלי ייצוא. הדפדפן אינו גיבוי — הייצוא הוא.
   // היא עובדת על כמה תיקים במקביל (Q11 ב-docs/PLAN-v18.md): כל תיק בשם נשמר
   // ברשימה בדפדפן, ומסך הכניסה מציע אותם. תיק בלי שם נשאר ב"פרופיל אחרון".
   readCases(){
-    try{ const m=JSON.parse(localStorage.getItem("redact-cases")||"{}");
-      return Object.values(m).filter(p=>p&&p.v===1&&p.name).sort((a,b)=>String(b.updated||"").localeCompare(String(a.updated||""))); }catch(_){ return []; }
+    try{ const m=JSON.parse(localStorage.getItem(this.caseKey("redact-cases"))||"{}");
+      return Object.values(m).filter(p=>this.constructor.profileOk(p,true)).sort((a,b)=>String(b.updated||"").localeCompare(String(a.updated||""))); }catch(_){ return []; }
+  }
+  // הפרופיל האחרון, כשהמסך יכול להציג אותו (profileOk) ויש בו ערכים
+  readLast(){
+    try{ const p=JSON.parse(localStorage.getItem(this.caseKey("redact-profile-last"))||"null");
+      return this.constructor.profileOk(p)&&p.rules.length?p:null; }catch(_){ return null; }
   }
   writeCase(prof){
-    try{ const m=JSON.parse(localStorage.getItem("redact-cases")||"{}");
+    try{ const m=JSON.parse(localStorage.getItem(this.caseKey("redact-cases"))||"{}");
+      // רשומה שהמסך לא יכול להציג (profileOk) אינה מתמזגת: המיזוג נפל עליה בשקט, והתיק שבעבודה לא נשמר. היא מוחלפת
       const prev=m[prof.name];
-      m[prof.name]=(prev&&prev.v===1)?this.mergeCase(prev, prof):prof;
-      localStorage.setItem("redact-cases", JSON.stringify(m)); }catch(_){}
+      m[prof.name]=this.constructor.profileOk(prev,true)?this.mergeCase(prev, prof):prof;
+      localStorage.setItem(this.caseKey("redact-cases"), JSON.stringify(m)); }catch(_){}
   }
   /* התיק הוא איחוד של כל המסמכים שלו, לא צילום של האחרון (C2 בביקורת השנייה):
      מסמך שבו אבנר לא מוזכר מחק אותו מהתיק, והמסמך הבא נתן לו שם חדש. מה שהוחלט
@@ -2946,8 +3033,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      את רשימת התיקים — מפת השמות האמיתיים נשארה בדפדפן בטקסט גלוי. ואם התיק שנמחק הוא זה שפתוח,
      השמירה הבאה יצרה אותו מחדש; עכשיו המסמך ממשיך בלי תיק. */
   deleteCase = name => {
-    try{ const m=JSON.parse(localStorage.getItem("redact-cases")||"{}"); delete m[name]; localStorage.setItem("redact-cases", JSON.stringify(m)); }catch(_){}
-    try{ const last=JSON.parse(localStorage.getItem("redact-profile-last")||"null"); if(last&&last.name===name) localStorage.removeItem("redact-profile-last"); }catch(_){}
+    try{ const m=JSON.parse(localStorage.getItem(this.caseKey("redact-cases"))||"{}"); delete m[name]; localStorage.setItem(this.caseKey("redact-cases"), JSON.stringify(m)); }catch(_){}
+    try{ const last=JSON.parse(localStorage.getItem(this.caseKey("redact-profile-last"))||"null"); if(last&&last.name===name) localStorage.removeItem(this.caseKey("redact-profile-last")); }catch(_){}
     const mine=this.state.caseName===name;
     this.setState({cases:this.readCases(), ...(mine?{caseName:"", profile:null}:{}),
       ...(this.state.lastProfile&&this.state.lastProfile.name===name?{lastProfile:null}:{})});
@@ -2981,7 +3068,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     {screen:"places", title:"יישובים", next:"החלת הקבוצה", target:"[data-tour-target=places]",
      text:"כל יישוב מקבל יישוב דומה לו: עיר בעיר, מושב במושב. עכשיו: לחצו «החלת הקבוצה»."},
     {screen:"work", title:"מסך הבדיקה", next:"המשך", target:"[data-work] section",
-     text:"קו מלא — הוחלף. קו מקווקו עם ? — מחכה לכם. ∅ — נמחק. עכשיו: לחצו על מילה מסומנת, ותיפתח עריכה במקום."},
+     text:"קו מלא — הוחלף. קו מקווקו עם ? — מחכה לכם. סמל המחק — נמחק. עכשיו: לחצו על מילה מסומנת, ותיפתח עריכה במקום."},
     {screen:"work", title:"שמירה", next:"המשך", open:"profile", target:"[data-tour-target=case]",
      text:"עם שם תיק, אותו אדם מקבל אותו שם בדוי גם במסמך הבא. עכשיו: הקלידו שם תיק בשדה המסומן."},
     {screen:"work", title:"העתקה ל-AI, ובחזרה", next:"המשך", target:"[data-tour-target=copy]",
@@ -2994,7 +3081,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.log.add("tour",{at:"start"});
     this._tourNer=this.state.o.ner;
     // hadPlaces: null עד שיודעים — כך המונה מראה שבעה צעדים מההתחלה ולא קופץ
-    this.setState({intro:false, tour:{i:0, hadPlaces:null}, tourSpot:null, o:{...this.state.o, ner:false}, buf:null, res:null, rules:[], peo:[], peoSug:[], allow:[], pending:false, screen:"entry", err:""});
+    // הסיור מתחיל ממסמך ריק: מה שהמסמך הקודם השאיר מתאפס כמו בכל מעבר בין מסמכים (docReset)
+    this.setState({...this.docReset(false), intro:false, tour:{i:0, hadPlaces:null}, tourSpot:null, o:{...this.state.o, ner:false}});
     this._spotKey=null;
     this._onSpot=()=>{ if(this.state.tour) this.tourMeasure(); };
     window.addEventListener("resize", this._onSpot); window.addEventListener("scroll", this._onSpot, true);
@@ -3075,7 +3163,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(this._spotRO){ this._spotRO.disconnect(); this._spotRO=null; this._spotEl=null; }
     // שם תיק שהוקלד בסיור הוא חלק מהמסמך הבדוי (M1 בביקורת השנייה): הוא לא עובר למסמך
     // הבא, ולא נשמר כתיק — הסיור מבטיח ששום דבר ממנו לא נשמר
-    this.setState({tour:null, tourSpot:null, o, buf:null, res:null, rules:[], peo:[], peoSug:[], allow:[], geo:null, geoNames:[], geoExtra:[], pending:false, screen:"entry", err:"", copied:false,
+    // והמסמך הבדוי נמחק כולו, באותה רשימה שמאפסת כל מסמך (docReset): עד כאן נשארו ממנו ההחלטות, הטקסט והסריקה
+    this.setState({...this.docReset(false), tour:null, tourSpot:null, o,
       caseName:"", profile:null, profileDirty:false});
   };
   tourNext = async () => {
@@ -3088,7 +3177,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
         const {textToDocx} = await import((window.__resources && window.__resources.todocx) || "./text-to-docx.js");
         const buf = await textToDocx(this.constructor.SAMPLE);
         const blocks = await this.blocksOf(buf);
-        this.setState({buf, name:"מסמך לדוגמה", origBlocks:blocks.map(b=>({part:b.part, text:b.text})), pending:false});
+        this.setState({...this.docReset(true), buf, name:"מסמך לדוגמה", origBlocks:blocks.map(b=>({part:b.part, text:b.text})), pending:false});
         // הצעד מתקדם רק אחרי שהסריקה נגמרה: באתר החי הלוח הראה "מי בתיק" בזמן
         // שהרשימה עוד הייתה ריקה, ו"המשך" המשיך בלי אף שם — והמסמך יצא לא מושחר
         await this.scanNames();
@@ -3160,7 +3249,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(!this.state.res) return;
     if(!this.state.rules.length&&!(this.state.allow||[]).length&&!this.removedNow().length) return;
     const prof=this.profileObj();
-    try{ localStorage.setItem("redact-profile-last", JSON.stringify(prof)); }catch(_){}
+    try{ localStorage.setItem(this.caseKey("redact-profile-last"), JSON.stringify(prof)); }catch(_){}
     if(prof.name){ this.writeCase(prof); this.setState({cases:this.readCases()}); }
     if(!this.state.profileDirty) this.setState({profileDirty:true});
   }
@@ -3179,17 +3268,54 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   loadProfileClick = () => this.profEl && this.profEl.click();
   resumeLast = () => { const p=this.state.lastProfile; if(!p) return; this.setState({lastProfile:null, caseName:p.name||""}); this.applyProfile(p); };
   dismissLast = () => this.setState({lastProfile:null});
+  // הסיבה בהודעה על קובץ פרופיל פגום (L17), וגם על קובץ תיקים פגום (importCases)
+  static BAD_PROFILE="הקובץ אינו קובץ פרופיל תקין, או שהוא נפגם";
+  /* ייבוא כל התיקים מקובץ אחד («ייבוא תיקים מקובץ»; המעבר ל-inkognito.co.il, 6.10.2026). הקובץ יורד
+     מהדף «הכלי עבר לכתובת חדשה» שבכתובת הישנה (forward/index.html, «הורדת התיקים לקובץ»), וזו התבנית שלו:
+       {"inkognito":"cases", "v":1, "exported":"<תאריך ISO>",
+        "cases": <מה ששמור שם תחת redact-cases: שם התיק ← הפרופיל שלו>,
+        "last": <מה ששמור שם תחת redact-profile-last, או null>}
+     התיקים נוספים לתיקים של מי שעובד עכשיו (caseKey). תיק שהשם שלו כבר קיים נשאר כמו שהוא, והמיובא נכנס
+     בשם עם המספר הפנוי הבא אחריו («לוי נ׳ לוי 2»): שום דבר לא נדרס. "last" נכנס רק כשאין פרופיל אחרון.
+     הכול או כלום (הביקורת העצמאית, 6.10): כל רשומה, וגם "last", עוברת את profileOk לפני שנכתב דבר, וקובץ
+     שאחת מהן לא עוברת נדחה כולו. קובץ כזה, וכל קובץ פגום או זר, לא משנה כלום, ומקבל את ההודעה של קובץ
+     פרופיל פגום. e2e/case-store.spec.js, e2e/moved.spec.js */
+  importCases(file){
+    const P=this.constructor, obj=x=>!!x&&typeof x==="object"&&!Array.isArray(x);
+    if(file.v!==1||!obj(file.cases)||!Object.values(file.cases).every(p=>P.profileOk(p,true))||(file.last!=null&&!P.profileOk(file.last)))
+      throw new Error(P.BAD_PROFILE);
+    const kc=this.caseKey("redact-cases"), kl=this.caseKey("redact-profile-last");
+    // בלי אב טיפוס: גם תיק בשם "__proto__" הוא רק שם
+    const m=Object.assign(Object.create(null), JSON.parse(localStorage.getItem(kc)||"{}"));
+    let n=0;
+    for(const p of Object.values(file.cases)){
+      let name=p.name;
+      for(let k=2; name in m; k++) name=p.name+" "+k;
+      m[name]={...p, name}; n++;
+    }
+    localStorage.setItem(kc, JSON.stringify(m));
+    const last=file.last&&localStorage.getItem(kl)===null?file.last:null;
+    if(last) localStorage.setItem(kl, JSON.stringify(last));
+    this.log.add("cases-import",{n, last:!!last});
+    // רשימת התיקים היא מה שהיא רואה; אין הודעה, עד שיאושרו לה מילים (הביקורת העצמאית, 6.10). כשתיק בשימוש
+    // הרשימה מוסתרת (hasCases), והתיק שבשימוש נשאר כמו שהוא
+    this.setState({cases:this.readCases(), casesHidden:false, err:"",
+      ...(last&&!this.state.lastProfile&&last.rules.length?{lastProfile:last}:{})});
+  }
   onProfFile = async e => {
     const f=e.target.files[0]; e.target.value=""; if(!f) return;
     try{
       const prof=JSON.parse(await f.text());
-      if(!prof || prof.v!==1) throw new Error("קובץ פרופיל לא מזוהה");
+      // קובץ של כל התיקים נקלט מכל כפתור ייבוא; כל קובץ אחר הוא הפרופיל של תיק אחד, כמו קודם
+      if(prof&&prof.inkognito==="cases"){ this.importCases(prof); return; }
+      // אותה בדיקה של כל פרופיל שנכנס או נקרא (profileOk), עם אותה הודעה של קובץ שאינו פרופיל
+      if(!this.constructor.profileOk(prof)) throw new Error("קובץ פרופיל לא מזוהה");
       this.setState({caseName:prof.name||this.state.caseName});
       this.applyProfile(prof);
     }catch(err){
       // L17: שגיאת JSON גולמית באנגלית לא אמרה לה כלום
       const m=String((err&&err.message)||err||"");
-      const why=/JSON|Unexpected|Expected|position/i.test(m)?"הקובץ אינו קובץ פרופיל תקין, או שהוא נפגם":m;
+      const why=/JSON|Unexpected|Expected|position/i.test(m)?this.constructor.BAD_PROFILE:m;
       this.setState({err:"טעינת הפרופיל נכשלה: "+why+". קובץ פרופיל הוא הקובץ שירד מ«ייצוא לקובץ» (סיומת ‎.json)."});
     }
   };
@@ -3221,7 +3347,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     }catch(err){
       // L17: שגיאת JSON גולמית באנגלית לא אמרה לה כלום
       const m=String((err&&err.message)||err||"");
-      const why=/JSON|Unexpected|Expected|position/i.test(m)?"הקובץ אינו קובץ פרופיל תקין, או שהוא נפגם":m;
+      const why=/JSON|Unexpected|Expected|position/i.test(m)?this.constructor.BAD_PROFILE:m;
       this.setState({err:"טעינת הפרופיל נכשלה: "+why+". קובץ פרופיל הוא הקובץ שירד מ«ייצוא לקובץ» (סיומת ‎.json)."});
     }
   }
@@ -3496,8 +3622,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       // בלי מסמך אין לאן ללכת: מושבתים באמת, לא רק בצבע חיוור (ראו header nav button:disabled)
       step2Off:!S.buf, step3Off:!S.buf,
       goStep1:()=>this.setState({screen:"entry", pending:!!S.buf, err:""}),
-      goStep2:()=>this.showList(),
-      goStep3:()=>{ if(S.buf) this.toPlaces(S.rules); },
+      goStep2:()=>{ if(this.unscanned()) this.start(); else this.showList(); },
+      goStep3:()=>{ if(!S.buf) return; if(this.unscanned()) this.start(); else this.toPlaces(S.rules); },
       showBack:S.screen!=="entry",
       backLabel:backOf(S.screen, S.returnTo).label,
       onBack:()=>{ const b=backOf(S.screen, S.returnTo); if(b.to==="people"){ this.showList(); return; } this.setState({screen:b.to, pending:b.to==="entry"?!!S.buf:false, err:""}); },
@@ -3601,8 +3727,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
          ברקע; אם יסיים לפני "המשך" — השמות נכנסים לרשימה, אחרת לכללים. */
       onGoNow:()=>{ if(!S.scanning) return; this._goneAhead=this._scan; this.log.add("go-without-model",{names:S.peo.length});
         this.setState({scanning:false, nerBox:false, nerUsed:false, peoNote:"ממשיכים בלי לחכות. הרשימה כאן היא מהכותרת ומתורות הדיבור; שמות שהמודל ימצא בגוף הטקסט יוצעו גם הם."}); },
-      onLoadProf:this.loadProfileClick, onSaveProf:this.saveProfile,
+      onLoadProf:this.loadProfileClick, onSaveProf:this.saveProfile, onImportCases:this.loadProfileClick,
       fileErr:S.screen==="entry"?(S.fileErr||""):"",
+      /* הודעה שחוזרת באותן מילים נאמרת שוב: אזור חי שלא השתנה אינו אומר דבר, ולכן כל דחייה של קובץ וכל החזרת
+         שמות מעלות את האזעקה ואת הכותרת שלהן כאלמנט חדש (key), שקורא מסך קורא כחדש (הביקורת של 6.10) */
+      fileErrKey:"fe"+(this._fileErrN||0), rvKey:"rv"+(this._rvN||0),
       settingsShown:S.settingsOpen===undefined?!S.narrow:!!S.settingsOpen,
       settingsHint:(S.o.ner?"מודל מקומי":"בלי מודל")+" · "+(S.mode==="block"?"███":S.mode==="label"?"תוויות":"שמות חלופיים"),
       onToggleSettings:()=>this.setState({settingsOpen:!(S.settingsOpen===undefined?!S.narrow:!!S.settingsOpen)}),
@@ -3671,7 +3800,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       rvErr:S.screen==="reverse"?S.err:"", errTop:(S.screen==="reverse"||(S.screen==="work"&&S.res))?"":S.err,
       rvIn:S.rvIn, rvOut:S.rvOut, rvCopyLabel:S.rvCopyLabel,
       onRvIn:e=>this.setState({rvIn:e.target.value, err:""}),
-      onRvGo:()=>{
+      onRvGo:()=>{ this._rvN=(this._rvN||0)+1;
         /* ביקורת QA (ISSUE-001): אחרי הצמדת תיק שמור מ"תיקים אחרונים" ההחזרה קראה
            רק את המפה של התיק השמור, ולא את זו של המסמך שבעבודה — הכינוי שהכלי
            עצמו כתב רגע קודם לא נמצא. המסמך הנוכחי קודם; הפרופיל משלים שמות
@@ -3753,7 +3882,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onGeoAlt:this.geoAlt, onGeoApply:this.geoApply, onGeoSkip:()=>this.run(S.rules),
       // יציאה בלי ייצוא: הפרופיל נשאר בדפדפן הזה בלבד, וזו הבטחה חלשה מדי לתיק
       onBackHome:()=>{ if(S.profileDirty&&S.rules.length&&!confirm("הפרופיל של התיק נשמר בדפדפן הזה בלבד ולא יוצא לקובץ. אם הדפדפן ינוקה הוא יאבד. לצאת בכל זאת?")) return;
-        this.docEnd("new-doc");
+        // המסמך נגמר ב-docReset, פעם אחת לכל מסמך: שם נקראת docEnd של השירות המתארח, ושם נרשם "new-doc" ביומן
         /* מסמך חדש מתחיל נקי (UX #22, ביקורת QA 005): חיפוש, הוספה ידנית, טקסט
            מודבק ושם הקובץ הקודמים נשארו — והמסמך הבא נפתח עם מסילה ריקה, או עם
            שני מסמכים מודבקים יחד. הגלילה חוזרת לראש העמוד. */
@@ -3762,20 +3891,13 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
            לקוח אחר נכתב לתוך התיק של הקודם. מסמך חדש מתחיל בלי תיק; התיק השמור
            מוצע ברצועת "תיקים אחרונים", ופרופיל בלי שם — בכרטיס "להמשיך עם
            הפרופיל", כמו אחרי טעינה מחדש. */
-        let lastProfile=null;
-        try{ const j=localStorage.getItem("redact-profile-last"); const p=j&&JSON.parse(j); if(p&&p.v===1&&!p.name&&(p.rules||[]).length) lastProfile=p; }catch(_){}
-        this.setState({screen:"entry", res:null, err:"", fileErr:"", name:"", buf:null, pending:false,
-          pasteText:"", query:"", cat:"", filter:"all", addV:"", addR:"", sel:null, inline:null, popup:null,
-          notice:"", copied:false, copyLabel:"העתקה ל-AI", sugAsk:false, casesHidden:false, peo:[], peoSug:[], peoKept:[],
-          caseName:"", profile:null, rules:[], allow:[], profileDirty:false, approved:[], undoN:0, redoN:0, lastProfile, cases:this.readCases(),
-          // כל מה ששייך למסמך ולא לסשן מתאפס כאן (ביקורת H1): דוח הדליפה של לקוח אחד יצא בחבילה של הבא,
-          // ותשובת ה-AI עם השמות האמיתיים שלו חיכתה במסך ההחזרה. tests/state_t.js בודק שכל מפתח ב-state
-          // מתאפס כאן או רשום שם כשייך לסשן.
-          origBlocks:[], removed:[], leaks:[], rvIn:"", rvOut:"", cands:[], nerUsed:false, peoIn:"", peoNote:"", hot:null, addK:"NAME",
-          geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, tip:null, repDraft:"", sent:{}, peoNotSame:[], inlineDraft:""},
-          ()=>{ try{ scrollTo(0,0); }catch(_){} });
-        this._undo=[]; this._redo=[]; this._modelFound=null; this._lastScan=null;
-        this.log.add("new-doc",{}); },
+        const last=this.readLast(), lastProfile=last&&!last.name&&(last.rules||[]).length?last:null;
+        /* כל מה ששייך למסמך ולא לסשן מתאפס ב-docReset, באותה רשימה שמאפסת כל מסמך שנטען (ביקורת H1: דוח הדליפה
+           של לקוח אחד יצא בחבילה של הבא, ותשובת ה-AI עם השמות האמיתיים שלו חיכתה במסך ההחזרה). כאן נוסף רק
+           ניתוק התיק. tests/state_t.js בודק שכל מפתח ב-state מתאפס שם, רשום שם כשייך ל«מסמך חדש» בלבד, או
+           רשום כשייך לסשן. */
+        this.setState({...this.docReset(false), caseName:"", profile:null, profileDirty:false, casesHidden:false, lastProfile, cases:this.readCases()},
+          ()=>{ try{ scrollTo(0,0); }catch(_){} }); },
       tip:!!S.tip, tipLabel:S.tip?S.tip.label:"", tipItems:S.tip?S.tip.items:[],
       tipMore:S.tip&&S.tip.items.length>=3?"שלוש הראשונות":"",
       // חלונית מידע בלבד: אינה תופסת לחיצות, אחרת היא חוסמת את הכפתור שמתחתיה כשהעכבר נשאר במקומו אחרי מעבר מסך

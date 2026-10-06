@@ -97,5 +97,62 @@ ok(r.text.includes("האלמוג"),"word-like fake surname is never restored on 
 r=C.restoreNames("כהן הגיע.",[["דוד לוי","יוסי כהן"],["רות מור","דנה כהן"]]);
 ok(!r.text.includes("לוי")&&!r.text.includes("מור"),"shared surname is never guessed: "+r.text);
 
+// the tool's own sample document (invented names) and the pseudonyms it gave them, as on the live tool, 6.10
+const SAMPLE_MAP=[["נועה שרעבי","אירינה אשכנזי"],["מיכל שרעבי","אביבה ביטון"],["חולון","הרצליה"],["אורן שרעבי","אלירן כהן"],
+  ["רמת גן","כפר סבא"],["לודמילה כץ","רחל לוי"],["11.2.2026","16.11.2026"]];
+const back=t=>C.restoreNames(t,SAMPLE_MAP).text;
+
+console.log("\n— restoreNames: every prefix Hebrew puts before a name —");
+// live check, 6.10: «שלאביבה ביטון» came back as «שלאביבה שרעבי», a person who does not exist
+eq(back("Sure! Here is a short summary:\nאביבה ביטון היא האם.\nשלאביבה ביטון אין התנגדות, ואלירן כהן הוא האב."),
+  "Sure! Here is a short summary:\nמיכל שרעבי היא האם.\nשלמיכל שרעבי אין התנגדות, ואורן שרעבי הוא האב.","the live check's answer comes back whole");
+for(const p of ["ו","ה","ב","כ","ל","מ","ש","וב","וה","ול","ומ","וכ","כש","מה","לכ",
+  "של","וש","וכש","מש","שב","שמ","שכ","שה","ומה","לכש","ושה","ושל","ושב","כשה","כשל","ולכש","ומש","שמה","ל-","ב־","של-"])
+  eq(back(p+"אביבה ביטון אמרה כך."),p+"מיכל שרעבי אמרה כך.","prefix «"+p+"» before a full pseudonym");
+eq(back("ובשלאירינה אשכנזי."),"ובשלאירינה אשכנזי.","letters no prefix explains: the whole pseudonym stays, never half of it");
+eq(back("הדירה של אלירן כהןים"),"הדירה של אלירן כהןים","a suffix on the surname: the first name is not restored alone beside it");
+eq(back("ביטון אמרה כך, ומיכל שרעבי לא."),"שרעבי אמרה כך, ומיכל שרעבי לא.","where the full pseudonym is not there, the surname alone still comes back");
+eq(back("אביבה ביטון ואלירן כהן"),"מיכל שרעבי ואורן שרעבי","two people side by side");
+r=C.restoreNames("אבי ברקוביץ ויוסי מזרחי",[["דוד מזרחי","אבי ברקוביץ"],["משה ברקוביץ","יוסי מזרחי"]]);
+eq(r.text,"דוד מזרחי ומשה ברקוביץ","a restored real name is never read again as someone's pseudonym");
+eq(r.count,2,"and counted once each");
+
+console.log("\n— restoreNames: a shifted date in the AI's own spelling —");
+// live check, 6.10: 16.11.2026 came back as 11.2.2026, but «16/11/2026», «16 בנובמבר 2026» and «16.11.26» stayed shifted.
+// The real date comes back as the document wrote it, the way a name does.
+for(const [said,want] of [["ב-16.11.2026","ב-11.2.2026"],["ביום 16/11/2026","ביום 11.2.2026"],["ב-16 בנובמבר 2026","ב-11.2.2026"],
+  ["ב-16.11.26","ב-11.2.2026"],["ביום 16-11-2026","ביום 11.2.2026"],["ב16.11.2026","ב11.2.2026"],["מיום 2026-11-16","מיום 11.2.2026"],
+  ["ביום 16 לנובמבר 2026","ביום 11.2.2026"],["ביום 16 נובמבר 2026","ביום 11.2.2026"],["ב-16 בנובמבר, 2026","ב-11.2.2026"],["(16/11/26)","(11.2.2026)"]])
+  eq(back("הדיון התקיים "+said+"."),"הדיון התקיים "+want+".","the shifted date written as «"+said+"»");
+r=C.restoreNames("ב-16 בנובמבר 2026 ושוב ב-16/11/2026.",SAMPLE_MAP);
+eq(r.count,2,"each spelling counts as a restored value");
+eq(r.missing.includes("16.11.2026"),false,"and the date is not reported as unused");
+const D1=[["1.1.2026","6.3.2026"]];
+for(const said of ["06.03.2026","6.03.2026","06/03/2026","6 במרץ 2026","6 במרס 2026","2026-03-06","06.03.26"])
+  eq(C.restoreNames("נקבע ל-"+said+".",D1).text,"נקבע ל-1.1.2026.","a leading zero or another month spelling: «"+said+"»");
+const D2=[["11.2.26","16.11.26"]];
+eq(C.restoreNames("ב-16.11.2026 וב-16/11/26.",D2).text,"ב-11.2.26 וב-11.2.26.","a two-digit year, written by the AI in full or with a slash");
+for(const t of ["ב-16.11.2027.","ב-16.11.20261.","ב-116.11.2026.","ב-16 בנובמבר.","ב-16.11.","ב-11/16/2026.","ב-16 בנובמבר 2027.","ב-17 בנובמבר 2026.","שעה 16:11:2026."])
+  eq(back(t),t,"not the shifted date, left alone: «"+t+"»");
+// the same invented day stands for two real days (two documents of one case shifted by different amounts):
+// each spelling that went out comes back to its own day, and another spelling of it is not guessed
+r=C.restoreNames("16.11.2026, 16/11/2026 ו-16 בנובמבר 2026.",[["1.1.2026","16.11.2026"],["3.3.2026","16/11/2026"]]);
+eq(r.text,"1.1.2026, 3.3.2026 ו-16 בנובמבר 2026.","an invented day of two real days is restored only as written");
+
+console.log("\n— restoreNames: a «פלוני א׳» label as the AI writes it —");
+// live check, 6.10: «פלוני ב» (no geresh) and «פלונית ב׳» (a woman) stayed labels in the restored answer
+const LABELS=[["נועה שרעבי","פלוני א׳"],["מיכל שרעבי","פלוני ב׳"],["אורן שרעבי","פלוני ג׳"],["לודמילה כץ","פלוני ד׳"],["דנה לוי",'פלוני י"א'],
+  ["314277062",'[ת"ז א׳]']];
+const lab=t=>C.restoreNames(t,LABELS).text;
+for(const [said,want] of [["פלוני ב׳ היא האם.","מיכל שרעבי היא האם."],["פלוני ב' היא האם.","מיכל שרעבי היא האם."],
+  ["פלוני ב היא האם.","מיכל שרעבי היא האם."],["פלונית ב׳ היא האם.","מיכל שרעבי היא האם."],["פלונית ב היא האם.","מיכל שרעבי היא האם."],
+  ["לפלונית ב׳ אין התנגדות.","למיכל שרעבי אין התנגדות."],["ולפלונית ב אין התנגדות.","ולמיכל שרעבי אין התנגדות."],
+  ["«פלונית ד׳» היא המורה.","«לודמילה כץ» היא המורה."],["פלוני ב, פלוני ג ופלונית א.","מיכל שרעבי, אורן שרעבי ונועה שרעבי."],
+  ['פלונית י"א העידה.',"דנה לוי העידה."],["פלונית יא העידה.","דנה לוי העידה."],["פלונית י״א העידה.","דנה לוי העידה."],
+  ["(פלונית ב)","(מיכל שרעבי)"],['ת"ז [ת"ז א] נמסרה.','ת"ז 314277062 נמסרה.'],['ת"ז [ת"ז א׳] נמסרה.','ת"ז 314277062 נמסרה.']])
+  eq(lab(said),want,"the label written «"+said+"»");
+for(const t of ["פלוני בא לדיון.","פלונית בכתה.","פלוני ב-2020 הגיש.","פלונית ב2 הגישה.","פלוני ה׳ לא בתיק הזה.","אלמוני ב׳ אמר.","פלוניב׳ אמר.","פלוני י העיד."])
+  eq(lab(t),t,"not a label of this document, left alone: «"+t+"»");
+
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail?1:0);

@@ -2,7 +2,7 @@
 
 How the tier-1 candidates (PLAN.md sections 2 and 5.7) were turned into files that transformers.js
 can load. Everything here was made on 2026-09-23 by `bench/model-eval/export.py`. The files live
-outside the repo, in `C:/Users/Me/.vscode/paintItBlack/model-cache/<key>/`. Their sha256 and sizes
+outside the repo, in a folder beside it (`../model-cache/<key>/`). Their sha256 and sizes
 are in `registry.exports.json`.
 
 ## Running it

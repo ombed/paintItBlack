@@ -260,7 +260,7 @@ F-scores decide which models earn a product run, and they explain why a model wi
 
 ### 4.3 Public keys
 
-- Stored in `C:/Users/Me/.vscode/paintItBlack/public-bench/`, outside the repo. Only aggregate scores are committed.
+- Stored in a folder outside the repository (`../public-bench/`). Only aggregate scores are committed.
 - Tokens are converted to text using a written rule for spacing around punctuation, geresh and gershayim.
 - Every report includes a contamination table.
 
@@ -438,9 +438,9 @@ Compute time is under an hour. **Downloads come to about 5.8 GB**: about 50 minu
 Every other critic point was valid and has been applied.
 
 Files:
-- C:/Users/Me/.vscode/paintItBlack/repo-clone/bench/lib.js
-- C:/Users/Me/.vscode/paintItBlack/repo-clone/bench/key.json
-- C:/Users/Me/.vscode/paintItBlack/repo-clone/tests/protocol.txt
-- C:/Users/Me/.vscode/paintItBlack/repo-clone/engine/06-model.js
-- C:/Users/Me/.vscode/paintItBlack/repo-clone/engine/08-docx.js
-- Scratchpad: C:/Users/Me/AppData/Local/Temp/claude/C--Users-Me--vscode-paintItBlack-----------------------/c1a52a80-c9eb-4a7c-9840-252699d0b1e2/scratchpad/ (`kn_test.conllu` has 11 `newdoc` markers; `nemo_test.bmes` and `bmc_test1.bmes` have none)
+- bench/lib.js
+- bench/key.json
+- tests/protocol.txt
+- engine/06-model.js
+- engine/08-docx.js
+- Scratchpad: a folder outside the repository (`kn_test.conllu` has 11 `newdoc` markers; `nemo_test.bmes` and `bmc_test1.bmes` have none)

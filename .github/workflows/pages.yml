@@ -1,24 +1,33 @@
 name: pages
 
-# Publishes only the tool's runtime files (scripts/build-site.js), not the
-# whole repository. Before this, Pages served every file on main, including
-# design/redact.dc.html and docs/archive/standalone-original.html, which
-# render as broken copies of the tool (QA run-1 ISSUE-011).
+# What https://ombed.github.io/inkognito/ serves.
 #
-# The browser checks below run against the built folder itself, so a runtime
-# file missing from the list fails here instead of on the live site. The
-# fixture pages the checks load (e2e helpers import ./text-to-docx.js) are
-# part of the site already.
+# Since 6.10.2026 the tool lives at https://inkognito.co.il/ (the owner's decision), and this address
+# serves the forward instead (scripts/build-forward.js): a moved page that sends a visitor with nothing
+# saved to inkognito.co.il and offers a visitor with saved cases one file of all of them, the same page
+# as 404.html for old deep links, and a service worker that replaces the tool's. A ref that has
+# scripts/build-forward.js publishes the forward; a ref without it (a rollback to a live/vNN tag)
+# publishes the tool exactly as before, so a rollback still works (docs/ROLLBACK.md).
+# tests/pages_t.js reads this file.
+#
+# The tool: only its runtime files are published (scripts/build-site.js), not the whole repository.
+# Before that, Pages served every file on main, including design/redact.dc.html and
+# docs/archive/standalone-original.html, which render as broken copies of the tool (QA run-1 ISSUE-011).
+#
+# The browser checks below run against the built folder itself, so a file missing from it fails here
+# instead of on the live site. The fixture pages the tool's checks load (e2e helpers import
+# ./text-to-docx.js) are part of the site already.
 #
 # What reaches the live site (outside review, H9 and M10):
-#   - A push to main is published only after the `test` workflow has passed on
-#     that same commit. Before, both workflows started together and this one
-#     gated the deploy on 11 browser checks, so a commit that failed the Node
-#     suites was still published.
-#   - After the deploy, the live page must report the version this commit
-#     carries, or the run fails. The check used to be a person reading the chip.
-#   - Every published commit gets a `live/vNN` tag. A rollback is a manual run
-#     of this workflow with that tag as `ref`: see docs/ROLLBACK.md.
+#   - A push to main is published only after the `test` workflow has passed on that same commit.
+#     Before, both workflows started together and this one gated the deploy on 11 browser checks,
+#     so a commit that failed the Node suites was still published.
+#   - After the deploy the live address must serve what was built, or the run fails: for the tool,
+#     the version this commit carries; for the forward, the moved page's marker, the handover worker
+#     byte for byte, and an old deep link that lands on the moved page.
+#   - Every published tool commit gets a `live/vNN` tag. A rollback is a manual run of this workflow
+#     with that tag as `ref`. The forward has no version and gets no tag: versions and tags now
+#     belong to the inkognito.co.il deploys.
 
 on:
   workflow_run:
@@ -28,7 +37,7 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: "Tag or commit to publish, for a rollback (for example live/v49). Empty publishes main."
+        description: "Tag or commit to publish, for a rollback (for example live/v61, the tool). Empty publishes main (the forward)."
         required: false
         default: ""
 
@@ -48,30 +57,56 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:
+      kind: ${{ steps.kind.outputs.kind }}
       version: ${{ steps.version.outputs.version }}
       sha: ${{ steps.version.outputs.sha }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.ref || github.event.workflow_run.head_sha || github.sha }}
+      - name: What this ref publishes
+        id: kind
+        # the forward when the ref has its build script; the tool when it does not, as a live/vNN tag from before the move
+        run: |
+          if [ -f scripts/build-forward.js ]; then
+            echo "kind=forward" >> "$GITHUB_OUTPUT"
+          else
+            echo "kind=tool" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - name: Build the forward
+        if: steps.kind.outputs.kind == 'forward'
+        run: node scripts/build-forward.js _site
+      - name: Browser checks against the forward
+        # the moved page, the redirect, the handover from the tool's worker, and the file it downloads imported in the tool
+        if: steps.kind.outputs.kind == 'forward'
+        run: npx playwright test e2e/moved.spec.js
+        env:
+          FORWARD_ROOT: _site
       - name: Build the site folder
+        if: steps.kind.outputs.kind == 'tool'
         run: node scripts/build-site.js _site
       - name: Browser checks against the built folder
         # model-host: the published folder serves the model in its parts, and the joined file passes its hash
+        if: steps.kind.outputs.kind == 'tool'
         run: npx playwright test e2e/flow.spec.js e2e/tour.spec.js e2e/ui.spec.js e2e/model-host.spec.js
         env:
           SITE_ROOT: _site
       - name: The version this commit carries
         id: version
+        # the tool's version; the forward has none
         run: |
-          echo "version=$(grep -o 'גרסה v[0-9]*' _site/index.html | head -1 | grep -o 'v[0-9]*')" >> "$GITHUB_OUTPUT"
+          if [ "$KIND" = "tool" ]; then
+            echo "version=$(grep -o 'גרסה v[0-9]*' _site/index.html | head -1 | grep -o 'v[0-9]*')" >> "$GITHUB_OUTPUT"
+          fi
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+        env:
+          KIND: ${{ steps.kind.outputs.kind }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
@@ -96,10 +131,32 @@ jobs:
     permissions:
       contents: write
     env:
+      KIND: ${{ needs.build.outputs.kind }}
       WANT: ${{ needs.build.outputs.version }}
       SHA: ${{ needs.build.outputs.sha }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.sha }}
+      - name: The live address serves the forward
+        if: needs.build.outputs.kind == 'forward'
+        run: |
+          for i in $(seq 1 30); do
+            page=$(curl -fsS "https://ombed.github.io/inkognito/index.html?verify=$RANDOM" || true)
+            deep=$(curl -sS "https://ombed.github.io/inkognito/old/deep-link.html?verify=$RANDOM" || true)
+            rm -f live-sw.js
+            curl -fsS "https://ombed.github.io/inkognito/sw.js?verify=$RANDOM" -o live-sw.js || true
+            moved=no; worker=no; link=no
+            if printf '%s' "$page" | grep -qF '<meta name="inkognito" content="moved">'; then moved=yes; fi
+            if [ -s live-sw.js ] && cmp -s live-sw.js forward/sw.js; then worker=yes; fi
+            if printf '%s' "$deep" | grep -qF '<meta name="inkognito" content="moved">'; then link=yes; fi
+            echo "attempt $i: moved page=$moved handover worker=$worker deep link=$link"
+            if [ "$moved$worker$link" = "yesyesyes" ]; then exit 0; fi
+            sleep 10
+          done
+          echo "the live address does not serve the forward"; exit 1
       - name: The live page reports this version
+        if: needs.build.outputs.kind == 'tool'
         run: |
           test -n "$WANT"
           for i in $(seq 1 30); do
@@ -110,10 +167,8 @@ jobs:
             sleep 10
           done
           echo "the live site does not report $WANT"; exit 1
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.build.outputs.sha }}
       - name: Tag what is live, so it can be published again
+        if: needs.build.outputs.kind == 'tool'
         run: |
           tag="live/$WANT"
           if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then

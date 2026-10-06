@@ -39,7 +39,7 @@ const SUITES = [
   // the sign-in emails (supabase/templates/): a whole document, links only through RedirectTo, nothing spam-like
   "mail_t.js",
   // the site's own pages as one set (site/): policy, no third parties, one contact address
-  "landing_t.js",
+  "landing_t.js", "casekey_t.js", "profile_t.js", "forward_t.js", "pages_t.js", "docs_t.js", "live_t.js",
   // the model-eval harness (bench/model-eval, docs/model-eval/PLAN.md): offline, invented text only
   "me_adapters_t.js", "me_convert_t.js", "me_exports_t.js", "me_goldsynth_t.js", "me_known_t.js", "me_noise_t.js", "me_predict_t.js", "me_privacy_t.js", "me_score_t.js", "me_tokfix_t.js", "me_wrap_t.js",
 ];

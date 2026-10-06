@@ -87,6 +87,21 @@ try {
   ok(keep.length > 0 && keep.every((k) => k.startsWith("./") && files.includes("app/" + k.slice(2))), "every file it keeps is one the site serves under /app/");
   const reactCopies = H.LIBS.filter((l) => l.via === "resources" && /^vendor\/react/.test(l.to)).map((l) => "./" + l.to);
   ok(reactCopies.length === 2 && reactCopies.every((f) => keep.includes(f)), "it keeps the site's own React and ReactDOM (" + reactCopies.join(", ") + ")");
+
+  console.log("\n— each account keeps its own saved cases —");
+  // the tool reads window.__inkStoreSuffix once when it starts (caseKey): the page sets it first, from the stored session
+  const at = app.indexOf(H.STORE_SUFFIX);
+  ok(at > 0 && at < app.indexOf('<script src="./page-logic.js">'), "the page sets the store suffix before the tool's scripts");
+  ok(H.STORE_KEY === "sb-cwsiranjlxbclmaqtucc-auth-token" && fs.readFileSync(path.join(ROOT, "site/config.js"), "utf8").includes('"sb-" + new URL(A.url).hostname.split(".")[0] + "-auth-token"'), "it reads the session where the sign-in client stores it (site/config.js)");
+  const suffixFor = (stored) => {
+    const win = { localStorage: { getItem: (k) => (k === H.STORE_KEY ? stored : null) } }; win.window = win;
+    require("vm").runInNewContext(H.STORE_SUFFIX.replace(/^<script>|<\/script>$/g, ""), win);
+    return win.__inkStoreSuffix;
+  };
+  const uid = "0f8e4a2c-1b2d-4c5e-9f00-112233445566";
+  ok(suffixFor(JSON.stringify({ user: { id: uid } })) === uid, "a signed-in account gets its own id as the suffix");
+  ok([null, "{garbled", JSON.stringify({}), JSON.stringify({ user: { id: "../x" } })].every((s) => suffixFor(s) === "signed-out"),
+    "no readable session gives \"signed-out\", never the unkeyed cases");
   const res = read("app/hosted-resources.js");
   const map = JSON.parse((res.match(/Object\.assign\(window\.__resources \|\| \{\}, (\{[\s\S]*\})\);/) || [, "{}"])[1]);
   for (const l of H.LIBS) {

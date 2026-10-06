@@ -11,7 +11,7 @@ quantize to int8 with the recipe of the shipped onnx-community q8 file (EXPORTS.
   py -3 bench/model-eval/export.py agreement [key ...]   q8 vs its own fp32 labels on bench/corpus
   py -3 bench/model-eval/export.py registry              write registry.exports.json from the exports
 
-Outputs go to C:/Users/Me/.vscode/paintItBlack/model-cache/<key>/, never into the repo.
+Outputs go to a folder beside the repository (../model-cache/<key>/), never into the repo.
 The corpus texts are read only to count label agreement; no text is printed.
 """
 import hashlib

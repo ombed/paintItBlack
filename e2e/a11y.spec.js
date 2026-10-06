@@ -163,13 +163,16 @@ test("M28: what changes while she works is announced", async ({ page }) => {
   await expect(page.locator('[data-bar-text][role="status"]')).toHaveCount(1);
   const counter = page.locator('span[aria-live="polite"][aria-atomic="true"]');
   await expect(counter).toHaveCount(1);
-  // a download says where the file went, in the notice
+  // a download says where the file went, in the notice; the notice's status region is there before it
+  // (a region that appears together with its text is often not announced: the independent review of 6.10)
+  await page.evaluate(() => document.querySelectorAll('[role="status"]').forEach((el) => { el.__before = true; }));
   const dl = page.waitForEvent("download");
   await page.getByRole("button", { name: "הורדת Word" }).click();
   const anyway = page.getByRole("button", { name: "להוריד בכל זאת" });
   if (await anyway.isVisible()) await anyway.click();
   await dl;
-  await expect(page.locator('[data-notice][role="status"]')).toBeVisible();
+  await expect(page.locator('[role="status"] > [data-notice]')).toBeVisible();
+  expect(await page.locator("[data-notice]").evaluate((el) => !!el.parentElement.__before), "the notice's status region was there before the notice").toBe(true);
 });
 
 test("M29, M30: where a name appears, and choosing a card, work from the keyboard", async ({ page }) => {

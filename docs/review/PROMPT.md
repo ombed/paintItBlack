@@ -1,6 +1,6 @@
 # The prompt to give the reviewing session
 
-Open a fresh Claude Code session in `C:\Users\Me\.vscode\paintItBlack\repo-clone`
+Open a fresh Claude Code session in a clone of this repository
 and paste everything between the lines. Nothing else is needed: the brief and
 the charter are in the repository.
 

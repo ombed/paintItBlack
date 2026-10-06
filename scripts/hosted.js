@@ -66,6 +66,14 @@ function resourcesScript(ortParts) {
 }
 
 const NAME = "אינקוגניטו";
+
+/* Each account keeps its own saved cases: the tool reads window.__inkStoreSuffix once, when it starts
+   (caseKey, since the move to this site), so the page sets it before the tool runs, from the session the
+   sign-in client stores (site/config.js names the key). With no readable session it is "signed-out", never
+   empty: an empty suffix would read the unkeyed cases another person may have left on this computer. */
+const STORE_KEY = "sb-" + new URL(PROJECT).hostname.split(".")[0] + "-auth-token";
+const STORE_SUFFIX = "<script>(function(){var s=null;try{s=JSON.parse(localStorage.getItem(" + JSON.stringify(STORE_KEY) + ")||\"null\")}catch(_){}" +
+  "var id=s&&s.user&&s.user.id;window.__inkStoreSuffix=/^[0-9a-f-]{36}$/.test(String(id||\"\"))?String(id):\"signed-out\"})();</script>";
 // the install manifest: the public tool's own, which names it InKognito too since v60
 function hostedManifest(json) {
   const m = JSON.parse(json);
@@ -132,10 +140,10 @@ function hostedApp(html) {
     if (out.split(from).length !== 2) throw new Error("hosted: the send box's words are no longer where they were: " + from);
     out = out.replace(from, to);
   }
-  out = out.replace(anchor, SLOT_CSS + `\n<script src="./hosted-resources.js"></script>\n<script src="../vendor/supabase-${supabaseVersion()}.js"></script>\n<script src="../config.js"></script>\n<script src="../cloud.js"></script>\n` + anchor);
+  out = out.replace(anchor, SLOT_CSS + "\n" + STORE_SUFFIX + `\n<script src="./hosted-resources.js"></script>\n<script src="../vendor/supabase-${supabaseVersion()}.js"></script>\n<script src="../config.js"></script>\n<script src="../cloud.js"></script>\n` + anchor);
   const left = out.match(new RegExp(THIRD.source + "[^\"'\\s)]*"));
   if (left) throw new Error("hosted: app/index.html still names another site: " + left[0]);
   return out;
 }
 
-module.exports = { hostedApp, hostedManifest, hostedWorker, NAME, resourcesScript, PROJECT, LIBS, ORT_FILES, ORT_V, ortFrom, ortPin, ORT_DIR, SLOT_CSS };
+module.exports = { hostedApp, hostedManifest, hostedWorker, NAME, STORE_KEY, STORE_SUFFIX, resourcesScript, PROJECT, LIBS, ORT_FILES, ORT_V, ortFrom, ortPin, ORT_DIR, SLOT_CSS };
