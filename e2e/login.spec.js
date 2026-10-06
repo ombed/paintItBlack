@@ -244,7 +244,7 @@ test("an account not verified yet: says so, and sends the email again on request
   await page.fill("#password", "long enough 1");
   await signIn(page).click();
   await expect(page.locator("#email-err")).toContainText("לאמת את כתובת המייל");
-  await page.getByRole("button", { name: "שליחת מייל האימות שוב" }).click();
+  await page.getByRole("button", { name: "שליחה חוזרת של מייל האימות" }).click();
   await expect(page.locator("#sent-h")).toHaveText("נשאר לאמת את המייל");
   const r = calls.find((c) => c.path === "/auth/v1/resend");
   expect(r.body).toMatchObject({ type: "signup", email: "new@example.co.il" });
@@ -314,7 +314,7 @@ test("the link that verifies a new account asks for the password, saves it, and 
   await expect(page.locator("#newpw")).toBeVisible();
   // the password typed here is the account's from now on (migration 0008 drops any earlier one), and the page says so
   await expect(page.locator("#newpw-label")).toHaveText("סיסמה לחשבון");
-  await expect(page.locator("#confirm-why")).toContainText("תשמש לכניסה מעכשיו");
+  await expect(page.locator("#confirm-why")).toContainText("איתה נכנסים מעכשיו");
   await expect(page.locator("#newpw")).toHaveAttribute("autocomplete", "current-password");
   // the token is out of the address bar at once, and nothing was spent yet
   await expect.poll(() => new URL(page.url()).hash).toBe("");

@@ -491,7 +491,7 @@ test("the public tool, without the hosted injection, never talks to the project"
 // tool asks first ("להעתיק בכל זאת"), as for any user; the test answers it.
 async function sendDoc(page) {
   await page.evaluate(() => { window.__copied = ""; navigator.clipboard.writeText = (t) => { window.__copied = t; return Promise.resolve(); }; });
-  await page.locator("[data-bar]").getByRole("button", { name: /העתקה ל-AI|הועתק/ }).click();
+  await page.locator("[data-bar]").getByRole("button", { name: /העתקה ל־AI|הועתק/ }).click();
   const anyway = page.getByRole("button", { name: "להעתיק בכל זאת" });
   if (await anyway.isVisible({ timeout: 1500 }).catch(() => false)) await anyway.click();
   await expect.poll(() => page.evaluate(() => (window.__copied || "").length)).toBeGreaterThan(0);
@@ -506,7 +506,7 @@ test("not asked yet: the first sent document asks; yes sends the whole log, the 
   await expect(card).toBeVisible();
   await expect(page.locator("#ink-ask-h")).toBeFocused();
   expect(submits(calls)).toHaveLength(0);
-  await card.getByText("מה בדיוק נשלח?").click();
+  await card.getByText("מה בדיוק יישלח?").click();
   const sample = await card.locator("pre").innerText();
   expect(sample).toContain('"run"');
   expect(sample).not.toMatch(/[֐-׿]/);
@@ -724,7 +724,7 @@ test("the card names the report on missed names, links the details, and its samp
   const card = page.locator("#ink-ask");
   await expect(card).toContainText("שם שהכלי פספס");
   await expect(card.getByRole("link", { name: "הפירוט המלא" })).toHaveAttribute("href", /privacy\.html$/);
-  await card.getByText("מה בדיוק נשלח?").click();
+  await card.getByText("מה בדיוק יישלח?").click();
   const sample = JSON.parse(await card.locator("pre").innerText());
   expect(sample.leaks.shapes[0].lens).toEqual([10]);
   expect(JSON.stringify(sample)).not.toMatch(/[֐-׿]{3,}/);

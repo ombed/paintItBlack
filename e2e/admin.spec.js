@@ -82,7 +82,8 @@ test("the owner sees every user newest first, the totals, and a typed name only 
   expect(await page.locator("#rows img").count()).toBe(0);
   expect(await page.evaluate(() => window.__pwned)).toBeUndefined();
   await expect(rowOf(page, "b@example.co.il")).toContainText("חסום");
-  await expect(rowOf(page, "b@example.co.il")).toContainText("כבוי");
+  // the «הסכמה ליומן» cell (the sixth): «לא» alone would match anywhere in the row
+  await expect(rowOf(page, "b@example.co.il").locator("td").nth(5)).toHaveText("לא");
   await expect(rowOf(page, "c@example.co.il")).toContainText("ממתין לאישור");
   await expect(rowOf(page, "c@example.co.il")).toContainText("עוד אין תשובה");
   await expect(rowOf(page, "owner@example.co.il").getByRole("button")).toHaveCount(0);
@@ -149,7 +150,7 @@ for (const maxRows of [1000, 300]) test(`with ${maxRows} rows an answer, the own
   expect(out.count).toBe(1234);
   expect(new Set(out.logs.map((l) => l.at)).size).toBe(1234);
   expect(out.logs[1233].at).toBe(logs[1233].created_at);
-  await expect(page.locator("#msg")).toHaveText("הורד קובץ עם 1234 יומנים.");
+  await expect(page.locator("#msg")).toHaveText("ירד קובץ עם 1234 יומנים.");
 });
 
 test("the sign-in page brings the owner back to this page, and to nothing else", async ({ page }) => {
