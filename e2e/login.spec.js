@@ -430,6 +430,35 @@ test("Google goes to the project's authorize endpoint and back to this page", as
   expect(a.query.redirect_to).toBe(new URL(LOGIN, "http://127.0.0.1:4173").href);
 });
 
+/* login.html?next=admin keeps "admin" for the tab until a sign-in uses it, through the round trip to
+   Google. Any other opening of the sign-in page ends it: a sign-in that started on the admin page and
+   was left sent a later, ordinary sign-in in the same tab to the admin page (the live check of 6.10). */
+test("a sign-in from the admin page that was left does not send a later ordinary one there", async ({ page }) => {
+  await stub(page, { "/auth/v1/token": { body: SESSION } });
+  await page.route("**/site/admin.html", (route) => route.fulfill({ contentType: "text/html", body: "<title>admin</title>" }));
+  await page.goto(LOGIN + "?next=admin");
+  // left without signing in; later, in the same tab, the ordinary «כניסה»
+  await page.goto("/site/index.html");
+  await page.goto(LOGIN);
+  await page.fill("#email", "a@example.co.il");
+  await page.fill("#password", "correct horse 42");
+  await signIn(page).click();
+  await page.waitForURL(/\/site\/(app\/|admin\.html)$/);
+  expect(new URL(page.url()).pathname).toBe("/site/app/");
+});
+
+test("a sign-in from the admin page goes back there after the round trip to Google", async ({ page }) => {
+  await stub(page, { "/auth/v1/user": { body: SESSION.user } });
+  await page.route("**/site/admin.html", (route) => route.fulfill({ contentType: "text/html", body: "<title>admin</title>" }));
+  await page.goto(LOGIN + "?next=admin");
+  await page.click("#google");
+  await page.waitForURL(PROJECT + "/auth/v1/authorize**");
+  // Google's answer comes back to the page's own address, with the session after the #
+  await page.goto(LOGIN + "#access_token=" + JWT + "&expires_in=3600&expires_at=" + SESSION.expires_at + "&refresh_token=r1&token_type=bearer");
+  await page.waitForURL(/\/site\/(app\/|admin\.html)$/);
+  expect(new URL(page.url()).pathname).toBe("/site/admin.html");
+});
+
 test("someone already signed in goes straight to the app, with the gate's cookie", async ({ page }) => {
   await stub(page, { "/auth/v1/user": { body: SESSION.user } });
   await signedIn(page);

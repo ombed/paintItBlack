@@ -25,9 +25,17 @@ const WAIT = 60; // Supabase sends one email per address per minute
 /* Where a session goes: the app, or the admin page when the sign-in started there
    (login.html?next=admin). Only that one other page, never an address from the URL: a sign-in
    page that forwards anywhere it is told is an open redirect. Kept for this tab through the
-   round trip to Google; a link opened from the email in a new tab goes to the app. */
+   round trip to Google; a link opened from the email in a new tab goes to the app.
+   Any other opening of this page ends it: without ?next=admin and without a sign-in coming back
+   after the # (Supabase's answer, Google's or a refusal, or an emailed link). A sign-in started on
+   the admin page and left used to send a later, ordinary sign-in in the tab there (6.10). The
+   gate's reasons (#error=session…) are not a sign-in coming back: they are about the app. */
 const NEXT = "ink-next";
-try { if (new URLSearchParams(location.search).get("next") === "admin") sessionStorage.setItem(NEXT, "admin"); } catch (_) {}
+try {
+  const back = new URLSearchParams(location.hash.slice(1));
+  if (new URLSearchParams(location.search).get("next") === "admin") sessionStorage.setItem(NEXT, "admin");
+  else if (!["access_token", "error_description", "confirm"].some((k) => back.has(k))) sessionStorage.removeItem(NEXT);
+} catch (_) {}
 function destination() {
   let next = null;
   try { next = sessionStorage.getItem(NEXT); sessionStorage.removeItem(NEXT); } catch (_) {}
