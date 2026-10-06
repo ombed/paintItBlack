@@ -61,6 +61,25 @@ for (const p of pages) {
     ok(/<header class="spine" id="spine">/.test(h) && /<button class="menu-btn"[^>]*aria-controls="sheet"/.test(h) && /<script src="\/?landing\.js"><\/script>/.test(h), p + ": the home page's spine, with its phone menu and the script that opens it");
 }
 
+console.log("\n— one footer —");
+/* Every page with the site's footer links what the home page's footer links, in its order, each to the
+   same place: the 404 had 4 of the 6, without «אבטחה» and «הקוד ב־GitHub» (the live check of 6.10).
+   An address is compared by where it leads, read from the page's own address (the 404 names them from
+   the root), and a page by its address without .html, as Cloudflare serves it. */
+const footLinks = (p) => {
+  const nav = (fs.readFileSync(path.join(SITE, p), "utf8").match(/<footer class="foot">[\s\S]*?<nav[^>]*>([\s\S]*?)<\/nav>/) || [])[1];
+  return nav === undefined ? null : [...nav.matchAll(/<a[^>]*\bhref="([^"]+)"[^>]*>([^<]+)<\/a>/g)].map(([, href, text]) => {
+    const u = new URL(href, "https://inkognito.co.il/" + p);
+    return text + " → " + (u.host === "inkognito.co.il" ? u.pathname.replace(/(^|\/)index\.html$/, "$1").replace(/\.html$/, "") + u.hash : u.href);
+  });
+};
+const homeFoot = footLinks("index.html") || [];
+ok(homeFoot.length >= 6, "the home page's footer links " + homeFoot.length + " places");
+for (const p of pages.filter((f) => f !== "index.html")) {
+  const f = footLinks(p);
+  if (f) ok(f.join(" | ") === homeFoot.join(" | "), p + ": its footer links what the home page's does" + (f.join(" | ") === homeFoot.join(" | ") ? "" : ": " + f.join(" | ")));
+}
+
 console.log("\n— the way in —");
 // sign-in is Google, or an email and a password (4.10); "sign up" opens the page on creating an account
 const index = fs.readFileSync(path.join(SITE, "index.html"), "utf8");
