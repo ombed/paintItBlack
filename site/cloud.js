@@ -301,6 +301,13 @@
       if (e.key !== "Escape" || pane.hidden) return;
       pane.hidden = true; btn.setAttribute("aria-expanded", "false"); btn.focus();
     });
+    // and a press anywhere else closes it, as a menu does; the press goes on to what it was on.
+    // It stayed open, aria-expanded true, after a click elsewhere (6.10). Captured, so nothing the
+    // tool does with the press can keep it from closing.
+    document.addEventListener("pointerdown", (e) => {
+      if (pane.hidden || box.contains(e.target)) return;
+      pane.hidden = true; btn.setAttribute("aria-expanded", "false");
+    }, true);
     sw.addEventListener("change", async () => {
       const on = sw.checked, at = Date.now(), was = profile.log_enabled;
       epoch++;

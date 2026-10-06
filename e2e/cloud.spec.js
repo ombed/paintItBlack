@@ -139,6 +139,35 @@ test("Tab reaches the account button with the top bar, not after the page below 
   await expect.poll(() => inTopBar(page)).toBe(true);
 });
 
+/* A press anywhere outside the open panel closes it, as a menu does, and the button says so; a press
+   inside it does not (the live check of 6.10: it stayed open, aria-expanded still true). */
+test("the account panel closes on a press outside it, and not on one inside it", async ({ page }) => {
+  await hosted(page);
+  await boot(page);
+  const btn = page.getByRole("button", { name: "חשבון", exact: true }), pane = page.locator("#ink-account-panel");
+  await btn.click();
+  await expect(pane).toBeVisible();
+  await pane.getByText("a@example.co.il").click();
+  await expect(pane).toBeVisible();
+  await expect(btn).toHaveAttribute("aria-expanded", "true");
+  // the tool's name in the top bar: a press that does nothing else
+  await page.locator("header [data-wordmark]").click();
+  await expect(pane).toBeHidden();
+  await expect(btn).toHaveAttribute("aria-expanded", "false");
+  // and elsewhere on the page, after opening it again
+  await btn.click();
+  await expect(pane).toBeVisible();
+  await page.mouse.click(700, 500);
+  await expect(pane).toBeHidden();
+  await expect(btn).toHaveAttribute("aria-expanded", "false");
+  // the button itself still opens and closes it
+  await btn.click();
+  await expect(pane).toBeVisible();
+  await btn.click();
+  await expect(pane).toBeHidden();
+  await expect(btn).toHaveAttribute("aria-expanded", "false");
+});
+
 test("on a phone, the account button sits on the header's first row, in the header's colours", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await hosted(page);
