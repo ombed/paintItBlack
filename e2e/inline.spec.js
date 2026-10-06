@@ -7,7 +7,8 @@ const H = require("./helpers");
    screens the marks were too faint to tell apart. A click on a marked word now opens an
    editor at the word with every action of the card, a live preview of the
    sentence, and the marks carry a shape: solid underline for replaced, dashed
-   plus "?" for waiting, ∅ for deleted, with a legend above the document. */
+   plus "?" for waiting, a dashed chip with a drawn eraser for deleted (it was the
+   text ∅ until 6.10), with a legend above the document. */
 
 const DOC = [
   "פרוטוקול דיון",
@@ -38,6 +39,13 @@ test("the legend is there, and marks carry a shape as well as a color", async ({
   await expect(mark).toBeVisible({ timeout: 15000 });
   const border = await mark.evaluate((el) => getComputedStyle(el).borderBottomStyle);
   expect(border).toBe("solid");
+  // the legend draws the marks as they are now (6.10): ink text over an underline, with no fill
+  const key = page.locator("[data-legend] > span > span").first();
+  const look = await key.evaluate((el) => { const s = getComputedStyle(el); return { line: s.borderBottomStyle, w: parseFloat(s.borderBottomWidth), fill: s.backgroundColor, ink: s.color }; });
+  expect(look.line).toBe("solid");
+  expect(look.w).toBeGreaterThanOrEqual(2);
+  expect(look.fill).toBe("rgba(0, 0, 0, 0)");
+  expect(look.ink).toBe("rgb(21, 23, 27)");
   // a value waiting for a decision: dashed, and a "?" badge
   const flag = page.locator('[data-mark][data-badge="?"]').first();
   if (await flag.count()) {
@@ -72,13 +80,20 @@ test("the editor offers blank, don't replace, and same-person, and each acts on 
   await expect(ed).toBeVisible();
   await ed.getByRole("button", { name: "ריק", exact: true }).click();
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).not.toContain("רונית לוי");
-  await expect(page.locator('[data-mark][data-val="רונית לוי"]').first()).toHaveText("∅");
+  // the spot shows a drawn eraser and no text, and the mark, a button, is named «נמחק»
+  const gone = page.locator('[data-mark][data-val="רונית לוי"]').first();
+  await expect(gone).toHaveAttribute("data-kind", "del");
+  await expect(gone).toHaveAccessibleName("נמחק");
+  await expect(gone.locator('svg[data-icon="eraser"]')).toBeVisible();
+  await expect(gone).toHaveText("");
   // the deleted mark opens the editor too, and brings the name back
-  await page.locator('[data-mark][data-val="רונית לוי"]').first().click();
+  await gone.click();
   ed = page.locator("[data-inline]");
   await expect(ed).toContainText("נמחק");
   await ed.getByRole("button", { name: "שם", exact: true }).click();
-  await expect.poll(() => page.locator('[data-mark][data-val="רונית לוי"]').first().textContent(), { timeout: 15000 }).not.toBe("∅");
+  await expect.poll(() => page.locator('[data-mark][data-val="רונית לוי"]').first().getAttribute("data-kind"), { timeout: 15000 }).not.toBe("del");
+  await expect(page.locator('[data-mark][data-val="רונית לוי"]').first()).not.toHaveText("");
+  await expect(page.locator('[data-mark][data-val="רונית לוי"]').first().locator('svg[data-icon="eraser"]')).toHaveCount(0);
   // don't replace from the editor
   await page.locator('[data-mark][data-val="דנה ברקוביץ"]').first().click();
   ed = page.locator("[data-inline]");

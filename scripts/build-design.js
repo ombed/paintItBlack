@@ -39,8 +39,9 @@ function build(html) {
   // the chip may sit inside a <footer> landmark (QA run-2 L19)
   body = body.replace(/<\/x-dc>\r?\n(?:<footer>)?<div id="ver">[^<]*<\/div>(?:<\/footer>)?\r?\n/, "</x-dc>" + NL);
   if (body.includes('id="ver"')) throw new Error("version chip still present");
-  body = body.replace('data-props="{&quot;accent&quot;',
-    'data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},' + NL + '&quot;accent&quot;');
+  body = body.replace('data-props="{&quot;docFont&quot;',
+    'data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},' + NL + '&quot;docFont&quot;');
+  if (!body.includes("&quot;$preview&quot;")) throw new Error("data-props not found: the $preview size was not added");
   body = body.replace(/\(window\.__resources && window\.__resources\.\w+\) \|\| /g, "");
   // no m flag: a multiline ^ in JS also matches after a bare \r and would eat the break before it
   body = body.replace(/\r?\n[ \t]*window\.__RE = E;(?=\r?\n)/, "");

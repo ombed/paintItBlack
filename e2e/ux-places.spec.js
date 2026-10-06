@@ -30,6 +30,70 @@ test("UX #9: with no distance map, the title and the first line say so", async (
   await expect(page.getByText(/נסיעה של עשר דקות/)).toBeVisible();
 });
 
+/* On a phone the places card's two buttons sat side by side on one line, neither allowed to wrap, so the
+   second one ran out of the card and was cut off by its edge (the card clips what overflows it, so no
+   overflow check could see it). They stack now, full width, and their words may wrap (6.10). */
+test("on a phone, both buttons at the foot of the places card sit inside the card", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  // on a phone the settings start closed
+  await page.locator("[data-settings-toggle]").click();
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "case.docx", ["סיכום", "מר דני כהן גר בחיפה ועבד בנתניה."].join("\n"));
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  const input = page.getByPlaceholder(/שם מלא/);
+  await input.fill("דני כהן");
+  await input.press("Enter");
+  await H.goOn(page);
+  const card = page.locator("[data-tour-target=places]");
+  await expect(card).toBeVisible({ timeout: 15000 });
+  const c = await card.boundingBox();
+  for (const name of ["החלת הקבוצה והמשך", "בלי שמירת מרחקים — שמות אקראיים"]) {
+    const b = card.getByRole("button", { name, exact: true });
+    await expect(b).toBeVisible();
+    const r = await b.boundingBox();
+    // a button cut in half by the card's edge still counts as visible: its box is what tells, on all four sides
+    expect(r.x, name + " starts inside the card").toBeGreaterThanOrEqual(c.x - 0.5);
+    expect(r.x + r.width, name + " ends inside the card").toBeLessThanOrEqual(c.x + c.width + 0.5);
+    expect(r.y, name + " is below the card's top").toBeGreaterThanOrEqual(c.y - 0.5);
+    expect(r.y + r.height, name + " is above the card's bottom").toBeLessThanOrEqual(c.y + c.height + 0.5);
+  }
+});
+
+/* At 320px (the width WCAG's reflow rule asks for: a 1280px screen at 400% zoom) the card's header row
+   held four things on one line, two of them buttons that may not wrap, and «קבוצה אחרת» ran out of the
+   card, cut off by its edge (already in v59). Below 360px that row wraps; every button the card holds is
+   inside it, and on the screen. */
+test("at 320px, every button of the places card sits inside the card and on the screen", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await H.serveEngineWithStub(page);
+  await H.boot(page);
+  await page.locator("[data-settings-toggle]").click();
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "case.docx", ["סיכום", "מר דני כהן גר בחיפה ועבד בנתניה."].join("\n"));
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  const input = page.getByPlaceholder(/שם מלא/);
+  await input.fill("דני כהן");
+  await input.press("Enter");
+  await H.goOn(page);
+  const card = page.locator("[data-tour-target=places]");
+  await expect(card).toBeVisible({ timeout: 15000 });
+  await expect(card.getByRole("button", { name: "קבוצה אחרת", exact: true })).toBeVisible();
+  const all = await card.evaluate((el) => {
+    const c = el.getBoundingClientRect();
+    return [...el.querySelectorAll("button")].filter((b) => b.getClientRects().length).map((b) => {
+      const r = b.getBoundingClientRect();
+      return { name: b.textContent.trim().slice(0, 30), inCard: r.left >= c.left - 0.5 && r.right <= c.right + 0.5, onScreen: r.left >= -0.5 && r.right <= innerWidth + 0.5 };
+    });
+  });
+  // the header's two, the foot's two, and each row's «אל תחליפו»
+  expect(all.length).toBeGreaterThanOrEqual(4);
+  expect(all.filter((b) => !b.inCard || !b.onScreen), "buttons cut off by the card's edge or the screen's").toEqual([]);
+});
+
 test("UX #9: with a map, the title promises the distances", async ({ page }) => {
   await toPeople(page, ["סיכום", "מר דני כהן גר בחיפה ועבד בנתניה."].join("\n"), ["דני כהן"]);
   await H.goOn(page);

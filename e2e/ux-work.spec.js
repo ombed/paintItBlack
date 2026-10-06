@@ -106,10 +106,21 @@ test("UX #18: copy while items are pending asks first, copies only on 'בכל ז
   // (review L1: this line ended in .catch(() => {}), so it could not fail. What it meant: the
   // copy step is not marked done while the question is still open.)
   await expect(page.locator("[data-steps]")).not.toContainText("2 העתקה או הורדה ✓");
-  expect(await page.locator("[data-steps]").innerText()).not.toContain("הורדה ✓");
+  // innerText puts the hidden ✓ (absolutely placed) on a line of its own, "הורדה \n✓", so the raw text could
+  // never contain "הורדה ✓" and this line could not fail. Its whitespace is folded first, as a screen reader
+  // runs it together; after the copy below the same reading does contain it.
+  const stepsText = async () => (await page.locator("[data-steps]").innerText()).replace(/\s+/g, " ");
+  expect(await stepsText()).not.toContain("הורדה ✓");
+  // the step's check is drawn now: the step is there, and it carries no check yet, drawn or hidden
+  await expect(page.locator('[data-steps] [data-step="2"]')).toHaveCount(1);
+  await expect(page.locator('[data-step="2"] svg[data-icon="check"]')).toHaveCount(0);
+  await expect(page.locator('[data-step="2"] .vh')).toHaveCount(0);
   await ask.getByRole("button", { name: "להעתיק בכל זאת" }).click();
   await expect.poll(() => page.evaluate(() => window.__copied)).toContain("אלמליח");
+  await expect(page.locator('[data-step="2"] svg[data-icon="check"]')).toHaveCount(1);
+  await expect(page.locator('[data-step="2"] .vh')).toHaveText("✓");
   await expect(page.locator("[data-steps]")).toContainText("2 העתקה או הורדה ✓");
+  expect(await stepsText()).toContain("הורדה ✓");
 });
 
 test("UX #18: a blocked clipboard does not mark the step done", async ({ page }) => {
@@ -123,7 +134,12 @@ test("UX #18: a blocked clipboard does not mark the step done", async ({ page })
   await expect(input).toBeVisible();
   await page.getByRole("button", { name: /העתקה ל-AI/ }).click();
   await expect(page.getByText(/ההעתקה נחסמה/)).toBeVisible();
-  expect(await page.locator("[data-steps]").innerText()).not.toContain("✓ ›\n3");
+  // (the old text pattern "✓ ›\n3" never could fail, not even before the separator was drawn: the step
+  // spans are flex items, so innerText always put the › on a line of its own. The step's own drawn check,
+  // and the hidden ✓ beside it, are what say done)
+  await expect(page.locator('[data-steps] [data-step="2"]')).toHaveCount(1);
+  await expect(page.locator('[data-step="2"] svg[data-icon="check"]')).toHaveCount(0);
+  await expect(page.locator('[data-step="2"] .vh')).toHaveCount(0);
   await expect(page.locator("[data-steps]")).not.toContainText("הורדה ✓");
 });
 
@@ -134,6 +150,7 @@ test("UX #23 / QA 009: download says where the file went, and the report shares 
   const docx = (await d1).suggestedFilename();
   await expect(page.locator("[data-notice]")).toContainText(docx);
   await expect(page.locator("[data-notice]")).toContainText("תיקיית ההורדות");
+  await expect(page.locator('[data-step="2"] svg[data-icon="check"]')).toBeVisible();
   await expect(page.locator("[data-steps]")).toContainText("2 העתקה או הורדה ✓");
   await page.getByRole("button", { name: /מה נוקה מהקובץ/ }).click();
   const d2 = page.waitForEvent("download");

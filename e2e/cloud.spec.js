@@ -102,6 +102,24 @@ test("signed in: the account panel, the visit marked, the gate's cookie written"
   await expect(page.getByRole("button", { name: "חשבון", exact: true })).toHaveAttribute("aria-expanded", "false");
 });
 
+test("on a phone, the account button sits on the header's first row, in the header's colours", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await hosted(page);
+  await boot(page);
+  await expect.poll(() => inTopBar(page)).toBe(true);
+  // the tool's header wraps on a phone (v60): the name and the day/night button share the first row,
+  // and the account button joins them rather than taking a row of its own
+  const night = await page.locator("header [data-night]").boundingBox();
+  const slot = await page.locator("header [data-ink-account]").boundingBox();
+  const name = await page.locator("header [data-wordmark]").boundingBox();
+  expect(Math.abs(slot.y - night.y)).toBeLessThan(2);
+  expect(slot.y).toBeLessThan(name.y + name.height);
+  expect((await page.locator("header").boundingBox()).height).toBeLessThan(140);
+  // the bar is bookcloth green: cream text on it, not a white button
+  const look = await page.getByRole("button", { name: "חשבון", exact: true }).evaluate((b) => { const s = getComputedStyle(b); return [s.color, s.backgroundColor]; });
+  expect(look).toEqual(["rgb(237, 230, 204)", "rgba(0, 0, 0, 0)"]);
+});
+
 test("each document's log goes up once when it ends, only what is new, with no text", async ({ page }) => {
   const calls = await hosted(page);
   await boot(page);

@@ -38,7 +38,12 @@ test("numbers and dates are deleted by default; the age stays; a mark shows wher
   // the spot is marked, and the mark names what was there
   const del = page.locator('[data-mark][data-val="314277062"]');
   await expect(del.first()).toBeVisible();
-  expect(await del.first().textContent()).toBe("∅");
+  // a deleted value leaves a dashed chip with a drawn eraser, no text, and the button's own name
+  // (without it the name would come from the title, which holds the deleted number)
+  await expect(del.first()).toHaveAttribute("data-kind", "del");
+  await expect(del.first()).toHaveAccessibleName("נמחק");
+  await expect(del.first().locator('svg[data-icon="eraser"]')).toBeVisible();
+  await expect(del.first()).toHaveText("");
 });
 
 test("blank on a person deletes her and warns that restore cannot bring her back", async ({ page }) => {

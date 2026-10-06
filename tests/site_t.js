@@ -43,6 +43,9 @@ const html = read("index.html");
 const refs = new Set();
 for (const m of html.matchAll(/(?:src|href)="\.\/([^"#?]+)"/g)) refs.add(m[1]);
 for (const m of html.matchAll(/\|\|\s*"\.\/([^"]+)"/g)) refs.add(m[1]);
+// a CSS url() is a reference too: an @font-face whose file the list forgets would 404 only on the
+// live site, and a missing font fails silently (the browser draws a fallback)
+for (const m of html.matchAll(/url\(\s*['"]?\.\/([^'")?#]+)/g)) refs.add(m[1]);
 // a bare import("./x.js") with no fallback in front of it (review M8): the four runtime modules were
 // caught only because each happens to be written as `something || "./x.js"`. The same goes for
 // every runtime file that imports a sibling.
@@ -51,6 +54,29 @@ for (const m of html.matchAll(dyn)) refs.add(m[1]);
 for (const f of SITE_FILES.filter((x) => /\.js$/.test(x) && x !== "support.js")) for (const m of read(f).matchAll(dyn)) refs.add(m[1]);
 for (const f of refs) ok("index.html loads " + f + " but the site does not ship it", listed.has(f));
 ok("index.html references were found", refs.size >= 5);
+
+// the fonts come from the site itself, not from Google Fonts: every font file shipped is named by an
+// @font-face rule, each family travels with its licence, nothing names Google's hosts any more, and the
+// service worker keeps the fonts cache-first, as it kept Google's
+{
+  // only a url() inside an @font-face rule counts, and only a rule that opens with the family: a CSS rule
+  // that merely names the family (body{font-family:'Rubik'…}) declares no face
+  const faces = new Set([...html.matchAll(/@font-face\{[^}]*url\(\.\/(fonts\/[^)]+)\)/g)].map((m) => m[1]));
+  for (const f of SITE_FILES.filter((x) => /^fonts\/.*\.woff2$/.test(x))) ok("the site ships " + f + " but no @font-face names it", faces.has(f));
+  ok("the site ships the font files", SITE_FILES.filter((x) => /^fonts\/.*\.woff2$/.test(x)).length >= 19);
+  for (const fam of ["Rubik", "Noto Serif Hebrew", "Frank Ruhl Libre"]) ok("no @font-face for " + fam, html.includes("@font-face{font-family:'" + fam + "'"));
+  for (const fam of ["rubik", "noto-serif-hebrew", "frank-ruhl-libre"])
+    ok("no licence shipped for " + fam, listed.has("fonts/" + fam + "-LICENSE.txt") && /SIL Open Font License/.test(read("fonts/" + fam + "-LICENSE.txt")));
+  ok("index.html or sw.js still names Google Fonts", !/fonts\.(googleapis|gstatic)\.com/.test(html + sw));
+  ok("sw.js does not keep the fonts cache-first", sw.includes('u.pathname.includes("/fonts/")'));
+}
+
+// the drawn icons are Lucide's, inlined in the page: their notices travel with it, the ISC licence
+// and, for the icons Lucide took from Feather, the MIT licence
+if (/data-icon="/.test(html)) {
+  ok("index.html draws Lucide icons without Lucide's ISC notice", /Copyright \(c\) \d{4} Lucide Icons and Contributors/.test(html) && /Permission to use, copy, modify, and\/or distribute this software/.test(html));
+  ok("index.html draws Feather-derived icons without Feather's MIT notice", /Copyright \(c\) 2013-present Cole Bemis/.test(html) && /Permission is hereby granted, free of charge/.test(html));
+}
 
 // a vendored library is loaded through a constant, not a literal import (review H14): every
 // "./vendor/..." path a runtime file names is shipped, and every shipped vendor file is named

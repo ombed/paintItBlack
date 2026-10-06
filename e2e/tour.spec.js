@@ -108,3 +108,41 @@ test("skip closes the tour and is not offered again on this version; a new versi
   await expect(page.locator("#dc-root")).toBeAttached({ timeout: 60000 });
   await expect(page.getByText("לפני שמתחילים")).toBeVisible();
 });
+
+/* The spotlight is measured on every render, on resize and scroll, and when its target resizes. Two
+   things move the target with none of those: the sticky header changing height, and a web font that
+   arrives late (the wordmark's Frank Ruhl, the interface's Rubik). Since 6.10 the header is watched with
+   the target, and a font that finishes loading measures again. */
+test("the spotlight follows its target when the header grows and when a font arrives late", async ({ page }) => {
+  await firstVisit(page);
+  await page.getByRole("button", { name: /סיור קצר על מסמך לדוגמה/ }).click();
+  const tour = page.locator("[data-tour]");
+  await tour.getByRole("button", { name: /טעינת המסמך לדוגמה/ }).click();
+  await expect(tour).toContainText("מי בתיק", { timeout: 20000 });
+  const onTarget = () => page.evaluate(() => {
+    const s = document.querySelector("[data-spot]"), t = document.querySelector("[data-tour-target=people]");
+    if (!s || !t) return false;
+    const a = s.getBoundingClientRect(), b = t.getBoundingClientRect();
+    return Math.abs(a.top - (b.top - 6)) <= 1 && Math.abs(a.height - (b.height + 12)) <= 1;
+  });
+  await expect.poll(onTarget, { timeout: 5000 }).toBe(true);
+  // every font in place first, so no font arriving during the steps below measures the spotlight by chance
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(300);
+  // the header grows, as when the wordmark's font swaps in on a phone: the target moves down, unresized
+  const targetTop = () => page.evaluate(() => document.querySelector("[data-tour-target=people]").getBoundingClientRect().top);
+  const top0 = await targetTop();
+  await page.evaluate(() => { document.querySelector("header").style.minHeight = "96px"; });
+  // and it really moved, by the header's 40px: on a scrolled page the browser's scroll anchoring would have
+  // held it in place, and the spotlight would be on target with nothing measured again
+  expect(await targetTop() - top0, "the target moved down with the header").toBeGreaterThan(30);
+  await expect.poll(onTarget, { timeout: 3000 }).toBe(true);
+  // (that measurement re-renders, and a render measures once more a frame later: let it pass)
+  await page.waitForTimeout(300);
+  // the target moves while nothing watched changes size; only the font event can bring the spotlight back
+  await page.evaluate(() => { document.querySelector("main h1").style.marginTop = "40px"; });
+  await page.waitForTimeout(300);
+  expect(await onTarget(), "nothing else measured the spotlight again").toBe(false);
+  await page.evaluate(() => document.fonts.dispatchEvent(new window.Event("loadingdone")));
+  await expect.poll(onTarget, { timeout: 3000 }).toBe(true);
+});

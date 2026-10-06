@@ -13,7 +13,9 @@ const ok = (c, m) => { c ? pass++ : (fail++, console.log("  ✗ " + m)); };
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 const cut = html.indexOf('type="text/x-dc"');
 const template = html.slice(0, cut), app = html.slice(cut);
-const DIM = /opacity:\s*0?\.\d+/;
+// a CSS opacity, or an SVG opacity attribute (the old square logo's lines were drawn at opacity=".5";
+// with it gone, an attribute is caught as well)
+const DIM = /opacity(?::\s*|=")0?\.\d+/;
 
 // 1. a template element whose own style dims it, and which holds text or a {{ binding }}
 const dimText = [...template.matchAll(/<([a-z][\w-]*)\b[^>]*\bstyle="([^"]*)"[^>]*>([^<]*)/g)]
@@ -28,11 +30,12 @@ const ALLOWED = [
 ];
 // per line: more dimming opacities than allowed ones is a finding
 const unexplained = (text) => text.split("\n").map((l, i) => ({ l, i,
-  n: (l.match(/opacity:\s*0?\.\d+/g) || []).length, a: ALLOWED.filter((rx) => rx.test(l)).length }))
+  n: (l.match(/opacity(?::\s*|=")0?\.\d+/g) || []).length, a: ALLOWED.filter((rx) => rx.test(l)).length }))
   .filter((x) => x.n > x.a).map((x) => `line ${x.i + 1}: ${x.l.trim().slice(0, 70)}`);
 const dims = unexplained(html);
 ok(dims.length === 0, "every other opacity under 1 is a known disabled state: " + dims.join(" · "));
 ok(unexplained('        (x.on?"":"opacity:.72"),').length === 1, "the check catches v54's dimmed place row");
+ok(unexplained('<g stroke="var(--panel)" stroke-width="1.7" opacity=".5">').length === 1, "the check catches an SVG part drawn at opacity .5");
 
 // 3. the undo/redo glyphs are dimmed only when their button is disabled too
 ok(/onClick="\{\{ onHistUndo \}\}" disabled="\{\{ undoOff \}\}"/.test(template), "the undo button is disabled when there is nothing to undo");

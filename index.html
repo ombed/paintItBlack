@@ -3,22 +3,84 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>השחרת מסמכים</title>
+<title>אינקוגניטו</title>
 <meta name="description" content="הסרת פרטים מזהים ממסמכי Word לפני שליחה לכלי AI. הכל רץ במחשב שלכם.">
-<meta name="theme-color" content="#1F5B44">
+<meta name="theme-color" content="#1D3A2E">
 <meta name="referrer" content="no-referrer">
 <!-- מדיניות אבטחת התוכן (ביקורת H14): לאן העמוד רשאי לפנות. connect-src הוא העיקר: גם קוד זר
      שירוץ כאן לא יוכל לשלוח את המסמך או את מפת השמות לשום כתובת שאינה ברשימה. המודל יושב באתר
      עצמו (models/), ולכן אין לו כתובת כאן. ה-CDN: ספריית ההרצה של המודל, נבדקת ב-SHA-256, ומפת העולם.
      'unsafe-eval' נדרש לשכבת ההרצה (התבנית מוערכת ב-new Function) ול-WebAssembly. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://unpkg.com; worker-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://unpkg.com; worker-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <script>/* ערכת הצבעים לפני הציור הראשון: בלי זה טעינה מחדש במצב לילה הבהבה ביום עד שהממשק עלה */try{var t=localStorage.getItem("redact-theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}</script>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600&family=Noto+Serif+Hebrew:wght@400;500&display=swap" rel="stylesheet">
+<!-- האייקונים: Lucide (https://lucide.dev), מצוירים בתוך הדף. הרישיונות שלהם, כלשונם:
+
+ISC License
+
+Copyright (c) 2026 Lucide Icons and Contributors
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+The following Lucide icons used here are derived from the Feather project:
+arrow-left, arrow-up, check, chevron-down, chevron-left, chevron-right, chevron-up, moon, x
+
+The MIT License (MIT) (for the icons listed above)
+
+Copyright (c) 2013-present Cole Bemis
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+<!-- הגופנים מהאתר עצמו (fonts/, רישיון SIL OFL 1.1) ולא מ-Google Fonts: Rubik לממשק, Noto Serif Hebrew למסמך, Frank Ruhl Libre לשם המוצר.
+     אותן חלוקות שגוגל הגיש (עברית, לטינית, לטינית מורחבת); הדפדפן מוריד רק חלוקה שהעמוד צריך -->
+<style>
+@font-face{font-family:'Rubik';font-style:normal;font-weight:300;font-display:swap;src:url(./fonts/rubik-hebrew-300-normal.woff2) format('woff2');unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:'Rubik';font-style:normal;font-weight:300;font-display:swap;src:url(./fonts/rubik-latin-ext-300-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Rubik';font-style:normal;font-weight:300;font-display:swap;src:url(./fonts/rubik-latin-300-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Rubik';font-style:normal;font-weight:400;font-display:swap;src:url(./fonts/rubik-hebrew-400-normal.woff2) format('woff2');unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:'Rubik';font-style:normal;font-weight:400;font-display:swap;src:url(./fonts/rubik-latin-ext-400-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Rubik';font-style:normal;font-weight:400;font-display:swap;src:url(./fonts/rubik-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Rubik';font-style:normal;font-weight:500;font-display:swap;src:url(./fonts/rubik-hebrew-500-normal.woff2) format('woff2');unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:'Rubik';font-style:normal;font-weight:500;font-display:swap;src:url(./fonts/rubik-latin-ext-500-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Rubik';font-style:normal;font-weight:500;font-display:swap;src:url(./fonts/rubik-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Rubik';font-style:normal;font-weight:600;font-display:swap;src:url(./fonts/rubik-hebrew-600-normal.woff2) format('woff2');unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:'Rubik';font-style:normal;font-weight:600;font-display:swap;src:url(./fonts/rubik-latin-ext-600-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Rubik';font-style:normal;font-weight:600;font-display:swap;src:url(./fonts/rubik-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Noto Serif Hebrew';font-style:normal;font-weight:400;font-display:swap;src:url(./fonts/noto-serif-hebrew-hebrew-400-normal.woff2) format('woff2');unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:'Noto Serif Hebrew';font-style:normal;font-weight:400;font-display:swap;src:url(./fonts/noto-serif-hebrew-latin-ext-400-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Noto Serif Hebrew';font-style:normal;font-weight:400;font-display:swap;src:url(./fonts/noto-serif-hebrew-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Noto Serif Hebrew';font-style:normal;font-weight:500;font-display:swap;src:url(./fonts/noto-serif-hebrew-hebrew-500-normal.woff2) format('woff2');unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:'Noto Serif Hebrew';font-style:normal;font-weight:500;font-display:swap;src:url(./fonts/noto-serif-hebrew-latin-ext-500-normal.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Noto Serif Hebrew';font-style:normal;font-weight:500;font-display:swap;src:url(./fonts/noto-serif-hebrew-latin-500-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Frank Ruhl Libre';font-style:normal;font-weight:900;font-display:swap;src:url(./fonts/FrankRuhlLibre-900-hebrew.woff2) format('woff2');unicode-range:U+0307-0308,U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+</style>
 <style>
 /* התבנית מוסתרת מהרגע הראשון ולא רק אחרי שהריצה התחילה. אם שכבת ההרצה
    לא נטענה, מוצגת הודעה מסודרת — לא ‎{{ }}‎ ולא תגיות ‎sc-if‎ על המסך. */
@@ -26,21 +88,23 @@ x-dc{display:none!important}
 </style>
 <style>
 :root{
-  --bg:#F4F2ED; --panel:#FFFFFF; --panel2:#F7F6F1; --line:rgba(22,33,28,.13);
-  --line2:rgba(22,33,28,.07); --ink:#16211C; --ink2:#5D6A63; --ink3:#66706A;
-  --accent:#1F5B44; --accent-soft:#E6EFE9; --accent-ink:#1F5B44;
-  --warn:#9C5511; --warn-soft:#FAF0E2; --bad:#9E2A20; --bad-soft:#FBEAE7;
-  --paper:#FFFDF8; --shadow:0 1px 2px rgba(22,33,28,.05),0 8px 24px -16px rgba(22,33,28,.18);
-  --control:#7F8781;
+  --bg:#ECEDE7; --panel:#FAFAF7; --panel2:#F1F1EC; --line:rgba(21,23,27,.17);
+  --line2:rgba(21,23,27,.08); --ink:#15171B; --ink2:#464A51; --ink3:#555A61;
+  --accent:#1D3A2E; --accent-soft:#E4EBE6; --accent-ink:#1D3A2E; --accent-hover:#25483A;
+  --warn:#8A4B0C; --warn-soft:#F8EEDC; --bad:#9A2A1F; --bad-soft:#F9E9E5;
+  --paper:#FFFFFF; --shadow:0 1px 0 rgba(21,23,27,.05),0 12px 26px -20px rgba(21,23,27,.45);
+  --control:#6B7077; --placeholder:#5F646B; --scroll-thumb:#85887F;
   --rail-w:404px; --doc-font:'Noto Serif Hebrew',serif;
+  --cloth:#1D3A2E; --cloth-ink:#EDE6CC; --gilt:#D8B65A; --mark:#F4DC6B; --mark-ink:#15171B;
 }
 html.dark{
-  --bg:#111412; --panel:#1A1F1C; --panel2:#212824; --line:rgba(236,240,236,.13);
-  --line2:rgba(236,240,236,.07); --ink:#ECF0EC; --ink2:#9DA9A2; --ink3:#8A958F;
-  --accent:#79D3A8; --accent-soft:rgba(121,211,168,.13); --accent-ink:#8FE0B8;
-  --warn:#E3A458; --warn-soft:rgba(227,164,88,.12); --bad:#EE8177; --bad-soft:rgba(238,129,119,.13);
-  --paper:#191E1B; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -16px rgba(0,0,0,.6);
-  --control:#78827C;
+  --bg:#0E1512; --panel:#151F1A; --panel2:#1B2721; --line:rgba(237,230,204,.16);
+  --line2:rgba(237,230,204,.08); --ink:#EDE6CC; --ink2:#CEC7AD; --ink3:#B2AB92;
+  --accent:#D8B65A; --accent-soft:rgba(216,182,90,.16); --accent-ink:#E6C772; --accent-hover:#E6C772;
+  --warn:#E8AE66; --warn-soft:rgba(232,174,102,.14); --bad:#F08A80; --bad-soft:rgba(240,138,128,.14);
+  --paper:#18231D; --shadow:0 1px 0 rgba(0,0,0,.3),0 14px 30px -20px rgba(0,0,0,.7);
+  --control:#9A9682; --placeholder:#A39C84; --scroll-thumb:#6B776E;
+  --cloth:#1D3A2E; --cloth-ink:#EDE6CC; --gilt:#D8B65A; --mark:#F4DC6B; --mark-ink:#15171B;
 }
 /* ביקורת M27: הגבול של שדה, רשימה וכפתור משני היה הגבול החזותי היחיד שלהם, ביחס 1.3:1. גבול
    של פקד הוא עכשיו לפחות 3:1 מול הרקע (WCAG 1.4.11); קווי ההפרדה נשארים עדינים */
@@ -51,11 +115,61 @@ html,body{margin:0;padding:0;background:var(--bg)}
 body{color:var(--ink);font-family:Rubik,"Noto Sans Hebrew",system-ui,sans-serif;
   font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 *{box-sizing:border-box}
-button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s}
 input,textarea,select{font:inherit;color:inherit}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
-::selection{background:var(--accent-soft)}
+/* סימון טקסט הוא אותו מרקר שמסמן את השם שבמוקד, עם דיו כהה גם בלילה */
+::selection{background:var(--mark);color:var(--mark-ink)}
+::placeholder{color:var(--placeholder);opacity:1}
+/* פסי הגלילה והפקדים של הדפדפן בצבעי הכלי. פס גלילה מעוצב צריך 3:1 (WCAG 1.4.11), ולכן אגודל כהה ולא חיוור */
+html{scrollbar-color:var(--scroll-thumb) transparent;accent-color:var(--accent)}
+/* ריחוף על כל פעולה בצבע הפעולה (כריכה ביום, זהב בלילה ובכותרת): הכפתור מגדיר מחדש את --accent לעצמו,
+   כך שגם כפתור שהסגנון שלו נבנה בקוד מקבל את הריחוף, בלי התאמה לטקסט של סגנון */
+button:not(:disabled):hover{--accent:var(--accent-hover)}
+/* מיקוד תמיד נראה: טבעת של 3px בצבע הפעולה. בכותרת ובלילה הצבע הזה זהב */
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+/* כותרות המקטעים במסילה יושבות בעטיפה עם overflow:hidden, שהייתה חותכת טבעת שבחוץ */
+[data-section]:focus-visible{outline-offset:-3px}
+/* שדה במיקוד: הגבול נצבע בצבע הפעולה, וקו של 2px צמוד אליו. מחוץ למיקוד הגבול נשאר כמו בביקורת M27 */
+input:not([type=checkbox]):not([type=radio]):not([type=file]):focus,select:focus,textarea:focus{border-color:var(--accent)!important;outline:2px solid var(--accent);outline-offset:0}
+/* הכותרת היא שדרת הכרך, על הצד: בד כריכה וזהב, ביום ובלילה. הצבעים שלה מוגדרים כאן לכל מה שבתוכה —
+   השלבים, הכפתורים, מתג הלילה, הריחוף וטבעת המיקוד — ולכן אף פקד בה לא צריך צבע משלו.
+   --control בזהב 65%: מסגרת מתג הלילה נשארת מעל 3:1 על הבד */
+header{--panel:var(--cloth);--panel2:rgba(216,182,90,.16);--ink:var(--cloth-ink);--ink2:#E2DAC0;--ink3:#CFC7AA;
+  --line:rgba(216,182,90,.42);--control:rgba(216,182,90,.65);--accent:var(--gilt);--accent-hover:#E6C772;
+  --accent-soft:rgba(216,182,90,.16);--accent-ink:#E6C772;color:var(--ink);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18)}
+html.dark header{box-shadow:inset 0 -1px 0 rgba(216,182,90,.3)}
+/* ריחוף בכותרת: גוון זהב, והטקסט לבן. הריחוף שזמן הריצה בונה (style-hover) קורא את אותם משתנים */
+header button:not(:disabled):hover{--ink:#FFFFFF;--ink2:#FFFFFF;background:var(--panel2)}
+/* שם המוצר: Frank Ruhl Libre 900 בצבע הנייר, מעל משיכת עט מוזהבת תחת ההברה הראשונה (הפוליגון של הלוגו באתר) */
+[data-wordmark]{position:relative;display:inline-block;font:900 24px/1 "Frank Ruhl Libre",serif;color:var(--cloth-ink);
+  isolation:isolate;padding:6px 0;white-space:nowrap}
+[data-wordmark]::after{content:"";position:absolute;right:-3px;bottom:0;width:2.15em;height:.3em;background:var(--gilt);z-index:-1;
+  clip-path:polygon(0 38%,6% 12%,31% 22%,58% 6%,84% 20%,100% 8%,97% 72%,71% 92%,44% 78%,18% 96%,3% 80%)}
+/* אייקונים: סט מצויר אחד (Lucide, רישיון ISC) במקום תווי טקסט. תמיד aria-hidden — השם יושב על הפקד, לא על האייקון.
+   בגודל הטקסט ומעט מתחת לקו הבסיס; בתוך כפתור לפחות 15px. ב-RTL הם לא מתהפכים: החיצים מצוירים כבר לכיוון הקריאה */
+.ic{width:1.15em;height:1.15em;vertical-align:-.2em;flex:none;display:inline-block}
+button .ic{width:max(1.15em,15px);height:max(1.15em,15px)}
+button[aria-expanded="true"] .ic[data-icon="chevron-down"]{transform:rotate(180deg)}
+summary{list-style:none}
+summary::-webkit-details-marker{display:none}
+summary .ic{transition:transform .2s}
+details[open]>summary .ic{transform:rotate(180deg)}
+/* ✕ על שבב מילה: 11px ושקט עד הריחוף — בצבע --control ולא באטימות, שהייתה מעמעמת גם את הניגודיות */
+button[data-word] .ic{width:11px;height:11px;vertical-align:-1px;color:var(--control)}
+button[data-word]:hover .ic{color:inherit}
+/* טקסט לקורא מסך בלבד, ליד אייקון שהתו שלו נשא משמעות: ה-✓ של שלב שהושלם, וה-← שבין שם לתחליף שלו
+   («חיפה ← עיר א»). קורא מסך אומר את מה שאמר עד עכשיו; אייקון שהוא קישוט בלבד שותק */
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* המסמך: השמות בקו תחתון, והשם שמצביעים עליו או שהמיקוד עליו מקבל את המרקר — עם דיו כהה, ביום ובלילה.
+   טבעת המיקוד נשארת גם על המרקר: המרקר לבדו על נייר לבן הוא 1.4:1 */
+[data-mark]{transition:background-color .15s}
+[data-mark]:hover,[data-mark]:focus-visible{background:var(--mark)!important;color:var(--mark-ink)!important;box-shadow:0 0 0 2px var(--mark)}
+/* בלילה הטקסט מתכהה מיד והמרקר מגיע אחריו: רבע שנייה של כהה על כהה. בלילה בלי מעבר */
+html.dark [data-mark]{transition:none}
+/* ה-? של ממצא שמחכה, על המרקר: בצבע האזהרה של היום, שנקרא על הצהוב גם בלילה */
+[data-mark][data-badge="?"]:hover::after,[data-mark][data-badge="?"]:focus-visible::after{color:#8A4B0C}
 /* ההבזק על ההחלפה שהחיצים קפצו אליה. הוא הנפיש פעם את background, וזה בדיוק
    המאפיין שההחלפה הנוכחית צובעת בעצמה: מאפיין שמונפש גובר על ההצהרה שעל
    האלמנט, ולכן הרקע נמחק לשקוף בעוד שהטקסט נשאר בצבע הפאנל — לבן על נייר לבן,
@@ -63,7 +177,7 @@ a:hover{text-decoration:underline}
    טבעת מסביב, שאינה נוגעת ברקע ולא בצבע הטקסט. */
 @keyframes flash{0%,100%{box-shadow:0 0 0 0 transparent}35%{box-shadow:0 0 0 3px var(--ink2)}}
 /* סימון שמחכה להחלטה נושא "?" קטן — צורה, לא רק צבע (Q2 בגרסה 3) */
-[data-mark][data-badge="?"]::after{content:"?";font-size:10px;font-weight:700;vertical-align:super;margin-inline-start:2px;color:var(--warn)}
+[data-mark][data-badge="?"]::after{content:"?";font-size:11.5px;font-weight:600;vertical-align:super;margin-inline-start:2px;color:var(--warn)}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 /* כפתור מושבת נראה מושבת (ביקורת UX #5): עד כאן "סורק את המסמך…" נראה כמו כפתור ירוק שלא מגיב */
@@ -86,22 +200,49 @@ button:disabled{opacity:.55;cursor:not-allowed}
   [data-bar] button{flex:1 1 auto;padding:8px 10px!important;font-size:12.5px!important}
   [data-bar]{padding:6px 12px!important}
   [data-steps]{flex:1 1 100%;justify-content:center}
+  /* מסך של 320px (וזום של 400%): שורת השלבים בתחתית עוטפת כשאין לה מקום, והחיצים המצוירים, רחבים מה-›
+     שהיה, לא דוחפים את השלב השלישי אל מחוץ למסך. כשיש מקום היא שורה אחת, כמו קודם */
+  [data-steps]{flex-wrap:wrap}
   [data-wrap]{flex-wrap:wrap}
   [data-wrap]>span:first-child{min-width:0!important;flex:1 1 100%}
   [data-wrap] input{flex:1 1 140px!important}
-  [data-work]{padding-bottom:132px!important}
+  /* מקומות בטלפון: לשורת התגים ריפוד שווה משני הצדדים, ושני הכפתורים בתחתית הכרטיס נערמים לרוחב מלא —
+     כפתור שני בשורה אחת יצא מהכרטיס ונחתך */
+  [data-tags]{padding-inline:18px!important}
+  [data-geo-foot]{flex-wrap:wrap}
+  [data-geo-foot]>button{flex:1 1 100%;white-space:normal!important}
   /* "לפני שמתחילים" על מסך קטן: בלי תיאורי הצעדים, פחות ריווח — הכפתורים נראים בלי גלילה */
   [data-intro]{padding:16px 16px!important}
   [data-intro] h2{font-size:18px!important}
   [data-intro] small{display:none}
   [data-intro] p{font-size:13px!important;line-height:1.5!important;margin-bottom:10px!important}
-  header{flex-wrap:wrap;height:auto!important;padding:8px 14px!important;row-gap:4px}
-  header>div:first-child{flex:1 1 100%}
+  /* הכותרת בטלפון עוטפת לשורות: שם המוצר במלואו ומתג הלילה בשורה הראשונה, השלבים בשורה משלהם, ואחריהם
+     כפתורי הטקסט — כך השם לא נחתך. גובה, ריפוד, רווח ו-flex כתובים בשורה של הכותרת עצמה, ולכן !important */
+  header{flex-wrap:wrap;height:auto!important;min-height:56px;padding:8px 14px 10px!important;gap:6px 8px!important}
+  header>div:first-child{flex:1 1 calc(100% - 52px)!important}
+  header>[data-night]{order:1}
+  header>nav{order:2;flex:1 1 100%;flex-wrap:wrap}
+  header>button:not([data-night]){order:3}
+  [data-wordmark]{font-size:22px}
   #ver{position:static!important;display:block;text-align:center;padding:14px 0 12px}
 }
+/* מתחת ל-360px שורת הכותרת של כרטיס המקומות עוטפת — הכותרת, הפרטים בשורה משלהם, ושני הכפתורים מתחת:
+   «קבוצה אחרת» יצא מהכרטיס ונחתך (כבר ב-v59). מ-360px ומעלה השורה כמו בעיצוב המאושר */
+@media (max-width:359px){ [data-geo-head]{flex-wrap:wrap} [data-geo-head]>span{flex:1 1 100%} }
 /* זמן הריצה נועל את השורש לגובה החלון; התוכן גולש ממנו, ושבב הגרסה הסטטי בטלפון
    נחת באמצע העמוד. גובה אוטומטי משאיר את השבב אחרי התוכן. */
 #dc-root,#dc-root>.sc-host{height:auto!important;min-height:100%}
+/* הדפסה: זמן הריצה מדפיס רקעים (print-color-adjust:exact), והכותרת הייתה יוצאת מלבן ירוק מלא. בדפוס
+   היא דיו על הנייר עם קו מתחתיה, ומשיכת העט של השם בדיו, כמו השם בתחתית האתר. גם המסגרות שבה בדיו ולא
+   בזהב (button[style] גובר על כלל M27 שצובע את מסגרת מתג הלילה). בלילה הדף עצמו מודפס כהה, ולכן הכותרת
+   בדיו של הלילה: דיו היום על דף הלילה היה 1.03:1, כלומר כותרת שלא רואים */
+@media print{
+  header,header *,header button[style]{color:#15171B!important;border-color:#15171B!important;background:none!important;box-shadow:none!important}
+  header{position:static!important;border-bottom:1px solid #15171B!important}
+  header [data-wordmark]::after{background:#15171B!important}
+  html.dark header,html.dark header *,html.dark header button[style]{color:#EDE6CC!important;border-color:#EDE6CC!important}
+  html.dark header [data-wordmark]::after{background:#EDE6CC!important}
+}
 </style>
 <style>
 #boot{position:fixed;inset:0;z-index:200;display:grid;place-items:center;
@@ -115,7 +256,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 #boot.stuck b{color:var(--bad)}
 #boot code{font-family:ui-monospace,monospace;font-size:12.5px;background:var(--panel2);
   padding:1px 5px;border-radius:5px}
-#ver{position:fixed;bottom:8px;inset-inline-start:10px;z-index:10;font-size:11px;
+#ver{position:fixed;bottom:8px;inset-inline-start:10px;z-index:10;font-size:11.5px;
   color:var(--ink3);font-family:Rubik,system-ui,sans-serif;letter-spacing:.02em;
   pointer-events:none;user-select:none}
 </style>
@@ -130,7 +271,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 </div></div>
 <script>
 (function(){
-  console.log("השחרת מסמכים — גרסה v59");
+  console.log("השחרת מסמכים — גרסה v60");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -168,9 +309,9 @@ button:disabled{opacity:.55;cursor:not-allowed}
         var v=ev.data && ev.data.sw; if(!v) return;
         var served=v.replace("hedact-","");
         console.log("עובד שירות: "+served);
-        if(served==="v59") return;
+        if(served==="v60") return;
         var el=document.getElementById("ver"); if(!el) return;
-        el.innerHTML='גרסה v59 · <b style="color:var(--warn)">מוגש '+served+
+        el.innerHTML='גרסה v60 · <b style="color:var(--warn)">מוגש '+served+
           ' — רענון בלי מטמון</b>';
       });
       sw.ready.then(function(){ if(sw.controller) sw.controller.postMessage("version") });
@@ -181,45 +322,35 @@ button:disabled{opacity:.55;cursor:not-allowed}
 <helmet>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>השחרת מסמכים</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600&family=Noto+Serif+Hebrew:wght@400;500&display=swap" rel="stylesheet">
+<title>אינקוגניטו</title>
 
 </helmet>
 
 <div dir="rtl" style="min-height:100vh;background:var(--bg);color:var(--ink)">
 
-  <header style="position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;background:var(--panel);border-bottom:1px solid var(--line)">
+  <header style="position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:14px;padding:0 22px;height:56px;background:var(--cloth)">
     <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;overflow:hidden">
-      <svg width="24" height="24" viewBox="0 0 24 24" style="flex:none" aria-hidden="true">
-        <rect x="1" y="1" width="22" height="22" rx="6.5" fill="var(--accent)"></rect>
-        <g stroke="var(--panel)" stroke-width="1.7" stroke-linecap="round" opacity=".5">
-          <path d="M7 8h10"></path><path d="M7 12h10"></path><path d="M7 16h5.5"></path>
-        </g>
-        <rect x="6.2" y="10.4" width="7.6" height="3.2" rx="1.6" fill="var(--panel)"></rect>
-      </svg>
-      <span style="font-weight:500;letter-spacing:-.01em;white-space:nowrap">השחרת מסמכים</span>
+      <span data-wordmark>אינקוגניטו</span>
       <sc-if value="{{ showTagline }}">
         <span style="font-size:12.5px;color:var(--ink3);border-inline-start:1px solid var(--line);padding-inline-start:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">הכול רץ בדפדפן. המסמך לא נשלח לשום מקום</span>
       </sc-if>
     </div>
     <sc-if value="{{ showSteps }}" hint-placeholder-val="{{ true }}">
       <nav style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink3)">
-        <button onClick="{{ goStep1 }}" style="{{ step1 }}">קובץ</button><span>›</span>
-        <button onClick="{{ goStep2 }}" style="{{ step2 }}">מי בתיק</button><span>›</span>
-        <button onClick="{{ goStep3 }}" style="{{ step3 }}">מקומות</button><span>›</span>
-        <span style="{{ step4 }}">בדיקה</span>
+        <button onClick="{{ goStep1 }}" aria-current="{{ step1Cur }}" style="{{ step1 }}">קובץ</button><span><svg class="ic" data-icon="chevron-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></span>
+        <button onClick="{{ goStep2 }}" aria-current="{{ step2Cur }}" style="{{ step2 }}">מי בתיק</button><span><svg class="ic" data-icon="chevron-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></span>
+        <button onClick="{{ goStep3 }}" aria-current="{{ step3Cur }}" style="{{ step3 }}">מקומות</button><span><svg class="ic" data-icon="chevron-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></span>
+        <span aria-current="{{ step4Cur }}" style="{{ step4 }}">בדיקה</span>
       </nav>
     </sc-if>
     <button onClick="{{ onReverse }}" style="{{ reverseBtnStyle }}" style-hover="background:var(--panel2);color:var(--ink)">החזרת שמות מתשובת AI</button>
     <sc-if value="{{ isWork }}"><button onClick="{{ onBackHome }}" style="font-size:13px;color:var(--ink2);padding:7px 11px;border-radius:8px;white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)">מסמך חדש</button></sc-if>
-    <button onClick="{{ onTheme }}" aria-label="מצב יום או לילה" style="width:34px;height:34px;border-radius:9px;display:grid;place-items:center;border:1px solid var(--line);color:var(--ink2)" style-hover="background:var(--panel2);color:var(--ink)">{{ themeIcon }}</button>
+    <button onClick="{{ onTheme }}" data-night aria-label="מצב יום או לילה" style="width:34px;height:34px;border-radius:9px;display:grid;place-items:center;border:1px solid var(--line);color:var(--ink2)" style-hover="background:var(--panel2);color:var(--ink)"><sc-if value="{{ isDark }}"><svg class="ic" data-icon="sun" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2" fill="currentColor" stroke="none"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></sc-if><sc-if value="{{ isLight }}"><svg class="ic" data-icon="moon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 14.6A8.5 8.5 0 0 1 9.4 3.6a8.5 8.5 0 1 0 11 11Z" fill="currentColor" stroke="none"/><path d="M17 3.5v3M15.5 5h3" stroke-width="1.6"/></svg></sc-if></button>
   </header>
 
   <sc-if value="{{ showBack }}">
     <div style="display:flex;padding:14px 22px 0">
-      <button onClick="{{ onBack }}" style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink2);padding:7px 13px 7px 11px;border-radius:9px;border:1px solid var(--line);background:var(--panel);white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)"><span style="font-size:15px;line-height:1;margin-top:-1px">‹</span>{{ backLabel }}</button>
+      <button data-back onClick="{{ onBack }}" style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink2);padding:7px 13px 7px 11px;border-radius:9px;border:1px solid var(--line);background:var(--panel);white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)"><span style="font-size:15px;line-height:1;margin-top:-1px"><svg class="ic" data-icon="chevron-right" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>{{ backLabel }}</button>
     </div>
   </sc-if>
 
@@ -236,15 +367,15 @@ button:disabled{opacity:.55;cursor:not-allowed}
     </sc-if>
     <div data-tour role="dialog" aria-label="סיור בכלי" style="{{ tourCardStyle }}">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-        <span style="font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;background:var(--accent-soft);color:var(--accent-ink)">סיור · מסמך לדוגמה</span>
+        <span style="font-size:11.5px;font-weight:500;color:var(--ink3)">סיור · מסמך לדוגמה</span>
         <span style="font-size:11.5px;color:var(--ink3)">{{ tourPos }}</span>
-        <button onClick="{{ onTourClose }}" aria-label="סגירת הסיור" style="margin-inline-start:auto;width:24px;height:24px;border-radius:50%;color:var(--ink3);display:grid;place-items:center">✕</button>
+        <button onClick="{{ onTourClose }}" aria-label="סגירת הסיור" style="margin-inline-start:auto;width:24px;height:24px;border-radius:50%;color:var(--ink3);display:grid;place-items:center"><svg class="ic" data-icon="x" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
       </div>
-      <div aria-live="polite"><b style="display:block;font-weight:500;font-size:15px;margin-bottom:4px">{{ tourTitle }}</b>
+      <div aria-live="polite"><b style="display:block;font-weight:500;font-size:17px;margin-bottom:6px">{{ tourTitle }}</b>
       <p style="margin:0 0 12px;font-size:13px;color:var(--ink2);line-height:1.6">{{ tourText }}</p></div>
       <sc-if value="{{ tourNudge }}"><p data-tour-nudge role="status" style="margin:-4px 0 12px;font-size:12.5px;color:var(--warn);line-height:1.5">בסיור אפשר ללחוץ רק באזור המואר. כדי לצאת מהסיור — ✕ למעלה.</p></sc-if>
       <div style="display:flex;gap:7px;align-items:center">
-        <button onClick="{{ onTourNext }}" style="padding:8px 16px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500">{{ tourNextLabel }}</button>
+        <button onClick="{{ onTourNext }}" style="padding:8px 16px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:600;letter-spacing:.01em">{{ tourNextLabel }}</button>
         <sc-if value="{{ tourHasBack }}"><button onClick="{{ onTourBack }}" style="padding:8px 12px;border-radius:9px;border:1px solid var(--line);font-size:13px">חזרה</button></sc-if>
         <button onClick="{{ onTourClose }}" style="margin-inline-start:auto;font-size:12.5px;color:var(--ink3);padding:8px 6px">דילוג</button>
       </div>
@@ -281,8 +412,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
   <sc-if value="{{ notice }}">
     <div data-notice role="status" aria-live="polite" style="position:fixed;bottom:calc(var(--bar-h, 64px) + 14px);left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;color:var(--ink)">
       <span>{{ notice }}</span>
-      <sc-if value="{{ noticeUndo }}"><button onClick="{{ onNoticeUndo }}" style="padding:4px 10px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">ביטול ↶</button></sc-if>
-      <button onClick="{{ onNoticeClose }}" aria-label="סגירה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center">✕</button>
+      <sc-if value="{{ noticeUndo }}"><button onClick="{{ onNoticeUndo }}" style="padding:4px 10px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">ביטול <svg class="ic" data-icon="undo" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg></button></sc-if>
+      <button onClick="{{ onNoticeClose }}" aria-label="סגירה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center"><svg class="ic" data-icon="x" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
     </div>
   </sc-if>
 
@@ -297,7 +428,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
     <div data-stack style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch">
       <button data-tour-target="upload" aria-describedby="{{ fileErrRef }}" onClick="{{ onPick }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDropFile }}" style="{{ dropStyle }}">
-        <span style="width:38px;height:38px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none;font-size:17px">↑</span>
+        <span style="width:38px;height:38px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none;font-size:17px"><svg class="ic" data-icon="arrow-up" aria-hidden="true" focusable="false" style="width:20px;height:20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></span>
         <span style="text-align:start">
           <b style="display:block;font-weight:500;font-size:15px">בחירת קובץ</b>
           <small style="color:var(--ink2);font-size:12.5px">Word (docx) או PDF עם טקסט · אפשר גם לגרור לכאן</small>
@@ -306,13 +437,13 @@ button:disabled{opacity:.55;cursor:not-allowed}
       </button>
       <div style="display:flex;flex-direction:column;gap:9px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);box-shadow:var(--shadow)">
         <div style="display:flex;align-items:center;gap:12px">
-          <span style="width:38px;height:38px;border-radius:10px;background:var(--panel2);color:var(--ink2);display:grid;place-items:center;flex:none;border:1px solid var(--line)">¶</span>
+          <span style="width:38px;height:38px;border-radius:10px;background:var(--panel2);color:var(--ink2);display:grid;place-items:center;flex:none;border:1px solid var(--line)"><svg class="ic" data-icon="pilcrow" aria-hidden="true" focusable="false" style="width:20px;height:20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4v16"/><path d="M17 4v16"/><path d="M19 4H9.5a4.5 4.5 0 0 0 0 9H13"/></svg></span>
           <span>
             <b style="display:block;font-weight:500;font-size:15px">הדבקת טקסט</b>
             <small style="color:var(--ink2);font-size:12.5px">תמלול, מייל או קטע מתוך מסמך — עובר את אותו תהליך</small>
           </span>
           <sc-if value="{{ hasPaste }}">
-            <button onClick="{{ onPasteGo }}" style="margin-inline-start:auto;padding:9px 16px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500;white-space:nowrap">{{ pasteLabel }}</button>
+            <button onClick="{{ onPasteGo }}" style="margin-inline-start:auto;padding:9px 16px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:600;letter-spacing:.01em;white-space:nowrap">{{ pasteLabel }}</button>
           </sc-if>
         </div>
         <textarea dir="auto" value="{{ pasteText }}" onChange="{{ onPasteText }}" placeholder="הדבקת טקסט לבדיקה…" style="width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font:13.5px/1.6 Rubik,sans-serif;min-height:64px;resize:vertical"></textarea>
@@ -322,7 +453,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
       </sc-if>
       <sc-if value="{{ hasPending }}">
         <div data-pend style="grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--line)">
-          <span style="width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--panel);display:grid;place-items:center;font-size:13px;flex:none">✓</span>
+          <span style="width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--panel);display:grid;place-items:center;font-size:13px;flex:none"><svg class="ic" data-icon="check" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
           <div style="min-width:0">
             <b style="display:block;font-weight:500;font-size:14px">{{ pendName }}</b>
             <small style="color:var(--ink2);font-size:12.5px">{{ pendMeta }}</small>
@@ -334,7 +465,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
       <sc-if value="{{ nerAsk }}">
         <div data-ner-ask role="group" aria-label="הורדת מודל הזיהוי" style="grid-column:1/-1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-size:13.5px;line-height:1.5">
           <span style="flex:1 1 240px">להוריד את מודל הזיהוי? כ-185MB, פעם אחת, ואחר כך הוא נשמר בטלפון. הוא מוצא יותר שמות; על חבילת גלישה עדיף Wi-Fi.</span>
-          <button onClick="{{ onNerAskYes }}" style="padding:9px 14px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500">להוריד את המודל</button>
+          <button onClick="{{ onNerAskYes }}" style="padding:9px 14px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:600;letter-spacing:.01em">להוריד את המודל</button>
           <button onClick="{{ onNerAskNo }}" style="padding:9px 14px;border-radius:9px;border:1px solid var(--line);font-size:13px">בלי המודל</button>
         </div>
       </sc-if>
@@ -345,7 +476,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
           <div style="font-size:12px;font-weight:500;color:var(--ink3);letter-spacing:.05em">תיקים אחרונים — אותם שמות חלופיים בכל מסמך של התיק</div>
           <!-- ✕ כאן סוגר את הרצועה, כמו בכל מקום אחר בכלי (ביקורת QA 012); מחיקת תיק היא כפתור במילים בשורה שלו -->
-          <button onClick="{{ onHideCases }}" aria-label="הסתרת התיקים האחרונים" title="הסתרה — שום תיק לא נמחק" style="margin-inline-start:auto;width:24px;height:24px;border-radius:50%;color:var(--ink3);display:grid;place-items:center" style-hover="background:var(--panel2)">✕</button>
+          <button onClick="{{ onHideCases }}" aria-label="הסתרת התיקים האחרונים" title="הסתרה — שום תיק לא נמחק" style="margin-inline-start:auto;width:24px;height:24px;border-radius:50%;color:var(--ink3);display:grid;place-items:center" style-hover="background:var(--panel2)"><svg class="ic" data-icon="x" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
         </div>
         <sc-for list="{{ caseItems }}" as="c" hint-placeholder-count="3">
           <div data-case="{{ c.name }}" style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line2);flex-wrap:wrap">
@@ -354,12 +485,12 @@ button:disabled{opacity:.55;cursor:not-allowed}
               <small style="display:block;color:var(--ink2);font-size:12.5px">{{ c.meta }}</small>
               <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:5px;align-items:center">
                 <sc-for list="{{ c.pairs }}" as="p" hint-placeholder-count="3">
-                  <span style="font-size:12px;color:var(--ink2);background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:2px 9px;white-space:nowrap">{{ p.v }}<span style="color:var(--ink3)"> ← </span><span style="color:var(--accent-ink)">{{ p.rep }}</span></span>
+                  <span style="font-size:12px;color:var(--ink2);background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:2px 9px;white-space:nowrap">{{ p.v }}<span style="color:var(--ink3)"> <svg class="ic" data-icon="arrow-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg><span class="vh">←</span> </span><span style="color:var(--accent-ink)">{{ p.rep }}</span></span>
                 </sc-for>
                 <sc-if value="{{ c.morePairs }}"><small style="color:var(--ink3);font-size:12px">{{ c.morePairs }}</small></sc-if>
               </div>
             </div>
-            <button onClick="{{ c.onResume }}" style="padding:7px 14px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500;white-space:nowrap">שימוש בתיק הזה</button>
+            <button onClick="{{ c.onResume }}" style="padding:7px 14px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:600;letter-spacing:.01em;white-space:nowrap">שימוש בתיק הזה</button>
             <button onClick="{{ c.onDelete }}" title="מחיקה מרשימת התיקים בדפדפן; קובץ שיוצא נשאר" style="font-size:12px;color:var(--ink3);padding:6px 8px;border-radius:8px" style-hover="color:var(--bad)">מחיקה</button>
           </div>
         </sc-for>
@@ -373,20 +504,20 @@ button:disabled{opacity:.55;cursor:not-allowed}
           <small style="color:var(--ink2);font-size:12.5px">{{ lastMeta }}</small>
           <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:5px;align-items:center">
             <sc-for list="{{ lastPairs }}" as="p" hint-placeholder-count="3">
-              <span style="font-size:12px;color:var(--ink2);background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:2px 9px;white-space:nowrap">{{ p.v }}<span style="color:var(--ink3)"> ← </span><span style="color:var(--accent-ink)">{{ p.rep }}</span></span>
+              <span style="font-size:12px;color:var(--ink2);background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:2px 9px;white-space:nowrap">{{ p.v }}<span style="color:var(--ink3)"> <svg class="ic" data-icon="arrow-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg><span class="vh">←</span> </span><span style="color:var(--accent-ink)">{{ p.rep }}</span></span>
             </sc-for>
             <sc-if value="{{ lastMorePairs }}"><small style="color:var(--ink3);font-size:12px">{{ lastMorePairs }}</small></sc-if>
           </div>
         </div>
         <button onClick="{{ onDismissLast }}" style="font-size:13px;color:var(--ink2);padding:9px 12px;border-radius:9px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel2)">תיק אחר</button>
-        <button onClick="{{ onResumeLast }}" style="padding:9px 16px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:500;white-space:nowrap">המשך עם הפרופיל</button>
+        <button onClick="{{ onResumeLast }}" style="padding:9px 16px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:600;letter-spacing:.01em;white-space:nowrap">המשך עם הפרופיל</button>
       </div>
     </sc-if>
 
     <!-- ההגדרות מאחורי כותרת שנפתחת (UX #3): ברירות המחדל טובות, והמסך נקרא כמו "להגדיר קודם".
          במחשב פתוח — יש מקום; בטלפון סגור, שם העמוד היה באורך 1,744 פיקסלים. -->
     <button data-settings-toggle onClick="{{ onToggleSettings }}" aria-expanded="{{ settingsShown }}" style="display:flex;align-items:center;gap:8px;margin-top:26px;font-size:13px;font-weight:500;color:var(--ink2);padding:6px 2px">
-      <span>הגדרות זיהוי והחלפה</span><small style="color:var(--ink3);font-weight:400">{{ settingsHint }}</small><span style="color:var(--ink3);font-size:11px">{{ settingsChev }}</span>
+      <span>הגדרות זיהוי והחלפה</span><small style="color:var(--ink3);font-weight:400;font-size:11.5px">{{ settingsHint }}</small><span style="color:var(--ink3);font-size:11.5px"><svg class="ic" data-icon="chevron-down" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
     </button>
     <sc-if value="{{ settingsShown }}">
     <div data-stack style="display:grid;grid-template-columns:1.15fr .85fr;gap:22px;margin-top:10px;align-items:start">
@@ -459,7 +590,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
   <sc-if value="{{ hasCaseChip }}">
     <div data-case-chip style="max-width:1120px;margin:14px auto 0;padding:0 22px">
       <span style="display:inline-flex;align-items:center;gap:8px;padding:6px 8px 6px 12px;border-radius:16px;background:var(--accent-soft);color:var(--accent-ink);font-size:13px;font-weight:500">
-        תיק: {{ caseChipName }} ✓
+        תיק: {{ caseChipName }} <svg class="ic" data-icon="check" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
         <button onClick="{{ onCaseChipDrop }}" title="עבודה בלי התיק הזה" style="font-size:12px;font-weight:400;color:var(--ink2);padding:2px 8px;border-radius:10px;border:1px solid var(--line);background:var(--panel)">החלפה</button>
       </span>
     </div>
@@ -489,22 +620,22 @@ button:disabled{opacity:.55;cursor:not-allowed}
     <div data-tour-target="people" style="display:flex;flex-wrap:wrap;gap:8px">
       <sc-for list="{{ peoItems }}" as="p" hint-placeholder-count="4">
         <div style="{{ p.style }}">
-          <select onChange="{{ p.onKindSel }}" aria-label="סוג" title="סוג: אדם · גוף · מקום" style="font-size:11px;font-weight:500;color:var(--ink2);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:2px 4px">
+          <select onChange="{{ p.onKindSel }}" aria-label="סוג" title="סוג: אדם · גוף · מקום" style="font-size:11.5px;font-weight:500;color:var(--ink2);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:2px 4px">
             <sc-for list="{{ p.kindOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.value }}" selected="{{ o.sel }}">{{ o.label }}</option></sc-for>
           </select>
           <span data-tip="1" data-kbd tabindex="0" role="button" onMouseEnter="{{ p.onTipIn }}" onMouseLeave="{{ p.onTipOut }}" onClick="{{ p.onTipTap }}" title="{{ p.tipHint }}" style="font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ p.value }}</span>
           <sc-if value="{{ p.note }}"><small style="color:var(--ink2);font-size:11.5px">{{ p.note }}</small></sc-if>
-          <sc-if value="{{ p.canTrim }}"><button onClick="{{ p.onTrim }}" aria-label="קיצור השם" title="השם תפס מילה מיותרת? כאן מסירים אותה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:12px" style-hover="background:var(--panel2);color:var(--ink)">✂</button></sc-if>
-          <button onClick="{{ p.onDel }}" aria-label="הסרה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:13px" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
+          <sc-if value="{{ p.canTrim }}"><button onClick="{{ p.onTrim }}" aria-label="קיצור השם" title="השם תפס מילה מיותרת? כאן מסירים אותה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:12px" style-hover="background:var(--panel2);color:var(--ink)"><svg class="ic" data-icon="scissors" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg></button></sc-if>
+          <button onClick="{{ p.onDel }}" aria-label="הסרה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:13px;background:var(--panel2)" style-hover="background:var(--bad-soft);color:var(--bad)"><svg class="ic" data-icon="x" aria-hidden="true" focusable="false" style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
         </div>
       </sc-for>
       <sc-if value="{{ trimRow }}">
         <div data-trim-row style="flex-basis:100%;display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:6px 0 2px;font-size:12.5px;color:var(--ink2)">
           <span>«{{ trimValue }}» — מילה שאינה חלק מהשם:</span>
           <sc-for list="{{ trimWords }}" as="w" hint-placeholder-count="3">
-            <button data-word onClick="{{ w.onDrop }}" title="{{ w.title }}" style="padding:2px 9px;border-radius:12px;border:1px solid var(--line);font-size:12.5px" style-hover="background:var(--bad-soft);color:var(--bad)">{{ w.w }} ✕</button>
+            <button data-word onClick="{{ w.onDrop }}" title="{{ w.title }}" style="padding:2px 9px;border-radius:12px;border:1px solid var(--line);font-size:12.5px" style-hover="background:var(--bad-soft);color:var(--bad)">{{ w.w }} <svg class="ic" data-icon="x" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
           </sc-for>
-          <button onClick="{{ onTrimClose }}" aria-label="סגירה" style="width:20px;height:20px;border-radius:50%;color:var(--ink3)">✕</button>
+          <button onClick="{{ onTrimClose }}" aria-label="סגירה" style="width:20px;height:20px;border-radius:50%;color:var(--ink3);display:grid;place-items:center"><svg class="ic" data-icon="x" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
         </div>
       </sc-if>
       <sc-if value="{{ hasKept }}">
@@ -520,7 +651,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
       </sc-if>
       <sc-for list="{{ mergeSugs }}" as="m" hint-placeholder-count="2">
         <div data-merge-sug style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;margin-top:6px;border-radius:12px;border:1px dashed var(--line);background:var(--panel2);font-size:12.5px;color:var(--ink2)">
-          <span>אותו אדם? <b style="font-weight:500;color:var(--ink)">{{ m.from }}</b> ו<b style="font-weight:500;color:var(--ink)">{{ m.to }}</b> <small style="color:var(--ink3)">({{ m.why }})</small></span>
+          <span>אותו אדם? <b style="font-weight:500;color:var(--ink)">{{ m.from }}</b> ו<b style="font-weight:500;color:var(--ink)">{{ m.to }}</b> <small style="color:var(--ink3);font-size:11.5px">({{ m.why }})</small></span>
           <button onClick="{{ m.onSame }}" style="padding:4px 11px;border-radius:14px;background:var(--accent-soft);color:var(--accent-ink);font-size:12.5px;font-weight:500">כן, אותו אדם</button>
           <button onClick="{{ m.onNotSame }}" style="padding:4px 11px;border-radius:14px;border:1px solid var(--line);font-size:12.5px">לא, שני אנשים</button>
         </div>
@@ -538,7 +669,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
             <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 8px 5px 10px;border-radius:16px;border:1px solid var(--line);background:var(--panel);font-size:13px">
               <button onClick="{{ x.onAdd }}" title="{{ x.why }}" style="font-weight:500;color:var(--accent-ink)">+ {{ x.value }}</button>
               <sc-if value="{{ x.removed }}"><span data-removed-note style="font-size:11.5px;color:var(--ink2)">הוסר במסמך קודם בתיק</span></sc-if>
-              <button onClick="{{ x.onDrop }}" aria-label="לא אדם" style="width:18px;height:18px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:12px">✕</button>
+              <button onClick="{{ x.onDrop }}" aria-label="לא אדם" style="width:18px;height:18px;border-radius:50%;color:var(--ink3);display:grid;place-items:center;font-size:12px"><svg class="ic" data-icon="x" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
             </span>
           </sc-for>
         </div>
@@ -551,7 +682,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
     </div>
     <sc-if value="{{ hasCaseField }}">
       <label data-case-field style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--ink2)">
-        <span>שם התיק <small style="color:var(--ink3)">(כדי שאותו אדם יקבל אותו שם בדוי גם במסמך הבא)</small></span>
+        <span>שם התיק <small style="color:var(--ink3);font-size:11.5px">(כדי שאותו אדם יקבל אותו שם בדוי גם במסמך הבא)</small></span>
         <input value="{{ caseName }}" onChange="{{ onCaseName }}" placeholder="למשל: לוי נ׳ לוי" style="flex:1 1 180px;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:13.5px">
       </label>
     </sc-if>
@@ -589,13 +720,13 @@ button:disabled{opacity:.55;cursor:not-allowed}
     <sc-if value="{{ noGeo }}"><p data-places-lead style="margin:0 0 10px;color:var(--ink);font-size:14px;max-width:68ch">{{ noGeoText }}</p></sc-if>
     <sc-if value="{{ hasGeo }}"><p style="margin:0 0 10px;color:var(--ink2);font-size:14px;max-width:68ch">כל יישוב מקבל יישוב דומה לו, והמרחקים והכיוונים ביניהם נשמרים.</p></sc-if>
     <details style="margin:0 0 20px;font-size:13px;color:var(--ink2);max-width:68ch">
-      <summary style="cursor:pointer;color:var(--ink2)">למה?</summary>
+      <summary style="cursor:pointer;color:var(--ink2);display:inline-flex;align-items:center;gap:6px">למה?<svg class="ic" data-icon="chevron-down" aria-hidden="true" focusable="false" style="width:15px;height:15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
       <p style="margin:6px 0 0;line-height:1.6">החלפת יישוב בשם אקראי הורסת את הגיאוגרפיה של התיק: נסיעה של עשר דקות הופכת לנסיעה של שעתיים. לכן כשיש במסמך שני יישובים או יותר שהמיקום שלהם ידוע, הם מוחלפים כקבוצה ששומרת על המרחקים. יישוב שמיקומו לא ידוע, או ששמו גם מילה רגילה, מוחלף בפני עצמו ביישוב מאותו סוג.</p>
     </details>
 
     <sc-if value="{{ hasGeo }}">
       <div data-tour-target="places" style="background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden">
-        <div style="display:flex;align-items:baseline;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line2)">
+        <div data-geo-head style="display:flex;align-items:baseline;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line2)">
           <b style="font-weight:500">{{ geoCount }} יישובים במסמך</b>
           <span style="font-size:12.5px;color:var(--ink2)">סטיית מרחק {{ geoErr }} ק״מ · {{ geoQuality }}</span>
           <button onClick="{{ onToggleMap }}" style="margin-inline-start:auto;font-size:13px;color:var(--ink2);padding:6px 10px;border-radius:8px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel2)">{{ mapLabel }}</button>
@@ -611,7 +742,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
               </svg>
               <sc-for list="{{ mapFrom }}" as="p" hint-placeholder-count="3">
                 <div style="{{ p.dot }}"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink2);display:block;box-shadow:0 0 0 3px var(--panel)"></span></div>
-                <div data-map-label style="{{ p.style }}"><span style="font-size:10.5px;color:var(--ink2);white-space:nowrap;background:var(--panel);padding:0 2px;border-radius:3px">{{ p.label }}</span></div>
+                <div data-map-label style="{{ p.style }}"><span style="font-size:11.5px;color:var(--ink2);white-space:nowrap;background:var(--panel);padding:0 2px;border-radius:3px">{{ p.label }}</span></div>
               </sc-for>
             </div>
           </div>
@@ -623,23 +754,23 @@ button:disabled{opacity:.55;cursor:not-allowed}
               </svg>
               <sc-for list="{{ mapTo }}" as="p" hint-placeholder-count="3">
                 <div style="{{ p.dot }}"><span style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:block;box-shadow:0 0 0 3px var(--panel)"></span></div>
-                <div data-map-label style="{{ p.style }}"><span style="font-size:10.5px;color:var(--accent-ink);white-space:nowrap;background:var(--panel);padding:0 2px;border-radius:3px">{{ p.label }}</span></div>
+                <div data-map-label style="{{ p.style }}"><span style="font-size:11.5px;color:var(--accent-ink);white-space:nowrap;background:var(--panel);padding:0 2px;border-radius:3px">{{ p.label }}</span></div>
               </sc-for>
             </div>
           </div>
         </div>
         <sc-if value="{{ hasLand }}">
-          <div style="padding:0 18px 12px;font-size:11px;color:var(--ink3);text-align:center">מפת רקע: Natural Earth · קובץ מיפוי אחד, זהה לכל מסמך. שמות היישובים לא יוצאים מהדפדפן.</div>
+          <div style="padding:0 18px 12px;font-size:11.5px;color:var(--ink3);text-align:center">מפת רקע: Natural Earth · קובץ מיפוי אחד, זהה לכל מסמך. שמות היישובים לא יוצאים מהדפדפן.</div>
         </sc-if>
         </sc-if>
         <sc-for list="{{ geoRows }}" as="g" hint-placeholder-count="3">
-          <div data-wrap style="display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--line2)">
+          <div data-wrap style="{{ g.rowStyle }}">
             <span data-tip="1" data-kbd tabindex="0" role="button" onMouseEnter="{{ g.onTipIn }}" onMouseLeave="{{ g.onTipOut }}" onClick="{{ g.onTipTap }}" title="{{ g.tipHint }}" style="min-width:130px;font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ g.from }}</span>
-            <span style="color:var(--ink3)">←</span>
+            <span style="color:var(--ink3)"><svg class="ic" data-icon="arrow-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg><span class="vh">←</span></span>
             <input value="{{ g.to }}" aria-label="היישוב שיבוא במקום {{ g.from }}" onChange="{{ g.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
             <button onClick="{{ g.onRemove }}" title="להשאיר את שם היישוב כמו שהוא" style="font-size:12.5px;color:var(--ink2);padding:7px 11px;border-radius:8px;border:1px solid var(--line);white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)">אל תחליפו</button>
           </div>
-          <sc-if value="{{ g.tagNote }}"><div data-tags style="padding:0 18px 9px 160px;margin-top:-6px;font-size:11.5px;color:var(--ink3);border-bottom:1px solid var(--line2)">{{ g.tagNote }}</div></sc-if>
+          <sc-if value="{{ g.tagNote }}"><div data-tags style="padding:0 18px 12px 160px;font-size:11.5px;color:var(--ink3);border-bottom:1px solid var(--line2)">{{ g.tagNote }}</div></sc-if>
         </sc-for>
         <sc-if value="{{ hasExcluded }}">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--line2);font-size:12.5px;color:var(--ink2)">
@@ -649,7 +780,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
             </sc-for>
           </div>
         </sc-if>
-        <div style="display:flex;gap:9px;padding:15px 18px">
+        <div data-geo-foot style="display:flex;gap:9px;padding:15px 18px">
           <button onClick="{{ onGeoApply }}" style="{{ primaryBtn }}">החלת הקבוצה והמשך</button>
           <button onClick="{{ onGeoSkip }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">בלי שמירת מרחקים — שמות אקראיים</button>
         </div>
@@ -665,7 +796,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
           <div data-wrap style="{{ x.rowStyle }}">
             <span data-tip="1" data-kbd tabindex="0" role="button" onMouseEnter="{{ x.onTipIn }}" onMouseLeave="{{ x.onTipOut }}" onClick="{{ x.onTipTap }}" title="{{ x.tipHint }}" style="min-width:130px;font-weight:500;cursor:default;text-decoration:underline dotted var(--line);text-underline-offset:3px">{{ x.name }}</span>
             <sc-if value="{{ x.note }}"><small style="color:var(--warn);font-size:11.5px;white-space:nowrap">{{ x.note }}</small></sc-if>
-            <span style="color:var(--ink3)">←</span>
+            <span style="color:var(--ink3)"><svg class="ic" data-icon="arrow-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg><span class="vh">←</span></span>
             <input value="{{ x.to }}" aria-label="היישוב שיבוא במקום {{ x.name }}" onChange="{{ x.onChange }}" style="flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--accent-ink);font-weight:500">
             <!-- מצב אמיתי, בפקד אחד (UX #10): מסומן = יוחלף. "אושר ברשימה" כשהמקום כבר אושר במסך השמות -->
             <label data-extra-toggle style="display:flex;align-items:center;gap:6px;font-size:12.5px;white-space:nowrap;cursor:pointer">
@@ -732,8 +863,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
     <sc-if value="{{ narrow }}">
       <div style="display:flex;gap:6px;background:var(--panel2);border-radius:9px;padding:3px;margin-bottom:12px">
-        <button onClick="{{ onPaneFind }}" style="{{ paneFindStyle }}">ממצאים ובדיקה</button>
-        <button onClick="{{ onPaneDoc }}" style="{{ paneDocStyle }}">המסמך</button>
+        <button onClick="{{ onPaneFind }}" aria-pressed="{{ paneFindOn }}" style="{{ paneFindStyle }}">ממצאים ובדיקה</button>
+        <button onClick="{{ onPaneDoc }}" aria-pressed="{{ paneDocOn }}" style="{{ paneDocStyle }}">המסמך</button>
       </div>
     </sc-if>
 
@@ -741,41 +872,41 @@ button:disabled{opacity:.55;cursor:not-allowed}
       <div data-doc-bar style="display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--line2);background:var(--panel)">
         <h1 style="font-weight:500;font-size:13.5px;margin:0">{{ docTitle }}</h1>
         <span style="font-size:12.5px;color:var(--ink3)">{{ docSub }}</span>
-        <span style="font-size:12px;color:var(--ink3);display:inline-flex;align-items:center;gap:5px;white-space:nowrap"><b style="background:var(--accent-soft);color:var(--accent-ink);font-weight:500;border-radius:3px;padding:0 4px">הוחלף</b><sc-if value="{{ hasFlagMarks }}"><b style="background:var(--warn-soft);color:var(--warn);font-weight:500;border-radius:3px;padding:0 4px;border-bottom:1px dashed var(--warn)">לא הוחלף</b></sc-if></span>
+        <span style="font-size:12px;color:var(--ink3);display:inline-flex;align-items:center;gap:5px;white-space:nowrap"><b style="color:var(--ink);font-weight:500;border-radius:4px;padding:0 1px;border-bottom:2.5px solid var(--accent)">הוחלף</b><sc-if value="{{ hasFlagMarks }}"><b style="color:var(--ink);font-weight:500;border-radius:4px;padding:0 1px;border-bottom:2.5px dashed var(--warn)">לא הוחלף</b></sc-if></span>
         <div style="margin-inline-start:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <div style="display:flex;align-items:center;gap:2px">
-            <button onClick="{{ onHistUndo }}" disabled="{{ undoOff }}" aria-label="ביטול הפעולה האחרונה" title="ביטול — Ctrl+Z" style="{{ undoStyle }}" style-hover="background:var(--panel2)">↶</button>
-            <button onClick="{{ onHistRedo }}" disabled="{{ redoOff }}" aria-label="ביצוע חוזר" title="ביצוע חוזר — Ctrl+Shift+Z" style="{{ redoStyle }}" style-hover="background:var(--panel2)">↷</button>
+            <button onClick="{{ onHistUndo }}" disabled="{{ undoOff }}" aria-label="ביטול הפעולה האחרונה" title="ביטול — Ctrl+Z" style="{{ undoStyle }}" style-hover="background:var(--panel2)"><svg class="ic" data-icon="undo" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg></button>
+            <button onClick="{{ onHistRedo }}" disabled="{{ redoOff }}" aria-label="ביצוע חוזר" title="ביצוע חוזר — Ctrl+Shift+Z" style="{{ redoStyle }}" style-hover="background:var(--panel2)"><svg class="ic" data-icon="redo" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"/></svg></button>
           </div>
           <sc-if value="{{ hasMarks }}">
             <div style="display:flex;align-items:center;gap:2px">
-              <button onClick="{{ onPrevMark }}" aria-label="החלפה קודמת" title="ההחלפה הקודמת במסמך" style="width:26px;height:26px;border-radius:7px;color:var(--ink2);font-size:11px" style-hover="background:var(--panel2)">▲</button>
+              <button onClick="{{ onPrevMark }}" aria-label="החלפה קודמת" title="ההחלפה הקודמת במסמך" style="width:26px;height:26px;border-radius:7px;color:var(--ink2);font-size:11.5px" style-hover="background:var(--panel2)"><svg class="ic" data-icon="chevron-up" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
               <span aria-live="polite" aria-atomic="true" style="font-size:12px;color:var(--ink3);min-width:52px;text-align:center">{{ markNav }}</span>
-              <button onClick="{{ onNextMark }}" aria-label="החלפה הבאה" title="ההחלפה הבאה במסמך" style="width:26px;height:26px;border-radius:7px;color:var(--ink2);font-size:11px" style-hover="background:var(--panel2)">▼</button>
+              <button onClick="{{ onNextMark }}" aria-label="החלפה הבאה" title="ההחלפה הבאה במסמך" style="width:26px;height:26px;border-radius:7px;color:var(--ink2);font-size:11.5px" style-hover="background:var(--panel2)"><svg class="ic" data-icon="chevron-down" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
             </div>
           </sc-if>
           <div style="display:flex;gap:4px;background:var(--panel2);border-radius:8px;padding:3px">
-            <button onClick="{{ onViewRed }}" style="{{ viewRedStyle }}">מושחר</button>
-            <button onClick="{{ onViewOrig }}" style="{{ viewOrigStyle }}">מקור</button>
+            <button onClick="{{ onViewRed }}" aria-pressed="{{ viewRedOn }}" style="{{ viewRedStyle }}">מושחר</button>
+            <button onClick="{{ onViewOrig }}" aria-pressed="{{ viewOrigOn }}" style="{{ viewOrigStyle }}">מקור</button>
           </div>
         </div>
       </div>
       <div data-legend style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:7px 18px;border-bottom:1px solid var(--line2);font-size:12px;color:var(--ink2);background:var(--panel)">
-        <span><span style="background:var(--accent-soft);color:var(--accent-ink);border-bottom:2px solid var(--accent);padding:0 4px;border-radius:3px">שם בדוי</span> הוחלף</span>
-        <sc-if value="{{ hasFlagMarks }}"><span><span style="background:var(--warn-soft);color:var(--warn);border-bottom:2px dashed var(--warn);padding:0 4px;border-radius:3px">מילה<sup style="font-size:9px;font-weight:700">?</sup></span> מחכה להחלטה שלכם</span></sc-if>
-        <span><span style="border:1px dashed var(--line);color:var(--ink3);padding:0 4px;border-radius:3px;font-size:11px">∅</span> נמחק</span>
-        <sc-if value="{{ legendDate }}"><span data-legend-date><span style="background:var(--accent-soft);color:var(--accent-ink);border-bottom:2px dotted var(--accent);padding:0 4px;border-radius:3px">12.3.26</span> תאריך מוזז — המקורי חוזר בהחזרה</span></sc-if>
+        <span><span style="color:var(--ink);font-weight:500;border-bottom:2.5px solid var(--accent);padding:0 1px;border-radius:4px">שם בדוי</span> הוחלף</span>
+        <sc-if value="{{ hasFlagMarks }}"><span><span style="color:var(--ink);font-weight:500;border-bottom:2.5px dashed var(--warn);padding:0 1px;border-radius:4px">מילה<sup style="font-size:11.5px;font-weight:600;color:var(--warn);margin-inline-start:2px">?</sup></span> מחכה להחלטה שלכם</span></sc-if>
+        <span><span style="border:1px dashed var(--line);border-bottom-width:2.5px;color:var(--ink);padding:0 4px;border-radius:4px;font-size:11.5px;line-height:1;display:inline-flex;align-items:center;justify-content:center;height:1.25em;vertical-align:middle;transform:translateY(-.08em)"><svg class="ic" data-icon="eraser" aria-hidden="true" focusable="false" style="width:13px;height:13px;display:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg></span> נמחק</span>
+        <sc-if value="{{ legendDate }}"><span data-legend-date><span style="color:var(--ink);font-weight:500;border-bottom:2.5px dotted var(--accent);padding:0 1px;border-radius:4px">12.3.26</span> תאריך מוזז — המקורי חוזר בהחזרה</span></sc-if>
         <span style="color:var(--ink3)">לחיצה על סימון פותחת עריכה במקום</span>
       </div>
-      <div ref="{{ sheetRef }}" onMouseUp="{{ onSheetSelect }}" style="background:var(--panel2);max-height:max(300px, calc(100vh - var(--bar-h, 64px) - 186px));overflow:auto;padding:22px 0 40px">
+      <div ref="{{ sheetRef }}" onMouseUp="{{ onSheetSelect }}" style="background:var(--panel2);max-height:max(300px, calc(100vh - var(--bar-h, 64px) - 186px));overflow:auto;scroll-padding:8px;padding:22px 0 40px;scrollbar-width:thin">
         <div data-paper style="width:min(720px,calc(100% - 44px));margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 18px 40px -30px rgba(0,0,0,.5);padding:56px 60px;font-size:16px;line-height:1.95;font-family:var(--doc-font)">
           <sc-for list="{{ sheet }}" as="blk" hint-placeholder-count="8">
             <sc-if value="{{ blk.head }}">
-              <div style="font:500 10.5px/1 Rubik,sans-serif;letter-spacing:.09em;color:var(--ink3);border-bottom:1px solid var(--line2);padding-bottom:7px;margin:26px 0 14px">{{ blk.part }}</div>
+              <div style="font:500 11.5px/1 Rubik,sans-serif;letter-spacing:.09em;color:var(--ink3);border-bottom:1px solid var(--line2);padding-bottom:7px;margin:26px 0 14px">{{ blk.part }}</div>
             </sc-if>
             <div style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:14px;margin-bottom:11px;align-items:baseline">
-              <span style="font:400 10.5px/2 Rubik,sans-serif;color:var(--ink3);text-align:end">{{ blk.n }}</span>
-              <p dir="auto" style="margin:0;text-wrap:pretty"><sc-for list="{{ blk.segs }}" as="sg" hint-placeholder-count="3"><sc-if value="{{ sg.plain }}"><span>{{ sg.t }}</span></sc-if><sc-if value="{{ sg.mark }}"><span data-mark="{{ sg.id }}" data-val="{{ sg.val }}" data-badge="{{ sg.badge }}" data-kind="{{ sg.kind }}" tabindex="0" role="button" onClick="{{ sg.onClick }}" title="{{ sg.title }}" style="{{ sg.style }}"><span data-pre style="font-weight:300">{{ sg.pre }}</span>{{ sg.t }}</span></sc-if></sc-for></p>
+              <span style="font:400 11.5px/2 Rubik,sans-serif;color:var(--ink3);text-align:end">{{ blk.n }}</span>
+              <p dir="auto" style="margin:0;text-wrap:pretty"><sc-for list="{{ blk.segs }}" as="sg" hint-placeholder-count="3"><sc-if value="{{ sg.plain }}"><span>{{ sg.t }}</span></sc-if><sc-if value="{{ sg.mark }}"><span data-mark="{{ sg.id }}" data-val="{{ sg.val }}" data-badge="{{ sg.badge }}" data-kind="{{ sg.kind }}" tabindex="0" role="button" aria-label="{{ sg.aria }}" onClick="{{ sg.onClick }}" title="{{ sg.title }}" style="{{ sg.style }}"><span data-pre style="font-weight:400">{{ sg.pre }}</span>{{ sg.t }}<sc-if value="{{ sg.del }}"><svg class="ic" data-icon="eraser" aria-hidden="true" focusable="false" style="width:13px;height:13px;display:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg></sc-if></span></sc-if></sc-for></p>
             </div>
           </sc-for>
         </div>
@@ -792,9 +923,9 @@ button:disabled{opacity:.55;cursor:not-allowed}
       </div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:9px">
       <sc-for list="{{ kindChips }}" as="k" hint-placeholder-count="7">
-      <button onClick="{{ k.onClick }}" style="{{ k.style }}">{{ k.label }}</button>
+      <button onClick="{{ k.onClick }}" aria-pressed="{{ k.on }}" style="{{ k.style }}">{{ k.label }}</button>
       </sc-for>
-      <button onClick="{{ onAdd }}" style="margin-inline-start:auto;padding:6px 14px;border-radius:16px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:500">הוספה והחלפה</button>
+      <button onClick="{{ onAdd }}" style="margin-inline-start:auto;padding:6px 14px;border-radius:16px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:600;letter-spacing:.01em">הוספה והחלפה</button>
       </div>
       </div>
 
@@ -805,7 +936,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
             <span style="{{ s.dotStyle }}"></span>
             <b style="font-weight:500;font-size:13.5px">{{ s.title }}</b>
             <span style="font-size:12px;color:var(--ink3)">{{ s.count }}</span>
-            <span style="margin-inline-start:auto;color:var(--ink3);font-size:11px">{{ s.chev }}</span>
+            <span style="margin-inline-start:auto;color:var(--ink3);font-size:11.5px"><svg class="ic" data-icon="chevron-down" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
           </button>
 
           <sc-if value="{{ s.openReview }}">
@@ -826,7 +957,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
                   </div>
                   <div style="font:13px/1.7 var(--doc-font);color:var(--ink2);margin-top:5px;padding-inline-start:9px;border-inline-start:2px solid var(--line)">{{ x.ctx.pre }}<b style="background:var(--warn-soft);color:var(--warn);font-weight:500">{{ x.ctx.hit }}</b>{{ x.ctx.post }}</div>
                   <div style="display:flex;gap:6px;margin-top:8px">
-                    <button onClick="{{ x.onAdd }}" style="padding:6px 12px;border-radius:15px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:500">להחליף</button>
+                    <button onClick="{{ x.onAdd }}" style="padding:6px 12px;border-radius:15px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:600;letter-spacing:.01em">להחליף</button>
                     <button onClick="{{ x.onKeep }}" style="padding:6px 12px;border-radius:15px;border:1px solid var(--line);font-size:12.5px;color:var(--ink2)">להשאיר</button>
                   </div>
                 </div>
@@ -852,7 +983,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
                   </div>
                   <div style="font:13px/1.7 var(--doc-font);color:var(--ink2);margin-top:5px;padding-inline-start:9px;border-inline-start:2px solid var(--line)">{{ x.ctx.pre }}<b style="background:var(--accent-soft);font-weight:500">{{ x.ctx.hit }}</b>{{ x.ctx.post }}</div>
                   <div style="display:flex;gap:6px;margin-top:8px">
-                    <button onClick="{{ x.onAdd }}" style="padding:6px 12px;border-radius:15px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:500">כן, זה שם</button>
+                    <button onClick="{{ x.onAdd }}" style="padding:6px 12px;border-radius:15px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:600;letter-spacing:.01em">כן, זה שם</button>
                     <button onClick="{{ x.onNo }}" style="padding:6px 12px;border-radius:15px;border:1px solid var(--line);font-size:12.5px;color:var(--ink2)">לא</button>
                   </div>
                 </div>
@@ -867,7 +998,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
             <div style="padding:0 0 8px">
               <div style="display:flex;gap:5px;padding:0 15px 10px;flex-wrap:wrap">
                 <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
-                  <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+                  <button onClick="{{ t.onClick }}" aria-pressed="{{ t.on }}" style="{{ t.style }}">{{ t.label }}</button>
                 </sc-for>
               </div>
               <div style="padding:0 15px 10px">
@@ -876,23 +1007,23 @@ button:disabled{opacity:.55;cursor:not-allowed}
               <!-- השבבים עוטפים לשורות, במקום לגלול הצידה בלי שום סימן (ביקורת QA 008) -->
               <div data-cats style="display:flex;gap:5px;padding:0 15px 10px;flex-wrap:wrap">
                 <sc-for list="{{ cats }}" as="c" hint-placeholder-count="4">
-                  <button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button>
+                  <button onClick="{{ c.onClick }}" aria-pressed="{{ c.on }}" style="{{ c.style }}">{{ c.label }}</button>
                 </sc-for>
               </div>
-              <div ref="{{ listRef }}" style="max-height:52vh;overflow:auto;border-top:1px solid var(--line2)">
+              <div ref="{{ listRef }}" style="max-height:52vh;overflow:auto;scroll-padding:8px;scrollbar-width:thin;border-top:1px solid var(--line2)">
                 <sc-for list="{{ groups }}" as="g" hint-placeholder-count="6">
                   <div data-group="{{ g.key }}" onClick="{{ g.onClick }}" onMouseEnter="{{ g.onEnter }}" onMouseLeave="{{ g.onLeave }}" style="{{ g.style }}">
                     <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
                       <span data-kbd tabindex="0" role="button" style="font-weight:500;font-size:14px">{{ g.value }}</span>
-                      <span style="color:var(--ink3);font-size:13px">{{ g.arrow }}</span>
+                      <span style="color:var(--ink3);font-size:13px"><sc-if value="{{ g.isApplied }}"><svg class="ic" data-icon="arrow-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg><span class="vh">←</span></sc-if></span>
                       <span style="{{ g.repStyle }}">{{ g.rep }}</span>
-                      <sc-if value="{{ g.review }}"><span style="font-size:10.5px;font-weight:500;padding:2px 7px;border-radius:12px;background:var(--warn-soft);color:var(--warn)">לאישור</span></sc-if>
+                      <sc-if value="{{ g.review }}"><span style="font-size:11.5px;font-weight:500;padding:2px 7px;border-radius:12px;background:var(--warn-soft);color:var(--warn)">לאישור</span></sc-if>
                       <span style="margin-inline-start:auto;font-size:11.5px;font-weight:500;color:var(--ink3);background:var(--panel2);border-radius:10px;padding:1px 7px">{{ g.count }}×</span>
                     </div>
                     <sc-if value="{{ g.hasForms }}">
                       <div data-forms style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;align-items:center">
                         <sc-for list="{{ g.forms }}" as="f" hint-placeholder-count="3">
-                          <button data-form onClick="{{ f.onClick }}" title="{{ f.title }}" style="{{ f.style }}"><span style="font-weight:300">{{ f.pre }}</span>{{ f.rest }}<small style="font-weight:300"> ×{{ f.n }}</small></button>
+                          <button data-form onClick="{{ f.onClick }}" title="{{ f.title }}" style="{{ f.style }}"><span style="font-weight:300">{{ f.pre }}</span>{{ f.rest }}<small style="font-weight:300;font-size:11.5px"> ×{{ f.n }}</small></button>
                         </sc-for>
                       </div>
                       <sc-if value="{{ g.formSel }}">
@@ -906,7 +1037,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
                       <div data-words style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-top:5px;font-size:11.5px;color:var(--ink3)">
                         <span>מילה שאינה חלק מהשם:</span>
                         <sc-for list="{{ g.words }}" as="w" hint-placeholder-count="3">
-                          <button data-word onClick="{{ w.onDrop }}" title="{{ w.title }}" style="padding:1px 7px;border-radius:10px;border:1px solid var(--line);font-size:11.5px;color:var(--ink2)" style-hover="background:var(--bad-soft);color:var(--bad)">{{ w.w }} ✕</button>
+                          <button data-word onClick="{{ w.onDrop }}" title="{{ w.title }}" style="padding:1px 7px;border-radius:10px;border:1px solid var(--line);font-size:11.5px;color:var(--ink2)" style-hover="background:var(--bad-soft);color:var(--bad)">{{ w.w }} <svg class="ic" data-icon="x" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
                         </sc-for>
                       </div>
                     </sc-if>
@@ -915,7 +1046,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
                     <div style="font-size:11.5px;color:var(--ink3);margin-top:2px">{{ g.meta }}</div>
                     <sc-if value="{{ g.isFlagged }}">
                       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center">
-                        <button onClick="{{ g.onReplaceFlag }}" title="להחליף בכל המסמך, בתור {{ g.kindShown }}" style="padding:4px 12px;border-radius:12px;background:var(--accent);color:var(--panel);font-size:12px;font-weight:500">להחליף</button>
+                        <button onClick="{{ g.onReplaceFlag }}" title="להחליף בכל המסמך, בתור {{ g.kindShown }}" style="padding:4px 12px;border-radius:12px;background:var(--accent);color:var(--panel);font-size:12px;font-weight:600;letter-spacing:.01em">להחליף</button>
                         <button onClick="{{ g.onQuickAllow }}" title="לא פרט מזהה — להסיר מהרשימה הזאת" style="padding:4px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px;color:var(--ink2)" style-hover="background:var(--panel2)">לא רלוונטי — הסרה</button>
                         <span style="font-size:11.5px;color:var(--ink3)">לחיצה על הכרטיס: סוג אחר</span>
                       </div>
@@ -939,7 +1070,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
                           </div>
                           <sc-if value="{{ g.blankWarn }}"><div style="flex-basis:100%;font-size:12px;color:var(--warn);line-height:1.5">תשובת ה-AI לא תוכל להחזיר את השם הזה: הוא נמחק, ולא הוחלף.</div></sc-if>
                           <input value="{{ g.repDraft }}" onChange="{{ g.onRepChange }}" onClick="{{ g.stop }}" onKeyDown="{{ g.onRepKey }}" placeholder="תחליף" style="width:120px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12.5px">
-                          <button onClick="{{ g.onSave }}" style="padding:6px 11px;border-radius:14px;background:var(--accent);color:var(--panel);font-size:12px;font-weight:500">שמירת תחליף</button>
+                          <button onClick="{{ g.onSave }}" style="padding:6px 11px;border-radius:14px;background:var(--accent);color:var(--panel);font-size:12px;font-weight:600;letter-spacing:.01em">שמירת תחליף</button>
                           <sc-if value="{{ g.showSame }}">
                             <select onChange="{{ g.onSame }}" onClick="{{ g.stop }}" aria-label="זה אותו אדם כמו" style="background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:6px 10px;font-size:12px;max-width:150px;color:var(--ink2)">
                               <option value="">זה אותו אחד כמו…</option>
@@ -1000,10 +1131,10 @@ button:disabled{opacity:.55;cursor:not-allowed}
                 <div data-mine style="margin-top:13px;border-top:1px solid var(--line2)">
                   <sc-for list="{{ mineItems }}" as="m" hint-placeholder-count="2">
                     <div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line2);font-size:13px">
-                      <span style="font-size:11px;font-weight:500;color:var(--ink2);background:var(--panel2);border-radius:10px;padding:2px 8px">{{ m.kind }}</span>
+                      <span style="font-size:11.5px;font-weight:500;color:var(--ink2);background:var(--panel2);border-radius:10px;padding:2px 8px">{{ m.kind }}</span>
                       <span>{{ m.value }}</span>
-                      <sc-if value="{{ m.rep }}"><span style="color:var(--accent-ink);font-size:12.5px">← {{ m.rep }}</span></sc-if>
-                      <button onClick="{{ m.onDel }}" aria-label="הסרה מהרשימה" title="הסרה מהרשימה — הטקסט המקורי חוזר; אפשר לבטל" style="margin-inline-start:auto;color:var(--ink3);width:24px;height:24px;border-radius:50%" style-hover="background:var(--bad-soft);color:var(--bad)">✕</button>
+                      <sc-if value="{{ m.rep }}"><span style="color:var(--accent-ink);font-size:12.5px"><svg class="ic" data-icon="arrow-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg><span class="vh">←</span> {{ m.rep }}</span></sc-if>
+                      <button onClick="{{ m.onDel }}" aria-label="הסרה מהרשימה" title="הסרה מהרשימה — הטקסט המקורי חוזר; אפשר לבטל" style="margin-inline-start:auto;color:var(--ink3);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--panel2)" style-hover="background:var(--bad-soft);color:var(--bad)"><svg class="ic" data-icon="x" aria-hidden="true" focusable="false" style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
                     </div>
                   </sc-for>
                 </div>
@@ -1035,23 +1166,23 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <span style="flex:1 1 240px">{{ exportAskText }}</span>
         <button onClick="{{ onExportShow }}" style="padding:6px 12px;border-radius:9px;background:var(--bad);color:var(--panel);font-size:12.5px;font-weight:500">להציג אותם</button>
         <button onClick="{{ onExportAnyway }}" style="padding:6px 12px;border-radius:9px;border:1px solid var(--bad);color:var(--bad);font-size:12.5px">{{ exportAnyLabel }}</button>
-        <button onClick="{{ onExportCancel }}" aria-label="ביטול" style="width:24px;height:24px;border-radius:50%;color:var(--bad);display:grid;place-items:center">✕</button>
+        <button onClick="{{ onExportCancel }}" aria-label="ביטול" style="width:24px;height:24px;border-radius:50%;color:var(--bad);display:grid;place-items:center"><svg class="ic" data-icon="x" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
       </div>
     </sc-if>
     <div style="max-width:1520px;margin:0 auto;display:flex;align-items:center;gap:12px">
       <sc-if value="{{ barErr }}">
         <span style="width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;font-weight:600;color:var(--bad);background:var(--bad-soft)">!</span>
         <div data-bar-text style="flex:1;min-width:0;font-size:13px;color:var(--bad);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{ barErr }}">{{ barErr }}</div>
-        <button onClick="{{ onClearErr }}" aria-label="סגירה" style="width:26px;height:26px;border-radius:50%;color:var(--ink3);display:grid;place-items:center" style-hover="background:var(--panel2);color:var(--ink)">✕</button>
+        <button onClick="{{ onClearErr }}" aria-label="סגירה" style="width:26px;height:26px;border-radius:50%;color:var(--ink3);display:grid;place-items:center" style-hover="background:var(--panel2);color:var(--ink)"><svg class="ic" data-icon="x" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
       </sc-if>
       <sc-if value="{{ barOk }}">
-        <span style="{{ statusDot }}">{{ statusIcon }}</span>
+        <span style="{{ statusDot }}"><sc-if value="{{ statusOk }}"><svg class="ic" data-icon="check" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></sc-if>{{ statusIcon }}</span>
         <div data-bar-text role="status" aria-live="polite" style="flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{ statusText }}"><b style="font-weight:500">{{ statusTitle }}</b><span style="color:var(--ink3)"> · {{ statusText }}</span></div>
       </sc-if>
       <div data-steps style="display:flex;gap:6px;align-items:center;font-size:11.5px;white-space:nowrap" title="שלושת השלבים: השחרה, העתקה או הורדה, החזרת שמות לתשובה">
-        <span style="{{ step1Style }}">1 השחרה ✓</span><span style="color:var(--ink3)">›</span>
-        <span style="{{ step2Style }}">2 העתקה או הורדה{{ step2Mark }}</span><span style="color:var(--ink3)">›</span>
-        <span style="{{ step3Style }}">3 החזרת שמות</span>
+        <span data-step="1" style="{{ step1Style }}">1 השחרה <svg class="ic" data-icon="check" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span class="vh">✓</span></span><span style="color:var(--ink3)"><svg class="ic" data-icon="chevron-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></span>
+        <span data-step="2" style="{{ step2Style }}">2 העתקה או הורדה<sc-if value="{{ step2Done }}"> <svg class="ic" data-icon="check" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span class="vh">✓</span></sc-if></span><span style="color:var(--ink3)"><svg class="ic" data-icon="chevron-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></span>
+        <span data-step="3" style="{{ step3Style }}">3 החזרת שמות</span>
       </div>
       <button data-tour-target="copy" onClick="{{ onCopyAi }}" title="מעתיק את הטקסט המושחר ללוח. מדביקים ב-AI; כשהתשובה חוזרת, «החזרת שמות מתשובת AI» בכותרת מחזיר את השמות האמיתיים" style="{{ copyBtnStyle }}">{{ copyLabel }}</button>
       <button onClick="{{ onDownload }}" title="קובץ Word מושחר, בשם ניטרלי עם תאריך — לא בשם הקובץ המקורי" style="padding:11px 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">הורדת Word</button>
@@ -1074,15 +1205,15 @@ button:disabled{opacity:.55;cursor:not-allowed}
     <div data-inline onClick="{{ inlineStop }}" style="{{ inlineStyle }}">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
         <b style="font-weight:500;font-size:14px"><span data-inline-pre style="font-weight:300">{{ inlinePre }}</span>{{ inlineValue }}</b>
-        <sc-if value="{{ inlineRep }}"><span style="color:var(--ink3)">←</span><span style="font-weight:500;color:var(--accent-ink)"><span style="font-weight:300">{{ inlinePre }}</span>{{ inlineRep }}</span></sc-if>
+        <sc-if value="{{ inlineRep }}"><span style="color:var(--ink3)"><svg class="ic" data-icon="arrow-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg><span class="vh">←</span></span><span style="font-weight:500;color:var(--accent-ink)"><span style="font-weight:300">{{ inlinePre }}</span>{{ inlineRep }}</span></sc-if>
         <span style="font-size:11.5px;color:var(--ink3)">{{ inlineKind }}</span>
-        <button onClick="{{ onInlineClose }}" aria-label="סגירה" style="margin-inline-start:auto;width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center">✕</button>
+        <button onClick="{{ onInlineClose }}" aria-label="סגירה" style="margin-inline-start:auto;width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center"><svg class="ic" data-icon="x" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
       </div>
       <sc-if value="{{ inlineHasWords }}">
         <div data-inline-words style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin:-2px 0 8px;font-size:11.5px;color:var(--ink3)">
           <span>מילה שאינה חלק מהשם:</span>
           <sc-for list="{{ inlineWords }}" as="w" hint-placeholder-count="3">
-            <button data-word onClick="{{ w.onDrop }}" title="{{ w.title }}" style="padding:1px 7px;border-radius:10px;border:1px solid var(--line);font-size:11.5px;color:var(--ink2)" style-hover="background:var(--bad-soft);color:var(--bad)">{{ w.w }} ✕</button>
+            <button data-word onClick="{{ w.onDrop }}" title="{{ w.title }}" style="padding:1px 7px;border-radius:10px;border:1px solid var(--line);font-size:11.5px;color:var(--ink2)" style-hover="background:var(--bad-soft);color:var(--bad)">{{ w.w }} <svg class="ic" data-icon="x" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
           </sc-for>
         </div>
       </sc-if>
@@ -1090,7 +1221,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
           <sc-if value="{{ inlinePre }}"><span data-pre-chip title="אות השימוש נשארת מהמסמך; בתיבה כותבים רק את השם" style="font-size:13px;color:var(--ink3);background:var(--panel2);border:1px dashed var(--line);border-radius:8px;padding:6px 8px">{{ inlinePre }}</span></sc-if>
           <input value="{{ inlineDraft }}" onChange="{{ onInlineDraft }}" onKeyDown="{{ onInlineKey }}" placeholder="תחליף אחר" style="flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:13px">
-          <button onClick="{{ onInlineSave }}" style="padding:7px 12px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:500">שמירה</button>
+          <button onClick="{{ onInlineSave }}" style="padding:7px 12px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:12.5px;font-weight:600;letter-spacing:.01em">שמירה</button>
         </div>
         <div data-inline-preview style="margin-top:6px;font:13px/1.6 var(--doc-font);color:var(--ink2);padding:6px 9px;background:var(--panel2);border-radius:8px;white-space:pre-wrap">{{ inlinePreview }}</div>
         <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;align-items:center">
@@ -1144,9 +1275,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
 </div>
 </x-dc>
-<footer><div id="ver">גרסה v59</div></footer>
-<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;forest&quot;,&quot;ink&quot;,&quot;plum&quot;],&quot;default&quot;:&quot;forest&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
-&quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
+<footer><div id="ver">גרסה v60</div></footer>
+<script type="text/x-dc" data-dc-script data-props="{&quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
 class Component extends DCLogic {
   state = {
@@ -1217,13 +1347,19 @@ class Component extends DCLogic {
     this._resize();
     addEventListener("resize", this._resize);
     this._barSize = () => {
-      const el=document.querySelector("[data-bar]");
+      const el=document.querySelector("[data-bar]"), hd=document.querySelector("header");
       const r=document.documentElement.style;
+      /* מיקוד במקלדת: הדפדפן גולל אל החלון את הפקד שבמיקוד, אבל לא יודע שהכותרת הדביקה למעלה והבר הקבוע
+         למטה מכסים את קצות החלון. Tab הביא כפתורים וסימונים אל מתחת לבר, ו-Shift+Tab אל מתחת לכותרת,
+         מוסתרים לגמרי יחד עם הטבעת (כבר ב-v59). ריפוד הגלילה של הדף שומר מהם מרחק, ועוד 8px לטבעת עצמה */
+      r.scrollPaddingTop = hd ? (Math.round(hd.offsetHeight)+8)+"px" : "";
+      r.scrollPaddingBottom = ((el ? Math.round(el.offsetHeight) : 0)+8)+"px";
+      if(this._headObs && this._headEl!==hd){ this._headObs.disconnect(); if(hd) this._headObs.observe(hd); this._headEl=hd; }
       if(!el){ r.removeProperty("--bar-h"); this._barEl=null; return; }
       r.setProperty("--bar-h", Math.round(el.offsetHeight)+"px");
       if(this._barObs && this._barEl!==el){ this._barObs.disconnect(); this._barObs.observe(el); this._barEl=el; }
     };
-    if(typeof ResizeObserver!=="undefined") this._barObs=new ResizeObserver(()=>this._barSize());
+    if(typeof ResizeObserver!=="undefined"){ this._barObs=new ResizeObserver(()=>this._barSize()); this._headObs=new ResizeObserver(()=>this._barSize()); }
     this._barSize();
     this._docClick = e => {
       if(this.state.popup && !e.target.closest("[data-popup]")) this.setState({popup:null});
@@ -1330,7 +1466,7 @@ class Component extends DCLogic {
     removeEventListener("beforeunload", this._unload); removeEventListener("pagehide", this._hide); removeEventListener("popstate", this._pop);
     removeEventListener("scroll", this._follow, true); removeEventListener("resize", this._follow); removeEventListener("animationend", this._follow, true); removeEventListener("transitionend", this._follow, true);
     removeEventListener("scroll", this._scNudge, {capture:true}); removeEventListener("resize", this._scNudge); if(this._scT) clearTimeout(this._scT); removeEventListener("storage", this._storage); removeEventListener("error", this._pageErr); removeEventListener("unhandledrejection", this._pageErr);
-    if(this._barObs) this._barObs.disconnect(); }
+    if(this._barObs) this._barObs.disconnect(); if(this._headObs) this._headObs.disconnect(); }
   /* ביומן רוב האירועים היו "screen" — אותו מסך, שוב ושוב,
      בכל רינדור. הארגומנט הראשון של ההוק הוא ה-props הקודמים, לא ה-state הקודם, ולכן
      prev.screen היה undefined תמיד, ההשוואה תמיד "השתנה", ושדה from נעלם מהיומן.
@@ -1373,12 +1509,8 @@ class Component extends DCLogic {
     this._lastScreen=cur; }
   applyProps(){
     const r=document.documentElement.style;
-    const accents={forest:["#1F5B44","#E6EFE9","#79D3A8"], ink:["#1F3F63","#E4EBF3","#7FB6EE"], plum:["#5A2B4C","#F0E6EE","#DC9BC9"]};
-    const a=accents[this.props.accent] || accents.forest;
-    const dark=document.documentElement.classList.contains("dark");
-    r.setProperty("--accent", dark?a[2]:a[0]);
-    r.setProperty("--accent-ink", dark?a[2]:a[0]);
-    r.setProperty("--accent-soft", dark?a[2]+"22":a[1]);
+    // the accent is the stylesheet's own (:root and html.dark): one per theme, bookcloth by day and gilt at
+    // night. The canvas-only choice of three accents written here inline overrode the night palette.
     r.setProperty("--doc-font", this.props.docFont==="sans"?"Rubik,sans-serif":"'Noto Serif Hebrew',serif");
     r.setProperty("--rail-w", (this.props.railWidth ?? 404)+"px");
     // The map geometry travels in data-d and is copied to d here, after
@@ -2018,7 +2150,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const place=list=>{
       const boxes=[], h=15;
       return list.map(p=>{
-        const w=Math.max(28, String(p.label||"").length*6.4);
+        // the label is 11.5px Rubik: about 6.1px a letter plus its 4px of padding, so 7 a letter covers it
+        const w=Math.max(31, String(p.label||"").length*7);
         // התווית מתחת לנקודה; אם תפוס — מעל, ואז בצעדים של 15 פיקסלים הלאה עד מקום פנוי
         const slots=[11]; for(let k=1;k<=8;k++){ slots.push(-11-h*(k-1)); slots.push(11+h*k); }
         const hit=dy=>boxes.some(q=>Math.abs(p.x-q.x)<(w+q.w)/2+2&&Math.abs((p.y+dy)-q.y)<h);
@@ -2656,10 +2789,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const enc=new TextEncoder(); const files=[];
       files.push({name:"session-log.json", data:enc.encode(this.log.export())});
       if(this.state.leaks.length&&window.PL) files.push({name:"leak-report.json", data:enc.encode(window.PL.leakReport(this.state.leaks,{version:this.log.v}))});
-      files.push({name:"README.txt", data:enc.encode("paintItBlack "+this.log.v+"\nחבילת בדיקה: יומן סשן בלי טקסט, ודוח דליפה אם סומנו שמות ביד. המסמך עצמו לא בחבילה.\n")});
+      files.push({name:"README.txt", data:enc.encode("InKognito "+this.log.v+"\nחבילת בדיקה: יומן סשן בלי טקסט, ודוח דליפה אם סומנו שמות ביד. המסמך עצמו לא בחבילה.\n")});
       const blob=await E.zip(files);
       const u=URL.createObjectURL(blob), a=document.createElement("a");
-      a.href=u; a.download="paintItBlack-package-"+new Date().toISOString().slice(0,10)+".zip"; document.body.appendChild(a); a.click(); a.remove();
+      a.href=u; a.download="inkognito-package-"+new Date().toISOString().slice(0,10)+".zip"; document.body.appendChild(a); a.click(); a.remove();
       setTimeout(()=>URL.revokeObjectURL(u), 4000);
     }catch(e){ this.setState({err:"הכנת החבילה נכשלה: "+(e.message||e)}); }
   };
@@ -2864,6 +2997,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     };
     document.addEventListener("click", this._tourGuard, true);
     this._spotRO=typeof ResizeObserver==="function"?new ResizeObserver(this._onSpot):null;
+    /* the sticky header can change height with no render and no resize: a web font arriving late (the
+       wordmark's Frank Ruhl, the interface's Rubik) moves the target without resizing it. A font that
+       finished loading measures again, and so does the header (tourMeasure observes it with the target) */
+    if(document.fonts&&document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", this._onSpot);
   };
   // הזרקור: מלבן סביב מה שהצעד מדבר עליו, והשאר מוחשך. אינו חוסם לחיצות.
   /* הזרקור בגלילה: הוא נע במעבר של רבע שנייה ועודכן דרך state, ולכן
@@ -2888,7 +3025,11 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   tourMeasure(onStep){
     const t=this.state.tour; if(!t) return;
     const cur=this.constructor.TOUR[t.i]; const el=cur&&cur.target?document.querySelector(cur.target):null;
-    if(this._spotRO&&el!==this._spotEl){ this._spotRO.disconnect(); if(el) this._spotRO.observe(el); this._spotEl=el; }
+    if(this._spotRO&&el!==this._spotEl){ this._spotRO.disconnect(); if(el) this._spotRO.observe(el);
+      // disconnect() dropped every observation, so the header is observed again with the new target. Its
+      // outer box is what pushes the page down, so that is the box watched
+      const hd=document.querySelector("header"); if(hd) this._spotRO.observe(hd, {box:"border-box"});
+      this._spotEl=el; }
     if(!el){ if(this.state.tourSpot) this.setState({tourSpot:null}); return; }
     const r=el.getBoundingClientRect();
     // גלילה אל היעד רק במעבר צעד; בגלילה של המשתמשת הזרקור הולך איתה, לא מושך אותה חזרה
@@ -2906,7 +3047,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.log.add("tour",{at:"close", step:t.i, done:t.i>=this.constructor.TOUR.length-1});
     this.tourMarkSeen();
     const o={...this.state.o, ner:this._tourNer===undefined?this.state.o.ner:this._tourNer};
-    if(this._onSpot){ window.removeEventListener("resize", this._onSpot); window.removeEventListener("scroll", this._onSpot, true); document.removeEventListener("animationend", this._onSpot, true); document.removeEventListener("click", this._tourGuard, true); this._onSpot=null; }
+    if(this._onSpot){ window.removeEventListener("resize", this._onSpot); window.removeEventListener("scroll", this._onSpot, true); document.removeEventListener("animationend", this._onSpot, true); document.removeEventListener("click", this._tourGuard, true);
+      if(document.fonts&&document.fonts.removeEventListener) document.fonts.removeEventListener("loadingdone", this._onSpot);
+      this._onSpot=null; }
     if(this._spotRO){ this._spotRO.disconnect(); this._spotRO=null; this._spotEl=null; }
     // שם תיק שהוקלד בסיור הוא חלק מהמסמך הבדוי (M1 בביקורת השנייה): הוא לא עובר למסמך
     // הבא, ולא נשמר כתיק — הסיור מבטיח ששום דבר ממנו לא נשמר
@@ -3085,7 +3228,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
           // שפועלים עליו הוא המקורי, שיושב ב-data-val
           const shown=E.norm(E.trimEdges(els[0].textContent||"")).trim(), st=E.norm(t).trim();
           const val=E.trimEdges(els[0].getAttribute("data-val")||els[0].textContent||"");
-          if(val&&(st===shown||(/^[בהולמכש]/.test(st)&&st.slice(1)===shown))) hit=val;
+          if(val&&shown&&(st===shown||(/^[בהולמכש]/.test(st)&&st.slice(1)===shown))) hit=val;
         }
       }catch(_){}
       this.setState({popup:{text:t, hit, x:Math.max(12, Math.min(r.left+r.width/2-130, innerWidth-280)), y:r.bottom+10}});
@@ -3280,7 +3423,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   renderVals(){
     const S=this.state, E=S.E;
     const KINDS = E ? E.KINDS : [];
-    const primaryBtn="padding:12px 20px;border-radius:10px;background:var(--accent);color:var(--panel);font-weight:500;font-size:14px;white-space:nowrap";
+    const primaryBtn="padding:12px 20px;border-radius:10px;background:var(--accent);color:var(--panel);font-weight:600;letter-spacing:.01em;font-size:14px;white-space:nowrap";
     const seg = on => "flex:1;padding:8px 6px;border-radius:7px;font-size:12.5px;font-weight:500;"+
       (on?"background:var(--panel);color:var(--accent-ink);box-shadow:var(--shadow)":"color:var(--ink2)");
     const chip = on => "padding:5px 12px;border-radius:14px;font-size:12px;font-weight:500;white-space:nowrap;"+
@@ -3297,8 +3440,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
 const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     // שם קובץ עברי עם סיומת לטינית: בידוד משמאל לימין, אחרת הסיומת קופצת לצד הלא נכון
     const bdi=s=>s?String.fromCharCode(8294)+s+String.fromCharCode(8297):s;
+    // the current step is the action colour, which is gilt on the header, as on the site's own index; the
+    // others stay cream (in the header's cream, the current step was 1.12:1 against the rest)
     const stepStyle=(active, enabled)=>"font-size:12.5px;padding:4px 2px;white-space:nowrap;cursor:"+(enabled?"pointer":"default")+
-      ";color:"+(active?"var(--ink)":enabled?"var(--ink2)":"var(--ink3)");
+      ";color:"+(active?"var(--accent)":enabled?"var(--ink2)":"var(--ink3)");
     const SCR_LBL={entry:"קובץ", people:"רשימת השמות", places:"מקומות", work:"המסמך"};
     const backOf=(screen, ret)=>{
       if(screen==="people") return {to:"entry", label:"קובץ"};
@@ -3323,6 +3468,9 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       step2:stepStyle(S.screen==="people", !!S.buf),
       step3:stepStyle(S.screen==="places", !!S.buf),
       step4:stepStyle(S.screen==="work", false),
+      // the current step is said, not only shown (undefined leaves the attribute off)
+      step1Cur:S.screen==="entry"?"step":undefined, step2Cur:S.screen==="people"?"step":undefined,
+      step3Cur:S.screen==="places"?"step":undefined, step4Cur:S.screen==="work"?"step":undefined,
       goStep1:()=>this.setState({screen:"entry", pending:!!S.buf, err:""}),
       goStep2:()=>this.showList(),
       goStep3:()=>{ if(S.buf) this.toPlaces(S.rules); },
@@ -3359,7 +3507,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         {n:"3", title:"מקומות", text:"יישובים מוחלפים בקבוצה ששומרת על המרחקים ביניהם, כדי שהגיאוגרפיה של התיק תישאר הגיונית."},
         {n:"4", title:"בדיקה ושליחה", text:"עוברים על הממצאים, מעתיקים את הטקסט המושחר ל-AI, ומחזירים את השמות האמיתיים לתשובה. פרופיל תיק שומר שאותו אדם יקבל את אותו שם בכל המסמכים."}
       ],
-      themeIcon:S.theme==="dark"?"☀":"☾", onTheme:this.toggleTheme,
+      isDark:S.theme==="dark", isLight:S.theme!=="dark", onTheme:this.toggleTheme,
       onReverse:()=>this.setState({screen:"reverse", returnTo:S.screen==="reverse"?(S.returnTo||"entry"):S.screen, err:""}),
       /* היה כפתור אחד בכותרת, כפתור שני זהה בסרגל התחתון, ומקטע שלישי במסילה
          שרץ בכלל על מסלול אחר: הוא בנה את הזוגות מ-livePairs, שאינה מסננת ערך
@@ -3432,7 +3580,6 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onLoadProf:this.loadProfileClick, onSaveProf:this.saveProfile,
       fileErr:S.screen==="entry"?(S.fileErr||""):"",
       settingsShown:S.settingsOpen===undefined?!S.narrow:!!S.settingsOpen,
-      settingsChev:(S.settingsOpen===undefined?!S.narrow:!!S.settingsOpen)?"▲":"▼",
       settingsHint:(S.o.ner?"מודל מקומי":"בלי מודל")+" · "+(S.mode==="block"?"███":S.mode==="label"?"תוויות":"שמות חלופיים"),
       onToggleSettings:()=>this.setState({settingsOpen:!(S.settingsOpen===undefined?!S.narrow:!!S.settingsOpen)}),
       hasCases:S.cases.length>0&&S.screen==="entry"&&!S.profile&&!S.casesHidden,
@@ -3524,7 +3671,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         // כינוי שמשותף ליותר מאדם אחד אינו "לא נמצא" — הוא נמצא ולא הוחזר, וזה מה שנאמר (M3)
         const conflictMsg=(r.conflict&&r.conflict.length)?`«${r.conflict.join("», «")}» ${r.conflict.length===1?"הוא כינוי":"הם כינויים"} של יותר מאדם אחד במסמך הזה, ולכן לא הוחזר${r.conflict.length===1?"":"ו"}. אפשר לתקן בכרטיס של אחד מהם.`:"";
         this.setState({rvOut:r.text, rvCount:r.count, err: r.count?(conflictMsg?conflictMsg:""):(conflictMsg||"לא נמצא אף שם חלופי בטקסט. כדאי לבדוק שהפרופיל תואם למסמך.")},
-          ()=>{ const el=document.querySelector("[data-rv-result]"); if(el&&el.scrollIntoView) el.scrollIntoView({block:"start", behavior:"smooth"}); });
+          ()=>{ const el=document.querySelector("[data-rv-result]"); if(el&&el.scrollIntoView) el.scrollIntoView({block:"start", behavior:(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)?"auto":"smooth"}); });
       },
       // אחרי החזרה, ההעתקה היא הפעולה הראשית; לפני — ההחזרה (UX #19). ריק — אין מה להחזיר (UX #20).
       rvEmpty:!(S.rvIn||"").trim(),
@@ -3551,7 +3698,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           const same=["סוג","אוכלוסייה","דת","גודל"].filter(k=>!d.includes(k)).map(k=>t[k]).join(" · ");
           return (same?same:"")+(d.length?(same?"  ·  ":"")+"שונה: "+d.map(k=>k+" ("+S.E.atlasTags(m.from)[k]+" ← "+t[k]+")").join(", "):""); })(),
         onChange:e=>this.setState({geoEdits:{...S.geoEdits, [i]:e.target.value}}),
-        onRemove:()=>this.geoRemove(m.from), ...this.tipProps(m.from)})),
+        onRemove:()=>this.geoRemove(m.from), ...this.tipProps(m.from)}))
+        // the tags line sits inside its row, above the row's rule: the row hands its rule to the tags
+        // (the tags were pulled up over the rule with a negative margin)
+        .map(g=>({...g, rowStyle:"display:flex;align-items:center;gap:12px;"+
+          (g.tagNote?"padding:11px 18px 4px":"padding:11px 18px;border-bottom:1px solid var(--line2)")})),
       // מחיקה במסך השמות ו"אל תחליפו" במסך הבדיקה: שניהם גלויים ושניהם עם ↩
       hasKept:(S.peoKept||[]).length>0,
       keptItems:(S.peoKept||[]).map(k=>({name:k.value, onUndo:()=>this.peoRestore(k.value)})),
@@ -3628,7 +3779,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       onAddV:e=>this.setState({addV:e.target.value}), onAddR:e=>this.setState({addR:e.target.value}),
       onAddKey:e=>{ if(e.key==="Enter") this.addRule(this.state.addV, this.state.addK, this.state.addR); },
       onAdd:()=>this.addRule(S.addV, S.addK, S.addR),
-      kindChips:KINDS.map(([k,l])=>({label:this.kindLabel(l), style:chip(S.addK===k), onClick:()=>this.setState({addK:k})})),
+      kindChips:KINDS.map(([k,l])=>({label:this.kindLabel(l), on:S.addK===k, style:chip(S.addK===k), onClick:()=>this.setState({addK:k})})),
       sheetRef:el=>{this.sheetEl=el}, listRef:el=>{this.listEl=el},
       onSheetSelect:this.onSheetSelect
     };
@@ -3657,6 +3808,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       (pane==="doc"?"background:var(--panel);color:var(--accent-ink);box-shadow:var(--shadow)":"color:var(--ink2)");
     v.paneFindStyle = "flex:1;padding:8px 6px;border-radius:7px;font-size:13px;font-weight:500;"+
       (pane==="find"?"background:var(--panel);color:var(--accent-ink);box-shadow:var(--shadow)":"color:var(--ink2)");
+    // הבחירה נאמרת ולא רק נראית: הכרטיסייה, התצוגה והמסננים שנבחרו הם aria-pressed, כמו «שם חלופי»
+    v.paneDocOn = pane==="doc"; v.paneFindOn = pane==="find";
     v.onPaneDoc=()=>this.setState({pane:"doc"});
     v.onPaneFind=()=>this.setState({pane:"find"});
     v.docTitle = bdi(S.name) || "המסמך המושחר";
@@ -3667,6 +3820,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     const viewSeg = on => "padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;"+
       (on?"background:var(--panel);color:var(--accent-ink);box-shadow:var(--shadow)":"color:var(--ink2)");
     v.viewRedStyle=viewSeg(!viewOrig); v.viewOrigStyle=viewSeg(viewOrig);
+    v.viewRedOn=!viewOrig; v.viewOrigOn=viewOrig;
     v.onViewRed=()=>this.setState({docView:"red"});
     v.onViewOrig=()=>this.setState({docView:"orig"});
 
@@ -3690,9 +3844,12 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           if(m.s>last) segs.push({plain:true, mark:false, t:b.text.slice(last,m.s)});
           const drec=RES.applied.find(x=>x.value===m.val);
           const dkey="a|"+E.norm((drec&&(drec.of||drec.base))||m.val||"").trim();
-          segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:"∅", badge:"", pre:"", kind:"del",
+          // the spot is a dashed chip with a drawn eraser (it was the text ∅); the chip is a button, so it
+          // is named «נמחק» on its own, rather than by its title, which holds the deleted value
+          segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:"", del:true, aria:"נמחק", badge:"", pre:"", kind:"del",
             title:"הושמט: "+(m.val||"")+" — לחיצה פותחת עריכה במקום",
-            style:"cursor:pointer;border-radius:3px;padding:0 3px;font-size:11px;color:var(--ink3);border:1px dashed var(--line);",
+            style:"cursor:pointer;border-radius:4px;padding:0 4px;font-size:11.5px;color:var(--ink);border:1px dashed var(--line);border-bottom-width:2.5px;"+
+              "line-height:1;display:inline-flex;align-items:center;justify-content:center;height:1.25em;vertical-align:middle;transform:translateY(-.08em);",
             onClick:e=>this.setState({sel:dkey, filter:"all", cat:"", open:this.openWith("findings"), pane:this.state.pane,
               inline:this.inlineAt(e,{mode:"del", value:m.val||"", base:m.val||"", kind:"", label:(drec&&drec.label)||"נמחק", text:b.text, s:m.s, e:m.s, pre:""}), inlineDraft:""}, ()=>{
               const node=this.listEl && this.listEl.querySelector('[data-group="'+CSS.escape(dkey)+'"]');
@@ -3711,9 +3868,10 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           const fl=RES.flagged.find(x=>x.value===m.val)||{};
           segs.push({plain:false, mark:true, id:-1, val:m.val||"", t:b.text.slice(m.s,m.e), badge:"?", pre:"", kind:"flag",
             title:"נמצא ומחכה להחלטה שלכם — לחיצה פותחת עריכה במקום",
-            // צורה ולא רק צבע (Q2 בגרסה 3): קו מקווקו עבה ותג "?" — נראה גם על מסך חיוור
-            style:"cursor:pointer;border-radius:3px;box-decoration-break:clone;padding:1px 2px;"+
-              "background:var(--warn-soft);color:var(--warn);border-bottom:2px dashed var(--warn);font-weight:500;",
+            // צורה ולא רק צבע (Q2 בגרסה 3): קו מקווקו עבה ותג "?" — נראה גם על מסך חיוור. הטקסט בדיו,
+            // והוודאות בקו: מקווקו של 2.5px בצבע האזהרה (המראה החדש, 6.10)
+            style:"cursor:pointer;border-radius:4px;box-decoration-break:clone;padding:1px;"+
+              "color:var(--ink);border-bottom:2.5px dashed var(--warn);font-weight:500;",
             onClick:e=>this.setState({sel:fkey, filter:"all", cat:"",
               open:this.openWith("findings"), pane:this.state.pane,
               inline:this.inlineAt(e,{mode:"flag", value:m.val||"", base:m.val||"", kind:"", label:fl.label||"לבדיקה", text:b.text, s:m.s, e:m.e, pre:""}), inlineDraft:""}, ()=>{
@@ -3738,11 +3896,14 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         const isDateMark=!!(src&&/^תאריך/.test(src.label||"")&&src.rep&&src.rep!=="███");
         segs.push({plain:false, mark:true, id:pos, val:orig||(src?src.value:""), pre, t:mt.slice(pre.length), badge:"", kind:isDateMark?"date":"",
           title: (isDateMark ? "תאריך מוזז — המקורי «"+(orig||"")+"» חוזר בהחזרת השמות" : (orig ? orig+" ← במקור" : "הוחלף — המקור אינו חד-משמעי"))+" · לחיצה פותחת עריכה במקום",
-          // צורה ולא רק צבע (Q2 בגרסה 3): קו תחתון מלא, וצבע חזק יותר; תאריך מוזז — קו מנוקד
-          style:"cursor:pointer;border-radius:3px;box-decoration-break:clone;padding:1px 2px;font-weight:500;"+
+          // צורה ולא רק צבע (Q2 בגרסה 3): קו תחתון מלא בצבע הפעולה; תאריך מוזז — קו מנוקד. הטקסט בדיו.
+          // השם שבמוקד (הכרטיס שנבחר, הכרטיס שמרחפים עליו, או החיצים) מקבל את המרקר, והטקסט נשאר כהה:
+          // מילוי בצבע הפעולה עם טקסט בהיר היה נעלם כשההבזק עובר עליו (e2e/marks.spec.js)
+          style:"cursor:pointer;border-radius:4px;box-decoration-break:clone;padding:1px;font-weight:500;"+
+            "border-bottom:2.5px "+(isDateMark?"dotted":"solid")+" var(--accent);"+
             ((selected||S.hot===m.id)
-              ? "background:var(--accent);color:var(--panel);border-bottom:2px "+(isDateMark?"dotted":"solid")+" var(--accent);"
-              : "background:var(--accent-soft);color:var(--accent-ink);border-bottom:2px "+(isDateMark?"dotted":"solid")+" var(--accent);"),
+              ? "background:var(--mark);color:var(--mark-ink);box-shadow:0 0 0 2px var(--mark);"
+              : "color:var(--ink);"),
           onClick:e=>{
             const r=RES.applied[m.id]; if(!r) return;
             const base=r.base||r.value, sv=String(r.value||"");
@@ -3813,10 +3974,10 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     // המסנן הזה מראה מה שלא הוחלף; "לבדיקה" הוא הפאנל, עם מספר משלו (UX #13)
     v.tabs=[["all","הכל",RES.applied.length+RES.flagged.length],["rep","הוחלף",RES.applied.length],
       ["flag","לא הוחלף",RES.flagged.length]].map(([k,l,c])=>({
-      label:l+" "+c, style:chip(S.filter===k), onClick:()=>this.setState({filter:k, sel:null})}));
+      label:l+" "+c, on:S.filter===k, style:chip(S.filter===k), onClick:()=>this.setState({filter:k, sel:null})}));
     const counts={}; groups.forEach(g=>counts[g.label]=(counts[g.label]||0)+g.count);
     v.cats=[["","הכל"]].concat(Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([l,n])=>[l,this.kindLabel(l)+" "+n]))
-      .map(([val,label])=>({label, style:chip(S.cat===val), onClick:()=>this.setState({cat:val, sel:null})}));
+      .map(([val,label])=>({label, on:S.cat===val, style:chip(S.cat===val), onClick:()=>this.setState({cat:val, sel:null})}));
 
     const q=(S.query||"").trim();
     let shown = S.cat ? groups.filter(g=>g.label===S.cat) : groups;
@@ -3827,7 +3988,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.groupsEmpty = !shown.length;
     v.groups = shown.map(g=>({
       key:g.key, value:g.value, count:g.count, why:g.why||"", review:!!g.review,
-      arrow:g.ap?"←":"", rep:g.ap?g.rep:"לא הוחלף",
+      rep:g.ap?g.rep:"לא הוחלף",
       // הצורות של האדם הזה כשבבים (גרסה 5): אות השימוש חיוורת, ספירה לכל צורה,
       // ולחיצה על שבב פותחת החלטה על הצורה הזאת בלבד
       ...(()=>{
@@ -3940,16 +4101,17 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       title="לא נשארו בטקסט שמות או מספרים מהרשימה";
       text=(ver.hadList?"נבדקו גם כותרות, הערות שוליים ותיבות טקסט":"בלי רשימת שמות הבדיקה חלשה")+". כדאי לקרוא את המסמך פעם אחת לפני שליחה.";
     }
-    const cmap={ok:["var(--accent)","var(--accent-soft)","✓"], warn:["var(--warn)","var(--warn-soft)","!"], bad:["var(--bad)","var(--bad-soft)","!"]};
+    // "ok" draws its check; warn and bad keep their "!" as text
+    const cmap={ok:["var(--accent)","var(--accent-soft)",null], warn:["var(--warn)","var(--warn-soft)","!"], bad:["var(--bad)","var(--bad-soft)","!"]};
     v.statusDot="width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:13px;font-weight:600;color:"+cmap[kind][0]+";background:"+cmap[kind][1];
-    v.statusIcon=cmap[kind][2]; v.statusTitle=title; v.statusText=text;
+    v.statusOk=kind==="ok"; v.statusIcon=cmap[kind][2]; v.statusTitle=title; v.statusText=text;
     // שגיאה של המסך הזה יושבת בסרגל, לא בראש העמוד מעבר לגלילה; ✕ מנקה אותה
     v.barErr=S.err||""; v.barOk=!S.err; v.onClearErr=()=>this.setState({err:""});
     // שלושת השלבים בסרגל: הנוכחי מודגש
     const stepOn="padding:3px 8px;border-radius:10px;background:var(--accent-soft);color:var(--accent-ink);font-weight:500", stepOff="padding:3px 8px;border-radius:10px;color:var(--ink3)";
-    v.step1Style=stepOff; v.step2Style=S.copied?stepOff:stepOn; v.step3Style=S.copied?stepOn:stepOff; v.step2Mark=S.copied?" ✓":"";
+    v.step1Style=stepOff; v.step2Style=S.copied?stepOff:stepOn; v.step3Style=S.copied?stepOn:stepOff; v.step2Done=!!S.copied;
     v.copyLabel=S.copyLabel;
-    v.copyBtnStyle="padding:11px 20px;border-radius:10px;font-weight:500;font-size:14px;white-space:nowrap;color:var(--panel);background:"+(kind==="ok"?"var(--accent)":kind==="warn"?"var(--warn)":"var(--bad)");
+    v.copyBtnStyle="padding:11px 20px;border-radius:10px;font-weight:600;letter-spacing:.01em;font-size:14px;white-space:nowrap;color:var(--panel);background:"+(kind==="ok"?"var(--accent)":kind==="warn"?"var(--warn)":"var(--bad)");
     v.onCopyAi=this.copyAi; v.onDownload=this.download;
     // השאלה לפני ייצוא כשיש ממתינים (UX #18, #23)
     const vFail=this.verifyFailed(), vLeaks=vFail?S.res.verification.leaks:[];
@@ -3978,7 +4140,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       ["send","שליחת הסשן אלינו", 0, "plain"]
     ];
     v.sections = secDef.map(([key,title,count,tone])=>({
-      key, title, count:count?count:"", chev:isOpen(key)?"▲":"▼", expanded:String(isOpen(key)),
+      key, title, count:count?count:"", expanded:String(isOpen(key)),
       wrapStyle:"background:var(--panel);border:1px solid "+(isOpen(key)?"var(--line)":"var(--line2)")+";border-radius:12px;box-shadow:"+(isOpen(key)?"var(--shadow)":"none")+";overflow:hidden",
       dotStyle:"width:7px;height:7px;border-radius:50%;flex:none;background:"+(tone==="warn"?"var(--warn)":tone==="ok"?"var(--accent)":"var(--ink3)"),
       onToggle:()=>this.setState({open:isOpen(key)?open.filter(k=>k!==key):[...open,key]}),

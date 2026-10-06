@@ -251,14 +251,19 @@
        (scripts/hosted.js) that only keeps the room. The button itself stays outside the tool's
        page (the tool's page engine copies whatever is put inside what it draws) and is laid over
        that place, again whenever the tool redraws or the window changes. The header stays at the
-       top while the page scrolls, so the button stays with it. Without a place: the corner. */
+       top while the page scrolls, so the button stays with it. Without a place: the corner.
+       The top bar is bookcloth green (v60), so the button takes the bar's colours: cream text, a
+       gilt frame like the day/night button's, a gilt wash on hover, and a gilt focus ring (its
+       own --accent; the page's ring is the cloth colour, which would vanish on the cloth). */
     let mode = "";
     const inTop = () => {
       mode = "top";
       box.style.cssText = "position:fixed;z-index:31;width:74px;height:34px;font-size:13px";
-      btn.style.cssText = "width:100%;height:34px;padding:0 8px;border-radius:9px;border:1px solid var(--line,#ccc);background:var(--panel,#fff);color:var(--ink2,#444);cursor:pointer;font:inherit;white-space:nowrap";
+      btn.style.cssText = "--accent:var(--gilt,#D8B65A);width:100%;height:34px;padding:0 8px;border-radius:9px;border:1px solid rgba(216,182,90,.65);background:transparent;color:var(--cloth-ink,#EDE6CC);cursor:pointer;font:inherit;white-space:nowrap";
       pane.style.cssText = paneLook + ";top:42px";
     };
+    btn.addEventListener("mouseenter", () => { if (mode === "top") btn.style.background = "rgba(216,182,90,.16)"; });
+    btn.addEventListener("mouseleave", () => { if (mode === "top") btn.style.background = "transparent"; });
     const inCorner = () => {
       mode = "corner";
       box.style.cssText = "position:fixed;bottom:10px;inset-inline-end:12px;z-index:70;font-family:inherit;font-size:13px";

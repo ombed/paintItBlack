@@ -5,7 +5,7 @@
    שים לב לאסטרטגיה: הכלי עצמו נטען קודם מהרשת ורק בנפילה מהמטמון.
    ההפך — מטמון קודם — נראה מהיר יותר, אבל אז כל עדכון מגיע רק
    בטעינה השנייה, וזו דרך בטוחה להריץ קוד ישן בלי לדעת. */
-const V="hedact-v59";
+const V="hedact-v60";
 const FILES=["./","./index.html","./manifest.webmanifest","./icon.svg",
   "./support.js","./page-logic.js","./redact-engine.js","./pdf-text.js","./text-to-docx.js"];
 
@@ -45,12 +45,9 @@ self.addEventListener("fetch",e=>{
 
   // ספריית ההרצה מה-CDN: מטמון קודם. היא נעולה לגרסה מדויקת בכתובת
   // ולכן לא משתנה מתחתינו.
-  // גופנים מ-Google וספריית ההרצה: מטמון קודם, כדי שגם ללא רשת
-  // הכלי ייראה כמו שצריך
   // unpkg מגיש את React ואת d3/topojson בכתובות נעולות-גרסה, ולכן אותו כלל.
   // בלי זה הכלי לא עולה בלי רשת גם אחרי ביקור מוצלח.
-  if(u.hostname==="cdn.jsdelivr.net"||u.hostname==="unpkg.com"||
-     u.hostname==="fonts.googleapis.com"||u.hostname==="fonts.gstatic.com"){
+  if(u.hostname==="cdn.jsdelivr.net"||u.hostname==="unpkg.com"){
     e.respondWith((async()=>{
       const c=await caches.open(V);
       const hit=await c.match(e.request);
@@ -63,7 +60,9 @@ self.addEventListener("fetch",e=>{
   }
 
   // הספריות שבאתר עצמו (vendor/, ביקורת H14): הגרסה בשם הקובץ, ולכן מטמון קודם, כמו ה-CDN
-  if(u.origin===location.origin&&u.pathname.includes("/vendor/")){
+  // + הגופנים (fonts/): קובץ גופן לא משתנה תחת אותו שם, ולכן גם הם מטמון קודם, כדי שגם בלי רשת
+  // הכלי ייראה כמו שצריך (כמו שהיו הגופנים של Google)
+  if(u.origin===location.origin&&(u.pathname.includes("/vendor/")||u.pathname.includes("/fonts/"))){
     e.respondWith((async()=>{
       const c=await caches.open(V);
       const hit=await c.match(e.request);

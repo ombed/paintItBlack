@@ -38,12 +38,15 @@ try {
   console.log("\n— a place for the account button in the top bar —");
   ok(/onTheme[^\n]*<\/button>\s*<span data-ink-account[^>]*><\/span>\s*<\/header>/.test(app), "beside the day/night button, inside the header");
   ok(!/data-ink-account/.test(fs.readFileSync(path.join(ROOT, "index.html"), "utf8")), "not in the public tool");
+  // on a phone the header wraps (v60): the place goes on the first row, with the name and the day/night button
+  const slotCss = app.indexOf("header>[data-ink-account]{order:1}");
+  ok(slotCss > 0 && app.lastIndexOf("</style>", slotCss) > app.indexOf("@media (max-width:1119px)") && slotCss < app.indexOf('<script src="./page-logic.js">'), "on a phone, its place joins the first row of the header, by a rule after the page's own");
 
   console.log("\n— the hosted tool's name —");
-  ok((app.match(/<title>אינקוגניטו<\/title>/g) || []).length === 2 && !/השחרת מסמכים<\/(title|span)>/.test(app), "the page's title (twice) and header say אינקוגניטו");
+  ok((app.match(/<title>אינקוגניטו<\/title>/g) || []).length === 2 && app.includes("<span data-wordmark>אינקוגניטו</span>") && !/השחרת מסמכים<\/(title|span)>/.test(app), "the page's title (twice) and the header's wordmark say אינקוגניטו");
   const man = JSON.parse(read("app/manifest.webmanifest"));
-  ok(man.name === "אינקוגניטו" && man.short_name === "אינקוגניטו" && man.start_url === "./", "the install manifest names it, and nothing else in it changed");
-  ok(JSON.parse(fs.readFileSync(path.join(ROOT, "manifest.webmanifest"), "utf8")).name === "השחרת מסמכים", "the public tool keeps its own name");
+  ok(man.name === "אינקוגניטו" && man.short_name === "אינקוגניטו" && man.start_url === "./", "the install manifest names it");
+  ok(read("app/manifest.webmanifest") === fs.readFileSync(path.join(ROOT, "manifest.webmanifest"), "utf8"), "and is the public tool's own, which carries the name since v60");
 
   console.log("\n— what the hosted tool says about sending —");
   ok(!app.includes("לא נשלח מעצמו") && !app.includes("ב-issue"), "it does not say that nothing is sent by itself, nor suggest a public issue");
@@ -91,13 +94,14 @@ try {
     ok(crypto.createHash("sha256").update(joined).digest("base64") === H.ortPin(name), name + ": joined, it is the runtime the engine pins");
   }
   ok((map.ort.parts || {})["ort-wasm-simd-threaded.asyncify"] >= 2, "the 25.7 MiB runtime is split under the cap");
-  const fonts = read("app/fonts/app-fonts.css");
-  const urls = [...fonts.matchAll(/url\(\.\/([^)]+)\)/g)].map((m) => m[1]);
-  ok(urls.length && urls.every((u) => files.includes("app/fonts/" + u)), "every font file the stylesheet names is there (" + urls.length + ")");
-  for (const [fam, w] of [["Rubik", 300], ["Rubik", 400], ["Rubik", 500], ["Rubik", 600], ["Noto Serif Hebrew", 400], ["Noto Serif Hebrew", 500]])
-    ok(new RegExp("font-family: '" + fam + "';[^}]*font-weight: " + w + ";[^}]*hebrew", "s").test(fonts), "the Hebrew face of " + fam + " " + w + " is served");
-  ok(app.includes('<link href="./fonts/app-fonts.css" rel="stylesheet">'), "the page takes its fonts from the site");
-  for (const fam of ["rubik", "noto-serif-hebrew"]) ok(/SIL Open Font License/.test(read("app/fonts/" + fam + "-LICENSE.txt")), "the Open Font License travels with " + fam);
+  // the fonts: the page names the tool's own files since v60 (its @font-face rules), and each is there
+  const faces = app.match(/@font-face\{[^}]*\}/g) || [];
+  const urls = [...app.matchAll(/url\(\.\/fonts\/([^)]+)\)/g)].map((m) => m[1]);
+  ok(urls.length >= 13 && urls.every((u) => files.includes("app/fonts/" + u)), "every font file the page names is there (" + urls.length + ")");
+  for (const [fam, w] of [["Rubik", 300], ["Rubik", 400], ["Rubik", 500], ["Rubik", 600], ["Noto Serif Hebrew", 400], ["Noto Serif Hebrew", 500], ["Frank Ruhl Libre", 900]])
+    ok(faces.some((f) => f.includes("font-family:'" + fam + "'") && f.includes("font-weight:" + w + ";") && f.includes("U+0590-05FF")), "the Hebrew face of " + fam + " " + w + " is served");
+  ok(!files.some((f) => /^app\/fonts\/.*\.css$/.test(f)), "the build makes no font sheet of its own");
+  for (const fam of ["rubik", "noto-serif-hebrew", "frank-ruhl-libre"]) ok(/SIL Open Font License/.test(read("app/fonts/" + fam + "-LICENSE.txt")), "the Open Font License travels with " + fam);
 
   console.log("\n— Cloudflare's limits, and nothing extra —");
   const big = files.filter((f) => fs.statSync(path.join(dist, f)).size > LIMIT);

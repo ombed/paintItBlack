@@ -17,6 +17,13 @@ const ROOT = path.resolve(__dirname, "..");
 const SITE_FILES = [
   "index.html", "support.js", "page-logic.js", "redact-engine.js", "pdf-text.js",
   "text-to-docx.js", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png",
+  // the fonts, from the site itself rather than Google Fonts: Rubik and Noto Serif Hebrew (@fontsource 5.3.0,
+  // the subsets Google served: Hebrew, Latin and Latin Extended) and Frank Ruhl Libre for the wordmark (Hebrew
+  // only), each family with its OFL licence
+  ...[300, 400, 500, 600].flatMap((w) => ["hebrew", "latin", "latin-ext"].map((s) => `fonts/rubik-${s}-${w}-normal.woff2`)),
+  ...[400, 500].flatMap((w) => ["hebrew", "latin", "latin-ext"].map((s) => `fonts/noto-serif-hebrew-${s}-${w}-normal.woff2`)),
+  "fonts/FrankRuhlLibre-900-hebrew.woff2",
+  "fonts/rubik-LICENSE.txt", "fonts/noto-serif-hebrew-LICENSE.txt", "fonts/frank-ruhl-libre-LICENSE.txt",
   // the libraries that see her document, served by the site itself (review H14); each name
   // carries its version, so the service worker can keep them cache-first
   "vendor/transformers-4.2.0.min.js",

@@ -342,7 +342,11 @@ test("L7: a valid file clears the error of the previous one", async ({ page }) =
 test("L9: a deleted ID changed to a label keeps its type", async ({ page }) => {
   await toWork(page, DOC);
   const del = page.locator('[data-mark][data-val="034567891"]').first();
-  await expect(del).toHaveText("∅");
+  // the deleted ID is the eraser chip: no text, a drawn eraser, named «נמחק»
+  await expect(del).toHaveAttribute("data-kind", "del");
+  await expect(del.locator('svg[data-icon="eraser"]')).toHaveCount(1);
+  await expect(del).toHaveAccessibleName("נמחק");
+  await expect(del).toHaveText("");
   await del.click();
   await page.locator("[data-inline]").getByRole("button", { name: "תווית" }).click();
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toMatch(/\[ת[״"]ז א׳\]/);

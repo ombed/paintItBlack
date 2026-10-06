@@ -1,12 +1,12 @@
 {
-  "name": "השחרת מסמכים",
-  "short_name": "השחרה",
+  "name": "אינקוגניטו",
+  "short_name": "אינקוגניטו",
   "description": "הסרת פרטים מזהים ממסמכי Word לפני שליחה לכלי AI. הכל רץ במחשב שלכם.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#F4F2ED",
-  "theme_color": "#1F5B44",
+  "background_color": "#ECEDE7",
+  "theme_color": "#1D3A2E",
   "lang": "he",
   "dir": "rtl",
   "icons": [

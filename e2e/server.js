@@ -20,7 +20,7 @@ const TYPES = {
   ".png": "image/png",
   ".jpg": "image/jpeg",
   ".md": "text/markdown; charset=utf-8",
-  // the landing page (site/) has stylesheets and self-hosted fonts; the tool has neither
+  // the landing page (site/) has stylesheets; it and, since v60, the tool have self-hosted fonts
   ".css": "text/css; charset=utf-8",
   ".woff2": "font/woff2",
 };

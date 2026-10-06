@@ -92,8 +92,11 @@ for (const vp of [{ width: 1280, height: 600 }, { width: 390, height: 700 }]) {
 test("a click outside the lit area does not reach the page, and the tour says why", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 640 });
   const tour = await tourToWork(page);
-  const back = page.getByRole("button", { name: "‹ קובץ" });
+  // the back button: its ‹ is a drawn chevron now, hidden from screen readers, so its name is the word
+  // alone, the same as the header's step «קובץ»; [data-back] tells the two apart
+  const back = page.locator("[data-back]").and(page.getByRole("button", { name: "קובץ", exact: true }));
   await expect(back).toBeVisible();
+  await expect(back.locator('svg[data-icon="chevron-right"]')).toBeVisible();
   await back.click({ force: true });
   await expect(page.getByRole("heading", { name: "מי מופיע בתיק" })).toBeVisible();
   await expect(tour).toContainText("מי בתיק");

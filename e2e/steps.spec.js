@@ -22,6 +22,11 @@ test("copying unlocks step three, and the restore screen puts the real name back
 
   const bar = page.locator("[data-bar]");
   await expect(bar.locator("[data-steps]")).toContainText("2 העתקה או הורדה");
+  // step two is not done yet: no drawn check on it
+  await expect(bar.locator('[data-step="2"]')).toHaveCount(1);
+  await expect(bar.locator('[data-step="2"] svg[data-icon="check"]')).toHaveCount(0);
+  // and a screen reader is told step one is done, and step two is not
+  await expect(bar.locator("[data-steps]")).toMatchAriaSnapshot("- text: 1 השחרה ✓ 2 העתקה או הורדה 3 החזרת שמות");
   await expect(bar.getByRole("button", { name: "הדבקת תשובת ה-AI" })).toHaveCount(0);
 
   await bar.getByRole("button", { name: /העתקה ל-AI|הועתק/ }).click();
@@ -30,7 +35,12 @@ test("copying unlocks step three, and the restore screen puts the real name back
   const fake = copied.match(/[֐-׿]+ [֐-׿]+ הגישה/); // "<fake first> <fake last> הגישה"
   expect(fake).toBeTruthy();
   const fakeName = fake[0].replace(" הגישה", "");
+  // done: the check is drawn, and a screen reader still hears the ✓ it heard before (a hidden ✓ beside it)
+  await expect(bar.locator('[data-step="2"] svg[data-icon="check"]')).toBeVisible();
   await expect(bar.locator("[data-steps]")).toContainText("2 העתקה או הורדה ✓");
+  // the text alone would still hold the ✓ if it were hidden from screen readers (aria-hidden, display:none);
+  // the accessibility tree is what a screen reader reads
+  await expect(bar.locator("[data-steps]")).toMatchAriaSnapshot("- text: 1 השחרה ✓ 2 העתקה או הורדה ✓ 3 החזרת שמות");
   /* Putting the answer back used to be reachable from three places: a button
      here in the bar, an identical one in the header, and a rail section that
      ran a different code path. That third one built its pairs from a list

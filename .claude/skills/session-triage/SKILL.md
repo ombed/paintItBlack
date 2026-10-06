@@ -13,7 +13,7 @@ Run every command from the repository checkout (`repo-clone`, or the worktree yo
 
 ## 1. Locate
 
-The packages sit in a folder the owner names, outside the repository. Names are `paintItBlack-package-<date>`, sometimes with no extension and with a suffix added by hand. The same folder may hold `.docx` files, which are zips too: take only the package files.
+The packages sit in a folder the owner names, outside the repository. Names are `inkognito-package-<date>` (from v60) or `paintItBlack-package-<date>` (earlier), sometimes with no extension and with a suffix added by hand. The same folder may hold `.docx` files, which are zips too: take only the package files.
 
 Done when: you have the list of package paths, one per document sent, and the owner has confirmed the folder if more than one new folder exists.
 

@@ -62,9 +62,15 @@ test("the check package holds the log only, and no mail address is kept", async 
 
   const dl = page.waitForEvent("download");
   await page.getByRole("button", { name: /חבילת בדיקה/ }).click();
-  const zip = require("fs").readFileSync(await (await dl).path());
-  const names = require("../scripts/harvest-shapes.js").unzip(zip).map((f) => f.name).sort();
+  const download = await dl;
+  const zip = require("fs").readFileSync(await download.path());
+  const files = require("../scripts/harvest-shapes.js").unzip(zip);
+  const names = files.map((f) => f.name).sort();
   expect(names).toEqual(["README.txt", "session-log.json"]);
+  // the product is InKognito from v60: the package carries its name, and its README says it on line one
+  expect(download.suggestedFilename()).toMatch(/^inkognito-package-\d{4}-\d{2}-\d{2}\.zip$/);
+  const readme = files.find((f) => f.name === "README.txt").data.toString("utf8");
+  expect(readme.split("\n")[0]).toMatch(/^InKognito v\d+$/);
 });
 
 test("the bottom bar never covers the document", async ({ page }) => {
@@ -92,3 +98,39 @@ test("the bar re-measures when it wraps on a narrow screen", async ({ page }) =>
   const narrow = await page.evaluate(() => document.querySelector("[data-bar]").offsetHeight);
   expect(narrow).toBeGreaterThanOrEqual(wide);
 });
+
+/* The measured space (v25) never reached a phone: the phone stylesheet still held one of the old fixed
+   numbers, padding-bottom:132px!important, which beat it. The bar on a phone is two or three lines, 156px at
+   390px and more at 320px, so the end of the document and of the findings stayed under it. */
+for (const width of [390, 320]) {
+  test(`on a phone too, the space kept under the work screen is the bar's measured height (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 700 });
+    await H.serveEngineWithStub(page);
+    await H.boot(page);
+    await page.locator("[data-settings-toggle]").click();
+    await page.getByRole("checkbox").first().uncheck();
+    await H.upload(page, "case.docx", DOC);
+    await H.startScan(page);
+    await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+    await H.goOn(page);
+    const run = page.getByRole("button", { name: /החלת הקבוצה|המשך|עיבוד/ }).first();
+    if (await run.isVisible().catch(() => false)) await run.click();
+    await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
+    const gap = await page.evaluate(() => {
+      const bar = document.querySelector("[data-bar]"), main = document.querySelector("[data-work]");
+      return { barH: bar.offsetHeight, padding: parseFloat(getComputedStyle(main).paddingBottom) };
+    });
+    expect(gap.padding).toBeGreaterThanOrEqual(gap.barH);
+    // at the foot of the page, the work screen's last line clears the bar
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    const clear = await page.evaluate(() => {
+      const main = document.querySelector("[data-work]"), bar = document.querySelector("[data-bar]");
+      // the screen's own blocks (the pane switch, the document, the findings): what scrolls inside them is
+      // clipped by them, so their edges are where the content ends
+      const last = [...main.children].filter((e) => e.getClientRects().length)
+        .reduce((m, e) => Math.max(m, e.getBoundingClientRect().bottom), 0);
+      return bar.getBoundingClientRect().top - last;
+    });
+    expect(clear).toBeGreaterThanOrEqual(0);
+  });
+}

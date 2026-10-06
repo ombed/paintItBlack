@@ -238,7 +238,8 @@ test("H2: back to 'קובץ' and the main button again returns to the same list,
   expect(before).toContain("תמר גולן");
   expect(before).not.toContain(dismissed);
 
-  await page.getByRole("button", { name: /‹ קובץ/ }).click();
+  // the back button; its ‹ is drawn and hidden from screen readers, so its name is «קובץ», like the header step
+  await page.locator("[data-back]").and(page.getByRole("button", { name: "קובץ", exact: true })).click();
   await expect(page.getByRole("heading", { level: 1 })).toContainText("מה יוצא מהמסמך");
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });

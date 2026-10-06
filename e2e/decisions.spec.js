@@ -51,8 +51,14 @@ test("the arrows say up and down, and next moves from the mark she clicked", asy
   const n = await marks.count();
   expect(n).toBeGreaterThan(2);
   const prev = page.getByRole("button", { name: "החלפה קודמת" }), next = page.getByRole("button", { name: "החלפה הבאה" });
-  await expect(prev).toHaveText("▲");
-  await expect(next).toHaveText("▼");
+  // the arrows are drawn chevrons now; the drawn direction is checked, not only that an icon is there, and
+  // each button holds that one icon and nothing else, as it held only "▲" or "▼" before
+  for (const [btn, icon, d] of [[prev, "chevron-up", "m18 15-6-6-6 6"], [next, "chevron-down", "m6 9 6 6 6-6"]]) {
+    await expect(btn.locator(`svg[data-icon="${icon}"]`)).toHaveCount(1);
+    await expect(btn.locator(`[data-icon="${icon}"] path`)).toHaveAttribute("d", d);
+    await expect(btn.locator("svg")).toHaveCount(1);
+    await expect(btn).toHaveText("");
+  }
   const counter = page.getByText(new RegExp("^\\d+ / " + n + "$"));
   await expect(counter).toHaveText("1 / " + n);
   // click the second mark, then next: the cursor continues from there

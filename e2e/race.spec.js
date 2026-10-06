@@ -56,7 +56,8 @@ test("a document uploaded mid-scan never receives names from the one it replaced
   await expect(H.scanning(page)).toBeVisible();
 
   // Abandon it: back to the file step, replace the document, scan again.
-  await page.getByRole("button", { name: "קובץ", exact: true }).click();
+  // (the header's step: the back button below it is named «קובץ» too, now that its ‹ is a hidden icon)
+  await page.locator("header nav").getByRole("button", { name: "קובץ", exact: true }).click();
   await H.upload(page, "second.docx", "מסמך שני");
   await H.startScan(page);
 

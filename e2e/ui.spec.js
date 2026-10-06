@@ -35,8 +35,10 @@ test("each screen renders its controls, with no page errors", async ({ page }) =
   await expect(page.getByRole("button", { name: "הוספה", exact: true })).toBeVisible();
   await expect(H.skipButton(page)).toBeVisible();
   await expect(page.getByRole("button", { name: /ייבוא פרופיל/ })).toBeVisible();
+  // the header's steps (the back button is named «קובץ» too, now that its ‹ is a hidden icon)
   for (const step of ["קובץ", "מי בתיק", "מקומות"])
-    await expect(page.getByRole("button", { name: step, exact: true })).toBeVisible();
+    await expect(page.locator("header nav").getByRole("button", { name: step, exact: true })).toBeVisible();
+  await expect(page.locator("[data-back]")).toBeVisible();
   expect(await H.listedNames(page)).toContain("דנה לוי");
 
   // Reverse: paste box and its action.
