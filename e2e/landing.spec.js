@@ -29,8 +29,9 @@ const cutOff = (page) => page.evaluate(() => [...document.querySelectorAll("body
   .filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && (r.left < -1 || r.right > window.innerWidth + 1); })
   .map((el) => el.tagName.toLowerCase() + (el.className ? "." + String(el.className).split(" ")[0] : "")).slice(0, 6));
 // the 404 names its files from the root, since it is served at any depth: serve the site there too
+// (on whatever port the test server listens)
 async function siteAtRoot(page) {
-  await page.route(/^http:\/\/127\.0\.0\.1:4173\/(?!site\/)[^?#]+/, (route) => {
+  await page.route(/^http:\/\/127\.0\.0\.1:\d+\/(?!site\/)[^?#]+/, (route) => {
     const f = path.join(SITE, new URL(route.request().url()).pathname);
     return fs.existsSync(f) && fs.statSync(f).isFile() ? route.fulfill({ path: f }) : route.continue();
   });
@@ -128,6 +129,45 @@ test("on a phone the spine is a green bar: its menu opens the links, and a link 
   await expect(sheet).toBeHidden();
   await expect(menu).toBeFocused();
 });
+
+/* The phone menu says it is open (aria-expanded), so it closes the ways a popup does: its button,
+   Escape, a link in it, and a press anywhere else. After a press elsewhere it stayed open, and the
+   bar, sticky, carried the open sheet down the page over a third of the screen (review of 6.10).
+   landing.js runs it on every page of the site. The press goes on to what it was on: a link below
+   the open sheet is still followed. */
+for (const p of ["index.html", "privacy.html", "terms.html", "accessibility.html", "login.html", "404.html"])
+  test(`the phone menu closes on a press outside it, and not on one inside it (${p})`, async ({ page }) => {
+    await siteAtRoot(page);
+    await page.route(PROJECT + "/**", (route) => route.fulfill({ json: {} }));
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/site/" + p);
+    const menu = page.getByRole("button", { name: "תפריט" }), sheet = page.locator("#sheet");
+    await menu.click();
+    await expect(sheet).toBeVisible();
+    // inside the sheet, below its last link: it stays open
+    const inside = await sheet.evaluate((s) => { const r = s.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.bottom - 4 }; });
+    expect(await page.evaluate(({ x, y }) => { const e = document.elementFromPoint(x, y); return !!e && e.id === "sheet"; }, inside)).toBe(true);
+    await page.mouse.click(inside.x, inside.y);
+    await expect(sheet).toBeVisible();
+    await expect(menu).toHaveAttribute("aria-expanded", "true");
+    // the page's heading, below the sheet: it closes, and the button says so
+    await page.locator("h1:visible").first().click();
+    await expect(sheet).toBeHidden();
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+    // the button still opens and closes it
+    await menu.click();
+    await expect(sheet).toBeVisible();
+    await menu.click();
+    await expect(sheet).toBeHidden();
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+    if (p !== "index.html") return;
+    // a link below the open sheet: followed, and the sheet closes
+    await menu.click();
+    await page.getByRole("link", { name: "לראות איך זה עובד" }).click();
+    await expect(page).toHaveURL(/#how$/);
+    await expect(sheet).toBeHidden();
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+  });
 
 for (const width of [1440, 1180, 860, 390, 320])
   test(`nothing is cut or scrolls sideways at ${width} px`, async ({ page }) => {

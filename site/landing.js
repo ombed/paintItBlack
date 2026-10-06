@@ -16,6 +16,13 @@
     menu.addEventListener("click", () => show(sheet.hidden));
     sheet.addEventListener("click", (e) => { if (e.target.closest("a")) show(false); });
     addEventListener("keydown", (e) => { if (e.key === "Escape" && !sheet.hidden) { show(false); menu.focus(); } });
+    /* And a press anywhere else, as a menu does: it stayed open, aria-expanded true, and the bar,
+       sticky on a phone, carried the open sheet down the page over a third of the screen (review of
+       6.10). On the click, once the press is over, and not as it starts (the account panel's way,
+       cloud.js): the open sheet pushes the page down, and closing it at the start moved the page
+       under the finger, so the press ended on whatever came up into its place. The press goes on
+       to what it was on, a link below the sheet too. */
+    document.addEventListener("click", (e) => { if (!sheet.hidden && !sheet.contains(e.target) && !menu.contains(e.target)) show(false); }, true);
   }
 
   // the passage: pointing at a name, or reaching it with Tab, lights every place that person
