@@ -102,6 +102,43 @@ test("signed in: the account panel, the visit marked, the gate's cookie written"
   await expect(page.getByRole("button", { name: "חשבון", exact: true })).toHaveAttribute("aria-expanded", "false");
 });
 
+// Tab from the top of the page until the account button: where each stop before it was
+async function tabsToAccount(page) {
+  await page.evaluate(() => { window.scrollTo(0, 0); const b = document.body; b.tabIndex = -1; b.focus(); b.removeAttribute("tabindex"); });
+  const before = [];
+  for (let i = 0; i < 250; i++) {
+    await page.keyboard.press("Tab");
+    const at = await page.evaluate(() => {
+      const a = document.activeElement;
+      return { account: !!(a && a.closest("#ink-account")), header: !!(a && a.closest("header")), name: a ? (a.getAttribute("aria-label") || a.textContent || a.tagName).trim().replace(/\s+/g, " ").slice(0, 30) : "" };
+    });
+    if (at.account) return before;
+    before.push(at);
+  }
+  return null;
+}
+
+/* The account button is drawn in the top bar, so Tab reaches it with the bar's own buttons, not after
+   every control on the screen (the live check of 6.10: 18 presses on the first screen, 70 on the
+   review screen, when it was the page's last element). It stays outside the tool's page. */
+test("Tab reaches the account button with the top bar, not after the page below it", async ({ page }) => {
+  await hosted(page);
+  await boot(page);
+  await expect.poll(() => inTopBar(page)).toBe(true);
+  const first = await tabsToAccount(page);
+  expect(first && first.filter((s) => !s.header).map((s) => s.name)).toEqual([]);
+  // outside the tool's page (its engine copies whatever is put inside what it draws), just before it
+  const outside = () => page.evaluate(() => { const box = document.getElementById("ink-account"), root = document.getElementById("dc-root");
+    return !root.contains(box) && !!(box.compareDocumentPosition(root) & window.Node.DOCUMENT_POSITION_FOLLOWING); });
+  expect(await outside()).toBe(true);
+  // the review screen has the most controls
+  await runDoc(page, "one.docx");
+  const review = await tabsToAccount(page);
+  expect(review && review.filter((s) => !s.header).map((s) => s.name)).toEqual([]);
+  expect(await outside()).toBe(true);
+  await expect.poll(() => inTopBar(page)).toBe(true);
+});
+
 test("on a phone, the account button sits on the header's first row, in the header's colours", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await hosted(page);

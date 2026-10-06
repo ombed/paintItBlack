@@ -254,7 +254,16 @@
        top while the page scrolls, so the button stays with it. Without a place: the corner.
        The top bar is bookcloth green (v60), so the button takes the bar's colours: cream text, a
        gilt frame like the day/night button's, a gilt wash on hover, and a gilt focus ring (its
-       own --accent; the page's ring is the cloth colour, which would vanish on the cloth). */
+       own --accent; the page's ring is the cloth colour, which would vanish on the cloth).
+       In the document it goes just before the tool's page: Tab follows the document, and at the
+       page's end the button came after every control on the screen (70 presses on the review
+       screen, the live check of 6.10). Before the page, Tab reaches it with the top bar. Once
+       there it stays: moving it would take the focus off it. */
+    const put = () => {
+      const root = document.getElementById("dc-root") || document.querySelector("x-dc");
+      if (!root || !root.parentNode) { if (!box.isConnected) document.body.append(box); return; }
+      if (!box.isConnected || !(box.compareDocumentPosition(root) & Node.DOCUMENT_POSITION_FOLLOWING)) root.before(box);
+    };
     let mode = "";
     const inTop = () => {
       mode = "top";
@@ -271,7 +280,7 @@
       pane.style.cssText = paneLook + ";bottom:44px";
     };
     const place = () => {
-      if (!box.isConnected) document.body.append(box);
+      put();
       const slot = document.querySelector("[data-ink-account]");
       if (slot && slot.getClientRects().length) {
         if (mode !== "top") inTop();
