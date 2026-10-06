@@ -234,13 +234,13 @@
   }
   let syncSwitch = () => {};
 
-  // the account panel: a small button in the corner, opening a short list
+  // the account panel: the top bar's «חשבון» (or a button in the corner) opens a short list
   function panel() {
     const el = (tag, attrs, ...kids) => { const n = document.createElement(tag); Object.assign(n, attrs || {}); kids.forEach((k) => n.append(k)); return n; };
     const box = el("div", { id: "ink-account" });
     box.style.cssText = "position:fixed;bottom:10px;inset-inline-end:12px;z-index:70;font-family:inherit;font-size:13px";
+    // the corner's own button, for a page without the top bar's (see place)
     const btn = el("button", { type: "button", textContent: "חשבון" });
-    btn.setAttribute("aria-expanded", "false"); btn.setAttribute("aria-controls", "ink-account-panel");
     btn.style.cssText = "padding:7px 14px;border-radius:999px;border:1px solid var(--line,#ccc);background:var(--panel,#fff);color:var(--ink,#111);cursor:pointer;font:inherit";
     const who = el("p", { textContent: profile.full_name ? profile.full_name + " · " : "" }, el("bdi", { textContent: profile.email }));
     who.style.cssText = "margin:0 0 10px;color:var(--ink2,#444)";
@@ -259,67 +259,98 @@
     pane.setAttribute("role", "region"); pane.setAttribute("aria-label", "חשבון");
     const paneLook = "position:absolute;inset-inline-end:0;width:300px;max-width:calc(100vw - 24px);z-index:70;background:var(--panel,#fff);color:var(--ink,#111);border:1px solid var(--line,#ccc);border-radius:12px;padding:14px 16px;box-shadow:0 12px 34px rgba(0,0,0,.22);text-align:start";
     box.append(btn, pane);
-    /* In the top bar, beside the day/night button. The hosted build leaves an empty place there
-       (scripts/hosted.js) that only keeps the room. The button itself stays outside the tool's
-       page (the tool's page engine copies whatever is put inside what it draws) and is laid over
-       that place, again whenever the tool redraws or the window changes. The header stays at the
-       top while the page scrolls, so the button stays with it. Without a place: the corner.
-       The top bar is bookcloth green (v60), so the button takes the bar's colours: cream text, a
-       gilt frame like the day/night button's, a gilt wash on hover, and a gilt focus ring (its
-       own --accent; the page's ring is the cloth colour, which would vanish on the cloth).
-       In the document it goes just before the tool's page: Tab follows the document, and at the
-       page's end the button came after every control on the screen (70 presses on the review
-       screen, the live check of 6.10). Before the page, Tab reaches it with the top bar. Once
-       there it stays: moving it would take the focus off it. */
+    /* The button is the top bar's own: the hosted build draws it last in the bar, right after the
+       day/night button, in the bar's colours (scripts/hosted.js), so Tab and a screen reader reach
+       it in its place. Appended to the page, a button of this box's came after every control on the
+       screen (the live check of 6.10); laid over the bar from just before the tool's page, it was
+       the page's first Tab stop, before the bar's steps, and was read before the tool's name
+       (review of 6.10).
+       The panel stays outside the tool's page (the page engine copies whatever is put inside what
+       it draws), just before it, and is laid under the bar's button, again whenever the tool redraws
+       or the window changes; the header stays at the top while the page scrolls, so the panel stays
+       with it. Tab goes from the button into the open panel and from its end on to what follows the
+       button (below). Without the bar's button (the tool not drawn): the corner, with the box's own
+       button, which Tab reaches first. Once placed the box stays: moving it would take the focus
+       off it. */
     const put = () => {
       const root = document.getElementById("dc-root") || document.querySelector("x-dc");
       if (!root || !root.parentNode) { if (!box.isConnected) document.body.append(box); return; }
       if (!box.isConnected || !(box.compareDocumentPosition(root) & Node.DOCUMENT_POSITION_FOLLOWING)) root.before(box);
     };
+    const bar = () => document.querySelector("header [data-ink-account]");
     let mode = "";
+    // the button that opens the panel now: the bar's, or the corner's
+    const opener = () => (mode === "top" && bar()) || btn;
+    // one «חשבון» at a time: the bar's shows (hidden until then, its room kept) as the corner's goes
     const inTop = () => {
       mode = "top";
-      box.style.cssText = "position:fixed;z-index:31;width:74px;height:34px;font-size:13px";
-      btn.style.cssText = "--accent:var(--gilt,#D8B65A);width:100%;height:34px;padding:0 8px;border-radius:9px;border:1px solid rgba(216,182,90,.65);background:transparent;color:var(--cloth-ink,#EDE6CC);cursor:pointer;font:inherit;white-space:nowrap";
+      box.style.cssText = "position:fixed;z-index:31;width:74px;height:0;font-size:13px";
+      btn.hidden = true;
+      document.documentElement.classList.add("ink-account");
       pane.style.cssText = paneLook + ";top:42px";
     };
-    btn.addEventListener("mouseenter", () => { if (mode === "top") btn.style.background = "rgba(216,182,90,.16)"; });
-    btn.addEventListener("mouseleave", () => { if (mode === "top") btn.style.background = "transparent"; });
     const inCorner = () => {
       mode = "corner";
       box.style.cssText = "position:fixed;bottom:10px;inset-inline-end:12px;z-index:70;font-family:inherit;font-size:13px";
-      btn.style.cssText = "padding:7px 14px;border-radius:999px;border:1px solid var(--line,#ccc);background:var(--panel,#fff);color:var(--ink,#111);cursor:pointer;font:inherit";
+      btn.hidden = false;
+      document.documentElement.classList.remove("ink-account");
       pane.style.cssText = paneLook + ";bottom:44px";
+    };
+    /* A button says which panel it opens and whether it is open; the tool may draw the bar's anew.
+       Only a change is written: every write is a mutation, and mutations call place. */
+    const say = (b) => {
+      const open = String(!pane.hidden);
+      if (b.getAttribute("aria-controls") !== "ink-account-panel") b.setAttribute("aria-controls", "ink-account-panel");
+      if (b.getAttribute("aria-expanded") !== open) b.setAttribute("aria-expanded", open);
     };
     const place = () => {
       put();
-      const slot = document.querySelector("[data-ink-account]");
-      if (slot && slot.getClientRects().length) {
+      const b = bar();
+      if (b && b.getClientRects().length) {
         if (mode !== "top") inTop();
-        const r = slot.getBoundingClientRect();
+        say(b);
+        const r = b.getBoundingClientRect();
         box.style.top = r.top + "px"; box.style.left = r.left + "px";
       } else if (mode !== "corner") inCorner();
     };
     let queued = false;
     const soon = () => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; place(); }); };
+    say(btn);
     place();
     new MutationObserver(soon).observe(document.body, { childList: true, subtree: true, attributes: true });
     addEventListener("resize", soon);
     addEventListener("scroll", soon, { passive: true });
 
-    btn.addEventListener("click", () => { pane.hidden = !pane.hidden; btn.setAttribute("aria-expanded", String(!pane.hidden)); });
+    const show = (open) => { pane.hidden = !open; say(btn); const b = bar(); if (b) say(b); };
+    // the panel, its buttons, and the bar's button
+    const mine = (n) => n instanceof Node && (box.contains(n) || !!(bar() && bar().contains(n)));
+    btn.addEventListener("click", () => show(pane.hidden));
+    // the bar's button is the tool's page's, drawn anew at times: its press is heard here
+    document.addEventListener("click", (e) => { const t = e.target; if (t && t.closest && t.closest("header [data-ink-account]")) show(pane.hidden); });
     // Escape closes it and returns to the button, as a popup should
-    box.addEventListener("keydown", (e) => {
-      if (e.key !== "Escape" || pane.hidden) return;
-      pane.hidden = true; btn.setAttribute("aria-expanded", "false"); btn.focus();
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape" || pane.hidden || !mine(e.target)) return;
+      show(false); opener().focus();
     });
     // and a press anywhere else closes it, as a menu does; the press goes on to what it was on.
     // It stayed open, aria-expanded true, after a click elsewhere (6.10). Captured, so nothing the
     // tool does with the press can keep it from closing.
     document.addEventListener("pointerdown", (e) => {
-      if (pane.hidden || box.contains(e.target)) return;
-      pane.hidden = true; btn.setAttribute("aria-expanded", "false");
+      if (pane.hidden || mine(e.target)) return;
+      show(false);
     }, true);
+    /* Tab between the bar's button and its open panel, which sits elsewhere in the document: from
+       the button into the panel, from the panel's first stop back to the button, and from its last
+       stop on to what follows the button (the focus is put on the button, and the browser's own Tab
+       goes on from there). */
+    document.addEventListener("keydown", (e) => {
+      const b = bar();
+      if (e.key !== "Tab" || pane.hidden || mode !== "top" || !b) return;
+      const stops = [...pane.querySelectorAll("input, a[href], button")];
+      if (!e.shiftKey && e.target === b) { e.preventDefault(); stops[0].focus(); }
+      else if (e.shiftKey && e.target === stops[0]) { e.preventDefault(); b.focus(); }
+      else if (!e.shiftKey && e.target === stops[stops.length - 1]) b.focus();
+    });
     sw.addEventListener("change", async () => {
       const on = sw.checked, at = Date.now(), was = profile.log_enabled;
       epoch++;

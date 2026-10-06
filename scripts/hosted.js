@@ -90,12 +90,20 @@ const SENDING = [
 ];
 
 const THIRD = /https:\/\/(?:unpkg\.com|cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)/;
-/* On a phone (the tool's own breakpoint) the header wraps: the name and the day/night button share
-   its first row, the steps and the text buttons go below. The account button's place goes on that
-   first row too, beside the day/night button; without this it took a row of its own. 134px is the
-   34px day/night button, the 74px place, two 8px gaps and some room. After the page's own styles,
-   so it wins where both say !important. */
-const SLOT_CSS = "<style>@media (max-width:1119px){header>[data-ink-account]{order:1}header>div:first-child{flex-basis:calc(100% - 134px)!important}}</style>";
+/* The account button, drawn by the tool's page itself, last in the top bar, right after the
+   day/night button: Tab and a screen reader reach it in its place. Laid over the bar from outside
+   the page, it was the page's first Tab stop and was read before the tool's name (review of 6.10).
+   site/cloud.js opens its panel, which stays outside the page. In the bar's colours: cream text and
+   a gilt frame like the day/night button's; the bar's own rules give it the gilt wash on hover and
+   the gilt focus ring. */
+const ACCOUNT_BTN = '<button type="button" data-ink-account style="flex:none;width:74px;height:34px;padding:0 8px;border-radius:9px;border:1px solid rgba(216,182,90,.65);color:var(--cloth-ink,#EDE6CC);font-size:13px;white-space:nowrap">חשבון</button>';
+/* Hidden, its room kept, until cloud.js knows the account (html.ink-account): a press before that
+   would open nothing. On a phone (the tool's own breakpoint) the header wraps: the name and the
+   day/night button share its first row, the steps and the text buttons go below. The account
+   button goes on that first row too, beside the day/night button; without this it took a row of its
+   own. 134px is the 34px day/night button, the 74px button, two 8px gaps and some room. After the
+   page's own styles, and as specific as the rule that sends its text buttons below, so it wins. */
+const SLOT_CSS = "<style>html:not(.ink-account) header>[data-ink-account]{visibility:hidden}@media (max-width:1119px){header>button[data-ink-account]{order:1}header>div:first-child{flex-basis:calc(100% - 134px)!important}}</style>";
 
 function hostedApp(html) {
   if (!PROJECT) throw new Error("hosted: no project URL in site/config.js");
@@ -112,10 +120,10 @@ function hostedApp(html) {
     if (!out.includes(l.url)) throw new Error("hosted: the page no longer loads " + l.url);
     out = out.split(l.url).join("./" + l.to);
   }
-  // a place for the account button in the top bar, beside the day/night button (site/cloud.js fills it)
+  // the account button in the top bar, right after the day/night button (site/cloud.js opens its panel)
   const themeBtn = /(<button onClick="\{\{ onTheme \}\}"[^\n]*?<\/button>)(\s*<\/header>)/;
   if ((out.match(new RegExp(themeBtn.source, "g")) || []).length !== 1) throw new Error("hosted: the top bar's day/night button is no longer where it was");
-  out = out.replace(themeBtn, '$1\n    <span data-ink-account aria-hidden="true" style="display:inline-block;flex:none;width:74px;height:34px"></span>$2');
+  out = out.replace(themeBtn, "$1\n    " + ACCOUNT_BTN + "$2");
   // the name: the page's own since v60, in both titles (the page's and the template's) and the wordmark
   if (out.split("<title>" + NAME + "</title>").length !== 3 || !out.includes("<span data-wordmark>" + NAME + "</span>"))
     throw new Error("hosted: the tool's name is no longer where it was");

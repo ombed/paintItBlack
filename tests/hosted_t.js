@@ -35,12 +35,15 @@ try {
   ok(/<script src="\.\.\/cloud\.js\?v=[0-9a-f]{10}"><\/script>/.test(app) && /connect-src 'self' https:\/\/cwsiranjlxbclmaqtucc\.supabase\.co/.test(app), "app/index.html carries the hosted injection");
   ok(!/<script[^>]*(cloud|config|supabase)/.test(fs.readFileSync(path.join(ROOT, "index.html"), "utf8")), "the repository's index.html (the public tool) does not");
 
-  console.log("\n— a place for the account button in the top bar —");
-  ok(/onTheme[^\n]*<\/button>\s*<span data-ink-account[^>]*><\/span>\s*<\/header>/.test(app), "beside the day/night button, inside the header");
+  console.log("\n— the account button in the top bar —");
+  // drawn by the page itself, the bar's last, so that Tab and a screen reader reach it in its place:
+  // laid over the bar from outside the page, it came first (review of 6.10)
+  ok(/onTheme[^\n]*<\/button>\s*<button type="button" data-ink-account[^>]*>חשבון<\/button>\s*<\/header>/.test(app), "right after the day/night button, the header's last");
   ok(!/data-ink-account/.test(fs.readFileSync(path.join(ROOT, "index.html"), "utf8")), "not in the public tool");
-  // on a phone the header wraps (v60): the place goes on the first row, with the name and the day/night button
-  const slotCss = app.indexOf("header>[data-ink-account]{order:1}");
-  ok(slotCss > 0 && app.lastIndexOf("</style>", slotCss) > app.indexOf("@media (max-width:1119px)") && slotCss < app.indexOf('<script src="./page-logic.js">'), "on a phone, its place joins the first row of the header, by a rule after the page's own");
+  ok(app.includes("html:not(.ink-account) header>[data-ink-account]{visibility:hidden}"), "hidden, its room kept, until cloud.js knows the account");
+  // on a phone the header wraps (v60): the button goes on the first row, with the name and the day/night button
+  const slotCss = app.indexOf("header>button[data-ink-account]{order:1}");
+  ok(slotCss > 0 && app.lastIndexOf("</style>", slotCss) > app.indexOf("@media (max-width:1119px)") && slotCss < app.indexOf('<script src="./page-logic.js">'), "on a phone, it joins the first row of the header, by a rule after the page's own");
 
   console.log("\n— the hosted tool's name —");
   ok((app.match(/<title>אינקוגניטו<\/title>/g) || []).length === 2 && app.includes("<span data-wordmark>אינקוגניטו</span>") && !/השחרת מסמכים<\/(title|span)>/.test(app), "the page's title (twice) and the header's wordmark say אינקוגניטו");

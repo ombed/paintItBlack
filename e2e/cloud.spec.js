@@ -51,12 +51,15 @@ async function hosted(page, { session = true, logOn = true, state = {}, server =
   return calls;
 }
 const submits = (calls) => calls.filter((c) => c.path === "/rest/v1/rpc/submit_log");
-// the account button lies over its place in the top bar (and exists once)
-async function inTopBar(page) {
-  const slot = await page.locator("header [data-ink-account]").boundingBox();
-  const box = await page.locator("#ink-account").boundingBox();
-  return !!(slot && box && Math.abs(slot.x - box.x) < 2 && Math.abs(slot.y - box.y) < 2 && (await page.locator("#ink-account").count()) === 1);
-}
+// the account button is the top bar's own, shown, right after the day/night button, and the only
+// «חשבון» on the screen; its panel is laid under it (and exists once)
+const inTopBar = (page) => page.evaluate(() => {
+  const b = document.querySelector("header [data-ink-account]"), box = document.querySelectorAll("#ink-account");
+  const shown = [...document.querySelectorAll("button")].filter((x) => x.textContent.trim() === "חשבון" && x.getClientRects().length && getComputedStyle(x).visibility === "visible");
+  if (!b || box.length !== 1 || shown.length !== 1 || shown[0] !== b || !b.previousElementSibling || !b.previousElementSibling.matches("[data-night]")) return false;
+  const r = b.getBoundingClientRect(), p = box[0].getBoundingClientRect();
+  return Math.abs(r.left - p.left) < 2 && Math.abs(r.top - p.top) < 2;
+});
 // the built tool, past its onboarding (as H.boot does for the public one)
 async function boot(page) {
   await page.addInitScript(() => { try { localStorage.setItem("redact-intro-seen", "1"); localStorage.setItem("redact-tour-seen", "*"); } catch (_) {} });
@@ -102,41 +105,83 @@ test("signed in: the account panel, the visit marked, the gate's cookie written"
   await expect(page.getByRole("button", { name: "חשבון", exact: true })).toHaveAttribute("aria-expanded", "false");
 });
 
+// where the focus is: the account button (or inside its panel), the top bar, the day/night button
+const focusAt = (page) => page.evaluate(() => {
+  const a = document.activeElement;
+  return { account: !!(a && (a.closest("#ink-account") || a.closest("[data-ink-account]"))), header: !!(a && a.closest("header")), night: !!(a && a.matches("[data-night]")),
+    below: !!a && a === window.__below, name: a ? (a.getAttribute("aria-label") || a.textContent || a.tagName).trim().replace(/\s+/g, " ").slice(0, 30) : "" };
+});
 // Tab from the top of the page until the account button: where each stop before it was
 async function tabsToAccount(page) {
   await page.evaluate(() => { window.scrollTo(0, 0); const b = document.body; b.tabIndex = -1; b.focus(); b.removeAttribute("tabindex"); });
   const before = [];
   for (let i = 0; i < 250; i++) {
     await page.keyboard.press("Tab");
-    const at = await page.evaluate(() => {
-      const a = document.activeElement;
-      return { account: !!(a && a.closest("#ink-account")), header: !!(a && a.closest("header")), name: a ? (a.getAttribute("aria-label") || a.textContent || a.tagName).trim().replace(/\s+/g, " ").slice(0, 30) : "" };
-    });
+    const at = await focusAt(page);
     if (at.account) return before;
     before.push(at);
   }
   return null;
 }
+// the page's first Tab stop below the top bar, in the document's order (kept as window.__below)
+const firstBelowBar = (page) => page.evaluate(() => {
+  const head = document.querySelector("header");
+  window.__below = [...document.querySelectorAll("a[href], button, input, select, textarea, summary, [tabindex]")].find((e) => !e.disabled && e.tabIndex >= 0
+    && e.getClientRects().length && getComputedStyle(e).visibility === "visible" && !head.contains(e) && !e.closest("#ink-account")
+    && !!(head.compareDocumentPosition(e) & window.Node.DOCUMENT_POSITION_FOLLOWING)) || null;
+  return window.__below ? (window.__below.getAttribute("aria-label") || window.__below.textContent || window.__below.tagName).trim().slice(0, 30) : null;
+});
+// the top bar's buttons as a screen reader meets them, in order
+const barButtons = (page) => page.getByRole("banner").getByRole("button").evaluateAll((bs) => bs.map((b) => (b.getAttribute("aria-label") || b.textContent).trim()));
 
-/* The account button is drawn in the top bar, so Tab reaches it with the bar's own buttons, not after
-   every control on the screen (the live check of 6.10: 18 presses on the first screen, 70 on the
-   review screen, when it was the page's last element). It stays outside the tool's page. */
-test("Tab reaches the account button with the top bar, not after the page below it", async ({ page }) => {
+/* The account button sits last in the top bar, right after the day/night button, and Tab and a
+   screen reader reach it there. Appended to the page it came after every control on the screen (the
+   live check of 6.10); laid over the bar from just before the tool's page (2996c84) it was the
+   page's first Tab stop, before the bar's steps and «החזרת שמות מתשובת AI», and was read before the
+   tool's name (review of 6.10). So: the stop right before it is the day/night button, the one right
+   after it is the page's first below the bar, Shift+Tab goes back the same way, and in the banner it
+   is read right after the day/night button. Its panel stays outside the tool's page (the page
+   engine copies whatever is put inside what it draws). */
+test("Tab reaches the account button right after the day/night button, and goes on below the bar", async ({ page }) => {
   await hosted(page);
   await boot(page);
   await expect.poll(() => inTopBar(page)).toBe(true);
-  const first = await tabsToAccount(page);
-  expect(first && first.filter((s) => !s.header).map((s) => s.name)).toEqual([]);
-  // outside the tool's page (its engine copies whatever is put inside what it draws), just before it
   const outside = () => page.evaluate(() => { const box = document.getElementById("ink-account"), root = document.getElementById("dc-root");
-    return !root.contains(box) && !!(box.compareDocumentPosition(root) & window.Node.DOCUMENT_POSITION_FOLLOWING); });
-  expect(await outside()).toBe(true);
-  // the review screen has the most controls
-  await runDoc(page, "one.docx");
-  const review = await tabsToAccount(page);
-  expect(review && review.filter((s) => !s.header).map((s) => s.name)).toEqual([]);
-  expect(await outside()).toBe(true);
+    return !!box && !!root && !root.contains(box); });
+  for (const screen of ["first", "review"]) {
+    // the review screen has the most controls
+    if (screen === "review") await runDoc(page, "one.docx");
+    const before = await tabsToAccount(page);
+    expect(before && before.length, screen).toBeGreaterThan(0);
+    expect(before.filter((s) => !s.header).map((s) => s.name), screen + ": every stop before it is in the top bar").toEqual([]);
+    expect(before[before.length - 1].night, screen + ": the stop right before it is the day/night button").toBe(true);
+    expect(await firstBelowBar(page), screen).not.toBeNull();
+    await page.keyboard.press("Tab");
+    expect((await focusAt(page)).below, screen + ": the stop right after it is the page's first below the bar").toBe(true);
+    await page.keyboard.press("Shift+Tab");
+    expect((await focusAt(page)).account, screen + ": Shift+Tab comes back to it").toBe(true);
+    await page.keyboard.press("Shift+Tab");
+    expect((await focusAt(page)).night, screen + ": and then to the day/night button").toBe(true);
+    const bar = await barButtons(page);
+    expect(bar.slice(-2), screen + ": read in the banner right after the day/night button").toEqual(["מצב יום או לילה", "חשבון"]);
+    expect(await outside(), screen + ": the panel outside the tool's page").toBe(true);
+  }
   await expect.poll(() => inTopBar(page)).toBe(true);
+  // open, its panel comes next: Tab goes through it, though it sits outside the page, and then on below the bar
+  await firstBelowBar(page);
+  await page.getByRole("button", { name: "חשבון", exact: true }).focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#ink-account-panel")).toBeVisible();
+  const walk = [];
+  for (let i = 0; i < 5; i++) {
+    await page.keyboard.press("Tab");
+    walk.push(await page.evaluate(() => { const a = document.activeElement; return a === window.__below ? "below" : a.closest("#ink-account-panel") ? a.id || a.textContent.trim() : "elsewhere"; }));
+  }
+  expect(walk).toEqual(["ink-log", "מה נשלח ביומן", "יציאה מהחשבון", "מחיקת החשבון", "below"]);
+  // and Shift+Tab from its first stop goes back to the button
+  await page.locator("#ink-log").focus();
+  await page.keyboard.press("Shift+Tab");
+  expect(await page.evaluate(() => document.activeElement.matches("header [data-ink-account]"))).toBe(true);
 });
 
 /* A press anywhere outside the open panel closes it, as a menu does, and the button says so; a press
