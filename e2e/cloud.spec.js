@@ -213,6 +213,31 @@ test("the account panel closes on a press outside it, and not on one inside it",
   await expect(btn).toHaveAttribute("aria-expanded", "false");
 });
 
+/* Every link that site/cloud.js draws is underlined. The tool's stylesheet takes the underline off links
+   and colours them close to the text: «מה נשלח ביומן», the panel's one way to the privacy policy, was
+   1.45:1 against the label above it and read as a second line of it (the independent review of 6.10);
+   «הפירוט המלא» in the card that asks is 1.39:1 against its sentence (1.15:1 at night). A link is not
+   told apart by its colour alone (WCAG 1.4.1). Every link inside the panel and the card is checked, the
+   contact address of a failed deletion with them, so a link added later is too. */
+const linkLooks = (page, where) => page.locator(where + " a").evaluateAll((as) => as.map((a) => a.textContent.trim() + ": " + getComputedStyle(a).textDecorationLine));
+test("every link of the account panel and of the card that asks is underlined", async ({ page }) => {
+  await hosted(page, { logOn: null });
+  await page.route(PROJECT + "/rest/v1/rpc/delete_my_account", (route) => route.fulfill({ status: 500, json: { code: "XX000", message: "failed", details: null, hint: null } }));
+  await boot(page);
+  const btn = page.getByRole("button", { name: "חשבון", exact: true });
+  await btn.click();
+  await expect(page.locator("#ink-account-panel").getByRole("link", { name: "מה נשלח ביומן" })).toBeVisible();
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "מחיקת החשבון" }).click();
+  await expect(page.locator("#ink-account-msg").getByRole("link")).toBeVisible();
+  expect(await linkLooks(page, "#ink-account-panel")).toEqual(["מה נשלח ביומן: underline", "contact@inkognito.co.il: underline"]);
+  await btn.click();
+  await runDoc(page, "one.docx");
+  await sendDoc(page);
+  await expect(page.locator("#ink-ask").getByRole("link", { name: "הפירוט המלא" })).toBeVisible();
+  expect(await linkLooks(page, "#ink-ask")).toEqual(["הפירוט המלא: underline"]);
+});
+
 /* An open panel that the focus leaves closes, and its button says so: Tab past its last stop, or back
    past its button, left it open over the page, aria-expanded still true, the next stops under it
    (review of 6.10; WCAG 2.4.11, focus not hidden). Moving inside it, or between it and its button,

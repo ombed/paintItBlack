@@ -30,17 +30,25 @@
   // once: signing out also fires SIGNED_OUT, and a second navigation would cut the first off
   let gone = false;
   const leave = (to) => { if (gone) return; gone = true; A.clearCookie(); location.replace(to); };
+  /* Every link this file draws, underlined. The tool's stylesheet takes the underline off links and
+     colours them close to the text: «מה נשלח ביומן» in the panel was 1.45:1 against the label above
+     it, and read as a second line of it (the independent review of 6.10); «הפירוט המלא» in the card,
+     1.39:1 against its sentence. In a line of text a link is told by more than its colour, as the
+     panel's buttons are. A page opens in a new tab, leaving the tool as it was. */
+  const link = (href, text) => {
+    const a = document.createElement("a");
+    a.href = href; a.textContent = text; a.style.textDecoration = "underline";
+    if (!href.startsWith("mailto:")) { a.target = "_blank"; a.rel = "noopener"; }
+    return a;
+  };
   /* Every message here is set as text, never as HTML. The contact address in one is a link to
      write to it, in the same words, as on the sign-in page (login.js): the failed deletion named
-     it as plain text, nothing to press (review of 6.10). Underlined: in a line of text a link is
-     told by more than its colour. */
+     it as plain text, nothing to press (review of 6.10). */
   const CONTACT = "contact@inkognito.co.il";
   const tell = (box, text) => {
     const at = text.indexOf(CONTACT);
     if (at < 0) { box.textContent = text; return; }
-    const mail = document.createElement("a");
-    mail.href = "mailto:" + CONTACT; mail.textContent = CONTACT; mail.style.textDecoration = "underline";
-    box.replaceChildren(text.slice(0, at), mail, text.slice(at + CONTACT.length));
+    box.replaceChildren(text.slice(0, at), link("mailto:" + CONTACT, CONTACT), text.slice(at + CONTACT.length));
   };
 
   /* The gate reads the cookie on every request, and the token in it lasts an hour. A tab left in
@@ -189,7 +197,7 @@
     const h = el("h2", { id: "ink-ask-h", tabIndex: -1, textContent: "עזרו לנו לשפר את הזיהוי" });
     h.style.cssText = "font-size:16px;margin:0 0 6px;outline:none";
     const p = el("p", { textContent: "בסוף כל מסמך יישלח יומן קצר: לחיצות, זמנים וספירות. אם סימנתם שם שהכלי פספס, יישלח גם תיאור של הצורה שלו. השם עצמו ומילים מהמסמך לא נשלחים. אפשר לשנות את זה בכל עת בחלונית החשבון. " },
-      el("a", { href: ROOT + "privacy.html", target: "_blank", rel: "noopener", textContent: "הפירוט המלא" }));
+      link(ROOT + "privacy.html", "הפירוט המלא"));
     p.style.cssText = "margin:0 0 8px;color:var(--ink2,#444);line-height:1.5";
     // it scrolls, so the keyboard must reach it
     const pre = el("pre", { textContent: sample, tabIndex: 0 });
@@ -248,7 +256,7 @@
     syncSwitch = () => { sw.checked = profile.log_enabled === true; };
     const swLabel = el("label", { htmlFor: "ink-log" }, sw, " שליחת יומן שימוש, בלי טקסט מהמסמכים");
     swLabel.style.cssText = "display:flex;gap:8px;align-items:center;cursor:pointer";
-    const more = el("a", { href: ROOT + "privacy.html", target: "_blank", rel: "noopener", textContent: "מה נשלח ביומן" });
+    const more = link(ROOT + "privacy.html", "מה נשלח ביומן");
     const msg = el("p", { id: "ink-account-msg" }); msg.setAttribute("role", "status"); msg.style.cssText = "margin:8px 0 0;min-height:1em";
     const out = el("button", { type: "button", textContent: "יציאה מהחשבון" });
     const del = el("button", { type: "button", textContent: "מחיקת החשבון" });
