@@ -108,10 +108,20 @@ function about(e) {
    changes and it is heard again. */
 const MARK = String.fromCharCode(0x200b); // a zero-width space: invisible, and not whitespace to a reader
 const fresh = (msg, last) => (last === msg ? msg + MARK : msg);
+/* A message is set as text, never as HTML. The contact address in it (an account blocked or
+   waiting for approval) is a link to write to it, in the same words: it was plain text (6.10). */
+const CONTACT = "contact@inkognito.co.il";
+function put(box, msg) {
+  const at = msg.indexOf(CONTACT);
+  if (at < 0) { box.textContent = msg; return; }
+  const mail = document.createElement("a");
+  mail.href = "mailto:" + CONTACT; mail.textContent = CONTACT;
+  box.replaceChildren(msg.slice(0, at), mail, msg.slice(at + CONTACT.length));
+}
 let shown = "";
 // the error under the form; `field` is the field it is about (marked invalid), if any
 function showErr(msg, field) {
-  err.textContent = msg ? (shown = fresh(msg, shown)) : "";
+  put(err, msg ? (shown = fresh(msg, shown)) : "");
   for (const f of [email, pw]) f.setAttribute("aria-invalid", msg && f === field ? "true" : "false");
   if (msg) (field || email).focus();
 }
@@ -234,7 +244,7 @@ reconfirm.addEventListener("click", async () => {
 resend.addEventListener("click", async () => {
   resend.disabled = true; sentErr.textContent = "";
   const { error } = await (again || askConfirm)($("addr").textContent);
-  if (error) { resend.disabled = false; sentErr.textContent = say(error); resend.focus(); return; }
+  if (error) { resend.disabled = false; put(sentErr, say(error)); resend.focus(); return; }
   startTimer();
   status.textContent = "המייל נשלח שוב";
 });
@@ -261,7 +271,7 @@ const needsPw = kind === "recovery" || kind === "signup";
 let verified = null, shownC = "";
 // the error on this step, read out through what gets focus: the password field, or the button
 function confirmErr(msg, onPw) {
-  cerr.textContent = shownC = fresh(msg, shownC);
+  put(cerr, shownC = fresh(msg, shownC));
   newpw.setAttribute("aria-invalid", onPw ? "true" : "false");
   (onPw ? newpw : go).focus();
 }
@@ -278,7 +288,7 @@ $("confirmform").addEventListener("submit", async (e) => {
     if (error || !data.session) {
       // the network, a server error, or too many tries: the token was not spent, so the same click can be tried again
       if (error && !(error.status >= 400 && error.status < 500 && error.status !== 429)) { go.disabled = false; return confirmErr(say(error, true), false); }
-      cerr.textContent = shownC = fresh(say(error, true), shownC);
+      put(cerr, shownC = fresh(say(error, true), shownC));
       go.hidden = $("newpw-wrap").hidden = true; newLink.hidden = false; newLink.focus();
       return;
     }

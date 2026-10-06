@@ -578,6 +578,19 @@ for (const [why, words] of [["blocked", "חסום"], ["pending", "ממתין ל�
     expect(new URL(page.url()).pathname).toBe(LOGIN);
   });
 
+// the address those two messages give is a link to write to it, in the same words (the live check of 6.10)
+for (const [why, words] of [["blocked", "החשבון הזה חסום. לבירור אפשר לכתוב אל contact@inkognito.co.il."], ["pending", "החשבון ממתין לאישור. אפשר לכתוב אל contact@inkognito.co.il."]])
+  test(`turned away by the gate (${why}): the contact address is a link to write to`, async ({ page }) => {
+    await stub(page, { "/auth/v1/user": { body: SESSION.user } });
+    await signedIn(page);
+    await page.goto(LOGIN + "#error=" + why);
+    await expect(page.locator("#email-err")).toHaveText(words);
+    await expect(page.locator("#email-err").getByRole("link", { name: "contact@inkognito.co.il", exact: true })).toHaveAttribute("href", "mailto:contact@inkognito.co.il");
+    // still read out through the field it is about, word for word
+    await expect(page.locator("#email")).toHaveAccessibleDescription(words);
+    await axe(page, why);
+  });
+
 test("signing up discloses the usage log, that it carries no text, and that it can be switched off", async ({ page }) => {
   await stub(page);
   await page.goto(LOGIN);
