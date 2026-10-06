@@ -27,14 +27,22 @@ const WAIT = 60; // Supabase sends one email per address per minute
    page that forwards anywhere it is told is an open redirect. Kept for this tab through the
    round trip to Google; a link opened from the email in a new tab goes to the app.
    Any other opening of this page ends it: without ?next=admin and without a sign-in coming back
-   after the # (Supabase's answer, Google's or a refusal, or an emailed link). A sign-in started on
-   the admin page and left used to send a later, ordinary sign-in in the tab there (6.10). The
-   gate's reasons (#error=session…) are not a sign-in coming back: they are about the app. */
+   after the #. A sign-in started on the admin page and left used to send a later, ordinary sign-in
+   in the tab there (6.10).
+   A sign-in coming back is whatever Supabase sends here, a session or a refusal, and an emailed
+   link (confirm). Supabase marks every redirect of its own with "sb" after the #; before that mark,
+   a session had access_token, and a refusal its error, with error_description only when it had
+   one. A cancel at Google has none: it came back as #error=access_denied&sb=, was taken for a fresh
+   visit, and the second try opened the app (review of 6.10). The gate's reasons (#error=session…)
+   are not a sign-in coming back: they are about the app. */
 const NEXT = "ink-next";
+// the reasons the gate (lib/gate.mjs) and the tool (cloud.js) send back with
+const GATE = ["session", "gone", "blocked", "pending"];
 try {
   const back = new URLSearchParams(location.hash.slice(1));
+  const returning = ["sb", "access_token", "error_description", "confirm"].some((k) => back.has(k)) || (back.has("error") && !GATE.includes(back.get("error")));
   if (new URLSearchParams(location.search).get("next") === "admin") sessionStorage.setItem(NEXT, "admin");
-  else if (!["access_token", "error_description", "confirm"].some((k) => back.has(k))) sessionStorage.removeItem(NEXT);
+  else if (!returning) sessionStorage.removeItem(NEXT);
 } catch (_) {}
 function destination() {
   let next = null;

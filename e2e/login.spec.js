@@ -459,6 +459,87 @@ test("a sign-in from the admin page goes back there after the round trip to Goog
   expect(new URL(page.url()).pathname).toBe("/site/admin.html");
 });
 
+/* Google's round trip in one step: the authorize endpoint sends the person straight back where
+   Supabase would, to the page's own address (redirect_to), with each answer in turn. A cancelled
+   sign-in comes back as Supabase Auth writes it (external_oauth.go, external.go redirectErrors):
+   the refusal in the query, its error_description empty, and after the # the error and "sb", the
+   mark every redirect of Supabase's carries; an empty description is left out of the #. */
+const CANCELLED = "?error=access_denied&error_description=#error=access_denied&sb=";
+const SIGNED_IN = "#access_token=" + JWT + "&expires_at=" + SESSION.expires_at + "&expires_in=3600&refresh_token=r1&sb=&token_type=bearer";
+const google = (...answers) => (route) => {
+  const back = new URL(route.request().url()).searchParams.get("redirect_to");
+  return route.fulfill({ status: 302, headers: { location: back + answers.shift() } });
+};
+const adminPage = (page) => page.route("**/site/admin.html", (route) => route.fulfill({ contentType: "text/html", body: "<title>admin</title>" }));
+const signInHere = async (page) => {
+  await page.fill("#email", "a@example.co.il");
+  await page.fill("#password", "correct horse 42");
+  await signIn(page).click();
+  await page.waitForURL(/\/site\/(app\/|admin\.html)$/);
+  return new URL(page.url()).pathname;
+};
+
+/* A sign-in started on the admin page and cancelled at Google can be tried again, and still ends on
+   the admin page: the cancel came back with an empty error_description, and the page took it for a
+   fresh visit, so the retry opened the app (review of 6.10). Once it has ended there, the tab's next,
+   ordinary sign-in opens the app. */
+test("a sign-in from the admin page that Google cancelled is tried again and ends on the admin page; a later ordinary one opens the app", async ({ page }) => {
+  await stub(page, { "/auth/v1/authorize": google(CANCELLED, SIGNED_IN), "/auth/v1/user": { body: SESSION.user }, "/auth/v1/token": { body: SESSION } });
+  await adminPage(page);
+  await page.goto(LOGIN + "?next=admin");
+  await page.click("#google");
+  await expect(page.locator("#email-err")).toHaveText("הכניסה בוטלה. אפשר לנסות שוב.");
+  await page.click("#google");
+  await page.waitForURL(/\/site\/(app\/|admin\.html)$/);
+  expect(new URL(page.url()).pathname).toBe("/site/admin.html");
+  // signed out there (this browser only), and later, in the same tab, the ordinary «כניסה»
+  await page.evaluate((k) => localStorage.removeItem(k), STORE);
+  await page.context().clearCookies();
+  await page.goto("/site/index.html");
+  await page.goto(LOGIN);
+  expect(await signInHere(page)).toBe("/site/app/");
+});
+
+test("a sign-in from the admin page cancelled at Google and then left: a later ordinary one in the tab opens the app", async ({ page }) => {
+  await stub(page, { "/auth/v1/authorize": google(CANCELLED), "/auth/v1/token": { body: SESSION } });
+  await adminPage(page);
+  await page.goto(LOGIN + "?next=admin");
+  await page.click("#google");
+  await expect(page.locator("#email-err")).toHaveText("הכניסה בוטלה. אפשר לנסות שוב.");
+  await page.goto("/site/index.html");
+  await page.goto(LOGIN);
+  expect(await signInHere(page)).toBe("/site/app/");
+});
+
+/* Every way Supabase sends a sign-in back keeps the admin page as where it ends: a refusal with its
+   reason, the cancel, and a Supabase from before the mark (no "sb"). The gate's reasons (#error=
+   session and the like) are about the app: after a sign-in from the admin page was left, the sign-in
+   the gate asks for opens the app. */
+for (const [what, back] of [
+  ["Google cancelled", CANCELLED],
+  ["Google's state expired", "?error=invalid_request&error_code=bad_oauth_state&error_description=OAuth+state+has+expired#error=invalid_request&error_code=bad_oauth_state&error_description=OAuth+state+has+expired&sb="],
+  ["an older Supabase, without its mark", "?error=access_denied&error_description=#error=access_denied"],
+])
+  test(`a sign-in from the admin page that Supabase sent back refused (${what}) is tried again here and ends on the admin page`, async ({ page }) => {
+    await stub(page, { "/auth/v1/token": { body: SESSION } });
+    await adminPage(page);
+    await page.goto(LOGIN + "?next=admin");
+    await page.goto(LOGIN + back);
+    await expect(page.locator("#email-err")).not.toBeEmpty();
+    expect(await signInHere(page)).toBe("/site/admin.html");
+  });
+
+test("the gate's reason is about the app: after a sign-in from the admin page was left, the renewed session opens the app", async ({ page }) => {
+  await stub(page, { "/auth/v1/token": { body: { ...SESSION, access_token: jwt(3600, "renewed"), refresh_token: "r2" } }, "/auth/v1/user": { body: SESSION.user } });
+  await adminPage(page);
+  await page.goto(LOGIN + "?next=admin");
+  await page.evaluate(([k, s]) => localStorage.setItem(k, JSON.stringify(s)), [STORE, SESSION]);
+  await page.goto("about:blank");
+  await page.goto(LOGIN + "#error=session");
+  await page.waitForURL(/\/site\/(app\/|admin\.html)$/);
+  expect(new URL(page.url()).pathname).toBe("/site/app/");
+});
+
 test("someone already signed in goes straight to the app, with the gate's cookie", async ({ page }) => {
   await stub(page, { "/auth/v1/user": { body: SESSION.user } });
   await signedIn(page);
