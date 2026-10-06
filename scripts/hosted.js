@@ -9,7 +9,8 @@
       already pins (scripts/build-hosted.js), handed to the tool through window.__resources
       (hosted-resources.js) or by address in the page, and the page's Content-Security-Policy
       names no other site but the project. The fonts are the tool's own files since v60 (fonts/,
-      in the site's file list), so they come along with the rest.
+      in the site's file list), so they come along with the rest. The service worker, which keeps
+      React for offline use since v61, keeps the site's copy (hostedWorker).
    3. Its name: InKognito (אינקוגניטו). Since v60 the public tool carries it too, in the page's
       title, the header's wordmark and the install manifest; the build checks that it still does.
       On a phone the tool's header wraps, and the account button joins the name and the day/night
@@ -72,6 +73,17 @@ function hostedManifest(json) {
   return json;
 }
 
+/* The service worker keeps what the tool needs offline from its install (KEEP, since v61), React among
+   it at unpkg's address. Here the page takes React from the site's own copy (window.__resources), so the
+   worker keeps that copy, and asks no other site for anything either. */
+function hostedWorker(sw) {
+  let out = sw;
+  for (const l of LIBS) if (l.via === "resources") out = out.split('"' + l.url + '"').join('"./' + l.to + '"');
+  const left = out.match(new RegExp(THIRD.source + "[^\"'\\s)]*"));
+  if (left) throw new Error("hosted: sw.js still asks another site for " + left[0]);
+  return out;
+}
+
 const SENDING = [
   ["שום דבר לא נשלח מעצמו; את המסמך שולחים בנפרד, רק אם רוצים.", "אם מסכימים לשלוח יומן שימוש, הוא נשלח מעצמו בסוף כל מסמך, יחד עם דוח הדליפה, ואפשר לבטל בחלונית ״חשבון״. המסמך עצמו לא נשלח."],
   [" אפשר להדביק אותו ב-issue.", ""],
@@ -118,4 +130,4 @@ function hostedApp(html) {
   return out;
 }
 
-module.exports = { hostedApp, hostedManifest, NAME, resourcesScript, PROJECT, LIBS, ORT_FILES, ORT_V, ortFrom, ortPin, ORT_DIR, SLOT_CSS };
+module.exports = { hostedApp, hostedManifest, hostedWorker, NAME, resourcesScript, PROJECT, LIBS, ORT_FILES, ORT_V, ortFrom, ortPin, ORT_DIR, SLOT_CSS };

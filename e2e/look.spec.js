@@ -129,6 +129,77 @@ test("the current step is said, not only shown: aria-current, in the header's gi
   await expect(page.locator('header [aria-current="step"]')).toHaveCount(1);
 });
 
+/* A step there is no way to yet («מי בתיק», «מקומות» before there is a document) took focus, and Enter did
+   nothing (found live on v60). It is disabled now, so Tab passes it by and a screen reader says it is not
+   available, and it keeps its look: the same pale ink, not the faded look of a disabled button */
+test("a step there is no way to yet is disabled, Tab passes it by, and it looks as before", async ({ page }) => {
+  await toEntry(page);
+  const step = (name) => page.locator("header nav").getByRole("button", { name, exact: true });
+  const pale = await page.locator("header nav span", { hasText: "בדיקה" }).evaluate((el) => getComputedStyle(el).color);
+  for (const name of ["מי בתיק", "מקומות"]) {
+    await expect(step(name)).toBeDisabled();
+    await expect(step(name)).toHaveCSS("opacity", "1");
+    await expect(step(name)).toHaveCSS("color", pale);
+  }
+  await step("קובץ").focus();
+  await page.keyboard.press("Tab");
+  expect(await page.evaluate(() => document.activeElement.textContent.trim())).not.toMatch(/^(מי בתיק|מקומות)$/);
+  // with a document they lead somewhere again
+  await page.getByRole("checkbox").first().uncheck();
+  await H.upload(page, "hearing.docx", DOC);
+  await H.startScan(page);
+  await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
+  for (const name of ["מי בתיק", "מקומות"]) await expect(step(name)).toBeEnabled();
+});
+
+/* An empty box with dir="auto" has no letter to take its direction from, and the browser laid it out left to
+   right: the paste box's Hebrew hint sat on the left with its «…» before it, and so did the restore box's
+   (found live on v60). Empty, every such box is right to left; typed text still sets its own direction */
+test("an empty text box shows its Hebrew hint right to left, and typed text keeps its own direction", async ({ page }) => {
+  await toEntry(page);
+  const empties = () => page.evaluate(() => [...document.querySelectorAll("textarea[dir=auto][placeholder], input[dir=auto][placeholder]")]
+    .filter((el) => !el.value && el.getClientRects().length).map((el) => el.placeholder + ": " + getComputedStyle(el).direction));
+  let found = await empties();
+  expect(found.length).toBeGreaterThan(0);
+  expect(found.filter((x) => !x.endsWith(": rtl"))).toEqual([]);
+  const box = page.getByPlaceholder("הדבקת טקסט לבדיקה…");
+  const dir = () => box.evaluate((el) => getComputedStyle(el).direction);
+  await box.fill("Hello world");
+  expect(await dir()).toBe("ltr");
+  await box.fill("שלום עולם");
+  expect(await dir()).toBe("rtl");
+  await box.fill("");
+  expect(await dir()).toBe("rtl");
+  await page.getByRole("button", { name: "החזרת שמות מתשובת AI" }).click();
+  await expect(page.getByPlaceholder("הדבקת תשובת ה-AI…")).toBeVisible();
+  found = await empties();
+  expect(found.some((x) => x.startsWith("הדבקת תשובת ה-AI…"))).toBe(true);
+  expect(found.filter((x) => !x.endsWith(": rtl"))).toEqual([]);
+});
+
+/* Everything the first screen needs waited for the engine (redact-engine.js, about 270KB): until it arrived a
+   phone showed the computer's layout, the header's description line and the detection settings open, and a
+   night page the day's moon, for up to two seconds on a slow line (found live on v60). The engine still
+   loads first, but the page no longer waits for it to lay itself out */
+test("on a phone the first screen is the phone's, by night the night's, while the engine is on its way", async ({ page }) => {
+  await page.setViewportSize(PHONE);
+  await page.emulateMedia({ colorScheme: "dark" });
+  let release;
+  const held = new Promise((r) => { release = r; });
+  await page.route("**/redact-engine.js", async (route) => { await held; await route.continue(); });
+  await page.addInitScript(() => { try { localStorage.setItem("redact-intro-seen", "1"); localStorage.setItem("redact-tour-seen", "*"); } catch (_) {} });
+  await page.goto("/index.html");
+  await expect(page.locator("#dc-root")).toBeAttached({ timeout: 60000 });
+  await expect(page.locator("#boot")).toHaveCount(0);
+  await expect(page.locator("[data-settings-toggle]")).toHaveAttribute("aria-expanded", "false");
+  await expect(page.locator("header").getByText("הכול רץ בדפדפן")).toHaveCount(0);
+  await expect(page.locator("header [data-night] svg")).toHaveAttribute("data-icon", "sun");
+  expect(await page.evaluate(() => !!window.__RE), "the engine is still held back").toBe(false);
+  release();
+  await expect.poll(() => page.evaluate(() => !!window.__RE), { timeout: 30000 }).toBe(true);
+  await expect(page.locator("[data-settings-toggle]")).toHaveAttribute("aria-expanded", "false");
+});
+
 // every visible piece of text, and the "?" a waiting mark draws, under the 11.5px floor
 const underFloor = (page) => page.evaluate(() => {
   const out = [];

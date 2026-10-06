@@ -37,6 +37,22 @@ for (const f of swFiles) ok("sw.js caches " + f + " but the site does not ship i
     for (const f of swFiles) ok("sw.js caches " + f + " but does not serve it from the cache", MINE.test("/inkognito/" + f));
   }
 }
+// what the tool needs to start and to look right offline is kept at install, not only once asked for
+// while the worker controls the page (found live on v60: the first visit's React and the fonts of a
+// screen not yet opened were missing offline): every font the site ships, and the React the runtime loads
+{
+  const m = sw.match(/const KEEP=(\[[^\]]*\])/);
+  ok("sw.js has a KEEP list it installs", !!m && /\[\.\.\.FILES,\.\.\.KEEP\]\.map\(f=>c\.add\(f\)\)/.test(sw));
+  if (m) {
+    const keep = JSON.parse(m[1]);
+    const shipped = SITE_FILES.filter((x) => /^fonts\/.*\.woff2$/.test(x)).map((x) => "./" + x).sort();
+    ok("sw.js keeps exactly the fonts the site ships", JSON.stringify(keep.filter((x) => x.startsWith("./fonts/")).sort()) === JSON.stringify(shipped));
+    const support = read("support.js");
+    const react = ["REACT_URL", "REACT_DOM_URL"].map((k) => (support.match(new RegExp("var " + k + ' = "([^"]+)"')) || [])[1]);
+    ok("sw.js keeps the React and ReactDOM the runtime loads", react.every((u) => u && keep.includes(u)));
+    ok("sw.js keeps nothing but the fonts and the runtime's React", keep.every((x) => x.startsWith("./fonts/") || react.includes(x)));
+  }
+}
 
 // relative references in the page
 const html = read("index.html");

@@ -5,13 +5,30 @@
    שים לב לאסטרטגיה: הכלי עצמו נטען קודם מהרשת ורק בנפילה מהמטמון.
    ההפך — מטמון קודם — נראה מהיר יותר, אבל אז כל עדכון מגיע רק
    בטעינה השנייה, וזו דרך בטוחה להריץ קוד ישן בלי לדעת. */
-const V="hedact-v60";
+const V="hedact-v61";
 const FILES=["./","./index.html","./manifest.webmanifest","./icon.svg",
   "./support.js","./page-logic.js","./redact-engine.js","./pdf-text.js","./text-to-docx.js"];
+// מה שהכלי צריך כדי לעלות ולהיראות כמו שצריך בלי רשת: ספריית ההרצה (React) וכל הגופנים.
+// עד v60 הם נשמרו רק כשהתבקשו בזמן שהעובד כבר שולט בדף: React של הביקור הראשון נטען לפני
+// שהעובד קם, גופנים של מסך שעוד לא נפתח לא נשמרו, ובכל עדכון הם נמחקים עם המטמון הישן.
+// עכשיו נשמרים כבר בהתקנה, וביקור אחד מספיק. כולם נעולים לגרסה, ולכן מוגשים מטמון קודם
+// (למטה). tests/site_t.js בודק שהרשימה היא בדיוק הגופנים שהאתר מפרסם ו-React שהכלי טוען
+const KEEP=["https://unpkg.com/react@18.3.1/umd/react.production.min.js",
+  "https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js",
+  "./fonts/rubik-hebrew-300-normal.woff2","./fonts/rubik-hebrew-400-normal.woff2",
+  "./fonts/rubik-hebrew-500-normal.woff2","./fonts/rubik-hebrew-600-normal.woff2",
+  "./fonts/rubik-latin-300-normal.woff2","./fonts/rubik-latin-400-normal.woff2",
+  "./fonts/rubik-latin-500-normal.woff2","./fonts/rubik-latin-600-normal.woff2",
+  "./fonts/rubik-latin-ext-300-normal.woff2","./fonts/rubik-latin-ext-400-normal.woff2",
+  "./fonts/rubik-latin-ext-500-normal.woff2","./fonts/rubik-latin-ext-600-normal.woff2",
+  "./fonts/noto-serif-hebrew-hebrew-400-normal.woff2","./fonts/noto-serif-hebrew-hebrew-500-normal.woff2",
+  "./fonts/noto-serif-hebrew-latin-400-normal.woff2","./fonts/noto-serif-hebrew-latin-500-normal.woff2",
+  "./fonts/noto-serif-hebrew-latin-ext-400-normal.woff2","./fonts/noto-serif-hebrew-latin-ext-500-normal.woff2",
+  "./fonts/FrankRuhlLibre-900-hebrew.woff2"];
 
 self.addEventListener("install",e=>{
   e.waitUntil(caches.open(V)
-    .then(c=>Promise.allSettled(FILES.map(f=>c.add(f))))
+    .then(c=>Promise.allSettled([...FILES,...KEEP].map(f=>c.add(f))))
     .then(()=>self.skipWaiting()));
 });
 

@@ -75,6 +75,15 @@ try {
   const csp = (app.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/) || [])[1] || "";
   ok(!/https:\/\/(?!cwsiranjlxbclmaqtucc\.supabase\.co)/.test(csp), "the page's policy names no other site but the project: " + csp.slice(0, 80) + "…");
   ok(!/unpkg\.com|cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com/.test(app), "the page names no CDN and no Google Fonts");
+  // the service worker keeps what the tool needs offline from its install (KEEP, v61): here that is the
+  // site's own React, so it asks no other site for anything either (the public tool's keeps unpkg's)
+  const swApp = read("app/sw.js"), keepM = swApp.match(/const KEEP=(\[[^\]]*\])/);
+  ok(!/https:\/\/(?:unpkg\.com|cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)/.test(swApp), "the service worker asks no CDN and no Google Fonts for anything");
+  ok(!!keepM, "the service worker keeps a list at install (KEEP)");
+  const keep = keepM ? JSON.parse(keepM[1]) : [];
+  ok(keep.length > 0 && keep.every((k) => k.startsWith("./") && files.includes("app/" + k.slice(2))), "every file it keeps is one the site serves under /app/");
+  const reactCopies = H.LIBS.filter((l) => l.via === "resources" && /^vendor\/react/.test(l.to)).map((l) => "./" + l.to);
+  ok(reactCopies.length === 2 && reactCopies.every((f) => keep.includes(f)), "it keeps the site's own React and ReactDOM (" + reactCopies.join(", ") + ")");
   const res = read("app/hosted-resources.js");
   const map = JSON.parse((res.match(/Object\.assign\(window\.__resources \|\| \{\}, (\{[\s\S]*\})\);/) || [, "{}"])[1]);
   for (const l of H.LIBS) {

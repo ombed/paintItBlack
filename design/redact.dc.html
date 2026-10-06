@@ -107,6 +107,13 @@ html.dark [data-mark]{transition:none}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 /* כפתור מושבת נראה מושבת (ביקורת UX #5): עד כאן "סורק את המסמך…" נראה כמו כפתור ירוק שלא מגיב */
 button:disabled{opacity:.55;cursor:not-allowed}
+/* צעד בכותרת שאין אליו דרך עדיין ("מי בתיק" ו"מקומות" לפני שיש מסמך) מושבת באמת: Tab מדלג עליו
+   וקורא המסך אומר שאינו זמין. עד v60 הוא קיבל מיקוד, ולחיצה עליו לא עשתה דבר. המראה שלו לא
+   משתנה: בלי השקיפות של כפתור מושבת (e2e/look.spec.js) */
+header nav button:disabled{opacity:1;cursor:default}
+/* לתיבה ריקה עם dir="auto" אין אות שתקבע את הכיוון, והדפדפן פורש אותה משמאל לימין: הרמז העברי
+   ישב בצד שמאל, וה"…" שלו לפניו. עד שיש בה טקסט היא מימין לשמאל (e2e/look.spec.js) */
+textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction:rtl}
 /* טלפון צר (UX #1): שורת הקובץ שנבחר עוטפת, והכפתור הראשי יורד לשורה משלו במקום לצאת מהמסך */
 @media (max-width:480px){
   /* הדף בטלפון (L20 בביקורת השנייה): שוליים של דף מודפס השאירו עמודה צרה של שתי פסקאות */
@@ -183,8 +190,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
     <sc-if value="{{ showSteps }}" hint-placeholder-val="{{ true }}">
       <nav style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink3)">
         <button onClick="{{ goStep1 }}" aria-current="{{ step1Cur }}" style="{{ step1 }}">קובץ</button><span><svg class="ic" data-icon="chevron-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></span>
-        <button onClick="{{ goStep2 }}" aria-current="{{ step2Cur }}" style="{{ step2 }}">מי בתיק</button><span><svg class="ic" data-icon="chevron-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></span>
-        <button onClick="{{ goStep3 }}" aria-current="{{ step3Cur }}" style="{{ step3 }}">מקומות</button><span><svg class="ic" data-icon="chevron-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></span>
+        <button onClick="{{ goStep2 }}" aria-current="{{ step2Cur }}" disabled="{{ step2Off }}" style="{{ step2 }}">מי בתיק</button><span><svg class="ic" data-icon="chevron-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></span>
+        <button onClick="{{ goStep3 }}" aria-current="{{ step3Cur }}" disabled="{{ step3Off }}" style="{{ step3 }}">מקומות</button><span><svg class="ic" data-icon="chevron-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></span>
         <span aria-current="{{ step4Cur }}" style="{{ step4 }}">בדיקה</span>
       </nav>
     </sc-if>
@@ -1142,35 +1149,12 @@ class Component extends DCLogic {
   };
 
   async componentDidMount(){
-    try{
-      const E = await import("./redact-engine.js");
-      // בדיקות הדפדפן קוראות לבדיקה העצמית אחרי כל בדיקה (docs/QUALITY-PLAN.md, שכבה 2)
-      if(window.__PIB_TEST) window.__pib={check:v=>this.selfCheck(v), state:()=>this.state,
-        runCheck:()=>{ this._scOff=false; this._scWait=0; this.runSelfCheck(); }, seen:()=>this._scSeen||(this._scSeen=new Set()), log:()=>JSON.parse(this.log.export())};
-      /* הורדת המודל (UX #6): זמן משוער לפי הקצב, והודעה כשהמונה לא זז 20 שניות —
-         "סטלה" נראתה כמו תקיעה, והדרך החוצה לא הוצעה. */
-      E.setNerSay((t,p)=>{
-        const now=Date.now(), dl=/^מוריד/.test(t||"");
-        if(dl){
-          if(this._dlT0==null||p<(this._dlLastP||0)){ this._dlT0=now; this._dlP0=p||0; }
-          if(p!==this._dlLastP){ this._dlLastP=p; this._dlLastAt=now; }
-          const done=(p||0)-(this._dlP0||0), el=(now-this._dlT0)/1000;
-          let eta="";
-          if(done>3&&el>3){ const left=el*(100-p)/done; eta=left<45?" · פחות מדקה":left<90?" · כדקה נוספת":" · כ-"+Math.round(left/60)+" דקות נוספות"; }
-          this.setState({nerMsg:(t||"")+eta, nerPct:p, nerStall:false});
-          if(!this._dlTick) this._dlTick=setInterval(()=>{
-            if(!this.state.scanning){ clearInterval(this._dlTick); this._dlTick=null; this._dlT0=null; this._dlLastP=null; if(this.state.nerStall) this.setState({nerStall:false}); return; }
-            if(this._dlLastAt&&Date.now()-this._dlLastAt>20000&&!this.state.nerStall){ this.log.add("model-stall",{pct:Math.round(this._dlLastP||0)}); this.setState({nerStall:true}); }
-          }, 2000);
-        } else this.setState({nerMsg:t||"", nerPct:p, nerStall:false});
-      });
-      this.setState({E, ready:true}, ()=>{ const q=this._early||[]; this._early=null; if(q.length&&this.log) this.log.add("file-early",{n:q.length}); for(const fn of q) fn(); });
-      this.nerStatus(E);
-    }catch(e){
-      // L16 בביקורת השנייה: הודעה טכנית באנגלית, בלי דרך לנסות שוב, ובחירת קובץ שלא עשתה דבר
-      console.warn("engine load failed", e);
-      this.setState({engineFailed:true, err:"הכלי לא נטען עד הסוף — כנראה החיבור לאינטרנט נקטע באמצע. טעינה מחדש של הדף בדרך כלל פותרת את זה; שום מסמך לא נשלח לשום מקום."});
-    }
+    /* המנוע (redact-engine.js, כ-270KB) מתחיל לרדת ראשון, אבל הדף מחכה לו רק בסוף: הפריסה (טלפון או
+       מחשב), ערכת הצבעים, התיקים השמורים, המקלדת ויומן השגיאות לא צריכים אותו. עד v60 כל אלה חיכו
+       למנוע: טלפון הראה בינתיים את פריסת המחשב (שורת התיאור בכותרת והגדרות הזיהוי פתוחות), והלילה
+       את סמל הירח — עד שתי שניות ברשת איטית (e2e/look.spec.js) */
+    const engine = import("./redact-engine.js");
+    engine.catch(()=>{}); // נתפס למטה, ב-await; כאן רק כדי שדחייה מוקדמת לא תיחשב "לא מטופלת"
     let th="light";
     let chosen=null;
     try{ chosen = localStorage.getItem("redact-theme"); th = chosen || (matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"); }catch(_){}
@@ -1305,6 +1289,35 @@ class Component extends DCLogic {
     // שכבה 5: גלילה ושינוי גודל עלולים להזיז שכבה מהמילה שלה או לגרום לגלישה — בדיקה עצמית כשנרגע
     this._scNudge=()=>this.scheduleSelfCheck();
     addEventListener("scroll", this._scNudge, {capture:true, passive:true}); addEventListener("resize", this._scNudge);
+    try{
+      const E = await engine;
+      // בדיקות הדפדפן קוראות לבדיקה העצמית אחרי כל בדיקה (docs/QUALITY-PLAN.md, שכבה 2)
+      if(window.__PIB_TEST) window.__pib={check:v=>this.selfCheck(v), state:()=>this.state,
+        runCheck:()=>{ this._scOff=false; this._scWait=0; this.runSelfCheck(); }, seen:()=>this._scSeen||(this._scSeen=new Set()), log:()=>JSON.parse(this.log.export())};
+      /* הורדת המודל (UX #6): זמן משוער לפי הקצב, והודעה כשהמונה לא זז 20 שניות —
+         "סטלה" נראתה כמו תקיעה, והדרך החוצה לא הוצעה. */
+      E.setNerSay((t,p)=>{
+        const now=Date.now(), dl=/^מוריד/.test(t||"");
+        if(dl){
+          if(this._dlT0==null||p<(this._dlLastP||0)){ this._dlT0=now; this._dlP0=p||0; }
+          if(p!==this._dlLastP){ this._dlLastP=p; this._dlLastAt=now; }
+          const done=(p||0)-(this._dlP0||0), el=(now-this._dlT0)/1000;
+          let eta="";
+          if(done>3&&el>3){ const left=el*(100-p)/done; eta=left<45?" · פחות מדקה":left<90?" · כדקה נוספת":" · כ-"+Math.round(left/60)+" דקות נוספות"; }
+          this.setState({nerMsg:(t||"")+eta, nerPct:p, nerStall:false});
+          if(!this._dlTick) this._dlTick=setInterval(()=>{
+            if(!this.state.scanning){ clearInterval(this._dlTick); this._dlTick=null; this._dlT0=null; this._dlLastP=null; if(this.state.nerStall) this.setState({nerStall:false}); return; }
+            if(this._dlLastAt&&Date.now()-this._dlLastAt>20000&&!this.state.nerStall){ this.log.add("model-stall",{pct:Math.round(this._dlLastP||0)}); this.setState({nerStall:true}); }
+          }, 2000);
+        } else this.setState({nerMsg:t||"", nerPct:p, nerStall:false});
+      });
+      this.setState({E, ready:true}, ()=>{ const q=this._early||[]; this._early=null; if(q.length&&this.log) this.log.add("file-early",{n:q.length}); for(const fn of q) fn(); });
+      this.nerStatus(E);
+    }catch(e){
+      // L16 בביקורת השנייה: הודעה טכנית באנגלית, בלי דרך לנסות שוב, ובחירת קובץ שלא עשתה דבר
+      console.warn("engine load failed", e);
+      this.setState({engineFailed:true, err:"הכלי לא נטען עד הסוף — כנראה החיבור לאינטרנט נקטע באמצע. טעינה מחדש של הדף בדרך כלל פותרת את זה; שום מסמך לא נשלח לשום מקום."});
+    }
   }
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); document.removeEventListener("keyup", this._selKeys); removeEventListener("resize", this._resize);
     removeEventListener("beforeunload", this._unload); removeEventListener("pagehide", this._hide); removeEventListener("popstate", this._pop);
@@ -3315,6 +3328,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       // the current step is said, not only shown (undefined leaves the attribute off)
       step1Cur:S.screen==="entry"?"step":undefined, step2Cur:S.screen==="people"?"step":undefined,
       step3Cur:S.screen==="places"?"step":undefined, step4Cur:S.screen==="work"?"step":undefined,
+      // בלי מסמך אין לאן ללכת: מושבתים באמת, לא רק בצבע חיוור (ראו header nav button:disabled)
+      step2Off:!S.buf, step3Off:!S.buf,
       goStep1:()=>this.setState({screen:"entry", pending:!!S.buf, err:""}),
       goStep2:()=>this.showList(),
       goStep3:()=>{ if(S.buf) this.toPlaces(S.rules); },

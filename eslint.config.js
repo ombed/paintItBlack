@@ -45,7 +45,7 @@ module.exports = [
   { files: ["lib/*.mjs", "functions/**/*.js"], languageOptions: { ecmaVersion: 2022, sourceType: "module", globals: { fetch: "readonly", Response: "readonly", Headers: "readonly", URL: "readonly", Map: "readonly", crypto: "readonly", atob: "readonly", TextEncoder: "readonly", TextDecoder: "readonly", Uint8Array: "readonly" } }, rules: { ...js.configs.recommended.rules, ...rules } },
   { files: ["sw.js"], languageOptions: { ecmaVersion: 2022, sourceType: "script", globals: globals.browser }, rules: { ...js.configs.recommended.rules, ...rules } },
   { files: ["bench/*.js", "scripts/*.js", "tests/run.js", "tests/build-fixtures.js", "tests/version_t.js", "tests/design_t.js", "e2e/*.js", "eslint.config.js", "playwright.config.js"],
-    languageOptions: { ecmaVersion: 2022, sourceType: "commonjs", globals: { ...globals.node, localStorage: "readonly", getComputedStyle: "readonly", innerWidth: "readonly", navigator: "readonly", NodeFilter: "readonly", getSelection: "readonly", MouseEvent: "readonly", performance: "readonly", requestAnimationFrame: "readonly", CSSRule: "readonly", Document: "readonly" } },
+    languageOptions: { ecmaVersion: 2022, sourceType: "commonjs", globals: { ...globals.node, localStorage: "readonly", getComputedStyle: "readonly", innerWidth: "readonly", navigator: "readonly", NodeFilter: "readonly", getSelection: "readonly", MouseEvent: "readonly", performance: "readonly", requestAnimationFrame: "readonly", CSSRule: "readonly", Document: "readonly", caches: "readonly" } },
     // the browser checks build a deliberately broken RegExp to prove the tokenizer repair
     rules: { ...js.configs.recommended.rules, ...rules, "no-invalid-regexp": "off" } },
 ];
