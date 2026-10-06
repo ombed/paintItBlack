@@ -196,13 +196,13 @@
     } catch (_) {}
     const h = el("h2", { id: "ink-ask-h", tabIndex: -1, textContent: "עזרו לנו לשפר את הזיהוי" });
     h.style.cssText = "font-size:16px;margin:0 0 6px;outline:none";
-    const p = el("p", { textContent: "בסוף כל מסמך יישלח יומן קצר: לחיצות, זמנים וספירות. אם סימנתם שם שהכלי פספס, יישלח גם תיאור של הצורה שלו. השם עצמו ומילים מהמסמך לא נשלחים. אפשר לשנות את זה בכל עת בחלונית החשבון. " },
+    const p = el("p", { textContent: "בסוף כל מסמך יישלח יומן קצר: לחיצות, זמנים ומספרים (כמה פרטים הוחלפו וכמה סומנו לבדיקה). אם סימנתם שם שהכלי פספס, יישלח גם תיאור כללי שלו (כמה מילים ואותיות יש בו, ואיזה סוג מילים עמד לידו), בלי השם עצמו ובלי מילים מהמסמך. אפשר לשנות את זה בכל עת בחלונית החשבון. " },
       link(ROOT + "privacy.html", "הפירוט המלא"));
     p.style.cssText = "margin:0 0 8px;color:var(--ink2,#444);line-height:1.5";
     // it scrolls, so the keyboard must reach it
     const pre = el("pre", { textContent: sample, tabIndex: 0 });
-    pre.setAttribute("aria-label", "דוגמה למה שנשלח"); pre.dir = "ltr"; pre.style.cssText = "max-height:180px;overflow:auto;font-size:11.5px;background:var(--panel2,#f4f4f1);padding:8px;border-radius:8px;margin:6px 0 0";
-    const det = el("details", {}, el("summary", { textContent: "מה בדיוק נשלח?" }), pre);
+    pre.setAttribute("aria-label", "דוגמה למה שיישלח"); pre.dir = "ltr"; pre.style.cssText = "max-height:180px;overflow:auto;font-size:11.5px;background:var(--panel2,#f4f4f1);padding:8px;border-radius:8px;margin:6px 0 0";
+    const det = el("details", {}, el("summary", { textContent: "מה בדיוק יישלח?" }), pre);
     det.style.cssText = "margin:0 0 12px;cursor:pointer";
     const yes = el("button", { type: "button", textContent: "כן, לשלוח" });
     const no = el("button", { type: "button", textContent: "לא עכשיו" });

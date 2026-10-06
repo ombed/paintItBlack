@@ -106,7 +106,7 @@
       cell(date(u.created_at)),
       cell(date(u.last_seen)),
       cell(String(u.documents || 0)),
-      cell(u.log_enabled === true ? "פעיל" : u.log_enabled === false ? "כבוי" : "עוד אין תשובה"),
+      cell(u.log_enabled === true ? "כן" : u.log_enabled === false ? "לא" : "עוד אין תשובה"),
       cell(pill(u)),
       cell(actions),
     );
@@ -141,7 +141,7 @@
     a.href = url; a.download = "inkognito-logs-" + new Date().toISOString().slice(0, 10) + ".json";
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
-    say("הורד קובץ עם " + data.length + " יומנים.");
+    say("ירד קובץ עם " + data.length + " יומנים.");
   });
 
   $("out").addEventListener("click", async () => {

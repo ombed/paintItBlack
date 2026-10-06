@@ -87,10 +87,10 @@ function say(e, link) {
   if (e && e.status === 429 || /rate_limit|over_/.test(code)) return "היו יותר מדי ניסיונות. אפשר לנסות שוב בעוד כמה דקות.";
   if (code === "invalid_credentials") return "המייל או הסיסמה לא נכונים.";
   if (code === "email_not_confirmed") return "צריך קודם לאמת את כתובת המייל, בקישור שנשלח בהרשמה.";
-  if (code === "weak_password") return "הסיסמה חלשה מדי. כדאי לפחות " + MIN + " תווים, עם אותיות ומספרים.";
+  if (code === "weak_password") return "הסיסמה חלשה מדי. כדאי לבחור סיסמה של " + MIN + " תווים לפחות, עם אותיות ומספרים.";
   if (code === "validation_failed" && /longer than/i.test(text)) return TOO_LONG;
   if (code === "user_already_exists" || code === "email_exists") return "כבר יש חשבון עם המייל הזה. אפשר להיכנס, או לקבוע סיסמה דרך ״שכחתי סיסמה״.";
-  if (code === "email_address_invalid") return "הכתובת לא נראית תקינה. למשל: name@example.co.il";
+  if (code === "email_address_invalid") return "הכתובת לא נראית תקינה. כתובת מייל נראית כך: name@example.co.il";
   if (code === "signup_disabled") return "פתיחת חשבונות חדשים סגורה כרגע.";
   if (/otp_expired|flow_state/.test(code) || link && /expired|invalid/i.test(text)) return "תוקף הקישור פג או שכבר השתמשו בו.";
   if (/^bad_oauth/.test(code)) return "הכניסה עם Google לא הושלמה. אפשר לנסות שוב.";
@@ -151,8 +151,8 @@ const askReset = (addr) => sb.auth.resetPasswordForEmail(addr, { redirectTo: HER
    (an email to reset it). login.html?mode=signup opens on creating an account. */
 const MODES = {
   signin: { h: "כניסה", why: "החשבון רק פותח את הכלי. המסמכים נשארים במחשב.", google: "כניסה", send: "כניסה", q: "אין לך חשבון?", go: "יצירת חשבון", to: "signup" },
-  signup: { h: "יצירת חשבון", why: "חינם בתקופת ההשקה. המסמכים נשארים במחשב.", google: "הרשמה", send: "יצירת חשבון", q: "כבר יש לך חשבון?", go: "כניסה", to: "signin" },
-  reset: { h: "שכחתי סיסמה", why: "נשלח למייל קישור, ובו בוחרים סיסמה חדשה.", google: "", send: "שליחת קישור", q: "", go: "חזרה לכניסה", to: "signin" },
+  signup: { h: "יצירת חשבון", why: "חינם. המסמכים נשארים במחשב שלכם.", google: "הרשמה", send: "יצירת חשבון", q: "כבר יש לכם חשבון?", go: "כניסה", to: "signin" },
+  reset: { h: "שכחתי סיסמה", why: "תקבלו במייל קישור לבחירת סיסמה חדשה.", google: "", send: "שליחת קישור", q: "", go: "חזרה לכניסה", to: "signin" },
 };
 let mode = "signin";
 function setMode(m) {
@@ -201,7 +201,7 @@ function sent(what, addr) {
 
 const checkEmail = () => {
   const v = email.value.trim();
-  const msg = !v ? "צריך להקליד כתובת מייל." : !email.checkValidity() ? "הכתובת לא נראית תקינה. למשל: name@example.co.il" : "";
+  const msg = !v ? "צריך להקליד כתובת מייל." : !email.checkValidity() ? "הכתובת לא נראית תקינה. כתובת מייל נראית כך: name@example.co.il" : "";
   showErr(msg, email);
   return msg ? null : v;
 };
@@ -217,7 +217,7 @@ document.getElementById("mailform").addEventListener("submit", async (e) => {
     return sent("reset", v);
   }
   if (!pw.value) return showErr("צריך להקליד סיסמה.", pw);
-  if (mode === "signup" && pw.value.length < MIN) return showErr("הסיסמה צריכה לפחות " + MIN + " תווים.", pw);
+  if (mode === "signup" && pw.value.length < MIN) return showErr("הסיסמה צריכה להיות באורך " + MIN + " תווים לפחות.", pw);
   if (mode === "signup" && tooLong(pw.value)) return showErr(TOO_LONG, pw);
   send.disabled = true;
   if (mode === "signin") {
@@ -287,7 +287,7 @@ $("confirmform").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (go.disabled) return;
   newpw.setAttribute("aria-invalid", "false");
-  if (needsPw && newpw.value.length < MIN) return confirmErr("הסיסמה צריכה לפחות " + MIN + " תווים.", true);
+  if (needsPw && newpw.value.length < MIN) return confirmErr("הסיסמה צריכה להיות באורך " + MIN + " תווים לפחות.", true);
   if (needsPw && tooLong(newpw.value)) return confirmErr(TOO_LONG, true);
   go.disabled = true;
   if (!verified) {
@@ -364,7 +364,7 @@ async function arrive(why) {
 setMode(new URLSearchParams(location.search).get("mode") === "signup" ? "signup" : "signin");
 if (token) {
   const words = kind === "recovery" ? ["איפוס סיסמה", "בוחרים סיסמה חדשה, ונכנסים.", "שמירה וכניסה"]
-    : kind === "signup" ? ["אימות כתובת המייל", "מקלידים את הסיסמה לחשבון. היא תשמש לכניסה מעכשיו.", "אימות וכניסה"]
+    : kind === "signup" ? ["אימות כתובת המייל", "כדי לסיים את ההרשמה, מקלידים סיסמה לחשבון (אפשר את זו שבחרתם בהרשמה). איתה נכנסים מעכשיו.", "אימות וכניסה"]
     : null; // a sign-in link keeps the page's own words
   if (words) { $("confirm-h").textContent = words[0]; $("confirm-why").textContent = words[1]; go.textContent = words[2]; }
   $("newpw-wrap").hidden = !needsPw;

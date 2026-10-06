@@ -194,7 +194,16 @@ const UID = "00000000-0000-0000-0000-00000000000a";
   G._reset();
   r = await run(ck(await token(K1)), { sb: supabase({ jwksStatus: 500 }) });
   ok(!r.passed && r.res.status === 503, "the key list not answering: 503, the app stays shut");
-  ok(/[֐-׿]/.test(await r.res.text()), "the 503 page says so in Hebrew");
+  {
+    // the owner's approved 503 page (review 6.10): it names itself in the tab, says why the tool did not
+    // open, and gives a way out (it was one bare line, and the only way on was the browser's back button)
+    const body = await r.res.text();
+    ok(/[֐-׿]/.test(body), "the 503 page says so in Hebrew");
+    ok(body.includes("<title>השירות לא זמין כרגע · אינקוגניטו</title>"), "the 503 page names itself in the tab");
+    ok(body.includes("<h1>השירות לא זמין כרגע</h1>") && body.includes("ולכן הכלי לא נפתח"), "the 503 page says what happened and why the tool did not open");
+    ok(/<a href="\/">לעמוד הבית<\/a>/.test(body), "the 503 page links back to the home page");
+    ok(/<meta name="viewport"/.test(body), "the 503 page fits a phone");
+  }
 
   console.log("\n— what passes is cached privately —");
   G._reset();
