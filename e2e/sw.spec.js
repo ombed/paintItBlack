@@ -63,20 +63,20 @@ test("after an update the version chip ends as the page's own, and warns only wh
     await controlled(page);
     expect(await workerSays(page)).toBe("hedact-v1");
     await page.reload();
-    await expect(page.locator("#ver")).toContainText("מוגש v1");
+    await expect(page.locator("#ver")).toContainText("יש גרסה חדשה");
 
     // the new worker cannot be had: the old one keeps serving, and the warning is true and stays
     state.worker = "fails";
     await page.reload();
-    await expect(page.locator("#ver")).toContainText("מוגש v1");
+    await expect(page.locator("#ver")).toContainText("יש גרסה חדשה");
     await page.waitForTimeout(4000);
-    await expect(page.locator("#ver")).toContainText("מוגש v1");
+    await expect(page.locator("#ver")).toContainText("יש גרסה חדשה");
 
     // the update: the old worker answers first, the new one takes over, and the chip is the page's own
     state.worker = "current";
     state.holdMs = 1500;
     await page.reload();
-    await expect(page.locator("#ver")).toContainText("מוגש v1");
+    await expect(page.locator("#ver")).toContainText("יש גרסה חדשה");
     await expect(page.locator("#ver")).toHaveText("גרסה " + PAGE_V, { timeout: 20000 });
     expect(await workerSays(page)).toBe("hedact-" + PAGE_V);
   } finally {

@@ -27,7 +27,7 @@ const write = (f, s) => fs.writeFileSync(path.join(ROOT, f), s);
 let html = read("index.html");
 const shapes = [
   [/(<div id="ver">גרסה )v\d+(<\/div>)/, "$1" + V + "$2"],
-  [/(console\.log\("השחרת מסמכים — גרסה )v\d+("\))/, "$1" + V + "$2"],
+  [/(console\.log\("אינקוגניטו — גרסה )v\d+("\))/, "$1" + V + "$2"],
   [/(if\(served===")v\d+("\) return;)/, "$1" + V + "$2"],
   [/(el\.innerHTML='גרסה )v\d+( · )/, "$1" + V + "$2"],
 ];
@@ -47,7 +47,7 @@ const lineOf = (rx) => lines.findIndex((l) => rx.test(l)) + 1;
 let md = read("README.md");
 const rows = [
   [/^\| `index\.html` \| \d+ \| `<div id="ver">גרסה v\d+<\/div>`/m, "| `index.html` | " + lineOf(/<div id="ver">/) + ' | `<div id="ver">גרסה ' + V + "</div>`"],
-  [/^\| `index\.html` \| \d+ \| `console\.log\("… גרסה v\d+"\)`/m, "| `index.html` | " + lineOf(/console\.log\("השחרת מסמכים — גרסה/) + ' | `console.log("… גרסה ' + V + '")`'],
+  [/^\| `index\.html` \| \d+ \| `console\.log\("… גרסה v\d+"\)`/m, "| `index.html` | " + lineOf(/console\.log\("אינקוגניטו — גרסה/) + ' | `console.log("… גרסה ' + V + '")`'],
   [/^\| `index\.html` \| \d+ \| `if\(served==="v\d+"\) return;`/m, "| `index.html` | " + lineOf(/if\(served===/) + ' | `if(served==="' + V + '") return;`'],
   [/^\| `index\.html` \| \d+ \| `el\.innerHTML='גרסה v\d+ · …'`/m, "| `index.html` | " + lineOf(/el\.innerHTML='גרסה/) + " | `el.innerHTML='גרסה " + V + " · …'`"],
   [/^\| `sw\.js` \| \d+ \| `const V="hedact-v\d+";`/m, "| `sw.js` | " + (sw.split("\n").findIndex((l) => /const V="hedact-/.test(l)) + 1) + ' | `const V="hedact-' + V + '";`'],

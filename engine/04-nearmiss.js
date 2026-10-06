@@ -96,7 +96,7 @@ function findNear(blocks,targets,banned){
           const key=nraw+"|"+t.value;
           if(seen.has(key))continue; seen.add(key);
           const homo=r.k==="sub"&&HOMO.has(r.p);
-          out.push({value:raw,label:"כמעט התאמה",part:partName(blk.part),
+          out.push({value:raw,label:"כתיב דומה",part:partName(blk.part),
             ctx:ctxHTML(blk.text,s,e),review:true,src:"near",
             near:{target:t.value,rep:t.rep,kind:t.kind},
             conf:homo?"high":"medium",

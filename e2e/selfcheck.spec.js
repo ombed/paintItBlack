@@ -102,7 +102,7 @@ test("without detail, the report carries rule names only — safe for a session 
    session log, which travels in her test package. Rule, screen and count only. */
 async function sessionLog(page) {
   await page.evaluate(() => { navigator.clipboard.writeText = (t) => { window.__copied = t; return Promise.resolve(); }; });
-  const btn = page.getByRole("button", { name: "העתקת יומן הסשן" });
+  const btn = page.getByRole("button", { name: "העתקת יומן השימוש" });
   if (!(await btn.isVisible().catch(() => false))) await page.getByRole("button", { name: /מה נוקה מהקובץ/ }).click();
   await btn.click();
   return JSON.parse(await page.evaluate(() => window.__copied || "{}"));

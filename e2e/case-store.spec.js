@@ -16,7 +16,7 @@ const profile = (name, real, fake, updated = "2026-09-01T09:00:00.000Z") => ({ v
 const PLAIN_CASE = profile("פלדמן נ׳ גרוס", "מיכאל פלדמן", "יואב כרמי");
 const PLAIN_LAST = profile("", "דפנה גרוס", "שירה אלון");
 const ACCOUNT_CASE = profile("ברק נ׳ ברק", "עדי ברק", "נועה שגב");
-const LAST_CARD = "להמשיך עם הפרופיל מהפעם הקודמת?";
+const LAST_CARD = "להמשיך עם רשימת השמות מהפעם הקודמת?";
 
 // what the browser holds under the case keys, plain and suffixed, parsed
 const store = (page) => page.evaluate(() => Object.fromEntries(Object.keys(localStorage)
@@ -168,9 +168,9 @@ test("with a case in use on the entry screen, an import stores its cases and lea
   await expect(page.locator("[data-case-chip]")).toContainText("תיק: " + PLAIN_CASE.name);
   await expect(page.locator("[data-case]")).toHaveCount(0);
   await expect(notice(page)).toHaveCount(0);
-  await expect(page.getByRole("alert").filter({ hasText: "טעינת הפרופיל נכשלה" })).toHaveCount(0);
+  await expect(page.getByRole("alert").filter({ hasText: "ייבוא התיק נכשל" })).toHaveCount(0);
   // the case set aside («החלפה»), the list shows the imported case next to hers
-  await page.locator("[data-case-chip]").getByRole("button", { name: "החלפה" }).click();
+  await page.locator("[data-case-chip]").getByRole("button", { name: "בלי התיק הזה" }).click();
   await expect(page.locator(`[data-case="${a.name}"]`)).toBeVisible();
   await expect(page.locator(`[data-case="${PLAIN_CASE.name}"]`)).toBeVisible();
 });
@@ -204,7 +204,7 @@ test("a malformed or foreign file changes nothing and gets the message of a brok
     await page.reload();
     await expect(page.locator(`[data-case="${PLAIN_CASE.name}"]`)).toBeVisible({ timeout: 60000 });
     await importFile(page, { name: "cases.json", mimeType: "application/json", buffer: Buffer.from(body) });
-    const err = page.getByRole("alert").filter({ hasText: "טעינת הפרופיל נכשלה" });
+    const err = page.getByRole("alert").filter({ hasText: "ייבוא התיק נכשל" });
     await expect(err, body).toBeVisible();
     await expect(err, body).toContainText("ייצוא לקובץ");
     await expect(err, body).not.toContainText(/Expected|position|JSON|Unexpected|undefined/);
@@ -227,12 +227,12 @@ test("case names from a file are shown as text, never as markup", async ({ page 
 test("the single-profile import still loads one profile, and a cases file given to it adds the cases", async ({ page }) => {
   await H.serveEngineWithStub(page);
   await H.boot(page);
-  await importFile(page, casesFile([ACCOUNT_CASE]), "ייבוא פרופיל מקובץ");
+  await importFile(page, casesFile([ACCOUNT_CASE]), "ייבוא תיק מקובץ");
   await expect(page.locator(`[data-case="${ACCOUNT_CASE.name}"]`)).toBeVisible();
   await expect(notice(page)).toHaveCount(0);
   // a profile exported from one case («ייצוא לקובץ»): it is loaded as the case in use, as before
   const one = profile("גל נ׳ גל", "איתי גל", "עידו נר");
-  await importFile(page, { name: "פרופיל-גל נ׳ גל.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(one)) }, "ייבוא פרופיל מקובץ");
+  await importFile(page, { name: "פרופיל-גל נ׳ גל.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(one)) }, "ייבוא תיק מקובץ");
   await expect(page.locator("[data-case-chip]")).toContainText("תיק: גל נ׳ גל");
   expect(Object.keys((await store(page))["redact-cases"])).toEqual([ACCOUNT_CASE.name]);
 });
@@ -270,8 +270,8 @@ const BAD_SHAPES = {
   "sent as a number": (p) => ({ ...p, sent: 3 }),
   "a name that is a number": (p) => ({ ...p, name: 12 }),
 };
-const BROKEN_FILE = "הקובץ אינו קובץ פרופיל תקין, או שהוא נפגם";
-const loadErr = (page) => page.getByRole("alert").filter({ hasText: "טעינת הפרופיל נכשלה" });
+const BROKEN_FILE = "הקובץ אינו קובץ תיק, או שהוא פגום";
+const loadErr = (page) => page.getByRole("alert").filter({ hasText: "ייבוא התיק נכשל" });
 
 test("a cases file with one entry the screen cannot show is refused whole: nothing is written, and it gets the broken-profile message", async ({ page }) => {
   await H.serveEngineWithStub(page);
@@ -314,15 +314,15 @@ test("an entry already stored that the screen cannot show is skipped: the entry 
   }
 });
 
-test("a profile file the screen cannot show is refused by «ייבוא פרופיל מקובץ» with its existing message, and nothing is loaded", async ({ page }) => {
+test("a profile file the screen cannot show is refused by «ייבוא תיק מקובץ» with its existing message, and nothing is loaded", async ({ page }) => {
   await H.serveEngineWithStub(page);
   await H.boot(page);
   for (const [shape, make] of Object.entries(BAD_SHAPES)) {
     await page.reload();
     await expect(page.locator("[data-import-cases]"), shape).toBeVisible({ timeout: 60000 });
     const one = make(profile("גל נ׳ גל", "איתי גל", "עידו נר"));
-    await importFile(page, { name: "פרופיל-גל נ׳ גל.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(one)) }, "ייבוא פרופיל מקובץ");
-    await expect(loadErr(page), shape).toContainText("קובץ פרופיל לא מזוהה");
+    await importFile(page, { name: "פרופיל-גל נ׳ גל.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(one)) }, "ייבוא תיק מקובץ");
+    await expect(loadErr(page), shape).toContainText("קובץ תיק לא מזוהה");
     await expect(page.locator("[data-case-chip]"), shape).toHaveCount(0);
     expect(await store(page), shape).toEqual({});
   }

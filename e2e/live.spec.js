@@ -91,7 +91,7 @@ test("the people screen says what changes: its note is a status, the model's fai
   await H.upload(page, "case.docx", DOC);
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
-  await expect(page.locator("main").getByRole("alert")).toContainText("המודל לא נטען");
+  await expect(page.locator("main").getByRole("alert")).toContainText("מודל הזיהוי לא נטען");
 
   // without the model: the note under the list, and what it says when a long paste is refused
   await page.locator("[data-back]").click();
@@ -120,7 +120,7 @@ test("an error in the work bar is said: it is an alert", async ({ page }) => {
   await toWork(page, DOC);
   // the browser refuses both ways of copying
   await page.evaluate(() => { navigator.clipboard.writeText = () => Promise.reject(new Error("blocked")); document.execCommand = () => false; });
-  await page.locator("[data-bar]").getByRole("button", { name: /העתקה ל-AI/ }).click();
+  await page.locator("[data-bar]").getByRole("button", { name: /העתקה ל־AI/ }).click();
   const anyway = page.getByRole("button", { name: /בכל זאת/ });
   if (await anyway.isVisible({ timeout: 800 }).catch(() => false)) await anyway.click();
   await expect(page.locator("[data-bar]").getByRole("alert")).toContainText("ההעתקה נחסמה");

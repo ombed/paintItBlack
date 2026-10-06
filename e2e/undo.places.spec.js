@@ -81,7 +81,7 @@ test("Ctrl+Z takes a decision back, and the arrows do the same", async ({ page }
   expect(before).toBeGreaterThan(0);
 
   // "do not replace" on the first card takes its replacements out of the text
-  const dont = page.getByRole("button", { name: "אל תחליפו" }).first();
+  const dont = page.getByRole("button", { name: "לא להחליף" }).first();
   await expect(dont).toBeVisible({ timeout: 15000 });
   await dont.click();
   await expect.poll(() => marks.count(), { timeout: 20000 }).toBeLessThan(before);

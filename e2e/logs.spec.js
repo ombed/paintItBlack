@@ -18,7 +18,7 @@ const DOC = [
 
 async function sessionLog(page) {
   await page.evaluate(() => { navigator.clipboard.writeText = (t) => { window.__copied = t; return Promise.resolve(); }; });
-  const btn = page.getByRole("button", { name: "העתקת יומן הסשן" });
+  const btn = page.getByRole("button", { name: "העתקת יומן השימוש" });
   if (!(await btn.isVisible().catch(() => false))) await page.getByRole("button", { name: /מה נוקה מהקובץ/ }).click();
   await btn.click();
   return JSON.parse(await page.evaluate(() => window.__copied || "{}"));
@@ -48,11 +48,11 @@ test("each correction says what caused it, and the log still carries no text", a
   await expect.poll(() => page.locator("[data-work] section").first().innerText(), { timeout: 15000 }).toContain("משה כהן");
   // "don't replace" on a name the model and the speaker layer both found
   await page.locator('[data-mark][data-val="אבנר שטרן"]').first().click();
-  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליפו" }).click();
+  await page.locator("[data-inline]").getByRole("button", { name: "לא להחליף" }).click();
   await expect.poll(() => page.locator("[data-work] section").first().innerText(), { timeout: 15000 }).toContain("אבנר שטרן");
   // a name she has to add herself
-  const add = page.getByPlaceholder("ערך שפוספס");
-  if (!(await add.isVisible().catch(() => false))) await page.getByRole("button", { name: /הוספה ידנית|ערך שפוספס/ }).first().click().catch(() => {});
+  const add = page.getByPlaceholder("שם או פרט שפוספס");
+  if (!(await add.isVisible().catch(() => false))) await page.getByRole("button", { name: /הוספה ידנית|שם או פרט שפוספס/ }).first().click().catch(() => {});
   await add.fill("יונתן לנדאו");
   await add.press("Enter");
   await expect.poll(() => page.locator("[data-work] section").first().innerText(), { timeout: 15000 }).not.toContain("יונתן לנדאו");

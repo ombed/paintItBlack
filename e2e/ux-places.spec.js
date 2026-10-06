@@ -137,12 +137,12 @@ test("UX #17: the profile buttons say export and import, and export says where t
   await H.goOn(page);
   await page.getByRole("button", { name: /המשך לבדיקה|החלת הקבוצה/ }).first().click();
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
-  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  await page.getByRole("button", { name: /התיק ורשימת השמות/ }).click();
   await expect(page.getByRole("button", { name: "ייבוא מקובץ" })).toBeVisible();
   const d = page.waitForEvent("download");
   await page.getByRole("button", { name: "ייצוא לקובץ" }).click();
   const name = (await d).suggestedFilename();
-  expect(name).toMatch(/^פרופיל-.*\.json$/);
+  expect(name).toMatch(/^(?:תיק-.*|רשימת-שמות)\.json$/);
   await expect(page.locator("[data-notice]")).toContainText(name);
 });
 

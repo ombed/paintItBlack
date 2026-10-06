@@ -28,7 +28,7 @@ async function toWork(page, doc, names) {
   await expect(bar).toBeVisible({ timeout: 20000 });
 }
 async function manualAdd(page, value) {
-  await page.getByPlaceholder("ערך שפוספס").fill(value);
+  await page.getByPlaceholder("שם או פרט שפוספס").fill(value);
   await page.getByRole("button", { name: "הוספה והחלפה" }).click();
 }
 
@@ -55,7 +55,7 @@ test("one card per person: the prefixed forms are chips, and one form can be kep
   await expect(lForm.locator("span").first()).toHaveText("ל");
   // keep only that form
   await lForm.click();
-  await card.locator("[data-form-act]").getByRole("button", { name: "אל תחליפו" }).click();
+  await card.locator("[data-form-act]").getByRole("button", { name: "לא להחליף" }).click();
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("לאסתר לוין");
   const text = await sheet(page).innerText();
   expect(text).not.toMatch(/(^|[^ל])אסתר לוין/);
@@ -106,7 +106,7 @@ test("the dates choice is one setting, and it is kept with the case", async ({ p
   await expect(page.locator('[data-mark][data-kind="date"]')).toHaveCount(0);
   expect(await sheet(page).innerText()).not.toMatch(/\d{1,2}\.\d{1,2}\.\d{4}/);
   await expect(page.locator("[data-legend-date]")).toHaveCount(0);
-  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  await page.getByRole("button", { name: /התיק ורשימת השמות/ }).click();
   await page.getByPlaceholder(/שם התיק/).fill("לוין נ׳ לוין");
   await expect.poll(() => page.evaluate(() => { const c = JSON.parse(localStorage.getItem("redact-cases") || "{}"); return c["לוין נ׳ לוין"] && c["לוין נ׳ לוין"].styles && c["לוין נ׳ לוין"].styles.date; })).toBe("blank");
   // the next document of the case starts with the same choice

@@ -49,13 +49,13 @@ test("a full date is shifted, not deleted, and the same offset holds for the doc
 test("removing a town keeps the other approved pairs, and a dissolved map hands its name over", async ({ page }) => {
   await toPeople(page);
   await H.goOn(page);
-  const rows = page.locator('div:has(> button:text-is("אל תחליפו"))');
+  const rows = page.locator('div:has(> button:text-is("לא להחליף"))');
   await expect(rows.first()).toBeVisible({ timeout: 10000 });
   const names = await rows.locator('span[data-tip="1"]').allTextContents();
   const tos = await rows.locator("input").evaluateAll((els) => els.map((e) => e.value));
   expect(names.length).toBeGreaterThanOrEqual(3);
   // remove the first town: the others keep their substitutes
-  await rows.first().getByRole("button", { name: "אל תחליפו" }).click();
+  await rows.first().getByRole("button", { name: "לא להחליף" }).click();
   const names2 = await rows.locator('span[data-tip="1"]').allTextContents();
   const tos2 = await rows.locator("input").evaluateAll((els) => els.map((e) => e.value));
   for (let i = 0; i < names2.length; i++) {
@@ -63,7 +63,7 @@ test("removing a town keeps the other approved pairs, and a dissolved map hands 
     expect(tos2[i]).toBe(tos[j]);
   }
   // remove another: one town left, the map dissolves, and its approved name is kept in the extra list
-  await rows.first().getByRole("button", { name: "אל תחליפו" }).click();
+  await rows.first().getByRole("button", { name: "לא להחליף" }).click();
   const last = names2[1], lastTo = tos2[1];
   const extra = page.locator("[data-wrap]").filter({ hasText: last }).first();
   await expect(extra).toBeVisible();
@@ -96,7 +96,7 @@ test("'same person as' on the card links the names, and a conflicting decision r
   const ronitMark = page.locator('[data-mark][data-val="רונית לוי"]').first();
   await ronitMark.click();
   const rcard = page.locator("[data-group]").filter({ hasText: "רונית לוי" }).first();
-  await rcard.getByRole("button", { name: "אל תחליפו" }).click();
+  await rcard.getByRole("button", { name: "לא להחליף" }).click();
   const notice = page.locator("[data-notice]");
   await expect(notice).toBeVisible();
   await expect(notice).toContainText("רונית לוי");

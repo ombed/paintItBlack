@@ -77,5 +77,5 @@ test("the app tells her which pages of the PDF are pictures", async ({ page, con
   await H.serveEngineWithStub(page);
   await H.boot(page);
   await page.locator('input[type="file"][accept*=".pdf"]').setInputFiles({ name: "case.pdf", mimeType: "application/pdf", buffer: pdf });
-  await expect(page.locator("[data-notice]")).toContainText("עמוד 2 ב-PDF הוא תמונה");
+  await expect(page.locator("[data-notice]")).toContainText("עמוד 2 ב־PDF הוא תמונה");
 });

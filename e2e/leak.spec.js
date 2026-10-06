@@ -39,7 +39,7 @@ async function markByHand(page, word) {
 }
 
 async function copiedReport(page) {
-  const open = page.getByRole("button", { name: "העתקת דוח הדליפה" });
+  const open = page.getByRole("button", { name: "העתקת פירוט השמות שסימנתם" });
   if (!(await open.isVisible().catch(() => false))) await page.getByRole("button", { name: /מה נוקה מהקובץ/ }).click();
   await open.click();
   return page.evaluate(() => window.__copied || "");
@@ -100,7 +100,7 @@ test("a new document starts with an empty leak report", async ({ page }) => {
 
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "מסמך חדש" }).click();
-  await expect(page.getByRole("heading", { name: /מה יוצא מהמסמך/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /להיעזר ב־AI בלי לחשוף את הלקוח/ })).toBeVisible();
   await H.upload(page, "other.docx", "סיכום פגישה\nהשכן וסילייבסקי הגיע באיחור.\nהפגישה נערכה ביום שני.");
   await H.startScan(page);
   await expect(H.goButton(page).or(H.skipButton(page)).first()).toBeVisible({ timeout: 10000 });

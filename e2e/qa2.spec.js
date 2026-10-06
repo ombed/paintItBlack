@@ -98,7 +98,7 @@ test("H1: a pseudonym changed after the text was sent still restores the answer 
   const before = {};
   for (const p of PEOPLE) before[p] = (await repOf(page, p)).trim();
   await page.evaluate(() => { navigator.clipboard.writeText = () => Promise.resolve(); });
-  await page.locator("[data-bar]").getByRole("button", { name: /העתקה ל-AI|הועתק/ }).click();
+  await page.locator("[data-bar]").getByRole("button", { name: /העתקה ל־AI|הועתק/ }).click();
   const anyway = page.getByRole("button", { name: "להעתיק בכל זאת" });
   if (await anyway.isVisible()) await anyway.click();
   const answer = `לדעתי ${before["שירה ברקוביץ׳"]} צריכה לדבר עם המורה ${before["רחל פרידמן"]}.`;
@@ -110,7 +110,7 @@ test("H1: a pseudonym changed after the text was sent still restores the answer 
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("גלית ורד");
   // the same class: "don't replace" on another person after the text was sent (QA round 1, class probe)
   await page.locator('[data-mark][data-val="רחל פרידמן"]').first().click();
-  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליפו" }).click();
+  await page.locator("[data-inline]").getByRole("button", { name: "לא להחליף" }).click();
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("רחל פרידמן");
 
   await page.getByRole("button", { name: "החזרת שמות מתשובת AI" }).click();
@@ -123,7 +123,7 @@ test("H1: a pseudonym changed after the text was sent still restores the answer 
 
 test("C2: a saved case keeps its people and their pseudonyms across documents", async ({ page }) => {
   await toWork(page, A);
-  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  await page.getByRole("button", { name: /התיק ורשימת השמות/ }).click();
   await page.getByPlaceholder(/שם התיק/).fill("שטרן נ׳ שטרן");
   // a pseudonym she chose herself
   await page.locator('[data-mark][data-val="אבנר שטרן"]').first().click();
@@ -155,7 +155,7 @@ test("C3: 'מסמך חדש' drops the case, so the next client's document does n
   const FIRST = ["פרוטוקול לקוחה א", "אלון בר: הגעתי.", "אלון בר: חתמתי."].join("\n");
   const OTHER = ["פרוטוקול לקוח ב", "אבנר שטרן: הגעתי.", "אבנר שטרן: חתמתי."].join("\n");
   await toWork(page, FIRST);
-  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  await page.getByRole("button", { name: /התיק ורשימת השמות/ }).click();
   await page.getByPlaceholder(/שם התיק/).fill("לוי נ׳ לוי");
   await expect.poll(() => cases(page).then((c) => Object.keys(c))).toContain("לוי נ׳ לוי");
   const alon = (await cases(page))["לוי נ׳ לוי"].map["אלון בר"];
@@ -163,7 +163,7 @@ test("C3: 'מסמך חדש' drops the case, so the next client's document does n
 
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "מסמך חדש" }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("מה יוצא מהמסמך");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("להיעזר ב־AI בלי לחשוף את הלקוח");
   // the case is offered, not assumed
   await expect(page.getByRole("button", { name: "שימוש בתיק הזה", exact: true }).first()).toBeVisible();
   await expect(page.locator("[data-case-chip]")).toHaveCount(0);
@@ -194,7 +194,7 @@ test("H1: '‹ רשימת השמות' and 'המשך' keep every decision made on
   await page.locator("[data-inline]").getByPlaceholder("תחליף אחר").press("Enter");
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("גלית ורד");
   // decision 2: a name the list missed, added from the work screen
-  await page.getByPlaceholder("ערך שפוספס").fill("דנה ברקוביץ׳");
+  await page.getByPlaceholder("שם או פרט שפוספס").fill("דנה ברקוביץ׳");
   await page.getByRole("button", { name: "הוספה והחלפה" }).click();
   // her own mark, not the bare-surname match that the שירה rule already made
   await expect(page.locator('[data-mark][data-val="דנה ברקוביץ׳"]').first()).toBeVisible({ timeout: 15000 });
@@ -204,7 +204,7 @@ test("H1: '‹ רשימת השמות' and 'המשך' keep every decision made on
   expect(before).not.toContain("חיפה");
 
   // back to the list: it shows the added name, and continuing changes nothing
-  await page.getByRole("button", { name: /רשימת השמות/ }).click();
+  await page.locator("[data-back]").filter({ hasText: "מי בתיק" }).click();
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   expect(await H.listedNames(page)).toContain("דנה ברקוביץ׳");
   await onward(page);
@@ -240,7 +240,7 @@ test("H2: back to 'קובץ' and the main button again returns to the same list,
 
   // the back button; its ‹ is drawn and hidden from screen readers, so its name is «קובץ», like the header step
   await page.locator("[data-back]").and(page.getByRole("button", { name: "קובץ", exact: true })).click();
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("מה יוצא מהמסמך");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("להיעזר ב־AI בלי לחשוף את הלקוח");
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   expect(await H.listedNames(page)).toEqual(before);
@@ -325,7 +325,7 @@ test("H5: with a document open, reload asks first and browser Back stays in the 
   page.on("dialog", (d) => { seen.push(d.type()); d.accept(); });
   await page.reload();
   expect(seen).toContain("beforeunload");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("מה יוצא מהמסמך");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("להיעזר ב־AI בלי לחשוף את הלקוח");
 });
 
 test("H5: nothing is armed before a document is loaded, and the tour is not a document", async ({ page }) => {

@@ -6,7 +6,7 @@ const H = require("./helpers");
    ISSUE-001 (critical): after attaching a saved case from "תיקים אחרונים",
    "החזרת שמות" consulted the saved case's map instead of the current
    document's, so the pseudonym the tool had just written could not be found
-   and the text came back unchanged with "לא נמצא אף שם חלופי".
+   and the text came back unchanged with "לא נמצא בתשובה אף שם בדוי".
 
    ISSUE-002 (high): a name ending in geresh ("יואב ברקוביץ׳") lost its ׳ when
    added, never matched the document, and the real name stayed in the output. */
@@ -36,7 +36,7 @@ test("ISSUE-001: restore finds the current document's pseudonyms after a saved c
   await H.upload(page, "first.docx", DOC1);
   await scanAndList(page, "גדי פרץ");
   // name the case: the profile is persisted to the browser on every change
-  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  await page.getByRole("button", { name: /התיק ורשימת השמות/ }).click();
   await page.getByPlaceholder(/שם התיק/).fill("פרץ נ׳ פרץ");
   await expect.poll(() => page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem("redact-cases") || "{}")))).toContain("פרץ נ׳ פרץ");
 
@@ -59,7 +59,7 @@ test("ISSUE-001: restore finds the current document's pseudonyms after a saved c
   await page.getByRole("button", { name: /החזרת שמות מתשובת AI/ }).click();
   await page.getByPlaceholder(/הדבקת תשובת ה-AI/).fill(`להערכתי, ${fake} צריך להגיש את התצהיר.`);
   await page.getByRole("button", { name: "החזרת שמות", exact: true }).click();
-  await expect(page.getByText(/לא נמצא אף שם חלופי/)).toHaveCount(0);
+  await expect(page.getByText(/לא נמצא בתשובה אף שם בדוי/)).toHaveCount(0);
   await expect(page.locator("main")).toContainText("להערכתי, עמוס ברק צריך להגיש את התצהיר.");
 });
 

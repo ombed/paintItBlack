@@ -26,7 +26,7 @@ const TEXT = [
   "הקובץ מכיל את שמות הלקוחות שבתיקים: שמרו אותו כמו כל מסמך של תיק.",
 ];
 const DOWNLOAD = "הורדת התיקים לקובץ", GO = "מעבר לאינקוגניטו", SIGNUP = "https://inkognito.co.il/login?mode=signup", HOME = "https://inkognito.co.il/";
-const LAST_CARD = "להמשיך עם הפרופיל מהפעם הקודמת?";
+const LAST_CARD = "להמשיך עם רשימת השמות מהפעם הקודמת?";
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".mjs": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8", ".webmanifest": "application/manifest+json; charset=utf-8",
   ".svg": "image/svg+xml", ".png": "image/png", ".woff2": "font/woff2" };

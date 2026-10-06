@@ -13,7 +13,7 @@ const html = read("index.html"), sw = read("sw.js"), md = read("README.md");
 const pick = (s, rx, what) => { const m = s.match(rx); if (!m) { fail++; console.log("  FAIL missing: " + what); return null; } return m[1]; };
 
 const chip = pick(html, /<div id="ver">גרסה (v\d+)<\/div>/, "chip");
-const log = pick(html, /console\.log\("השחרת מסמכים — גרסה (v\d+)"\)/, "console line");
+const log = pick(html, /console\.log\("אינקוגניטו — גרסה (v\d+)"\)/, "console line");
 const served = pick(html, /if\(served==="(v\d+)"\) return;/, "served check");
 const warn = pick(html, /el\.innerHTML='גרסה (v\d+) · /, "warning label");
 const key = pick(sw, /const V="hedact-(v\d+)";/, "sw cache key");

@@ -32,7 +32,7 @@ async function toCheckScreen(page) {
 
 test("adding a missed value by hand sits at the top of the rail", async ({ page }) => {
   await toCheckScreen(page);
-  const manual = page.getByPlaceholder("ערך שפוספס");
+  const manual = page.getByPlaceholder("שם או פרט שפוספס");
   await expect(manual).toBeVisible();
 
   // above the first accordion, rather than below all of them
@@ -46,9 +46,9 @@ test("the bundle export is its own section, open, and says what it is", async ({
   await toCheckScreen(page);
   // visible without opening anything
   await expect(page.getByRole("button", { name: /חבילת בדיקה/ })).toBeVisible();
-  await expect(page.getByRole("button", { name: /העתקת יומן הסשן/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /העתקת יומן השימוש/ })).toBeVisible();
   // and it is no longer buried inside the section about what was cleaned
-  await expect(page.getByRole("button", { name: /שליחת הסשן אלינו/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /עזרה בשיפור הזיהוי/ })).toBeVisible();
 });
 
 /* Up to v56 the package also held the redacted document and opened a mail to an address kept

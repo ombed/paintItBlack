@@ -24,7 +24,7 @@ async function typePlace(page, v) {
   await input.fill(v); await input.press("Enter");
   await H.peopleRows(page).filter({ hasText: v }).getByRole("combobox").selectOption("PLACE");
 }
-const mapRow = (page, town) => page.locator('div:has(> button:text-is("אל תחליפו"))').filter({ hasText: town }).first();
+const mapRow = (page, town) => page.locator('div:has(> button:text-is("לא להחליף"))').filter({ hasText: town }).first();
 const applied = (page) => page.evaluate(() => Object.fromEntries(window.__pib.state().res.applied.map((r) => [r.base || r.value, r.baseRep || r.rep])));
 async function toCheck(page) {
   await page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first().click();

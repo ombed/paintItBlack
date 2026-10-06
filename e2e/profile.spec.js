@@ -22,7 +22,7 @@ test.beforeEach(async ({ page }) => {
 
 test("the profile survives a reload and is offered on the entry screen as a named case", async ({ page }) => {
   // name the case in the profile section
-  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  await page.getByRole("button", { name: /התיק ורשימת השמות/ }).click();
   await page.getByPlaceholder(/שם התיק/).fill("לוי נ׳ לוי");
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("redact-profile-last") || "null"));
   expect(saved && saved.v).toBe(1);
@@ -36,7 +36,7 @@ test("the profile survives a reload and is offered on the entry screen as a name
   // a named case sits in the case list, not in the single-slot card
   const row = page.locator("[data-case=\"לוי נ׳ לוי\"]");
   await expect(row).toBeVisible();
-  await expect(row).toContainText("ערכים");
+  await expect(row).toContainText(/שמות ופרטים|שם או פרט אחד/);
   await row.getByRole("button", { name: "שימוש בתיק הזה", exact: true }).click();
   await expect(page.locator("[data-case]")).toHaveCount(0);
   // the rules are back: uploading the same document pre-fills from the profile
@@ -51,6 +51,6 @@ test("leaving the work screen without an export asks first", async ({ page }) =>
   let asked = "";
   page.on("dialog", async (d) => { asked = d.message(); await d.dismiss(); });
   await page.getByRole("button", { name: "מסמך חדש" }).click();
-  expect(asked).toContain("לא יוצא לקובץ");
+  expect(asked).toContain("ולא בקובץ");
   await expect(page.locator("[data-mark]").first()).toBeVisible(); // still on the work screen
 });

@@ -59,14 +59,14 @@ const sheetText = (page) => page.locator("[data-work] section").first().innerTex
    the FIRST document's people, «המשך» applied them, and the second document's names stayed in the text.
    The same through «מקומות», which went to the places screen with the first document's rules. A header
    step now leads to this document's own list: it is built first, as «המשך — איתור שמות במסמך» does. */
-for (const via of ["מי בתיק", "מקומות"]) {
+for (const via of ["מי בתיק", "יישובים"]) {
   test(`the next document loaded after the back buttons gets its own list from the header's «${via}»`, async ({ page }) => {
     await H.serveEngineWithStub(page);
     await H.boot(page);
     await modelOff(page);
     await H.upload(page, "first.docx", FIRST);
     await toWork(page);
-    await backTo(page, ["רשימת השמות", "קובץ"]);
+    await backTo(page, ["מי בתיק", "קובץ"]);
     await H.upload(page, "next.docx", NEXT);
 
     // nothing of the first document waits in the state of the second
@@ -120,7 +120,7 @@ for (const how of ["«מסמך חדש»", "the back buttons"]) {
     if (how === "«מסמך חדש»") {
       page.once("dialog", (d) => d.accept());
       await page.getByRole("button", { name: "מסמך חדש", exact: true }).click();
-    } else await backTo(page, ["רשימת השמות", "קובץ"]);
+    } else await backTo(page, ["מי בתיק", "קובץ"]);
     await modelOff(page);
     await H.upload(page, "next.docx", NEXT);
     await toWork(page);
@@ -170,7 +170,7 @@ test("the document that ends calls docEnd once, by the back buttons and by «מ�
   expect(await ends(page)).toEqual([]);
 
   // the back buttons and the next file: the first document ends, once, while its result is still there
-  await backTo(page, ["רשימת השמות", "קובץ"]);
+  await backTo(page, ["מי בתיק", "קובץ"]);
   expect(await ends(page)).toEqual([]);
   await H.upload(page, "next.docx", NEXT);
   expect(await ends(page)).toEqual([{ how: "new-doc", name: "first.docx", res: true }]);
@@ -180,7 +180,7 @@ test("the document that ends calls docEnd once, by the back buttons and by «מ�
   await toWork(page);
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "מסמך חדש", exact: true }).click();
-  await expect(page.getByRole("heading", { name: /מה יוצא מהמסמך/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /להיעזר ב־AI בלי לחשוף את הלקוח/ })).toBeVisible();
   expect(await ends(page)).toEqual([{ how: "new-doc", name: "first.docx", res: true }, { how: "new-doc", name: "next.docx", res: true }]);
   expect(await newDocs(page)).toBe(2);
 
@@ -197,7 +197,7 @@ test("the tour started over an open document ends it once, and the tour's own sa
   await modelOff(page);
   await H.upload(page, "first.docx", FIRST);
   await toWork(page);
-  await backTo(page, ["רשימת השמות", "קובץ"]);
+  await backTo(page, ["מי בתיק", "קובץ"]);
 
   await page.locator("[data-tour-start]").click();
   const tour = page.locator("[data-tour]");

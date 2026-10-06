@@ -37,7 +37,7 @@ test("a name in quotation marks is replaced, found in context, and has one card"
   if (await run.isVisible()) await run.click();
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   // add the school from the work screen, as she would
-  await page.getByPlaceholder("ערך שפוספס").fill("אלונים");
+  await page.getByPlaceholder("שם או פרט שפוספס").fill("אלונים");
   await page.getByRole("button", { name: "הוספה והחלפה" }).click();
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).not.toContain("אלונים");
   const text = await sheet(page).innerText();
@@ -117,7 +117,7 @@ test("on a phone, a header button inside the lit area does not take the tour awa
   await page.mouse.move(195, 350);
   await page.mouse.wheel(0, 400);
   await page.waitForTimeout(300);
-  const back = page.getByRole("button", { name: /רשימת השמות/ }).first();
+  const back = page.locator("[data-back]").filter({ hasText: "מי בתיק" });
   const box = await back.boundingBox();
   await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
   await expect(page.locator("[data-bar]")).toBeVisible();

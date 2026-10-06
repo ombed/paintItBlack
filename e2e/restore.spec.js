@@ -150,7 +150,7 @@ for (const how of ["pasted text", "a file"]) {
     expect(town, "the first document's town has a pseudonym").toBeTruthy();
     // copied, so its pseudonyms count as sent
     await page.evaluate(() => { navigator.clipboard.writeText = () => Promise.resolve(); });
-    await page.locator("[data-bar]").getByRole("button", { name: /העתקה ל-AI|הועתק/ }).click();
+    await page.locator("[data-bar]").getByRole("button", { name: /העתקה ל־AI|הועתק/ }).click();
     const anyway = page.getByRole("button", { name: /בכל זאת/ });
     if (await anyway.isVisible({ timeout: 800 }).catch(() => false)) await anyway.click();
     await openRestore(page);
@@ -158,7 +158,7 @@ for (const how of ["pasted text", "a file"]) {
     await expect(page.locator("[data-rv-out]")).toHaveText("רחל פרידמן גרה בחיפה.");
 
     // back to the file screen by the back buttons, not by «מסמך חדש»
-    for (const label of ["המסמך", "רשימת השמות", "קובץ"]) {
+    for (const label of ["חזרה למסמך", "מי בתיק", "קובץ"]) {
       await expect(page.locator("[data-back]")).toContainText(label);
       await page.locator("[data-back]").click();
     }
@@ -196,7 +196,7 @@ test("a screen reader is told the restore's error and its result", async ({ page
   await page.getByPlaceholder("הדבקת תשובת ה-AI…").fill("אביבה ביטון היא האם.");
   await page.getByRole("button", { name: "החזרת שמות", exact: true }).focus();
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("alert")).toContainText("אין מיפוי זמין");
+  await expect(page.getByRole("alert")).toContainText("עדיין אין שמות להחזרה");
 
   // with a document: the result
   await page.locator("[data-back]").click();
@@ -239,9 +239,9 @@ test("a second restore is said again, with the same result and with the same err
   await page.getByPlaceholder("הדבקת תשובת ה-AI…").fill("אין כאן אף שם.");
   await page.getByRole("button", { name: "החזרת שמות", exact: true }).click();
   const alert = page.getByRole("alert");
-  await expect(alert).toContainText("לא נמצא אף שם חלופי");
+  await expect(alert).toContainText("לא נמצא בתשובה אף שם בדוי");
   await mark(alert);
   await page.getByRole("button", { name: "החזרת שמות", exact: true }).click();
-  await expect(alert).toContainText("לא נמצא אף שם חלופי");
+  await expect(alert).toContainText("לא נמצא בתשובה אף שם בדוי");
   await expect.poll(() => same(alert), { message: "the same error is put back as a new alert" }).toBe(false);
 });

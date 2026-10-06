@@ -26,10 +26,10 @@ test("copying unlocks step three, and the restore screen puts the real name back
   await expect(bar.locator('[data-step="2"]')).toHaveCount(1);
   await expect(bar.locator('[data-step="2"] svg[data-icon="check"]')).toHaveCount(0);
   // and a screen reader is told step one is done, and step two is not
-  await expect(bar.locator("[data-steps]")).toMatchAriaSnapshot("- text: 1 השחרה ✓ 2 העתקה או הורדה 3 החזרת שמות");
+  await expect(bar.locator("[data-steps]")).toMatchAriaSnapshot("- text: 1 החלפת שמות ✓ 2 העתקה או הורדה 3 החזרת שמות");
   await expect(bar.getByRole("button", { name: "הדבקת תשובת ה-AI" })).toHaveCount(0);
 
-  await bar.getByRole("button", { name: /העתקה ל-AI|הועתק/ }).click();
+  await bar.getByRole("button", { name: /העתקה ל־AI|הועתק/ }).click();
   const copied = await page.evaluate(() => window.__copied || "");
   expect(copied).not.toContain("רונית לוי");
   const fake = copied.match(/[֐-׿]+ [֐-׿]+ הגישה/); // "<fake first> <fake last> הגישה"
@@ -40,7 +40,7 @@ test("copying unlocks step three, and the restore screen puts the real name back
   await expect(bar.locator("[data-steps]")).toContainText("2 העתקה או הורדה ✓");
   // the text alone would still hold the ✓ if it were hidden from screen readers (aria-hidden, display:none);
   // the accessibility tree is what a screen reader reads
-  await expect(bar.locator("[data-steps]")).toMatchAriaSnapshot("- text: 1 השחרה ✓ 2 העתקה או הורדה ✓ 3 החזרת שמות");
+  await expect(bar.locator("[data-steps]")).toMatchAriaSnapshot("- text: 1 החלפת שמות ✓ 2 העתקה או הורדה ✓ 3 החזרת שמות");
   /* Putting the answer back used to be reachable from three places: a button
      here in the bar, an identical one in the header, and a rail section that
      ran a different code path. That third one built its pairs from a list
@@ -55,7 +55,7 @@ test("copying unlocks step three, and the restore screen puts the real name back
 
   // step three: the AI's answer comes back with the fake name; the real one returns
   await step3.click();
-  await expect(page.getByText("מחובר למסמך שבעבודה")).toBeVisible();
+  await expect(page.getByText("השמות מהמסמך שבעבודה")).toBeVisible();
   await page.getByPlaceholder("הדבקת תשובת ה-AI…").fill("להערכתי, " + fakeName + " צריכה להגיש את התצהיר עד יום ראשון.");
   await page.getByRole("button", { name: "החזרת שמות", exact: true }).click();
   await expect(page.locator("main")).toContainText("רונית לוי צריכה להגיש");

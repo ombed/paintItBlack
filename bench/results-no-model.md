@@ -1,6 +1,6 @@
 # Benchmark results (no model)
 
-43 documents, 332 keyed entities, model off. Generated 2026-09-23.
+43 documents, 332 keyed entities: 268 identifying details the tool must replace, and 64 traps and public bodies it must leave alone. Model off. Generated 2026-09-23.
 
 ## Per category
 

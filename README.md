@@ -14,7 +14,7 @@ The interface is in Hebrew; the Hebrew documentation follows this section.
 
 ## How I know it works
 
-- **Benchmark** ([bench/results.md](bench/results.md)): 43 invented documents with 332 keyed entities, built to cover the hard cases (prefix letters, nikud, transcription typos, look-alike surnames, names hidden in headers, footnotes and alt text). With the model on: 2 missed, 2 leaked, 5 false positives.
+- **Benchmark** ([bench/results.md](bench/results.md)): 43 invented documents with 332 keyed entries: 268 identifying details the tool must replace and 64 traps it must leave alone (public bodies, idioms, «פלוני»), built to cover the hard cases (prefix letters, nikud, transcription typos, look-alike surnames, names hidden in headers, footnotes and alt text). With the model on: 2 missed, 2 leaked, 5 false positives.
 - It scores **the whole pipeline**, not the model alone: it runs the same chain as the page and checks the output file a user would send, so a leak in any layer counts.
 - A **blocking CI gate** ([bench/gate.js](bench/gate.js)) runs the deterministic layers on every change and compares each entity with itself in the committed baseline; any entity that gets worse fails the build. The model-on run downloads the weights, so it is run by hand.
 - **Model choice** ([docs/model-eval/](docs/model-eval/README.md)): 16 configurations of 9 local Hebrew models, with the decision rule written and committed before any run. Only one passed: DictaBERT-parse's NER head with a corrected tokenizer, which now ships.
@@ -30,11 +30,11 @@ The interface is in Hebrew; the Hebrew documentation follows this section.
 
 ---
 
-# השחרת מסמכים
+# אינקוגניטו
 
-כלי להסרת פרטים מזהים ממסמכי Word לפני שליחה לכלי AI, ולהחזרת השמות
-האמיתיים לתשובה. הזיהוי, ההחלפה והאימות רצים כולם בדפדפן — שום מסמך
-לא נשלח לשרת, ואין שרת.
+כלי שמחליף במסמכי Word ו־PDF, ובטקסט מודבק, שמות ופרטים מזהים בשמות ובפרטים
+בדויים לפני שליחה ל־AI, ומחזיר את השמות האמיתיים לתשובה. הזיהוי, ההחלפה
+והאימות רצים כולם בדפדפן, ושום מסמך לא נשלח לשרת.
 
 ## פריסה
 
@@ -56,7 +56,7 @@ https://ombed.github.io/inkognito/, מגישה מ-main את דף ההעברה ש
 | `index.html` | הכלי — מבנה, עיצוב, ולוגיקת הממשק |
 | `support.js` | שכבת ההרצה שמרנדרת את הממשק |
 | `page-logic.js` | לוגיקת דף שאינה תלויה ב-DOM (דוח הדליפה); נבדקת גם ב-Node |
-| `redact-engine.js` | מנוע ההשחרה: זיהוי, החלפה, אימות, DOCX |
+| `redact-engine.js` | המנוע: זיהוי, החלפה, אימות, DOCX |
 | `pdf-text.js` | חילוץ טקסט מ-PDF |
 | `text-to-docx.js` | הפיכת טקסט מודבק ל-docx לצורך העיבוד |
 | `sw.js` | עובד שירות — התקנה ועבודה בלי רשת |
@@ -112,13 +112,13 @@ GitHub Pages או כל אירוח סטטי מספיק. **כתובת `https` הי
 
 | קובץ | שורה | המחרוזת | תפקיד |
 |---|---|---|---|
-| `index.html` | 1296 | `<div id="ver">גרסה v63</div>` | השבב התחתון — מה שנראה על המסך |
-| `index.html` | 281 | `console.log("… גרסה v63")` | שורת הפתיחה בקונסול |
-| `index.html` | 327 | `if(served==="v63") return;` | **בדיקת ההשוואה** מול מה שהעובד מגיש |
-| `index.html` | 328 | `el.innerHTML='גרסה v63 · …'` | תווית האזהרה שמוצגת כשיש פער |
-| `sw.js` | 8 | `const V="hedact-v63";` | מפתח המטמון |
+| `index.html` | 1295 | `<div id="ver">גרסה v64</div>` | השבב התחתון — מה שנראה על המסך |
+| `index.html` | 281 | `console.log("… גרסה v64")` | שורת הפתיחה בקונסול |
+| `index.html` | 327 | `if(served==="v64") return;` | **בדיקת ההשוואה** מול מה שהעובד מגיש |
+| `index.html` | 328 | `el.innerHTML='גרסה v64 · …'` | תווית האזהרה שמוצגת כשיש פער |
+| `sw.js` | 8 | `const V="hedact-v64";` | מפתח המטמון |
 
-מספרי השורות נכונים לגרסה v63 והם עזר בלבד — לחפש את המחרוזת, לא לסמוך
+מספרי השורות נכונים לגרסה v64 והם עזר בלבד — לחפש את המחרוזת, לא לסמוך
 על המספר.
 
 **בדיקת ההשוואה (`if(served===…)`, השורה השלישית בטבלה) היא הכי קלה לפספוס, והפספוס שקט-למחצה.** אם השבב והקונסול

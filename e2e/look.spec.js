@@ -136,7 +136,7 @@ test("a step there is no way to yet is disabled, Tab passes it by, and it looks 
   await toEntry(page);
   const step = (name) => page.locator("header nav").getByRole("button", { name, exact: true });
   const pale = await page.locator("header nav span", { hasText: "בדיקה" }).evaluate((el) => getComputedStyle(el).color);
-  for (const name of ["מי בתיק", "מקומות"]) {
+  for (const name of ["מי בתיק", "יישובים"]) {
     await expect(step(name)).toBeDisabled();
     await expect(step(name)).toHaveCSS("opacity", "1");
     await expect(step(name)).toHaveCSS("color", pale);
@@ -149,7 +149,7 @@ test("a step there is no way to yet is disabled, Tab passes it by, and it looks 
   await H.upload(page, "hearing.docx", DOC);
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
-  for (const name of ["מי בתיק", "מקומות"]) await expect(step(name)).toBeEnabled();
+  for (const name of ["מי בתיק", "יישובים"]) await expect(step(name)).toBeEnabled();
 });
 
 /* An empty box with dir="auto" has no letter to take its direction from, and the browser laid it out left to

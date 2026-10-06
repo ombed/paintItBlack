@@ -40,8 +40,8 @@ test("dismissing a near-miss keeps the word and closes the item for good", async
   await expect(sheet(page)).toContainText("רונת");
   await expect(nearItem(page)).toHaveCount(0);
   // still gone after another rerun
-  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
-  await page.getByPlaceholder("ערך שפוספס").fill("צו הגנה");
+  await page.getByRole("button", { name: /התיק ורשימת השמות/ }).click();
+  await page.getByPlaceholder("שם או פרט שפוספס").fill("צו הגנה");
   await page.getByRole("button", { name: "הוספה והחלפה" }).click();
   await expect(sheet(page)).not.toContainText("צו הגנה");
   await expect(nearItem(page)).toHaveCount(0);
@@ -49,8 +49,8 @@ test("dismissing a near-miss keeps the word and closes the item for good", async
 
 test("adding a value already in the list selects its card and says so in the bar, not at the top", async ({ page }) => {
   await toWork(page);
-  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
-  await page.getByPlaceholder("ערך שפוספס").fill("רונית לוי");
+  await page.getByRole("button", { name: /התיק ורשימת השמות/ }).click();
+  await page.getByPlaceholder("שם או פרט שפוספס").fill("רונית לוי");
   await page.getByRole("button", { name: "הוספה והחלפה" }).click();
   const bar = page.locator("[data-bar]");
   await expect(bar).toContainText("כבר ברשימה");

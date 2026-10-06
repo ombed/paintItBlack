@@ -23,7 +23,7 @@ test("the places screen says what the substitute shares with the town", async ({
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   await H.goOn(page);
 
-  const rows = page.locator('div:has(> button:text-is("אל תחליפו"))');
+  const rows = page.locator('div:has(> button:text-is("לא להחליף"))');
   await expect(rows.first()).toBeVisible({ timeout: 10000 });
   const names = await rows.locator('span[data-tip="1"]').allTextContents();
   expect(names).toContain("בני ברק");

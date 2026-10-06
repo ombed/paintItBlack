@@ -97,7 +97,7 @@ test("the editor offers blank, don't replace, and same-person, and each acts on 
   // don't replace from the editor
   await page.locator('[data-mark][data-val="דנה ברקוביץ"]').first().click();
   ed = page.locator("[data-inline]");
-  await ed.getByRole("button", { name: "אל תחליפו" }).click();
+  await ed.getByRole("button", { name: "לא להחליף" }).click();
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("דנה ברקוביץ");
 });
 

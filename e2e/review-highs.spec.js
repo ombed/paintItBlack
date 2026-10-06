@@ -33,7 +33,7 @@ test("«מקור» shows the original text, and «מושחר» brings the redact
   for (const p of DOC.split("\n")) expect(lines).toContain(p);
   await expect(sheet.locator("[data-mark]")).toHaveCount(0);
 
-  await page.getByRole("button", { name: "מושחר", exact: true }).click();
+  await page.getByRole("button", { name: "אחרי ההחלפה", exact: true }).click();
   await expect(sheet).not.toContainText("רונית לוי");
   expect(await sheet.innerText()).toBe(redacted);
 });
@@ -105,7 +105,7 @@ test("a name removed from the list stays removed in the next document of the cas
   await expect(sheet).not.toContainText("אבנר שטרן");
 
   // she removes him from the list, in the profile section of the rail
-  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  await page.getByRole("button", { name: /התיק ורשימת השמות/ }).click();
   await page.locator("[data-mine] > div").filter({ hasText: "אבנר שטרן" }).getByRole("button", { name: "הסרה מהרשימה" }).click();
   await expect.poll(() => sheet.innerText(), { timeout: 15000 }).toContain("אבנר שטרן");
   await expect.poll(() => page.evaluate(() => (JSON.parse(localStorage.getItem("redact-cases") || "{}")["פרידמן נ׳ שטרן"] || {}).removed || [])).toContain("אבנר שטרן");
@@ -172,7 +172,7 @@ test("removing the last rule is saved too: the case does not keep a list she emp
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
   const stored = () => page.evaluate(() => JSON.parse(localStorage.getItem("redact-cases") || "{}")["תיק של אחת"]);
   await expect.poll(async () => ((await stored()) || { rules: [] }).rules.map((r) => r.value)).toContain("רחל פרידמן");
-  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  await page.getByRole("button", { name: /התיק ורשימת השמות/ }).click();
   await page.locator("[data-mine] > div").filter({ hasText: "רחל פרידמן" }).getByRole("button", { name: "הסרה מהרשימה" }).click();
   await expect.poll(async () => (await stored()).rules.map((r) => r.value)).not.toContain("רחל פרידמן");
   expect((await stored()).removed).toEqual(["רחל פרידמן"]);
@@ -193,9 +193,9 @@ test("«אל תחליפו» on a place holds for every prefix form, also when th
   await H.startScan(page);
   await expect(H.goButton(page).or(H.skipButton(page)).first()).toBeVisible({ timeout: 10000 });
   if (await H.goButton(page).isVisible()) await H.goOn(page); else await H.skipButton(page).click();
-  const row = page.locator('div:has(> button:text-is("אל תחליפו"))').filter({ hasText: "חיפה" }).first();
+  const row = page.locator('div:has(> button:text-is("לא להחליף"))').filter({ hasText: "חיפה" }).first();
   await expect(row).toBeVisible({ timeout: 15000 });
-  await row.getByRole("button", { name: "אל תחליפו" }).click();
+  await row.getByRole("button", { name: "לא להחליף" }).click();
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה|המשך לעיבוד/ }).first();
   await run.click();
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });

@@ -42,7 +42,7 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   await tour.getByRole("button", { name: "המשך", exact: true }).click();
   await expect(tour).toContainText("יישובים", { timeout: 20000 });
   // the panel moves only once the places screen is really there, rows and notes included
-  await expect(page.locator('div:has(> button:text-is("אל תחליפו"))').first()).toBeVisible();
+  await expect(page.locator('div:has(> button:text-is("לא להחליף"))').first()).toBeVisible();
   expect(await page.locator("[data-tags]").count()).toBeGreaterThan(0);
   await expect(tour).toContainText("3 מתוך 7");
   // the spotlight moved to the places card
@@ -74,14 +74,14 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   // copy is refused during the tour
   // the copy button is outside the lit area, so a mouse click is stopped before it; activating it
   // directly, as a keyboard press would, is still refused
-  await page.getByRole("button", { name: /העתקה ל-AI/ }).dispatchEvent("click");
+  await page.getByRole("button", { name: /העתקה ל־AI/ }).dispatchEvent("click");
   await expect(page.getByText(/בסיור אין העתקה/)).toBeVisible();
 
   // the remaining steps, then the end resets everything
   await tour.getByRole("button", { name: "המשך", exact: true }).click();
   await expect(tour).toContainText("שמירה");
   await tour.getByRole("button", { name: "המשך", exact: true }).click();
-  await expect(tour).toContainText("העתקה ל-AI");
+  await expect(tour).toContainText("העתקה ל־AI");
   await tour.getByRole("button", { name: "המשך", exact: true }).click();
   await expect(tour).toContainText("זהו");
   await tour.getByRole("button", { name: "סיום" }).click();

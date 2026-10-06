@@ -107,7 +107,7 @@ test("M3: after 'same person as', the restore returns the person she merged into
   await page.getByRole("button", { name: "החזרת שמות", exact: true }).click();
   await expect(page.locator("[data-rv-out]")).toContainText("שירה ברקוביץ הגיעה לדיון.");
   await expect(page.locator("[data-rv-result]")).toContainText("שם אחד הוחזר");
-  await expect(page.getByText(/לא נמצא אף שם חלופי/)).toHaveCount(0);
+  await expect(page.getByText(/לא נמצא בתשובה אף שם בדוי/)).toHaveCount(0);
 });
 
 test("M7: deleting from the profile list is one undo step of its own, with a notice", async ({ page }) => {
@@ -117,7 +117,7 @@ test("M7: deleting from the profile list is one undo step of its own, with a not
   await page.locator("[data-inline]").getByRole("button", { name: /תווית|שם/ }).first().click();
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toMatch(/\[/);
   const labelled = await sheet(page).innerText();
-  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  await page.getByRole("button", { name: /התיק ורשימת השמות/ }).click();
   const row = page.locator("[data-mine] > div").filter({ hasText: "מרים לוין" }).first();
   await row.getByRole("button", { name: "הסרה מהרשימה" }).click();
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("מרים לוין");
@@ -218,7 +218,7 @@ test("L1, L2, L4: the spotlight sits exactly on its target, step 5 marks the cas
   // both buttons are outside the lit area, where a mouse click is held; activate them directly,
   // as a keyboard press would — the report must still be refused
   await page.getByRole("button", { name: /מה נוקה מהקובץ/ }).dispatchEvent("click");
-  await page.getByRole("button", { name: /הורדת דוח השחרה/ }).dispatchEvent("click");
+  await page.getByRole("button", { name: /הורדת דוח החלפות/ }).dispatchEvent("click");
   await expect(page.getByText(/בסיור אין הורדת דוח/)).toBeVisible();
   expect(downloaded).toBe(false);
 });
@@ -226,7 +226,7 @@ test("L1, L2, L4: the spotlight sits exactly on its target, step 5 marks the cas
 test("L5: the notice is centred on the screen in RTL", async ({ page }) => {
   await toWork(page, DOC);
   await page.locator('[data-mark][data-val="מרים לוין"]').first().click();
-  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליפו" }).click();
+  await page.locator("[data-inline]").getByRole("button", { name: "לא להחליף" }).click();
   const n = page.locator("[data-notice]");
   await expect(n).toBeVisible();
   const b = await n.boundingBox(), w = page.viewportSize().width;
@@ -357,11 +357,11 @@ test("L11: a rejected manual add leaves no undo step", async ({ page }) => {
   await toWork(page, DOC);
   // one real change
   await page.locator('[data-mark][data-val="מרים לוין"]').first().click();
-  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליפו" }).click();
+  await page.locator("[data-inline]").getByRole("button", { name: "לא להחליף" }).click();
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).toContain("מרים לוין");
   // two adds that are refused
   for (let k = 0; k < 2; k++) {
-    await page.getByPlaceholder("ערך שפוספס").fill("א");
+    await page.getByPlaceholder("שם או פרט שפוספס").fill("א");
     await page.getByRole("button", { name: "הוספה והחלפה" }).click();
   }
   // one undo undoes the real change
@@ -371,7 +371,7 @@ test("L11: a rejected manual add leaves no undo step", async ({ page }) => {
 
 test("L15: a case deleted in another tab is not re-created by this one", async ({ page, context }) => {
   await toWork(page, DOC);
-  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
+  await page.getByRole("button", { name: /התיק ורשימת השמות/ }).click();
   await page.getByPlaceholder(/שם התיק/).fill("לוין נ׳ לוין");
   await expect.poll(() => page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem("redact-cases") || "{}")))).toContain("לוין נ׳ לוין");
   const other = await context.newPage();
@@ -381,7 +381,7 @@ test("L15: a case deleted in another tab is not re-created by this one", async (
   await expect(page.locator("[data-notice]")).toContainText("נמחק בלשונית אחרת");
   // the next change here does not bring it back
   await page.locator('[data-mark][data-val="מרים לוין"]').first().click();
-  await page.locator("[data-inline]").getByRole("button", { name: "אל תחליפו" }).click();
+  await page.locator("[data-inline]").getByRole("button", { name: "לא להחליף" }).click();
   await page.waitForTimeout(800);
   expect(await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem("redact-cases") || "{}")))).not.toContain("לוין נ׳ לוין");
 });
@@ -427,7 +427,7 @@ test("L17: a broken profile file gives a Hebrew reason", async ({ page }) => {
   await H.serveEngineWithStub(page);
   await H.boot(page);
   await page.locator('input[type="file"][accept*=".json"]').setInputFiles("e2e/fixtures/profile-broken.json");
-  const err = page.getByText(/טעינת הפרופיל נכשלה/);
+  const err = page.getByText(/ייבוא התיק נכשל/);
   await expect(err).toBeVisible();
   await expect(err).not.toContainText(/Expected|position|JSON/);
   await expect(err).toContainText("ייצוא לקובץ");

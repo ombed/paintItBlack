@@ -41,7 +41,7 @@ test("continuing without the model keeps the header names, and a late model resu
   // the session log
   await page.evaluate(() => { navigator.clipboard.writeText = (t) => { window.__copied = t; return Promise.resolve(); }; });
   await page.getByRole("button", { name: /מה נוקה מהקובץ/ }).click();
-  await page.getByRole("button", { name: "העתקת יומן הסשן" }).click();
+  await page.getByRole("button", { name: "העתקת יומן השימוש" }).click();
   const log = JSON.parse(await page.evaluate(() => window.__copied || "{}"));
   const evs = log.events.map((e) => e.ev);
   expect(evs).toContain("screen");

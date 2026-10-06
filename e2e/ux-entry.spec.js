@@ -53,7 +53,7 @@ test("UX #3: settings sit behind a toggle, closed on a phone; the profile card h
   await expect(page.getByRole("checkbox")).toHaveCount(0);
   await toggle.click();
   await expect(page.getByRole("checkbox").first()).toBeVisible();
-  await expect(page.getByRole("button", { name: "ייבוא פרופיל מקובץ" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "ייבוא תיק מקובץ" })).toBeVisible();
 });
 
 test("UX #4 / QA 010: a file that is not a Word document is rejected at once, next to the file card", async ({ page }) => {
@@ -167,7 +167,7 @@ test("QA 012: the ✕ on the recent-cases strip hides it without deleting anythi
   let asked = false;
   page.on("dialog", (d) => { asked = true; d.dismiss(); });
   await page.getByRole("button", { name: "הסתרת התיקים האחרונים" }).click();
-  await expect(page.getByText("תיקים אחרונים")).toHaveCount(0);
+  await expect(page.getByText(/^תיקים אחרונים:/)).toHaveCount(0);
   expect(asked).toBe(false);
   const kept = await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem("redact-cases") || "{}")));
   expect(kept).toContain("תיק בדיקה");
@@ -178,10 +178,10 @@ test("UX #22 / QA 005: 'מסמך חדש' starts clean: top of page, no old file,
   await H.goOn(page);
   await toWork(page);
   await page.getByPlaceholder("חיפוש בממצאים").fill("זזז");
-  await page.getByPlaceholder("ערך שפוספס").fill("ססס");
+  await page.getByPlaceholder("שם או פרט שפוספס").fill("ססס");
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "מסמך חדש" }).click();
-  await expect(page.getByRole("heading", { name: /מה יוצא מהמסמך/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /להיעזר ב־AI בלי לחשוף את הלקוח/ })).toBeVisible();
   expect(await page.evaluate(() => window.scrollY)).toBe(0);
   await expect(page.getByText("hearing.docx")).toHaveCount(0);
   expect(await page.getByPlaceholder("הדבקת טקסט לבדיקה…").inputValue()).toBe("");
@@ -196,7 +196,7 @@ test("UX #22 / QA 005: 'מסמך חדש' starts clean: top of page, no old file,
   await H.goOn(page);
   await toWork(page);
   expect(await page.getByPlaceholder("חיפוש בממצאים").inputValue()).toBe("");
-  expect(await page.getByPlaceholder("ערך שפוספס").inputValue()).toBe("");
+  expect(await page.getByPlaceholder("שם או פרט שפוספס").inputValue()).toBe("");
   await expect(page.getByText("אין ממצאים בקטגוריה הזאת")).toHaveCount(0);
   await expect(page.locator("[data-group]").first()).toBeVisible();
   const text = await page.locator("[data-work] section").first().innerText();

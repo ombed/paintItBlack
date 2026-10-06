@@ -379,7 +379,7 @@ async function redactDocx(buf,subs,allow,opt){
         const out=inf.of?addPre(m[1]||"",nw):nw;
         reps.push([s,e,out]);
         applied.push({value:blk.text.slice(s,e),
-          label:inf.of?(inf.place?"מקום (חלק)":"שם (חלק)"):"אחידות",part:partName(blk.part),
+          label:inf.of?(inf.place?"מקום (חלק)":"שם (חלק)"):"הופעה נוספת",part:partName(blk.part),
           why:inf.of?(inf.place
                 ?(inf.wordy?`שם הרחוב מתוך «${inf.of}» — אבל גם מילה. הוחלף רק כשעומד לבד; ודאו שזה המקום`
                            :`שם הרחוב מתוך «${inf.of}» שכבר הוחלף, ומופיע כאן לבד`)
@@ -393,7 +393,7 @@ async function redactDocx(buf,subs,allow,opt){
           ctx:ctxHTML(blk.text,s,e),review:!!inf.of&&!!inf.wordy,rep:out,baseRep:nw,base:o,of:inf.of||undefined,src:"sweep"})}}
     rep.sweep+=applyReps(blk,reps)}
   for(const c of eng.collided){
-    flagged.push({value:c.rep,label:"התנגשות תחליף",part:"המסמך",review:true,src:"collide",collideOf:c.value,
+    flagged.push({value:c.rep,label:"שם בדוי שגם מופיע במסמך",part:"המסמך",review:true,src:"collide",collideOf:c.value,
       why:`«${c.value}» הוחלף ב«${c.rep}» כפי שבחרתם, אבל «${c.rep}» הוא גם אדם אמיתי במסמך הזה, `+
           `ושני האנשים ייראו כאחד. אפשר לבחור תחליף אחר בכרטיס של «${c.value}», או להוסיף לרשימה את האדם האמיתי בשם «${c.rep}»`,
       ctx:""});
@@ -451,7 +451,7 @@ async function redactDocx(buf,subs,allow,opt){
     const tset=new Map();
     for(const r of applied){
       const base=r.base||r.value; if(!base)continue;
-      if(r.label==="אחידות")continue;
+      if(r.label==="הופעה נוספת")continue;
       if(!["שם","יישוב","מקום","מוסד חינוך","מוסד אקדמי","מוסד רפואי","עסק","גוף","מוסד","כתובת","פרט"]
          .includes(r.label)&&!r.label.startsWith("שם")&&!r.label.startsWith("גוף"))continue;
       const nv=norm(base).trim();

@@ -54,7 +54,7 @@ test("blank on a person deletes her and warns that restore cannot bring her back
   const card = page.locator("[data-group]").filter({ hasText: "רונית לוי" }).first();
   await card.getByRole("button", { name: "ריק", exact: true }).click();
   await expect.poll(() => sheet(page).innerText(), { timeout: 15000 }).not.toContain("רונית לוי");
-  await expect(card).toContainText("תשובת ה-AI לא תוכל להחזיר");
+  await expect(card).toContainText("את השם הזה אי אפשר יהיה להחזיר לתשובה");
   // and the fake name is gone too: the text reads without her
   const text = await sheet(page).innerText();
   expect(text).toContain("אני מבקשת לפתוח");

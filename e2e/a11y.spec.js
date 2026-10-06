@@ -206,7 +206,7 @@ test("M31: an English answer runs left to right on the restore screen", async ({
   await expect(page.locator("[data-mark]").first()).toBeVisible({ timeout: 15000 });
   await page.evaluate(() => { navigator.clipboard.writeText = () => Promise.resolve(); });
   const bar = page.locator("[data-bar]");
-  await bar.getByRole("button", { name: /העתקה ל-AI|הועתק/ }).click();
+  await bar.getByRole("button", { name: /העתקה ל־AI|הועתק/ }).click();
   await page.getByRole("button", { name: "החזרת שמות מתשובת AI" }).click();
   const box = page.locator("textarea[aria-label='תשובת ה-AI']");
   await expect(box).toBeVisible();
@@ -255,7 +255,7 @@ test("L28, L30: pressed and expanded states are exposed, and the file error is t
   expect(await page.locator('[data-tour-target="upload"]').getAttribute("aria-describedby")).toBe("file-err");
   const settings = page.locator("[data-settings-toggle]");
   if ((await settings.getAttribute("aria-expanded")) !== "true") await settings.click();
-  const pressed = await page.getByRole("button", { name: "שם חלופי" }).getAttribute("aria-pressed");
+  const pressed = await page.getByRole("button", { name: "שם בדוי" }).getAttribute("aria-pressed");
   expect(["true", "false"]).toContain(pressed);
   await toWorkFrom(page);
   const sections = page.locator("[data-section]");
@@ -274,7 +274,7 @@ async function toWorkFrom(page) {
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
 }
 
-/* WCAG 4.1.2: a set of buttons where one is chosen says which one, as «שם חלופי» always did. The document's
+/* WCAG 4.1.2: a set of buttons where one is chosen says which one, as «שם בדוי» always did. The document's
    view («מושחר» / «מקור»), the findings filters, the manual add's kinds and the phone's two panes showed
    the choice only in colour (already in v59); each is aria-pressed now, and the choice moves with a click. */
 test("the chosen view, filter, kind and pane are said, not only shown", async ({ page }) => {
@@ -283,7 +283,7 @@ test("the chosen view, filter, kind and pane are said, not only shown", async ({
     await expect(on).toHaveAttribute("aria-pressed", "true");
     await expect(off).toHaveAttribute("aria-pressed", "false");
   };
-  const red = page.getByRole("button", { name: "מושחר", exact: true }), orig = page.getByRole("button", { name: "מקור", exact: true });
+  const red = page.getByRole("button", { name: "אחרי ההחלפה", exact: true }), orig = page.getByRole("button", { name: "מקור", exact: true });
   await pair(red, orig);
   await orig.click();
   await pair(orig, red);

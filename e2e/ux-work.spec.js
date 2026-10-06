@@ -98,7 +98,7 @@ test("UX #12: the work screen shows one step model, and the places button says w
 test("UX #18: copy while items are pending asks first, copies only on 'בכל זאת', and advances the step only then", async ({ page }) => {
   await toWork(page);
   await page.evaluate(() => { window.__copied = null; navigator.clipboard.writeText = (t) => { window.__copied = t; return Promise.resolve(); }; });
-  await page.getByRole("button", { name: /העתקה ל-AI/ }).click();
+  await page.getByRole("button", { name: /העתקה ל־AI/ }).click();
   const ask = page.locator("[data-export-ask]");
   await expect(ask).toBeVisible();
   await expect(ask).toContainText("אלמליח");
@@ -130,9 +130,9 @@ test("UX #18: a blocked clipboard does not mark the step done", async ({ page })
     navigator.clipboard.writeText = () => Promise.reject(new Error("blocked"));
     document.execCommand = () => false;
   });
-  const input = page.getByPlaceholder("ערך שפוספס");
+  const input = page.getByPlaceholder("שם או פרט שפוספס");
   await expect(input).toBeVisible();
-  await page.getByRole("button", { name: /העתקה ל-AI/ }).click();
+  await page.getByRole("button", { name: /העתקה ל־AI/ }).click();
   await expect(page.getByText(/ההעתקה נחסמה/)).toBeVisible();
   // (the old text pattern "✓ ›\n3" never could fail, not even before the separator was drawn: the step
   // spans are flex items, so innerText always put the › on a line of its own. The step's own drawn check,
@@ -154,9 +154,9 @@ test("UX #23 / QA 009: download says where the file went, and the report shares 
   await expect(page.locator("[data-steps]")).toContainText("2 העתקה או הורדה ✓");
   await page.getByRole("button", { name: /מה נוקה מהקובץ/ }).click();
   const d2 = page.waitForEvent("download");
-  await page.getByRole("button", { name: /הורדת דוח השחרה/ }).click();
+  await page.getByRole("button", { name: /הורדת דוח החלפות/ }).click();
   const report = (await d2).suggestedFilename();
-  expect(report).toBe(docx.replace(/\.docx$/, "") + "_דוח-השחרה.html");
+  expect(report).toBe(docx.replace(/\.docx$/, "") + "_דוח-החלפות.html");
 });
 
 test("UX #23: download while items are pending asks first", async ({ page }) => {
@@ -198,7 +198,7 @@ test("QA 003: the intro is a dialog: focus starts inside, Tab stays inside, Esca
   await expect(dlg).toBeVisible({ timeout: 60000 });
   await page.keyboard.press("Escape");
   await expect(dlg).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: /מה יוצא מהמסמך/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /להיעזר ב־AI בלי לחשוף את הלקוח/ })).toBeVisible();
 });
 
 test("QA 004: marks are reachable by keyboard, Enter opens the editor, Escape closes it", async ({ page }) => {

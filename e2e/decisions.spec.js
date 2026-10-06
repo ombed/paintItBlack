@@ -33,8 +33,8 @@ test("a found name removed on the people screen does not come back at the check 
   expect(held).toEqual({ rule: false, allow: true });
   // and she can see it: the "staying as they are" strip names it, with the way back
   await expect(page.locator('button[title="לחזור ולהחליף"]').filter({ hasText: "ברקוביץ" })).toBeVisible();
-  await page.getByRole("button", { name: /הרשימה ופרופיל התיק/ }).click();
-  await expect(page.locator("aside")).toContainText("אל תחליפו");
+  await page.getByRole("button", { name: /התיק ורשימת השמות/ }).click();
+  await expect(page.locator("aside")).toContainText("נשאר כמו שהוא");
 });
 
 test("the arrows say up and down, and next moves from the mark she clicked", async ({ page }) => {

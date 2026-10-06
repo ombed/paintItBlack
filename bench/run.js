@@ -20,7 +20,7 @@ const B = makeBench(E);
 
 function report(title, docs, rows, unlisted, perDoc, meta) {
   const out = [];
-  out.push(`# ${title}${NO_MODEL ? " (no model)" : ""}`, "", `${docs.length} documents, ${rows.length} keyed entities, model ${NO_MODEL ? "off" : "on (q8, same artifact as the browser)"}. Generated ${new Date().toISOString().slice(0, 10)}.`, "");
+  out.push(`# ${title}${NO_MODEL ? " (no model)" : ""}`, "", `${docs.length} documents, ${rows.length} keyed entities: ${rows.filter((r) => r.found !== null).length} identifying details the tool must replace, and ${rows.filter((r) => r.found === null).length} traps and public bodies it must leave alone. Model ${NO_MODEL ? "off" : "on (q8, same artifact as the browser)"}. Generated ${new Date().toISOString().slice(0, 10)}.`, "");
   out.push("## Per category", "", B.table(rows, "cat", "category", meta), "");
   out.push("## Per genre", "", B.table(rows, "genre", "genre", meta), "");
   const unl = {}; for (const u of unlisted) (unl[u.genre] = unl[u.genre] || []).push(u);

@@ -85,7 +85,7 @@ test.describe("people screen", () => {
     await H.upload(page, "case.docx", CASE);
     await H.startScan(page);
     await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText(/המודל לא נטען/)).toBeVisible();
+    await expect(page.getByText(/מודל הזיהוי לא נטען, ולכן ממשיכים בלעדיו/)).toBeVisible();
     expect(await H.listedNames(page)).toContain("רונית לוי");
     await expect(page.getByText(/טוען את המודל|סורק את המסמך/)).toHaveCount(0); // progress box closed
     // ported from tests/flow.js (review L4): the model did not run, so nothing downstream may say it

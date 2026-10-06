@@ -81,7 +81,8 @@ console.log("\n— the issue form names buttons the tool has —");
   const html = read("index.html");
   const dir = ".github/ISSUE_TEMPLATE";
   for (const f of fs.readdirSync(path.join(ROOT, dir)).filter((x) => /\.ya?ml$/.test(x))) {
-    const named = [...read(dir + "/" + f).matchAll(/(?:הכפתור|לחצ[א-ת]*)\s+"([^"]+)"/g)].map((m) => m[1]);
+    // a button is named in straight quotes or in «», after «הכפתור», «בכפתור» or «לחצתם (בכלי) (על)»
+    const named = [...read(dir + "/" + f).matchAll(/(?:הכפתור|בכפתור|לחצ[א-ת]*(?:\s+בכלי)?(?:\s+על)?)\s+(?:"([^"]+)"|«([^»]+)»)/g)].map((m) => m[1] || m[2]);
     ok(named.length > 0, `${dir}/${f} names a button`);
     for (const n of named) ok(html.includes(">" + n + "<") || html.includes('"' + n + '"'), `${dir}/${f} names «${n}», a label index.html has`);
   }

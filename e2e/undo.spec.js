@@ -35,9 +35,9 @@ test("the applied card removes a wrong name from the list without a click first,
 });
 
 test("two rail sections stay open together", async ({ page }) => {
-  const profile = page.getByRole("button", { name: /הרשימה ופרופיל התיק/ });
+  const profile = page.getByRole("button", { name: /התיק ורשימת השמות/ });
   await profile.click();
-  await expect(page.getByPlaceholder("ערך שפוספס")).toBeVisible();
+  await expect(page.getByPlaceholder("שם או פרט שפוספס")).toBeVisible();
   // the findings list did not collapse when the profile opened
   await expect(page.locator("[data-group]").first()).toBeVisible();
 });
@@ -46,7 +46,7 @@ test("two rail sections stay open together", async ({ page }) => {
    changed the list without a step in the history, so undo jumped over them. */
 test("bringing a kept name back to replacement is one undo step", async ({ page }) => {
   const card = page.locator("[data-group]").filter({ hasText: "רונית לוי" }).first();
-  await card.getByRole("button", { name: "אל תחליפו" }).click();
+  await card.getByRole("button", { name: "לא להחליף" }).click();
   await expect(doc(page)).toContainText("רונית לוי הגישה בקשה");
   await page.getByRole("button", { name: /רונית לוי ↩/ }).click();
   await expect(doc(page)).not.toContainText("רונית לוי");

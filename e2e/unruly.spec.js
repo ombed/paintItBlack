@@ -80,7 +80,7 @@ for (const size of SIZES) {
       const text = await page.locator("[data-work] section").first().innerText();
       for (const s of ["רחל פרידמן", "דוד כהן", "חיפה"]) expect(text).not.toContain(s);
       await page.evaluate(() => { navigator.clipboard.writeText = (t) => { window.__copied = t; return Promise.resolve(); }; });
-      await page.locator("[data-bar]").getByRole("button", { name: /העתקה ל-AI|הועתק/ }).click();
+      await page.locator("[data-bar]").getByRole("button", { name: /העתקה ל־AI|הועתק/ }).click();
       const pending = page.getByRole("button", { name: "בכל זאת", exact: true });
       if (await pending.isVisible({ timeout: 800 }).catch(() => false)) await pending.click();
       const copied = await page.evaluate(() => window.__copied || "");
@@ -121,7 +121,7 @@ for (const size of SIZES) {
       await expect(tour).toContainText("שמירה");
       await disturb(page, "tour 5, save", T);
       await next();
-      await expect(tour).toContainText("העתקה ל-AI");
+      await expect(tour).toContainText("העתקה ל־AI");
       await disturb(page, "tour 6, copy", T);
       await next();
       await expect(tour).toContainText("זהו");
@@ -146,7 +146,7 @@ for (const size of SIZES) {
 
       page.once("dialog", (d) => d.accept());
       await page.getByRole("button", { name: "מסמך חדש" }).click();
-      await expect(page.getByRole("heading", { name: /מה יוצא מהמסמך/ })).toBeVisible();
+      await expect(page.getByRole("heading", { name: /להיעזר ב־AI בלי לחשוף את הלקוח/ })).toBeVisible();
       await disturb(page, "second, entry");
       await H.upload(page, "second.docx", "המשך הדיון\nרחל פרידמן: חזרתי.\nדוד כהן: גם אני.\nרחל פרידמן: נתחיל.");
       await page.getByRole("button", { name: "שימוש בתיק הזה" }).click();
@@ -179,7 +179,7 @@ test("a tooltip opened while the screen rises ends on its word", async ({ page }
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   await H.goOn(page);
   // the moment the places rows exist, while the screen still rises: hover the first town
-  const town = page.locator('div:has(> button:text-is("אל תחליפו")) span[data-tip="1"]').first();
+  const town = page.locator('div:has(> button:text-is("לא להחליף")) span[data-tip="1"]').first();
   await town.waitFor({ state: "attached", timeout: 15000 });
   const b = await town.boundingBox();
   await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);

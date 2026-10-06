@@ -83,13 +83,13 @@ test("walk every screen", async ({ page, browser }) => {
   await snap(page, "08-after-apply");
   const errs = []; page.on("pageerror", (e) => errs.push(e.message)); fs.writeFileSync(path.join(OUT, "08-pageerrors.txt"), errs.join("; "));
   // expand every rail section and capture
-  for (const t of ["לבדיקה", "מה נמצא והוחלף", "החזרת שמות מתשובת ה-AI", "הרשימה ופרופיל התיק", "מה נוקה מהקובץ"]) {
+  for (const t of ["לבדיקה", "מה נמצא והוחלף", "החזרת שמות מתשובת ה-AI", "התיק ורשימת השמות", "מה נוקה מהקובץ"]) {
     const h = page.getByText(t, { exact: false }).first(); if (await h.count()) await h.click();
   }
   await page.waitForTimeout(400);
   await snap(page, "08-check-expanded");
   // one section at a time: the accordion closes the others
-  for (const [t, n] of [["לבדיקה", "13-review-open"], ["מה נמצא והוחלף", "14-found-open"], ["החזרת שמות מתשובת ה-AI", "15-ai-open"], ["הרשימה ופרופיל התיק", "16-profile-open"]]) {
+  for (const [t, n] of [["לבדיקה", "13-review-open"], ["מה נמצא והוחלף", "14-found-open"], ["החזרת שמות מתשובת ה-AI", "15-ai-open"], ["התיק ורשימת השמות", "16-profile-open"]]) {
     const h = page.getByText(t, { exact: false }).first(); if (await h.count()) { await h.click(); await page.waitForTimeout(400); await snap(page, n); }
   }
   // click a replaced mark in the document

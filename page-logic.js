@@ -164,7 +164,7 @@
     const refused = [];
     const clean = (shapes || []).map((sh, i) => pickBySchema(LEAK_SCHEMA, sh, "shapes[" + i + "]", refused));
     const ver = extra && extra.version;
-    const out = { tool: "paintItBlack", v: T.version(ver) ? ver : "", count: clean.length, shapes: clean };
+    const out = { tool: "inkognito", v: T.version(ver) ? ver : "", count: clean.length, shapes: clean };
     if (refused.length) out.refused = refused.slice(0, 20);
     const s = JSON.stringify(out);
     const leak = s.match(/[֐-׿]{3,}/g);
@@ -201,7 +201,7 @@
         if (events.length > 2000) events.splice(0, events.length - 2000);
       },
       export() {
-        const out = { tool: "paintItBlack", v: log.v, started: log.started, ms: Date.now() - t0, events };
+        const out = { tool: "inkognito", v: log.v, started: log.started, ms: Date.now() - t0, events };
         const s = JSON.stringify(out);
         const leak = s.match(/[֐-׿]{3,}/g);
         if (leak) throw new Error("session log would carry text: " + leak.slice(0, 3).join(","));

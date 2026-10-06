@@ -13,7 +13,7 @@ test("each screen renders its controls, with no page errors", async ({ page }) =
   await H.boot(page);
 
   // Entry: the two inputs, the four options, the chrome.
-  await expect(page.getByRole("heading", { name: /מה יוצא מהמסמך/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /להיעזר ב־AI בלי לחשוף את הלקוח/ })).toBeVisible();
   await expect(page.getByText("בחירת קובץ")).toBeVisible();
   await expect(page.getByText("הדבקת טקסט")).toBeVisible();
   await expect(page.locator('input[type="file"][accept*=".docx"]')).toHaveCount(1);
@@ -34,9 +34,9 @@ test("each screen renders its controls, with no page errors", async ({ page }) =
   await expect(page.getByPlaceholder(/שם מלא/)).toBeVisible();
   await expect(page.getByRole("button", { name: "הוספה", exact: true })).toBeVisible();
   await expect(H.skipButton(page)).toBeVisible();
-  await expect(page.getByRole("button", { name: /ייבוא פרופיל/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: "ייבוא תיק מקובץ" })).toBeVisible();
   // the header's steps (the back button is named «קובץ» too, now that its ‹ is a hidden icon)
-  for (const step of ["קובץ", "מי בתיק", "מקומות"])
+  for (const step of ["קובץ", "מי בתיק", "יישובים"])
     await expect(page.locator("header nav").getByRole("button", { name: step, exact: true })).toBeVisible();
   await expect(page.locator("[data-back]")).toBeVisible();
   expect(await H.listedNames(page)).toContain("דנה לוי");
