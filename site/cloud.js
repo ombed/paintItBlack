@@ -30,6 +30,18 @@
   // once: signing out also fires SIGNED_OUT, and a second navigation would cut the first off
   let gone = false;
   const leave = (to) => { if (gone) return; gone = true; A.clearCookie(); location.replace(to); };
+  /* Every message here is set as text, never as HTML. The contact address in one is a link to
+     write to it, in the same words, as on the sign-in page (login.js): the failed deletion named
+     it as plain text, nothing to press (review of 6.10). Underlined: in a line of text a link is
+     told by more than its colour. */
+  const CONTACT = "contact@inkognito.co.il";
+  const tell = (box, text) => {
+    const at = text.indexOf(CONTACT);
+    if (at < 0) { box.textContent = text; return; }
+    const mail = document.createElement("a");
+    mail.href = "mailto:" + CONTACT; mail.textContent = CONTACT; mail.style.textDecoration = "underline";
+    box.replaceChildren(text.slice(0, at), mail, text.slice(at + CONTACT.length));
+  };
 
   /* The gate reads the cookie on every request, and the token in it lasts an hour. A tab left in
      the background can outlive it (browsers slow its timers, so the regular refresh comes late),
@@ -199,7 +211,7 @@
     yes.addEventListener("click", async () => {
       const at = Date.now();
       const { error } = await sb.rpc("set_log_enabled", { p_on: true });
-      if (error) { p.textContent = "השינוי לא נשמר. אפשר לנסות שוב."; return; }
+      if (error) { tell(p, "השינוי לא נשמר. אפשר לנסות שוב."); return; }
       epoch++;
       if (refused) cutAt = at;
       profile.log_enabled = true; syncSwitch(); close();
@@ -315,20 +327,20 @@
       if (!on) { profile.log_enabled = false; refused = true; }
       const { error } = await sb.rpc("set_log_enabled", { p_on: on });
       epoch++;
-      if (error) { profile.log_enabled = was; sw.checked = !on; msg.textContent = "השינוי לא נשמר. אפשר לנסות שוב."; return; }
+      if (error) { profile.log_enabled = was; sw.checked = !on; tell(msg, "השינוי לא נשמר. אפשר לנסות שוב."); return; }
       if (on && refused) cutAt = at;
       profile.log_enabled = on;
       // the switch has answered the card's question
       const card = document.getElementById("ink-ask");
       if (card) card.remove();
-      msg.textContent = on ? "היומן יישלח בסוף כל מסמך." : "היומן לא יישלח יותר.";
+      tell(msg, on ? "היומן יישלח בסוף כל מסמך." : "היומן לא יישלח יותר.");
     });
     // this browser only: the account's other devices stay signed in
     out.addEventListener("click", async () => { await sb.auth.signOut({ scope: "local" }).catch(() => {}); leave(LOGIN); });
     del.addEventListener("click", async () => {
       if (!confirm("למחוק את החשבון? פרטי החשבון וכל יומני השימוש יימחקו לצמיתות. רשימות התיקים וההגדרות שבמחשב הזה לא נמחקות.")) return;
       const { error } = await sb.rpc("delete_my_account");
-      if (error) { msg.textContent = "המחיקה לא הצליחה. אפשר לנסות שוב, או לכתוב אל contact@inkognito.co.il."; return; }
+      if (error) { tell(msg, "המחיקה לא הצליחה. אפשר לנסות שוב, או לכתוב אל contact@inkognito.co.il."); return; }
       leavingTo = ROOT;
       await sb.auth.signOut({ scope: "local" }).catch(() => {});
       leave(ROOT);

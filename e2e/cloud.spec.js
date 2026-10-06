@@ -342,6 +342,28 @@ test("deleting the account asks first, deletes, and leaves for the home page", a
   expect((await page.context().cookies()).find((c) => c.name === "ink_at")).toBeUndefined();
 });
 
+/* The message of a deletion that failed tells the person to write to the contact address, so the
+   address is a link to write to it, in the same words (review of 6.10: it was plain text, as the
+   sign-in page's were before e65ddc5). */
+test("a deletion that failed says so in the same words, and its contact address is a link to write to", async ({ page }) => {
+  const calls = await hosted(page);
+  await page.route(PROJECT + "/rest/v1/rpc/delete_my_account", (route) => route.fulfill({ status: 500, json: { code: "XX000", message: "failed", details: null, hint: null } }));
+  await boot(page);
+  await page.getByRole("button", { name: "חשבון", exact: true }).click();
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "מחיקת החשבון" }).click();
+  const msg = page.locator("#ink-account-msg");
+  await expect(msg).toHaveText("המחיקה לא הצליחה. אפשר לנסות שוב, או לכתוב אל contact@inkognito.co.il.");
+  await expect(msg.getByRole("link", { name: "contact@inkognito.co.il", exact: true })).toHaveAttribute("href", "mailto:contact@inkognito.co.il");
+  // still here, still signed in, the panel open with the message (read out: role=status)
+  await expect(msg).toHaveAttribute("role", "status");
+  await expect(page.locator("#ink-account-panel")).toBeVisible();
+  expect(new URL(page.url()).pathname).toBe(APP);
+  expect(calls.some((c) => c.path === "/auth/v1/logout")).toBe(false);
+  const r = await new AxeBuilder({ page }).include("#ink-account").withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
+  expect(r.violations.map((v) => v.id)).toEqual([]);
+});
+
 test("without a session the tool sends the person to sign in", async ({ page }) => {
   test.info().annotations.push({ type: "no-self-check" });
   await hosted(page, { session: false });

@@ -96,6 +96,10 @@ for (const s of scripts) {
   const mails = [...js.matchAll(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g)].map((m) => m[0]).filter((m) => m !== CONTACT && !/example\.co\.il$/.test(m));
   ok(!mails.length, s + ": the one contact address" + (mails.length ? ", not " + mails.join(", ") : ""));
   ok(!/\.innerHTML\s*=(?!\s*'אפשר לשלוח שוב בעוד <span id="t" aria-hidden="true">' \+ WAIT)/.test(js), s + ": no innerHTML (text that may come from users is only ever set as text)");
+  // a message that tells a person to write to the contact address lets them: the address is a link
+  // to write to it (mailto), never set as plain text (the account panel's failed deletion was, 6.10)
+  if (js.includes(CONTACT))
+    ok(js.includes('"mailto:"') && !/\b(?:textContent|innerText)\s*[:=][^;\n]*contact@inkognito\.co\.il/.test(js), s + ": a message that names the contact address makes it a link to write to");
 }
 
 console.log("\n— the fonts —");
