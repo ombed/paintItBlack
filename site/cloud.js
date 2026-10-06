@@ -339,6 +339,9 @@
       if (pane.hidden || mine(e.target)) return;
       show(false);
     }, true);
+    // and when the focus goes anywhere else, as Tab past its last stop or back past its button: it
+    // stayed open, aria-expanded true, over the stops the focus went on to (review of 6.10)
+    document.addEventListener("focusin", (e) => { if (!pane.hidden && !mine(e.target)) show(false); });
     /* Tab between the bar's button and its open panel, which sits elsewhere in the document: from
        the button into the panel, from the panel's first stop back to the button, and from its last
        stop on to what follows the button (the focus is put on the button, and the browser's own Tab

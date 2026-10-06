@@ -169,6 +169,39 @@ for (const p of ["index.html", "privacy.html", "terms.html", "accessibility.html
     await expect(menu).toHaveAttribute("aria-expanded", "false");
   });
 
+/* And when the focus leaves it: Tab past its last link left the sheet open, aria-expanded true, over
+   the page the focus went on to (the class of the account panel's, review of 6.10; WCAG 2.4.11).
+   Moving through its links keeps it open. */
+for (const p of ["index.html", "privacy.html", "terms.html", "accessibility.html", "login.html", "404.html"])
+  test(`the phone menu closes when the focus leaves it, and not while it moves through it (${p})`, async ({ page }) => {
+    await siteAtRoot(page);
+    await page.route(PROJECT + "/**", (route) => route.fulfill({ json: {} }));
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/site/" + p);
+    const menu = page.getByRole("button", { name: "תפריט" }), sheet = page.locator("#sheet");
+    await menu.focus();
+    await page.keyboard.press("Enter");
+    await expect(sheet).toBeVisible();
+    const links = await sheet.locator("a").count();
+    for (let i = 0; i < links; i++) {
+      await page.keyboard.press("Tab");
+      expect(await page.evaluate(() => document.getElementById("sheet").contains(document.activeElement))).toBe(true);
+    }
+    await expect(sheet).toBeVisible();
+    await expect(menu).toHaveAttribute("aria-expanded", "true");
+    // on past its last link: closed
+    await page.keyboard.press("Tab");
+    await expect(sheet).toBeHidden();
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+    // back past its button: closed too
+    await menu.focus();
+    await page.keyboard.press("Enter");
+    await expect(sheet).toBeVisible();
+    await page.keyboard.press("Shift+Tab");
+    await expect(sheet).toBeHidden();
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+  });
+
 for (const width of [1440, 1180, 860, 390, 320])
   test(`nothing is cut or scrolls sideways at ${width} px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });

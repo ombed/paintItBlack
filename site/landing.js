@@ -23,6 +23,13 @@
        under the finger, so the press ended on whatever came up into its place. The press goes on
        to what it was on, a link below the sheet too. */
     document.addEventListener("click", (e) => { if (!sheet.hidden && !sheet.contains(e.target) && !menu.contains(e.target)) show(false); }, true);
+    /* And when the focus goes anywhere else, as Tab past its last link: it stayed open over the
+       page the focus went on to (review of 6.10). The focus a press brings (a link takes it as the
+       press starts) is left to the click above, for the same reason. */
+    let pressing = false;
+    for (const [type, on] of [["pointerdown", true], ["pointerup", false], ["pointercancel", false], ["keydown", false]])
+      document.addEventListener(type, () => { pressing = on; }, true);
+    document.addEventListener("focusin", (e) => { if (!pressing && !sheet.hidden && !sheet.contains(e.target) && !menu.contains(e.target)) show(false); });
   }
 
   // the passage: pointing at a name, or reaching it with Tab, lights every place that person

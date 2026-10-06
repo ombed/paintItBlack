@@ -213,6 +213,40 @@ test("the account panel closes on a press outside it, and not on one inside it",
   await expect(btn).toHaveAttribute("aria-expanded", "false");
 });
 
+/* An open panel that the focus leaves closes, and its button says so: Tab past its last stop, or back
+   past its button, left it open over the page, aria-expanded still true, the next stops under it
+   (review of 6.10; WCAG 2.4.11, focus not hidden). Moving inside it, or between it and its button,
+   keeps it open. */
+test("the account panel closes when the focus leaves it, and not while it moves inside it", async ({ page }) => {
+  await hosted(page);
+  await boot(page);
+  const btn = page.getByRole("button", { name: "חשבון", exact: true }), pane = page.locator("#ink-account-panel");
+  await btn.focus();
+  await page.keyboard.press("Enter");
+  await expect(pane).toBeVisible();
+  // through its four stops and back to the button: still open
+  for (let i = 0; i < 4; i++) await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "מחיקת החשבון" })).toBeFocused();
+  for (let i = 0; i < 4; i++) await page.keyboard.press("Shift+Tab");
+  await expect(btn).toBeFocused();
+  await expect(pane).toBeVisible();
+  await expect(btn).toHaveAttribute("aria-expanded", "true");
+  // on past its last stop: closed, and nothing covers the stop the focus reached
+  for (let i = 0; i < 5; i++) await page.keyboard.press("Tab");
+  await expect(pane).toBeHidden();
+  await expect(btn).toHaveAttribute("aria-expanded", "false");
+  expect(await page.evaluate(() => { const a = document.activeElement, r = a.getBoundingClientRect();
+    const at = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return !!at && !!a.closest("#dc-root") && !a.closest("header") && (a === at || a.contains(at)); })).toBe(true);
+  // back past its button, to the day/night button: closed
+  await btn.focus();
+  await page.keyboard.press("Enter");
+  await expect(pane).toBeVisible();
+  await page.keyboard.press("Shift+Tab");
+  await expect(page.locator("header [data-night]")).toBeFocused();
+  await expect(pane).toBeHidden();
+  await expect(btn).toHaveAttribute("aria-expanded", "false");
+});
+
 test("on a phone, the account button sits on the header's first row, in the header's colours", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await hosted(page);
