@@ -79,5 +79,15 @@ for (const s of scripts) {
   ok(!/\.innerHTML\s*=(?!\s*'אפשר לשלוח שוב בעוד <span id="t" aria-hidden="true">' \+ WAIT)/.test(js), s + ": no innerHTML (text that may come from users is only ever set as text)");
 }
 
+console.log("\n— the fonts —");
+// the site serves its own fonts, under the SIL Open Font License, which travels with each family
+const fontsCss = fs.readFileSync(path.join(SITE, "fonts", "fonts.css"), "utf8");
+const families = [...new Set([...fontsCss.matchAll(/font-family: '([^']+)'/g)].map((m) => m[1]))];
+ok(families.length >= 3, "the site's font families (" + families.join(", ") + ")");
+for (const fam of families) {
+  const lic = path.join(SITE, "fonts", fam.toLowerCase().replace(/ /g, "-") + "-LICENSE.txt");
+  ok(fs.existsSync(lic) && /SIL Open Font License, Version 1\.1/.test(fs.readFileSync(lic, "utf8")), fam + ": its Open Font License sits beside its files");
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exitCode = 1;
