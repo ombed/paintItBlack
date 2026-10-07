@@ -17,7 +17,10 @@ const ok = (c, m) => { c ? pass++ : (fail++, console.log("  ✗ " + m)); };
 const SITE = path.join(__dirname, "..", "site");
 const PROJECT = "https://cwsiranjlxbclmaqtucc.supabase.co";
 const CONTACT = "contact@inkognito.co.il";
-const OUT = ["https://github.com/ombed/inkognito", "https://mail.google.com", "https://outlook.live.com"];
+// and the help page of each AI company, where the home page says how to turn training off (#training, 7.10.2026)
+const OUT = ["https://github.com/ombed/inkognito", "https://mail.google.com", "https://outlook.live.com",
+  "https://help.openai.com/en/articles/7730893-data-controls-in-chatgpt", "https://privacy.claude.com/en/articles/12109829-how-do-i-change-my-model-improvement-privacy-settings",
+  "https://support.google.com/gemini/answer/13278892", "https://support.microsoft.com/en-us/microsoft-copilot/microsoft-copilot-privacy-controls"];
 const pages = fs.readdirSync(SITE).filter((f) => f.endsWith(".html"));
 const scripts = fs.readdirSync(SITE).filter((f) => f.endsWith(".js"));
 
