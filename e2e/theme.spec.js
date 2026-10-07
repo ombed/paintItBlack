@@ -105,6 +105,10 @@ test("every token used anywhere is defined, and every colour has a dark value", 
     // applyProps sets a few on the element at runtime; count those as defined.
     for (const n of ["accent", "accent-ink", "accent-soft", "doc-font", "rail-w"])
       if (document.documentElement.style.getPropertyValue("--" + n)) root.add(n);
+    // the bottom bar's height is measured onto the element only while the bar is on the screen (_barSize);
+    // it counts as defined when every use of it carries a fallback for the screens without the bar
+    const bare = [...(css + "\n" + inline).matchAll(/var\(--bar-h\s*(\)|,)/g)].filter((m) => m[1] === ")").length;
+    if (!bare) root.add("bar-h");
     const missing = [...used].filter((v) => !root.has(v));
     // the header's cloth, its gilt and the highlighter are colours too, and so are the paper, the controls,
     // the placeholder text and the scrollbar thumb

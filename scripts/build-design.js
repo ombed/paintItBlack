@@ -36,8 +36,8 @@ function build(html) {
   const helmetInner = html.slice(h0, h1).replace(/\r?\n+$/, "");
   // body: from </helmet> to the end, minus the version chip
   let body = html.slice(html.indexOf("</helmet>", h1));
-  // the chip may sit inside a <footer> landmark (QA run-2 L19)
-  body = body.replace(/<\/x-dc>\r?\n(?:<footer>)?<div id="ver">[^<]*<\/div>(?:<\/footer>)?\r?\n/, "</x-dc>" + NL);
+  // the chip may sit inside a <footer> landmark (QA run-2 L19), after the site's links (v66)
+  body = body.replace(/<\/x-dc>\r?\n(?:<footer>(?:<nav data-foot[^>]*>[\s\S]*?<\/nav>)?)?<div id="ver">[^<]*<\/div>(?:<\/footer>)?\r?\n/, "</x-dc>" + NL);
   if (body.includes('id="ver"')) throw new Error("version chip still present");
   body = body.replace('data-props="{&quot;docFont&quot;',
     'data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},' + NL + '&quot;docFont&quot;');

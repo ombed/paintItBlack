@@ -83,6 +83,7 @@ const SESSION = {
   settingsOpen: "her choice to show the settings", drag: "a file is being dragged over the page", showMap: "her choice to show the map",
   atlas: "the map data, loaded once", returnTo: "where the restore screen goes back to; with no document it falls back to the file screen",
   noticeUndo: "set with every notice; the notice itself is the document's",
+  helpOpen: "the «עזרה» menu is open",
 };
 // cleared by «מסמך חדש», and kept when the next document is loaded otherwise
 const NEW_DOC_ONLY = {

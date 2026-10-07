@@ -158,7 +158,7 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
   header>div:first-child{flex:1 1 calc(100% - 52px)!important}
   header>[data-night]{order:1}
   header>nav{order:2;flex:1 1 100%;flex-wrap:wrap}
-  header>button:not([data-night]){order:3}
+  header>button:not([data-night]),header>[data-help]{order:3}
   [data-wordmark]{font-size:22px}
   #ver{position:static!important;display:block;text-align:center;padding:14px 0 12px}
 }
@@ -201,6 +201,17 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
     </sc-if>
     <button onClick="{{ onReverse }}" style="{{ reverseBtnStyle }}" style-hover="background:var(--panel2);color:var(--ink)">החזרת שמות מתשובת AI</button>
     <sc-if value="{{ isWork }}"><button onClick="{{ onBackHome }}" style="font-size:13px;color:var(--ink2);padding:7px 11px;border-radius:8px;white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)">מסמך חדש</button></sc-if>
+    <!-- «עזרה» (הנוסח שאושר, 7.10.2026): הסיור, חלון «לפני שמתחילים» והשאלות הנפוצות באתר. נסגר בלחיצה בחוץ, ב-Escape ובמעבר מיקוד -->
+    <div data-help style="position:relative">
+      <button data-help-btn onClick="{{ onHelp }}" aria-expanded="{{ helpExpanded }}" aria-controls="help-menu" style="font-size:13px;color:var(--ink2);padding:7px 11px;border-radius:8px;white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)">עזרה</button>
+      <sc-if value="{{ helpOpen }}">
+        <ul id="help-menu" style="position:absolute;top:calc(100% + 6px);inset-inline-end:0;z-index:40;min-width:210px;list-style:none;margin:0;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);font-size:13.5px">
+          <li><button onClick="{{ onHelpTour }}" style="display:block;width:100%;text-align:start;padding:8px 10px;border-radius:8px;color:var(--ink)" style-hover="background:var(--panel2)">סיור על מסמך לדוגמה</button></li>
+          <li><button onClick="{{ onHelpIntro }}" style="display:block;width:100%;text-align:start;padding:8px 10px;border-radius:8px;color:var(--ink)" style-hover="background:var(--panel2)">איך זה עובד</button></li>
+          <li><a href="https://inkognito.co.il/#faq" target="_blank" rel="noopener" onClick="{{ onHelpClose }}" style="display:block;padding:8px 10px;border-radius:8px;color:var(--ink);text-decoration:underline;text-underline-offset:2px" style-hover="background:var(--panel2)">שאלות נפוצות</a></li>
+        </ul>
+      </sc-if>
+    </div>
     <button onClick="{{ onTheme }}" data-night aria-label="מצב יום או לילה" style="width:34px;height:34px;border-radius:9px;display:grid;place-items:center;border:1px solid var(--line);color:var(--ink2)" style-hover="background:var(--panel2);color:var(--ink)"><sc-if value="{{ isDark }}"><svg class="ic" data-icon="sun" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2" fill="currentColor" stroke="none"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></sc-if><sc-if value="{{ isLight }}"><svg class="ic" data-icon="moon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 14.6A8.5 8.5 0 0 1 9.4 3.6a8.5 8.5 0 1 0 11 11Z" fill="currentColor" stroke="none"/><path d="M17 3.5v3M15.5 5h3" stroke-width="1.6"/></svg></sc-if></button>
   </header>
 
@@ -1189,7 +1200,7 @@ class Component extends DCLogic {
     copyLabel:"העתקה ל־AI", busyT:"מעבד…", err:"",
     geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, popup:null, tip:null, repDraft:"", sent:{}, peoKept:[], peoNotSame:[], inline:null, inlineDraft:"",
     // הפרופיל של התיק נשמר בדפדפן אחרי כל שינוי; lastProfile הוא מה שנמצא בכניסה
-    caseName:"", lastProfile:null, profileDirty:false, removed:[], leaks:[], cases:[], copied:false, logCopyLabel:""
+    caseName:"", lastProfile:null, profileDirty:false, removed:[], leaks:[], cases:[], copied:false, logCopyLabel:"", helpOpen:false
   };
 
   async componentDidMount(){
@@ -1239,6 +1250,8 @@ class Component extends DCLogic {
     this._barSize();
     this._docClick = e => {
       if(this.state.popup && !e.target.closest("[data-popup]")) this.setState({popup:null});
+      // תפריט «עזרה» נסגר בלחיצה מחוץ לו, כמו תפריט
+      if(this.state.helpOpen && !e.target.closest("[data-help]")) this.setState({helpOpen:false});
       // דוגמה שננעצה בהקשה נסגרת בהקשה בחוץ. בלי זה אין דרך לסגור אותה במגע.
       if(this.state.tip && this.state.tip.pin && !e.target.closest("[data-tip]")) this.setState({tip:null});
     };
@@ -1250,6 +1263,7 @@ class Component extends DCLogic {
          עריכה במקום, חלונית הסימון, רמז — בסדר הזה. Tab לא יוצא מ"לפני שמתחילים".
          Enter או רווח על סימון במסמך פותחים אותו כמו לחיצה. */
       if(e.key==="Escape"){
+        if(S.helpOpen){ e.preventDefault(); this.setState({helpOpen:false}, ()=>{ const b=document.querySelector("[data-help-btn]"); if(b) b.focus(); }); return; }
         if(S.intro&&!S.tour){ e.preventDefault(); this.tourMarkSeen(); this.setState({intro:false}); return; }
         if(S.inline){ e.preventDefault(); this.setState({inline:null}); return; }
         if(S.popup){ e.preventDefault(); this.setState({popup:null}); return; }
@@ -1327,6 +1341,9 @@ class Component extends DCLogic {
       else this.setState({cases});
     };
     addEventListener("storage", this._storage);
+    // ותפריט «עזרה» נסגר כשהמיקוד עובר הלאה ממנו, כמו ב-Tab אחרי הפריט האחרון
+    this._helpFocus=e=>{ if(this.state.helpOpen&&!(e.target&&e.target.closest&&e.target.closest("[data-help]"))) this.setState({helpOpen:false}); };
+    document.addEventListener("focusin", this._helpFocus);
     // יומן: שגיאה בדף אצלה הייתה נעלמת בלי עקבות. נרשם רק סוג השגיאה והמסך — ההודעה עלולה
     // להכיל טקסט מהמסמך, ולכן היא לא נרשמת. עד 20 בסשן.
     this._pageErr=e=>{ try{ if((this._errN=(this._errN||0)+1)>20) return;
@@ -1373,7 +1390,7 @@ class Component extends DCLogic {
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); document.removeEventListener("keyup", this._selKeys); removeEventListener("resize", this._resize);
     removeEventListener("beforeunload", this._unload); removeEventListener("pagehide", this._hide); removeEventListener("popstate", this._pop);
     removeEventListener("scroll", this._follow, true); removeEventListener("resize", this._follow); removeEventListener("animationend", this._follow, true); removeEventListener("transitionend", this._follow, true);
-    removeEventListener("scroll", this._scNudge, {capture:true}); removeEventListener("resize", this._scNudge); if(this._scT) clearTimeout(this._scT); removeEventListener("storage", this._storage); removeEventListener("error", this._pageErr); removeEventListener("unhandledrejection", this._pageErr);
+    removeEventListener("scroll", this._scNudge, {capture:true}); removeEventListener("resize", this._scNudge); if(this._scT) clearTimeout(this._scT); removeEventListener("storage", this._storage); document.removeEventListener("focusin", this._helpFocus); removeEventListener("error", this._pageErr); removeEventListener("unhandledrejection", this._pageErr);
     if(this._barObs) this._barObs.disconnect(); if(this._headObs) this._headObs.disconnect(); }
   /* ביומן רוב האירועים היו "screen" — אותו מסך, שוב ושוב,
      בכל רינדור. הארגומנט הראשון של ההוק הוא ה-props הקודמים, לא ה-state הקודם, ולכן
@@ -3678,6 +3695,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       ],
       isDark:S.theme==="dark", isLight:S.theme!=="dark", onTheme:this.toggleTheme,
       onReverse:this.openReverse,
+      // «עזרה»: הסיור מעל מסמך פתוח שואל קודם, באותה שאלה של «אחורה» בדפדפן, כי הסיור מתחיל ממסמך ריק
+      helpOpen:!!S.helpOpen, helpExpanded:S.helpOpen?"true":"false",
+      onHelp:()=>this.setState({helpOpen:!S.helpOpen}), onHelpClose:()=>this.setState({helpOpen:false}),
+      onHelpTour:()=>{ this.setState({helpOpen:false}); if(S.buf&&!S.tour&&!confirm("לצאת מהמסמך? המסמך וההחלטות שקיבלתם לגביו יאבדו. התיק נשאר שמור בדפדפן.")) return; this.tourStart(); },
+      onHelpIntro:()=>this.setState({helpOpen:false, intro:true}),
       /* היה כפתור אחד בכותרת, כפתור שני זהה בסרגל התחתון, ומקטע שלישי במסילה
          שרץ בכלל על מסלול אחר: הוא בנה את הזוגות מ-livePairs, שאינה מסננת ערך
          שהושחר ל-███, בעוד שהמסך בנה אותם מ-currentMap שכן. אותה הדבקה יכלה
