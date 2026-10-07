@@ -13,10 +13,30 @@
   // change of the address's # on the same page
   const openAnswer = () => {
     const d = /^#[\w-]+$/.test(location.hash) && document.getElementById(location.hash.slice(1));
-    if (d && d.tagName === "DETAILS") d.open = true;
+    if (!d || d.tagName !== "DETAILS") return;
+    d.open = true;
+    // the browser jumps to it before the fonts arrive, and the text above it grows after: on a phone the
+    // answer ended up below the screen. Once the fonts are in, it is brought back into view
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => d.scrollIntoView({ block: "start" }));
   };
   openAnswer();
   addEventListener("hashchange", openAnswer);
+
+  /* A visitor who is signed in (a session kept in this browser by supabase-js, config.js) finds «לכלי»
+     where «כניסה» was, and no sign-up buttons: they have an account (the owner's decision, 6.10). Whether
+     the session still holds is for the tool's gate to say; one that ended there leads to the sign-in page. */
+  let signedIn = false;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (/^sb-[a-z0-9]+-auth-token$/.test(k) && (JSON.parse(localStorage.getItem(k)) || {}).refresh_token) signedIn = true;
+    }
+  } catch (_) {}
+  if (signedIn && !document.body.classList.contains("signin-page")) {
+    const app = new URL("app/", document.currentScript ? document.currentScript.src : location.href).pathname;
+    document.querySelectorAll('a.login, #sheet a[href$="login.html"]').forEach((a) => { a.textContent = "לכלי"; a.href = app; });
+    document.querySelectorAll('a[href*="mode=signup"]').forEach((a) => { a.hidden = true; });
+  }
 
   // the phone menu: the green bar's button opens a sheet of links; a link, or Escape, closes it
   const menu = document.querySelector(".menu-btn"), sheet = document.getElementById("sheet");

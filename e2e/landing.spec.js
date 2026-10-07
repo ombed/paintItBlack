@@ -209,6 +209,33 @@ for (const width of [1440, 1180, 860, 390, 320])
     expect(await cutOff(page)).toEqual([]);
   });
 
+/* A signed-in visitor (a session kept in this browser by supabase-js) finds «לכלי» where «כניסה» was, in the
+   bar and in the phone menu, and no sign-up buttons: they have an account (the owner's decision, 6.10). */
+for (const p of ["index.html", "privacy.html"])
+  test(`signed in: «לכלי» in place of «כניסה», and no sign-up buttons (${p})`, async ({ page }) => {
+    const signUps = () => page.locator('a[href*="mode=signup"]:visible');
+    await page.goto("/site/" + p);
+    await expect(page.locator("a.login")).toHaveText("כניסה");
+    expect(await signUps().count()).toBeGreaterThan(0);
+    await page.evaluate(() => window.localStorage.setItem("sb-cwsiranjlxbclmaqtucc-auth-token", JSON.stringify({ access_token: "a", refresh_token: "r" })));
+    await page.reload();
+    await expect(page.locator("a.login")).toHaveText("לכלי");
+    await expect(page.locator("a.login")).toHaveAttribute("href", "/site/app/");
+    await expect(page.locator('#sheet a[href="/site/app/"]')).toHaveText("לכלי");
+    await expect(signUps()).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "כניסה" })).toHaveCount(0);
+  });
+
+test("the home page's first screen: the three steps; its footer names who operates it", async ({ page }) => {
+  await page.goto(HOME);
+  await expect(page.locator(".hero .steps3 li")).toHaveText([
+    "מחליפים שמות: בוחרים מסמך Word או PDF, והשמות שבו מוחלפים בשמות בדויים.",
+    "מעתיקים ל־AI: מדביקים את הטקסט ב־ChatGPT או בכלי AI אחר.",
+    "מחזירים את השמות: מדביקים את התשובה באינקוגניטו, והשמות האמיתיים חוזרים אליה.",
+  ]);
+  await expect(page.locator(".foot .who")).toHaveText("אינקוגניטו מופעל על ידי עומר בן דוד, בני רא״ם.");
+});
+
 /* The tool's line of care beside the AI links ends with «איך מכבים», a link to #training on the home page
    (v65, 7.10.2026). Arriving there opens that answer: how to turn training off in each AI, with each
    company's own help page, and the contact line under the questions. */
