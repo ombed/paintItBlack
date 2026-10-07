@@ -511,6 +511,43 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
     ok(/permission denied/.test(await tries(() => as(A, () => db.query("select public.ping()"))) || ""), "a signed-in account may not: nothing it does needs it");
   }
 
+  console.log("\n— the account's own tools and the owner's (0011) —");
+  {
+    const E = "00000000-0000-0000-0000-0000000000e1", F = "00000000-0000-0000-0000-0000000000e2", G = "00000000-0000-0000-0000-0000000000e3", O2 = "00000000-0000-0000-0000-0000000000e4";
+    await addUser(E, "e@example.com", "Echo"); await addUser(F, "f@example.com", "Fox"); await addUser(G, "g@example.com", "Golf"); await addUser(O2, "o2@example.com", "Second owner");
+    await db.query("update public.profiles set is_admin = true where id = $1", [O2]);
+    // 1: the profile follows a change of address
+    await db.query("update auth.users set email = 'e-new@example.com' where id = $1", [E]);
+    ok((await profileOf(E)).email === "e-new@example.com", "a changed address reaches the profile");
+    // 2: what the service keeps about the account, its own and no one else's
+    await consent(E); await consent(F);
+    const lg = JSON.parse(PL.sessionLog("v65").export()); lg.events.push({ t: 1, ev: "run" });
+    await submit(E, lg); await submit(F, lg);
+    const mine = (await as(E, () => db.query("select public.export_my_data() d"))).rows[0].d;
+    ok(mine && mine.export === "inkognito-my-data" && mine.profile.id === E && mine.profile.email === "e-new@example.com", "«הורדת המידע שלי» brings the account's own profile");
+    ok(mine && mine.logs.length === 1 && mine.logs[0].log.events.some((e) => e.ev === "run"), "and its own logs, only its own: " + (mine && mine.logs.length));
+    ok(/permission denied/.test(await tries(() => as(null, () => db.query("select public.export_my_data()"))) || ""), "a visitor who is not signed in cannot call it");
+    // 3: deleting one's own account sends one email to that address first, when the key is there
+    await db.query("insert into vault.stub_secrets values ('resend_digest_key', 're_test') on conflict (name) do update set decrypted_secret = excluded.decrypted_secret");
+    const before = (await db.query("select coalesce(max(id), 0) m from net.calls")).rows[0].m;
+    ok((await tries(() => as(E, () => db.query("select public.delete_my_account()")))) === null, "a signed-in user deletes their own account");
+    const sent = (await db.query("select * from net.calls where id > $1", [before])).rows;
+    ok(sent.length === 1 && sent[0].url === "https://api.resend.com/emails" && JSON.stringify(sent[0].body.to) === '["e-new@example.com"]', "one email, to the address that was deleted");
+    ok(!!sent[0] && sent[0].body.subject === "החשבון שלכם באינקוגניטו נמחק" && sent[0].body.text.includes("לא אתם מחקתם את החשבון? כתבו מיד אל contact@inkognito.co.il."), "in the approved words");
+    ok(!!sent[0] && sent[0].headers.Authorization === "Bearer re_test", "with the key from the Vault");
+    ok(!(await profileOf(E)) && (await db.query("select count(*)::int n from public.usage_logs where user_id = $1", [E])).rows[0].n === 0, "the profile and the logs are gone");
+    await db.query("delete from vault.stub_secrets where name = 'resend_digest_key'");
+    const before2 = (await db.query("select coalesce(max(id), 0) m from net.calls")).rows[0].m;
+    ok((await tries(() => as(G, () => db.query("select public.delete_my_account()")))) === null && !(await profileOf(G)), "without the key the deletion still happens");
+    ok((await db.query("select count(*)::int n from net.calls where id > $1", [before2])).rows[0].n === 0, "and no email is attempted");
+    // 4: the owner deletes another account; nobody else can, and not an owner's
+    ok(/only the owner/.test(await tries(() => as(F, () => db.query("select public.admin_delete_user($1)", [O2]))) || ""), "an account that is not the owner's cannot delete anyone");
+    ok(/their own account/.test(await tries(() => as(OWNER, () => db.query("select public.admin_delete_user($1)", [OWNER]))) || ""), "the owner does not delete themselves from here");
+    ok(/owner's account/.test(await tries(() => as(OWNER, () => db.query("select public.admin_delete_user($1)", [O2]))) || "") && !!(await profileOf(O2)), "nor another owner");
+    ok((await tries(() => as(OWNER, () => db.query("select public.admin_delete_user($1)", [F])))) === null && !(await profileOf(F)), "the owner deletes another account");
+    ok((await db.query("select count(*)::int n from public.usage_logs where user_id = $1", [F])).rows[0].n === 0, "and its logs go with it");
+  }
+
   // The checks above try one door at a time. Supabase's default grants open more doors than
   // anyone tries (its live advisor found two the checks missed), so pin the whole list: every
   // privilege the API roles hold in public, on tables, sequences, columns and functions.
@@ -532,7 +569,8 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
     "delete_my_account() EXECUTE authenticated", "is_admin() EXECUTE authenticated", "profiles SELECT authenticated",
     "profiles.approved UPDATE authenticated", "profiles.blocked UPDATE authenticated",
     "log_not_now() EXECUTE authenticated", "set_log_enabled() EXECUTE authenticated", "submit_log() EXECUTE authenticated",
-    "touch() EXECUTE authenticated", "usage_logs SELECT authenticated", "ping() EXECUTE anon"];
+    "touch() EXECUTE authenticated", "usage_logs SELECT authenticated", "ping() EXECUTE anon",
+    "export_my_data() EXECUTE authenticated", "admin_delete_user() EXECUTE authenticated"];
   const extra = held.filter((x) => !allowed.includes(x)), missing = allowed.filter((x) => !held.includes(x));
   ok(!extra.length, "no privilege beyond the list" + (extra.length ? ": " + extra.join("; ") : ""));
   ok(!missing.length, "every listed privilege is held" + (missing.length ? ": " + missing.join("; ") : ""));

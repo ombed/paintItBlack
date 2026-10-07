@@ -103,6 +103,7 @@ Gmail; decide later between a mail program that sends through Resend, or Google 
    earns Gmail's trust (deliverability review 4.10; tests/mail_t.js holds what it settled).
    - **Confirm signup**: subject `אימות כתובת המייל לאינקוגניטו`, body `confirm-signup.html`.
    - **Reset Password**: subject `איפוס סיסמה לאינקוגניטו`, body `reset-password.html`.
+   - **Change Email Address**: subject `אימות שינוי כתובת המייל לאינקוגניטו`, body `change-email.html` (from 0011; the link goes to both addresses).
    - **Magic Link**: subject `קישור כניסה לאינקוגניטו`, body `magic-link.html`. The sign-in page
      never asks for one (sign-in is Google, or an email and a password, 4.10); only the
      dashboard's "Send magic link" sends it, so its words do not assume the recipient asked.

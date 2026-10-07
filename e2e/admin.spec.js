@@ -196,3 +196,17 @@ test("one account's data downloads as one file: its profile and its logs", async
   // the owner's own row has no actions
   await expect(rowOf(page, "owner@example.co.il").getByRole("button")).toHaveCount(0);
 });
+
+test("the owner deletes another account after asking, and only after a yes", async ({ page }) => {
+  const calls = await stub(page);
+  await page.goto(PAGE);
+  let asked = "";
+  page.once("dialog", (d) => { asked = d.message(); d.dismiss(); });
+  await rowOf(page, "a@example.co.il").getByRole("button", { name: "מחיקה" }).click();
+  await expect.poll(() => asked).toBe("למחוק את החשבון של a@example.co.il? פרטי החשבון וכל יומני השימוש שלו יימחקו לצמיתות.");
+  expect(calls.some((c) => c.path === "/rest/v1/rpc/admin_delete_user")).toBe(false);
+  page.once("dialog", (d) => d.accept());
+  await rowOf(page, "a@example.co.il").getByRole("button", { name: "מחיקה" }).click();
+  await expect(page.locator("#msg")).toHaveText("נמחק: a@example.co.il");
+  expect(calls.find((c) => c.path === "/rest/v1/rpc/admin_delete_user").body).toEqual({ p_id: "00000000-0000-0000-0000-00000000000a" });
+});

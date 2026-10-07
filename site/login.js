@@ -292,7 +292,17 @@ $("confirmform").addEventListener("submit", async (e) => {
   go.disabled = true;
   if (!verified) {
     // "email" takes both a new account's verification and a sign-in link
-    const { data, error } = await sb.auth.verifyOtp({ token_hash: token, type: kind === "recovery" ? "recovery" : "email" });
+    const { data, error } = await sb.auth.verifyOtp({ token_hash: token, type: kind === "recovery" ? "recovery" : kind === "email_change" ? "email_change" : "email" });
+    /* A change of address (the account panel, cloud.js; Secure email change): a link went to each address.
+       The first one clicked is accepted with no session, and the second completes the change and signs in.
+       The approved words (signin-email-change, 7.10.2026) say which of the two this was. */
+    if (kind === "email_change" && !error) {
+      go.hidden = true;
+      const said = data.session ? "כתובת המייל שונתה. מעכשיו נכנסים איתה." : "הכתובת הזו אומתה. כדי להשלים את השינוי, לחצו גם על הקישור שנשלח לכתובת השנייה.";
+      $("confirm-why").textContent = said; status.textContent = said;
+      if (data.session) setTimeout(() => enter(data.session), 2500);
+      return;
+    }
     if (error || !data.session) {
       // the network, a server error, or too many tries: the token was not spent, so the same click can be tried again
       if (error && !(error.status >= 400 && error.status < 500 && error.status !== 429)) { go.disabled = false; return confirmErr(say(error, true), false); }
@@ -365,6 +375,7 @@ setMode(new URLSearchParams(location.search).get("mode") === "signup" ? "signup"
 if (token) {
   const words = kind === "recovery" ? ["איפוס סיסמה", "בוחרים סיסמה חדשה, ונכנסים.", "שמירה וכניסה"]
     : kind === "signup" ? ["אימות כתובת המייל", "כדי לסיים את ההרשמה, מקלידים סיסמה לחשבון (אפשר את זו שבחרתם בהרשמה). איתה נכנסים מעכשיו.", "אימות וכניסה"]
+    : kind === "email_change" ? ["שינוי כתובת המייל", "נשאר ללחוץ על הכפתור כדי לאמת את הכתובת.", "אימות הכתובת"]
     : null; // a sign-in link keeps the page's own words
   if (words) { $("confirm-h").textContent = words[0]; $("confirm-why").textContent = words[1]; go.textContent = words[2]; }
   $("newpw-wrap").hidden = !needsPw;

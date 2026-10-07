@@ -16,7 +16,7 @@ const ok = (c, m) => { c ? pass++ : (fail++, console.log("  ✗ " + m)); };
 
 const DIR = path.join(__dirname, "..", "supabase", "templates");
 const runbook = fs.readFileSync(path.join(__dirname, "..", "docs", "INKOGNITO-LAUNCH.md"), "utf8");
-const MAILS = { "confirm-signup.html": "&amp;type=signup", "reset-password.html": "&amp;type=recovery", "magic-link.html": "" };
+const MAILS = { "confirm-signup.html": "&amp;type=signup", "reset-password.html": "&amp;type=recovery", "magic-link.html": "", "change-email.html": "&amp;type=email_change" };
 
 for (const [name, type] of Object.entries(MAILS)) {
   console.log("\n— " + name + " —");

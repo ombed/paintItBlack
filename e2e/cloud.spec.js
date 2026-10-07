@@ -174,11 +174,11 @@ test("Tab reaches the account button right after the day/night button, and goes 
   await page.keyboard.press("Enter");
   await expect(page.locator("#ink-account-panel")).toBeVisible();
   const walk = [];
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 14; i++) {
     await page.keyboard.press("Tab");
     walk.push(await page.evaluate(() => { const a = document.activeElement; return a === window.__below ? "below" : a.closest("#ink-account-panel") ? a.id || a.textContent.trim() : "elsewhere"; }));
   }
-  expect(walk).toEqual(["ink-log", "מה נשלח ביומן", "הוספת סיסמה", "יציאה מהחשבון", "יציאה מכל המכשירים", "מחיקת החשבון", "עמוד הבית", "תנאי שימוש", "מדיניות פרטיות", "הצהרת נגישות", "יצירת קשר", "below"]);
+  expect(walk).toEqual(["ink-log", "מה נשלח ביומן", "הוספת סיסמה", "שינוי כתובת המייל", "הורדת המידע שלי", "יציאה מהחשבון", "יציאה מכל המכשירים", "מחיקת החשבון", "עמוד הבית", "תנאי שימוש", "מדיניות פרטיות", "הצהרת נגישות", "יצירת קשר", "below"]);
   // and Shift+Tab from its first stop goes back to the button
   await page.locator("#ink-log").focus();
   await page.keyboard.press("Shift+Tab");
@@ -251,15 +251,15 @@ test("the account panel closes when the focus leaves it, and not while it moves 
   await btn.focus();
   await page.keyboard.press("Enter");
   await expect(pane).toBeVisible();
-  // through its eleven stops and back to the button: still open
-  for (let i = 0; i < 11; i++) await page.keyboard.press("Tab");
+  // through its thirteen stops and back to the button: still open
+  for (let i = 0; i < 13; i++) await page.keyboard.press("Tab");
   await expect(pane.getByRole("link", { name: "יצירת קשר" })).toBeFocused();
-  for (let i = 0; i < 11; i++) await page.keyboard.press("Shift+Tab");
+  for (let i = 0; i < 13; i++) await page.keyboard.press("Shift+Tab");
   await expect(btn).toBeFocused();
   await expect(pane).toBeVisible();
   await expect(btn).toHaveAttribute("aria-expanded", "true");
   // on past its last stop: closed, and nothing covers the stop the focus reached
-  for (let i = 0; i < 12; i++) await page.keyboard.press("Tab");
+  for (let i = 0; i < 14; i++) await page.keyboard.press("Tab");
   await expect(pane).toBeHidden();
   await expect(btn).toHaveAttribute("aria-expanded", "false");
   expect(await page.evaluate(() => { const a = document.activeElement, r = a.getBoundingClientRect();
@@ -828,4 +828,35 @@ test("a Google-only account adds a password from the panel; a short one is refus
   expect(calls.find((c) => c.path === "/auth/v1/user" && c.body && c.body.password).body.password).toBe("a-long-enough-one-1");
   await expect(page.getByRole("button", { name: "שינוי סיסמה" })).toBeFocused();
   await expect(page.locator("#ink-pw")).toBeHidden();
+});
+
+test("«הורדת המידע שלי» downloads what the service keeps about the account, and says so", async ({ page }) => {
+  const calls = await hosted(page);
+  await page.route(PROJECT + "/rest/v1/rpc/export_my_data", (route) => { calls.push({ path: "/rest/v1/rpc/export_my_data" }); route.fulfill({ json: { export: "inkognito-my-data", profile: { email: "a@example.co.il" }, logs: [] } }); });
+  await boot(page);
+  await page.getByRole("button", { name: "חשבון", exact: true }).click();
+  await expect(page.locator("#ink-dl-hint")).toHaveText("קובץ עם פרטי החשבון ויומני השימוש שנשמרו אצלנו.");
+  const [dl] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "הורדת המידע שלי" }).click()]);
+  expect(dl.suggestedFilename()).toMatch(/^inkognito-my-data-\d{4}-\d{2}-\d{2}\.json$/);
+  expect(JSON.parse(require("fs").readFileSync(await dl.path(), "utf8")).export).toBe("inkognito-my-data");
+  await expect(page.locator("#ink-account-msg")).toHaveText("הקובץ ירד.");
+});
+
+test("«שינוי כתובת המייל» sends the link to both addresses and says so; a malformed address is refused first", async ({ page }) => {
+  const calls = await hosted(page);
+  await boot(page);
+  await page.getByRole("button", { name: "חשבון", exact: true }).click();
+  await page.getByRole("button", { name: "שינוי כתובת המייל" }).click();
+  const field = page.getByLabel("כתובת המייל החדשה");
+  await expect(field).toBeFocused();
+  await field.fill("not-an-address");
+  await page.getByRole("button", { name: "שליחת קישור אימות" }).click();
+  await expect(page.locator("#ink-account-msg")).toHaveText("הכתובת לא נראית תקינה. כתובת מייל נראית כך: name@example.co.il");
+  expect(calls.some((c) => c.path === "/auth/v1/user" && c.body && c.body.email)).toBe(false);
+  await field.fill("new@example.co.il");
+  await page.getByRole("button", { name: "שליחת קישור אימות" }).click();
+  await expect(page.locator("#ink-account-msg")).toHaveText("שלחנו קישור לשתי הכתובות, הנוכחית והחדשה. הכתובת תשתנה אחרי שתלחצו על הקישור בשתיהן.");
+  const put = calls.find((c) => c.path === "/auth/v1/user" && c.body && c.body.email);
+  expect(put.body.email).toBe("new@example.co.il");
+  expect(decodeURIComponent(put.query)).toContain("redirect_to=");
 });

@@ -684,3 +684,27 @@ test("signing up discloses the usage log, that it carries no text, and that it c
   // and what Google hands over, all of it
   await expect(safe).toContainText("תמונת הפרופיל");
 });
+
+/* A change of address (the account panel, 0011): Secure email change sends a link to each address. The
+   first one clicked is accepted with no session, the second completes the change and signs in. The page
+   says which, in the approved words (signin-email-change, 7.10.2026), and asks for no password. */
+test("a change-of-address link: the first of the two asks for the other, the second changes the address and goes in", async ({ page }) => {
+  const calls = await stub(page, { "/auth/v1/verify": { body: { message: "Confirmation link accepted. Please proceed to confirm link sent to the other email" } } });
+  await page.goto(LOGIN + "#confirm=ec1&type=email_change");
+  await expect(page.locator("#confirm-h")).toHaveText("שינוי כתובת המייל");
+  await expect(page.locator("#confirm-why")).toHaveText("נשאר ללחוץ על הכפתור כדי לאמת את הכתובת.");
+  await expect(page.locator("#newpw")).toBeHidden();
+  expect(calls.filter((c) => c.path === "/auth/v1/verify")).toHaveLength(0);
+  await page.getByRole("button", { name: "אימות הכתובת" }).click();
+  await expect(page.locator("#confirm-why")).toHaveText("הכתובת הזו אומתה. כדי להשלים את השינוי, לחצו גם על הקישור שנשלח לכתובת השנייה.");
+  await expect(page.getByRole("button", { name: "אימות הכתובת" })).toBeHidden();
+  expect(calls.find((c) => c.path === "/auth/v1/verify").body).toMatchObject({ token_hash: "ec1", type: "email_change" });
+});
+
+test("the second change-of-address link says the address changed, and goes in", async ({ page }) => {
+  await stub(page, { "/auth/v1/verify": { body: SESSION } });
+  await page.goto(LOGIN + "#confirm=ec2&type=email_change");
+  await page.getByRole("button", { name: "אימות הכתובת" }).click();
+  await expect(page.locator("#confirm-why")).toHaveText("כתובת המייל שונתה. מעכשיו נכנסים איתה.");
+  await page.waitForURL("**/site/app/");
+});

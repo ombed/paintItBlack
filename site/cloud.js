@@ -279,7 +279,24 @@
     pwSave.style.cssText = "font:inherit;font-weight:600;padding:6px 14px;border-radius:999px;border:1px solid #1F5B44;background:#1F5B44;color:#fff;cursor:pointer";
     const pwForm = el("form", { id: "ink-pw", hidden: true }, el("label", { htmlFor: "ink-pw-new", textContent: "סיסמה חדשה" }), pwIn, pwHint, pwSave);
     pwForm.style.cssText = "margin:2px 0 8px";
-    const acts = el("div", {}, pwBtn, pwForm); acts.style.cssText = "border-top:1px solid var(--line,#ddd);margin-top:10px;padding-top:6px";
+    /* «שינוי כתובת המייל» (the approved words, 7.10.2026). Secure email change is on (runbook 4.5): a link goes to
+       both addresses, and the address changes once both are clicked (login.js reads them; 0011 updates the profile). */
+    const mailBtn = el("button", { type: "button", textContent: "שינוי כתובת המייל" });
+    mailBtn.style.cssText = plain; mailBtn.setAttribute("aria-expanded", "false"); mailBtn.setAttribute("aria-controls", "ink-mail");
+    const mailIn = el("input", { type: "email", id: "ink-mail-new", autocomplete: "email" });
+    mailIn.style.cssText = pwIn.style.cssText;
+    const mailSend = el("button", { type: "submit", textContent: "שליחת קישור אימות" });
+    mailSend.style.cssText = pwSave.style.cssText + ";margin-top:6px";
+    const mailForm = el("form", { id: "ink-mail", hidden: true, noValidate: true }, el("label", { htmlFor: "ink-mail-new", textContent: "כתובת המייל החדשה" }), mailIn, mailSend);
+    mailForm.style.cssText = "margin:2px 0 8px";
+    /* «הורדת המידע שלי»: what the service keeps about the account, as one file (0011, export_my_data); the
+       documents and the cases were never sent, so they are not in it, as the line under it says */
+    const dlBtn = el("button", { type: "button", textContent: "הורדת המידע שלי" });
+    dlBtn.style.cssText = plain;
+    dlBtn.setAttribute("aria-describedby", "ink-dl-hint");
+    const dlHint = el("small", { id: "ink-dl-hint", textContent: "קובץ עם פרטי החשבון ויומני השימוש שנשמרו אצלנו." });
+    dlHint.style.cssText = "display:block;margin:-4px 0 4px;color:var(--ink2,#444)";
+    const acts = el("div", {}, pwBtn, pwForm, mailBtn, mailForm, dlBtn, dlHint); acts.style.cssText = "border-top:1px solid var(--line,#ddd);margin-top:10px;padding-top:6px";
     // the site's links, in the words and order of the site's footer (the approved list, 7.10.2026)
     const foot = el("nav", {}, ...[["", "עמוד הבית"], ["terms.html", "תנאי שימוש"], ["privacy.html", "מדיניות פרטיות"], ["accessibility.html", "הצהרת נגישות"]]
       .map(([p, t]) => link(ROOT + p, t)), link("mailto:" + CONTACT, "יצירת קשר"));
@@ -433,6 +450,37 @@
       pwIn.value = ""; pwIn.setAttribute("aria-invalid", "false"); pwShow(false); pwBtn.focus();
       tell(msg, google ? "הסיסמה נשמרה. מעכשיו אפשר להיכנס גם במייל וסיסמה." : "הסיסמה החדשה נשמרה.");
       if (google) pwBtn.textContent = "שינוי סיסמה";
+    });
+    const mailShow = (open) => { mailForm.hidden = !open; mailBtn.setAttribute("aria-expanded", String(open)); if (open) mailIn.focus(); };
+    mailBtn.addEventListener("click", () => mailShow(mailForm.hidden));
+    mailForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const to = mailIn.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) { mailIn.setAttribute("aria-invalid", "true"); tell(msg, "הכתובת לא נראית תקינה. כתובת מייל נראית כך: name@example.co.il"); mailIn.focus(); return; }
+      mailSend.disabled = true;
+      const { error } = await sb.auth.updateUser({ email: to }, { emailRedirectTo: ROOT + "login.html" });
+      mailSend.disabled = false;
+      if (error) {
+        mailIn.setAttribute("aria-invalid", /email/.test(error.code || "") ? "true" : "false");
+        tell(msg, error.code === "email_exists" ? "כבר יש חשבון עם המייל הזה."
+          : error.status === 429 || /rate_limit|over_/.test(error.code || "") ? "היו יותר מדי ניסיונות. אפשר לנסות שוב בעוד כמה דקות."
+          : "הקישור לא נשלח. אפשר לנסות שוב.");
+        return;
+      }
+      mailIn.value = ""; mailIn.setAttribute("aria-invalid", "false"); mailShow(false); mailBtn.focus();
+      tell(msg, "שלחנו קישור לשתי הכתובות, הנוכחית והחדשה. הכתובת תשתנה אחרי שתלחצו על הקישור בשתיהן.");
+    });
+    dlBtn.addEventListener("click", async () => {
+      dlBtn.disabled = true; tell(msg, "מכינים את הקובץ…");
+      const { data, error } = await sb.rpc("export_my_data");
+      dlBtn.disabled = false;
+      if (error || !data) { tell(msg, "ההורדה לא הצליחה. אפשר לנסות שוב."); return; }
+      const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], { type: "application/json" }));
+      const a = document.createElement("a");
+      a.href = url; a.download = "inkognito-my-data-" + new Date().toISOString().slice(0, 10) + ".json";
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      tell(msg, "הקובץ ירד.");
     });
     // a deleted account lands on a page that says what was deleted, and what only this browser holds
     const GONE = ROOT + "deleted.html";

@@ -105,6 +105,14 @@
       else acts.push(act("חסימה", true, () => {
         if (confirm("לחסום את " + who + "? מרגע זה לא תהיה לחשבון גישה לכלי.")) change(u, { blocked: true }, "נחסם: ");
       }));
+      // deleting another account (0011, admin_delete_user): its profile and every log, for good
+      acts.push(act("מחיקה", true, async () => {
+        if (!confirm("למחוק את החשבון של " + who + "? פרטי החשבון וכל יומני השימוש שלו יימחקו לצמיתות.")) return;
+        const { error } = await sb.rpc("admin_delete_user", { p_id: u.id });
+        if (error) { say("המחיקה לא הצליחה. אפשר לנסות שוב."); return; }
+        say("נמחק: " + who);
+        await load();
+      }));
     }
     const actions = document.createElement("div");
     actions.style.cssText = "display:flex;gap:8px;flex-wrap:wrap";
