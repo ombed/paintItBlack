@@ -286,7 +286,7 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
 </div></div>
 <script>
 (function(){
-  console.log("אינקוגניטו — גרסה v67");
+  console.log("אינקוגניטו — גרסה v68");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -305,7 +305,8 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
     })});
   });
   obs.observe(document.documentElement,{childList:true,subtree:true});
-  if(!("serviceWorker" in navigator) || location.protocol==="file:"){ /* אין מה לרשום */ }
+  // בהדגמה שבלי חשבון (window.__inkDemo) אין עובד שירות: היא לא נשמרת לשימוש בלי רשת
+  if(!("serviceWorker" in navigator) || location.protocol==="file:" || window.__inkDemo){ /* אין מה לרשום */ }
   else if(window.top!==window){
     // בתוך iframe (תצוגה מוטמעת) לא רושמים עובד שירות — הוא היה תופס
     // את כל המקור המארח. וגם מנקים רישום שנוצר בטעות.
@@ -332,8 +333,8 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
         console.log("עובד שירות: "+served);
         var el=document.getElementById("ver"); if(!el) return;
         if(chip===null) chip=el.innerHTML; else el.innerHTML=chip;
-        if(served==="v67") return;
-        el.innerHTML='גרסה v67 · <b style="color:var(--warn)">יש גרסה חדשה: רעננו עם Ctrl+Shift+R</b>';
+        if(served==="v68") return;
+        el.innerHTML='גרסה v68 · <b style="color:var(--warn)">יש גרסה חדשה: רעננו עם Ctrl+Shift+R</b>';
       });
       var ask=function(){ if(sw.controller) sw.controller.postMessage("version") };
       sw.ready.then(ask);
@@ -383,6 +384,21 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
     <button onClick="{{ onTheme }}" data-night aria-label="מצב יום או לילה" style="width:34px;height:34px;border-radius:9px;display:grid;place-items:center;border:1px solid var(--line);color:var(--ink2)" style-hover="background:var(--panel2);color:var(--ink)"><sc-if value="{{ isDark }}"><svg class="ic" data-icon="sun" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2" fill="currentColor" stroke="none"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></sc-if><sc-if value="{{ isLight }}"><svg class="ic" data-icon="moon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 14.6A8.5 8.5 0 0 1 9.4 3.6a8.5 8.5 0 1 0 11 11Z" fill="currentColor" stroke="none"/><path d="M17 3.5v3M15.5 5h3" stroke-width="1.6"/></svg></sc-if></button>
   </header>
 
+  <!-- ההדגמה שבלי חשבון: שורה אחת למעלה, וכרטיס בסוף הסיור (הנוסח שאושר, החלטה 29 ו־nf-demo-end). מעל החוסמים של הסיור, כדי שהכפתור יילחץ -->
+  <sc-if value="{{ demoOn }}">
+    <div data-demo role="note" style="position:relative;z-index:78;display:flex;align-items:center;justify-content:center;gap:10px 16px;flex-wrap:wrap;padding:10px 22px;background:var(--accent-soft);color:var(--accent-ink);font-size:14px;font-weight:500;border-bottom:1px solid var(--line)">
+      <span>הדגמה על מסמך בדוי. למסמכים אמיתיים: חשבון חינם</span>
+      <a href="{{ demoSignup }}" style="padding:7px 16px;border-radius:999px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">פתיחת חשבון חינם</a>
+    </div>
+  </sc-if>
+  <sc-if value="{{ demoEnd }}">
+    <div data-demo style="position:fixed;inset:0;z-index:90;background:rgba(10,14,12,.5);display:grid;place-items:center;padding:16px">
+      <div data-demo-end role="dialog" aria-modal="true" aria-labelledby="demo-end-t" style="max-width:440px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.35);text-align:center">
+        <p id="demo-end-t" tabindex="-1" style="margin:0 0 18px;font-size:17px;font-weight:500;line-height:1.5;outline:none">הדגמה על מסמך בדוי. למסמכים אמיתיים: חשבון חינם</p>
+        <a href="{{ demoSignup }}" style="display:inline-block;padding:12px 22px;border-radius:10px;background:var(--accent);color:var(--panel);font-weight:600;font-size:15px;text-decoration:none">פתיחת חשבון חינם</a>
+      </div>
+    </div>
+  </sc-if>
   <sc-if value="{{ showBack }}">
     <div style="display:flex;padding:14px 22px 0">
       <button data-back onClick="{{ onBack }}" style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink2);padding:7px 13px 7px 11px;border-radius:9px;border:1px solid var(--line);background:var(--panel);white-space:nowrap" style-hover="background:var(--panel2);color:var(--ink)"><span style="font-size:15px;line-height:1;margin-top:-1px"><svg class="ic" data-icon="chevron-right" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>{{ backLabel }}</button>
@@ -1350,7 +1366,7 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
 
 </div>
 </x-dc>
-<footer><nav data-foot aria-label="מידע ומסמכים משפטיים"><a href="https://inkognito.co.il/" target="_blank" rel="noopener">עמוד הבית</a><a href="https://inkognito.co.il/terms" target="_blank" rel="noopener">תנאי שימוש</a><a href="https://inkognito.co.il/privacy" target="_blank" rel="noopener">מדיניות פרטיות</a><a href="https://inkognito.co.il/accessibility" target="_blank" rel="noopener">הצהרת נגישות</a><a href="mailto:contact@inkognito.co.il">יצירת קשר</a></nav><div id="ver">גרסה v67</div></footer>
+<footer><nav data-foot aria-label="מידע ומסמכים משפטיים"><a href="https://inkognito.co.il/" target="_blank" rel="noopener">עמוד הבית</a><a href="https://inkognito.co.il/terms" target="_blank" rel="noopener">תנאי שימוש</a><a href="https://inkognito.co.il/privacy" target="_blank" rel="noopener">מדיניות פרטיות</a><a href="https://inkognito.co.il/accessibility" target="_blank" rel="noopener">הצהרת נגישות</a><a href="mailto:contact@inkognito.co.il">יצירת קשר</a></nav><div id="ver">גרסה v68</div></footer>
 <script type="text/x-dc" data-dc-script data-props="{&quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
 class Component extends DCLogic {
@@ -1368,7 +1384,7 @@ class Component extends DCLogic {
     copyLabel:"העתקה ל־AI", busyT:"מעבד…", err:"",
     geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, popup:null, tip:null, repDraft:"", sent:{}, peoKept:[], peoNotSame:[], inline:null, inlineDraft:"",
     // הפרופיל של התיק נשמר בדפדפן אחרי כל שינוי; lastProfile הוא מה שנמצא בכניסה
-    caseName:"", lastProfile:null, profileDirty:false, removed:[], leaks:[], cases:[], copied:false, logCopyLabel:"", helpOpen:false
+    caseName:"", lastProfile:null, profileDirty:false, removed:[], leaks:[], cases:[], copied:false, logCopyLabel:"", helpOpen:false, demoEnd:false
   };
 
   async componentDidMount(){
@@ -1391,7 +1407,12 @@ class Component extends DCLogic {
     try{ const t=localStorage.getItem("redact-tour-seen"); seen=localStorage.getItem("redact-intro-seen")==="1";
       updated=seen&&t!=="*"&&t!==this.ver(); if(updated) localStorage.setItem("redact-tour-seen", this.ver()); }catch(_){}
     const lastProfile=this.readLast();
-    this.setState({theme:th, intro:!seen, lastProfile, cases:this.readCases(), ...(updated?{notice:this.constructor.WHATS_NEW, noticeUndo:false}:{})});
+    /* ההדגמה שבלי חשבון באתר (window.__inkDemo, scripts/build-hosted.js; החלטות 18 ו־29 של הבעלים, 6.10): רק המסמך הבדוי,
+       בלי קובץ, הדבקה או ייבוא, בלי מודל ובלי שום דבר שנשמר. הסיור מתחיל מעצמו, וסופו כרטיס שמזמין לפתוח חשבון. e2e/demo.spec.js */
+    const demo=!!window.__inkDemo;
+    this.setState({theme:th, intro:!seen&&!demo, lastProfile:demo?null:lastProfile, cases:demo?[]:this.readCases(), ...(updated&&!demo?{notice:this.constructor.WHATS_NEW, noticeUndo:false}:{}),
+      ...(demo?{o:{...this.state.o, ner:false}}:{})});
+    if(demo) this.tourStart();
     // יומן הסשן (PLAN-v18 Q16): זמנים ואירועים בלי טקסט, בדפדפן בלבד, מיוצא בכפתור ליד דוח הדליפה
     const ver=((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"");
     this.log=window.PL?window.PL.sessionLog(ver):{add(){},export(){return "{}"}};
@@ -1585,6 +1606,8 @@ class Component extends DCLogic {
       const b=document.querySelector("[data-intro] button"); if(b){ b.focus(); this._introFocused=true; }
     }
     if(!this.state.intro) this._introFocused=false;
+    // the demo's end card takes the focus, on its one action
+    if(this.state.demoEnd&&!this._demoFocused){ const b=document.querySelector("[data-demo-end] a"); if(b){ b.focus(); this._demoFocused=true; } }
     // עריכה במקום שנפתחה מהמקלדת: הפוקוס נכנס אליה; כשהיא נסגרת הוא חוזר לסימון שפתח אותה (M5)
     if(this.state.inline&&this._inlineByKey&&!this._inlineFocused){
       const f=document.querySelector("[data-inline] input, [data-inline] button, [data-inline] select"); if(f){ f.focus(); this._inlineFocused=true; }
@@ -1654,12 +1677,12 @@ class Component extends DCLogic {
   }
 
   /* ── קליטת קובץ ── */
-  pickFile = () => { if(this.state.engineFailed){ this.setState({err:this.state.err}); return; } if(this.fileEl) this.fileEl.click(); };
+  pickFile = () => { if(window.__inkDemo) return; if(this.state.engineFailed){ this.setState({err:this.state.err}); return; } if(this.fileEl) this.fileEl.click(); };
   onDragOver = e => { e.preventDefault(); this.setState({drag:true}); };
   onDragLeave = () => this.setState({drag:false});
-  onDropFile = e => { e.preventDefault(); this.setState({drag:false});
+  onDropFile = e => { e.preventDefault(); this.setState({drag:false}); if(window.__inkDemo) return;
     const f = e.dataTransfer && e.dataTransfer.files[0]; if(f) this.load(f); };
-  onFile = e => { const f=e.target.files[0]; if(f) this.load(f); e.target.value=""; };
+  onFile = e => { const f=e.target.files[0]; e.target.value=""; if(f&&!window.__inkDemo) this.load(f); };
 
   /* מה ששייך למסמך מתאפס כאן, ברשימה אחת, בכל דרך שבה מסמך אחד נגמר והבא מתחיל: «מסמך חדש», קובץ Word
      או PDF, טקסט מודבק, המסמך לדוגמה, ופתיחת הסיור וסגירתו. מסמך שנטען הוא המסמך הבא גם כשהגיעו אליו
@@ -1806,6 +1829,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(!this.state.engineFailed) (this._early=this._early||[]).push(fn);
   }
   usePastedText = async () => {
+    if(window.__inkDemo) return;
     if(!this.state.E) return this.afterEngine(()=>this.usePastedText());
     const txt=(this.state.pasteText||"").trim();
     if(txt.length<20){ this.setState({err:"צריך קצת יותר טקסט כדי שהזיהוי יעבוד."}); return; }
@@ -3192,7 +3216,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const cur=this.constructor.TOUR[t.i], target=cur&&cur.target?document.querySelector(cur.target):null;
       const el=e.target;
       if(!target||!el||!el.closest) return;
-      if(target.contains(el)||el.closest("[data-tour],[data-inline],[data-notice],[data-intro],[data-tip]")) return;
+      if(target.contains(el)||el.closest("[data-tour],[data-inline],[data-notice],[data-intro],[data-tip],[data-demo]")) return;
       e.preventDefault(); e.stopPropagation();
       this.log.add("tour",{at:"blocked-click"});
       if(t.nudge!==t.i) this.setState({tour:{...t, nudge:t.i}});
@@ -3247,7 +3271,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   tourClose = () => {
     const t=this.state.tour; if(!t) return;
     this.log.add("tour",{at:"close", step:t.i, done:t.i>=this.constructor.TOUR.length-1});
-    this.tourMarkSeen();
+    // ההדגמה לא כותבת דבר לדפדפן, גם לא שהסיור נראה
+    if(!window.__inkDemo) this.tourMarkSeen();
     const o={...this.state.o, ner:this._tourNer===undefined?this.state.o.ner:this._tourNer};
     if(this._onSpot){ window.removeEventListener("resize", this._onSpot); window.removeEventListener("scroll", this._onSpot, true); document.removeEventListener("animationend", this._onSpot, true); document.removeEventListener("click", this._tourGuard, true);
       if(document.fonts&&document.fonts.removeEventListener) document.fonts.removeEventListener("loadingdone", this._onSpot);
@@ -3256,8 +3281,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     // שם תיק שהוקלד בסיור הוא חלק מהמסמך הבדוי (M1 בביקורת השנייה): הוא לא עובר למסמך
     // הבא, ולא נשמר כתיק — הסיור מבטיח ששום דבר ממנו לא נשמר
     // והמסמך הבדוי נמחק כולו, באותה רשימה שמאפסת כל מסמך (docReset): עד כאן נשארו ממנו ההחלטות, הטקסט והסריקה
+    // בהדגמה, סוף הסיור (או דילוג) הוא הכרטיס שמזמין לפתוח חשבון: אין בה מסמך אמיתי לבחור
     this.setState({...this.docReset(false), tour:null, tourSpot:null, o,
-      caseName:"", profile:null, profileDirty:false});
+      caseName:"", profile:null, profileDirty:false, demoEnd:!!window.__inkDemo});
   };
   tourNext = async () => {
     const t=this.state.tour; if(!t) return;
@@ -3369,7 +3395,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.log.add("profile-export",{});
     this.setState({profileDirty:false, notice:`הקובץ «${name}» ירד לתיקיית ההורדות. התיק עצמו נשמר בדפדפן גם בלי זה.`, noticeUndo:false});
   };
-  loadProfileClick = () => { this._importAll=false; if(this.profEl) this.profEl.click(); };
+  loadProfileClick = () => { if(window.__inkDemo) return; this._importAll=false; if(this.profEl) this.profEl.click(); };
   resumeLast = () => { const p=this.state.lastProfile; if(!p) return; this.setState({lastProfile:null, caseName:p.name||""}); this.applyProfile(p); };
   dismissLast = () => this.setState({lastProfile:null});
   /* ── מסך ההחזרה (החזרת שמות, 7.10.2026) ── */
@@ -3484,7 +3510,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       ...(last&&!this.state.lastProfile&&last.rules.length?{lastProfile:last}:{})});
   }
   // «ייבוא תיקים מקובץ»: אותה בחירת קובץ, וקובץ שלא נקרא מקבל את ההודעה של קובץ תיקים (onProfFile)
-  importCasesClick = () => { this._importAll=true; if(this.profEl) this.profEl.click(); };
+  importCasesClick = () => { if(window.__inkDemo) return; this._importAll=true; if(this.profEl) this.profEl.click(); };
   static BAD_CASES="הקובץ לא נקרא: הוא לא קובץ תיקים של אינקוגניטו, או שהוא פגום. שום תיק לא נוסף.";
   onProfFile = async e => {
     const f=e.target.files[0]; e.target.value=""; if(!f) return;
@@ -3864,6 +3890,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       ],
       isDark:S.theme==="dark", isLight:S.theme!=="dark", onTheme:this.toggleTheme,
       onReverse:this.openReverse,
+      demoOn:!!window.__inkDemo&&!S.demoEnd, demoEnd:!!S.demoEnd, demoSignup:(window.__inkDemo&&window.__inkDemo.signup)||"#",
       // «עזרה»: הסיור מעל מסמך פתוח שואל קודם, באותה שאלה של «אחורה» בדפדפן, כי הסיור מתחיל ממסמך ריק
       helpOpen:!!S.helpOpen, helpExpanded:S.helpOpen?"true":"false",
       onHelp:()=>this.setState({helpOpen:!S.helpOpen}), onHelpClose:()=>this.setState({helpOpen:false}),
