@@ -49,8 +49,8 @@ test("the passage: a name lights every place that person appears, by mouse and b
   await expect(demo).not.toHaveClass(/\bfocus\b/);
   await expect(demo.locator(".on")).toHaveCount(0);
 
-  // Tab goes from the hero's last link to the names, in reading order, each with a focus ring
-  await page.getByRole("link", { name: "לראות איך זה עובד" }).focus();
+  // Tab goes from the hero's last link (the demo's, since v68) to the names, in reading order, each with a focus ring
+  await page.locator(".hero .actions").getByRole("link", { name: "סיור על מסמך לדוגמה" }).focus();
   await page.keyboard.press("Tab");
   const first = demo.locator(".nm").first();
   await expect(first).toBeFocused();
