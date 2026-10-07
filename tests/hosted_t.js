@@ -22,7 +22,7 @@ try {
   const read = (f) => fs.readFileSync(path.join(dist, f), "utf8");
 
   console.log("\n— the site at the root —");
-  for (const f of ["index.html", "login.html", "terms.html", "privacy.html", "accessibility.html", "changes.html", "admin.html", "admin.js", "site.css", "config.js", "cloud.js", "login.js"])
+  for (const f of ["index.html", "login.html", "terms.html", "privacy.html", "accessibility.html", "changes.html", "deleted.html", "admin.html", "admin.js", "site.css", "config.js", "cloud.js", "login.js"])
     ok(files.includes(f), "the root has " + f);
   const sv = JSON.parse(fs.readFileSync(path.join(ROOT, "node_modules/@supabase/supabase-js/package.json"), "utf8")).version;
   ok(files.includes(`vendor/supabase-${sv}.js`), "the root has the sign-in client the pages name");
@@ -197,7 +197,7 @@ try {
   for (const p of ["/index.html", "/login.html", "/privacy.html", "/site.css", "/config.js", "/login.js"]) ok(routes.exclude.includes(p), p + " skips the gate");
   // without these, every visit to the landing and sign-in pages ran the gate, and with "fail closed"
   // an exhausted daily quota would have shut them too (4.10)
-  for (const p of ["/", "/login", "/privacy", "/terms", "/accessibility", "/changes"]) ok(routes.exclude.includes(p), p + " (the address Cloudflare serves the page at) skips the gate");
+  for (const p of ["/", "/login", "/privacy", "/terms", "/accessibility", "/changes", "/deleted"]) ok(routes.exclude.includes(p), p + " (the address Cloudflare serves the page at) skips the gate");
 
   console.log("\n— it only replaces a folder it made —");
   const other = path.join(out, "mine"); fs.mkdirSync(other); fs.writeFileSync(path.join(other, "keep.txt"), "x");

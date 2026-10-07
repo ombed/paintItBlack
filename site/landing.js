@@ -32,6 +32,71 @@
       if (/^sb-[a-z0-9]+-auth-token$/.test(k) && (JSON.parse(localStorage.getItem(k)) || {}).refresh_token) signedIn = true;
     }
   } catch (_) {}
+  /* What the tool keeps in this browser: the saved cases of every account (the keys "redact-cases" and
+     "redact-profile-last", alone or with ":" and an account after them; index.html, caseKey), with the
+     real names in them. A named case counts once; a last list counts when it has no name of its own. */
+  const isCaseKey = (k) => /^redact-(cases|profile-last)(:|$)/.test(k);
+  const casesHere = () => {
+    let n = 0;
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (!isCaseKey(k)) continue;
+        const v = JSON.parse(localStorage.getItem(k));
+        if (k.startsWith("redact-cases")) n += Object.keys(v || {}).length;
+        else if (v && !v.name && (v.rules || []).length) n++;
+      }
+    } catch (_) {}
+    return n;
+  };
+  const dropCases = () => { try { Object.keys(localStorage).filter(isCaseKey).forEach((k) => localStorage.removeItem(k)); } catch (_) {} };
+
+  /* After signing out (the account panel lands here with ?out, cloud.js): one line, once, about the cases
+     left in this browser, with the real names in them; on a shared computer they should go (the owner's
+     approved words, 7.10.2026). The ?out leaves the address, so a reload does not say it again. */
+  const hero = document.getElementById("h-hero");
+  if (hero && new URLSearchParams(location.search).has("out")) {
+    try { history.replaceState(null, "", location.pathname + location.hash); } catch (_) {}
+    const n = casesHere(), note = document.createElement("div"), text = document.createElement("p");
+    note.className = "out-note"; note.setAttribute("role", "status");
+    text.textContent = n === 0 ? "יצאתם מהחשבון."
+      : n === 1 ? "יצאתם מהחשבון. בדפדפן הזה שמור תיק אחד, ובו השמות האמיתיים. במחשב משותף כדאי למחוק אותו."
+      : "יצאתם מהחשבון. בדפדפן הזה שמורים " + n + " תיקים, ובהם השמות האמיתיים. במחשב משותף כדאי למחוק אותם.";
+    note.append(text);
+    if (n > 0) {
+      const row = document.createElement("div"), wipe = document.createElement("button"), keep = document.createElement("button");
+      wipe.type = keep.type = "button"; wipe.className = "btn btn-ink"; keep.className = "btn btn-line";
+      wipe.textContent = "מחיקה מהדפדפן הזה"; keep.textContent = "להשאיר";
+      wipe.addEventListener("click", () => { dropCases(); row.remove(); text.textContent = n === 1 ? "התיק נמחק מהדפדפן הזה." : "התיקים נמחקו מהדפדפן הזה."; });
+      keep.addEventListener("click", () => note.remove());
+      row.append(wipe, keep); note.append(row);
+    }
+    hero.closest("section").before(note);
+  }
+
+  /* The page after deleting the account (deleted.html): what only this browser still holds, and a button
+     that clears it: the saved cases, the settings, the language model and every file the tool kept here.
+     Files that were downloaded stay in the downloads folder, as the page says. */
+  const wipeAll = document.getElementById("wipe");
+  if (wipeAll) {
+    const said = document.getElementById("wipe-done"), held = document.getElementById("wipe-held"), none = document.getElementById("wipe-none");
+    const stored = async () => {
+      let n = 0;
+      try { n += localStorage.length; } catch (_) {}
+      try { if (window.caches) n += (await caches.keys()).length; } catch (_) {}
+      return n;
+    };
+    stored().then((n) => { if (!n) { held.hidden = true; none.hidden = false; } });
+    wipeAll.addEventListener("click", async () => {
+      wipeAll.disabled = true;
+      try { localStorage.clear(); sessionStorage.clear(); } catch (_) {}
+      try { if (window.caches) for (const k of await caches.keys()) await caches.delete(k); } catch (_) {}
+      try { if (navigator.serviceWorker) for (const r of await navigator.serviceWorker.getRegistrations()) await r.unregister(); } catch (_) {}
+      try { const idb = window.indexedDB; if (idb && idb.databases) for (const d of await idb.databases()) if (d.name) idb.deleteDatabase(d.name); } catch (_) {}
+      held.hidden = true; said.hidden = false; said.focus();
+    });
+  }
+
   if (signedIn && !document.body.classList.contains("signin-page")) {
     const app = new URL("app/", document.currentScript ? document.currentScript.src : location.href).pathname;
     document.querySelectorAll('a.login, #sheet a[href$="login.html"]').forEach((a) => { a.textContent = "לכלי"; a.href = app; });

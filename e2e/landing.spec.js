@@ -315,3 +315,64 @@ for (const link of ["#confirm=abc&type=signup", "#access_token=abc&token_type=be
     await page.waitForTimeout(800);
     expect(new URL(page.url()).pathname).toBe("/site/login");
   });
+
+/* After signing out the account panel lands on the home page with ?out (cloud.js). The page says once what
+   is left in this browser: the saved cases hold the real client names, and on a shared computer they should
+   go (the owner's approved words, 7.10.2026). Cases of every account count, named ones once each. */
+test("after signing out, the home page offers once to clear the cases in this browser, and clears them all", async ({ page }) => {
+  await page.goto(HOME);
+  await page.evaluate(() => {
+    const c = (name) => ({ v: 1, name, rules: [{ value: "שרה לוי", kind: "NAME", replacement: "דנה רום" }], map: { "שרה לוי": "דנה רום" } });
+    window.localStorage.setItem("redact-cases:acct-1", JSON.stringify({ "א נ׳ ב": c("א נ׳ ב"), "ג נ׳ ד": c("ג נ׳ ד") }));
+    window.localStorage.setItem("redact-profile-last:acct-2", JSON.stringify(c("")));
+    window.localStorage.setItem("redact-theme", "dark");
+  });
+  await page.goto(HOME + "?out=1");
+  const note = page.locator(".out-note");
+  await expect(note).toContainText("יצאתם מהחשבון. בדפדפן הזה שמורים 3 תיקים, ובהם השמות האמיתיים. במחשב משותף כדאי למחוק אותם.");
+  await expect(page).toHaveURL(/\/site\/index\.html$/);
+  await note.getByRole("button", { name: "מחיקה מהדפדפן הזה" }).click();
+  await expect(note).toHaveText("התיקים נמחקו מהדפדפן הזה.");
+  expect(await page.evaluate(() => Object.keys(window.localStorage).sort())).toEqual(["redact-theme"]);
+  // once: a reload says nothing
+  await page.reload();
+  await expect(note).toHaveCount(0);
+});
+
+test("after signing out with one case: the singular, and «להשאיר» keeps it; with none: one line", async ({ page }) => {
+  await page.goto(HOME);
+  await page.evaluate(() => window.localStorage.setItem("redact-cases", JSON.stringify({ "א נ׳ ב": { v: 1, name: "א נ׳ ב", rules: [] } })));
+  await page.goto(HOME + "?out=1");
+  const note = page.locator(".out-note");
+  await expect(note).toContainText("יצאתם מהחשבון. בדפדפן הזה שמור תיק אחד, ובו השמות האמיתיים. במחשב משותף כדאי למחוק אותו.");
+  await note.getByRole("button", { name: "להשאיר" }).click();
+  await expect(note).toHaveCount(0);
+  expect(await page.evaluate(() => window.localStorage.getItem("redact-cases"))).not.toBeNull();
+  await page.evaluate(() => window.localStorage.clear());
+  await page.goto(HOME + "?out=1");
+  await expect(note).toHaveText("יצאתם מהחשבון.");
+  await expect(note.getByRole("button")).toHaveCount(0);
+});
+
+/* The page after deleting the account (cloud.js sends there): what was deleted, and what only this browser
+   still holds, with a button that clears it all. */
+test("the account-deleted page clears everything the tool kept in this browser, and says so", async ({ page }) => {
+  await siteAtRoot(page);
+  await page.goto("/site/index.html");
+  await page.evaluate(async () => {
+    window.localStorage.setItem("redact-cases:acct-1", "{}"); window.localStorage.setItem("redact-theme", "dark");
+    await (await window.caches.open("transformers-cache")).put("/model.bin", new window.Response("x"));
+  });
+  await page.goto("/site/deleted.html");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("החשבון נמחק");
+  await expect(page.locator("main")).toContainText("פרטי החשבון וכל יומני השימוש שלו נמחקו.");
+  await page.getByRole("button", { name: "מחיקה מהדפדפן הזה" }).click();
+  await expect(page.locator("#wipe-done")).toHaveText("המידע נמחק מהדפדפן הזה. קבצים שהורדתם, כמו מסמכים או קובצי תיקים, נשארים בתיקיית ההורדות.");
+  await expect(page.locator("#wipe-held")).toBeHidden();
+  expect(await page.evaluate(async () => [window.localStorage.length, (await window.caches.keys()).length])).toEqual([0, 0]);
+  // nothing left: the page says so instead of offering the button
+  await page.reload();
+  await expect(page.locator("#wipe-none")).toHaveText("בדפדפן הזה לא נשמר מידע מהכלי.");
+  await expect(page.getByRole("button", { name: "מחיקה מהדפדפן הזה" })).toBeHidden();
+  await axe(page, "deleted.html");
+});

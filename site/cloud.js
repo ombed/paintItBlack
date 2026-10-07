@@ -94,7 +94,7 @@
     if (!session) return leave(LOGIN);
     A.setCookie(session);
     sb.rpc("touch").then(() => {}, () => {});
-    const r = await sb.from("profiles").select("email,full_name,log_enabled,log_asks,approved,blocked").eq("id", session.user.id).maybeSingle();
+    const r = await sb.from("profiles").select("email,full_name,log_enabled,log_asks,approved,blocked,is_admin").eq("id", session.user.id).maybeSingle();
     // blocked or waiting: the gate already refuses every navigation; this also ends the session
     // kept in this browser, and covers a page the service worker served from its cache
     if (r.data && (r.data.blocked || r.data.approved === false)) {
@@ -258,12 +258,37 @@
     swLabel.style.cssText = "display:flex;gap:8px;align-items:center;cursor:pointer";
     const more = link(ROOT + "privacy.html", "מה נשלח ביומן");
     const msg = el("p", { id: "ink-account-msg" }); msg.setAttribute("role", "status"); msg.style.cssText = "margin:8px 0 0;min-height:1em";
+    const plain = "font:inherit;background:none;border:0;padding:6px 0;text-decoration:underline;cursor:pointer;color:var(--ink,#111);text-align:start";
     const out = el("button", { type: "button", textContent: "יציאה מהחשבון" });
+    // the approved words (7.10.2026); the gate lets a token run out (up to an hour), as the question says
+    const outAll = el("button", { type: "button", textContent: "יציאה מכל המכשירים" });
     const del = el("button", { type: "button", textContent: "מחיקת החשבון" });
-    for (const b of [out, del]) b.style.cssText = "font:inherit;background:none;border:0;padding:8px 0;text-decoration:underline;cursor:pointer;color:var(--ink,#111)";
+    for (const b of [out, outAll, del]) b.style.cssText = plain;
     del.style.color = "#B3261E";
-    const row = el("div", {}, out, del); row.style.cssText = "display:flex;gap:18px;margin-top:6px";
-    const pane = el("div", { id: "ink-account-panel", hidden: true }, who, swLabel, more, msg, row);
+    const row = el("div", {}, out, outAll, del); row.style.cssText = "display:flex;flex-wrap:wrap;gap:0 18px;margin-top:6px";
+    /* «שינוי סיסמה», or «הוספת סיסמה» for an account that has only Google: a short form under it, in the
+       sign-in page's words. supabase-js saves it for the session that is signed in. */
+    const google = !((session.user.app_metadata && session.user.app_metadata.providers) || []).includes("email");
+    const pwBtn = el("button", { type: "button", textContent: google ? "הוספת סיסמה" : "שינוי סיסמה" });
+    pwBtn.style.cssText = plain; pwBtn.setAttribute("aria-expanded", "false"); pwBtn.setAttribute("aria-controls", "ink-pw");
+    const pwIn = el("input", { type: "password", id: "ink-pw-new", autocomplete: "new-password" });
+    pwIn.setAttribute("aria-describedby", "ink-pw-hint");
+    pwIn.style.cssText = "font:inherit;width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line,#ccc);border-radius:8px;background:var(--panel,#fff);color:var(--ink,#111)";
+    const pwHint = el("small", { id: "ink-pw-hint", textContent: "לפחות 8 תווים." }); pwHint.style.cssText = "display:block;margin:3px 0 6px;color:var(--ink2,#444)";
+    const pwSave = el("button", { type: "submit", textContent: "שמירה" });
+    pwSave.style.cssText = "font:inherit;font-weight:600;padding:6px 14px;border-radius:999px;border:1px solid #1F5B44;background:#1F5B44;color:#fff;cursor:pointer";
+    const pwForm = el("form", { id: "ink-pw", hidden: true }, el("label", { htmlFor: "ink-pw-new", textContent: "סיסמה חדשה" }), pwIn, pwHint, pwSave);
+    pwForm.style.cssText = "margin:2px 0 8px";
+    const acts = el("div", {}, pwBtn, pwForm); acts.style.cssText = "border-top:1px solid var(--line,#ddd);margin-top:10px;padding-top:6px";
+    // the site's links, in the words and order of the site's footer (the approved list, 7.10.2026)
+    const foot = el("nav", {}, ...[["", "עמוד הבית"], ["terms.html", "תנאי שימוש"], ["privacy.html", "מדיניות פרטיות"], ["accessibility.html", "הצהרת נגישות"]]
+      .map(([p, t]) => link(ROOT + p, t)), link("mailto:" + CONTACT, "יצירת קשר"));
+    foot.setAttribute("aria-label", "מידע ומסמכים משפטיים");
+    foot.style.cssText = "display:flex;flex-wrap:wrap;gap:2px 12px;border-top:1px solid var(--line,#ddd);margin-top:10px;padding-top:8px;font-size:12px";
+    const top = [who];
+    // the operator's own way to the admin page (the owner's decision, 6.10), named as that page is
+    if (profile.is_admin === true) { const adm = link(ROOT + "admin.html", "ניהול"); adm.style.display = "inline-block"; adm.style.marginBottom = "8px"; top.push(adm); }
+    const pane = el("div", { id: "ink-account-panel", hidden: true }, ...top, swLabel, more, acts, msg, row, foot);
     pane.setAttribute("role", "region"); pane.setAttribute("aria-label", "חשבון");
     const paneLook = "position:absolute;inset-inline-end:0;width:300px;max-width:calc(100vw - 24px);z-index:70;background:var(--panel,#fff);color:var(--ink,#111);border:1px solid var(--line,#ccc);border-radius:12px;padding:14px 16px;box-shadow:0 12px 34px rgba(0,0,0,.22);text-align:start";
     box.append(btn, pane);
@@ -357,7 +382,7 @@
     document.addEventListener("keydown", (e) => {
       const b = bar();
       if (e.key !== "Tab" || pane.hidden || mode !== "top" || !b) return;
-      const stops = [...pane.querySelectorAll("input, a[href], button")];
+      const stops = [...pane.querySelectorAll("input, a[href], button")].filter((n) => n.getClientRects().length);
       if (!e.shiftKey && e.target === b) { e.preventDefault(); stops[0].focus(); }
       else if (e.shiftKey && e.target === stops[0]) { e.preventDefault(); b.focus(); }
       else if (!e.shiftKey && e.target === stops[stops.length - 1]) b.focus();
@@ -377,15 +402,47 @@
       if (card) card.remove();
       tell(msg, on ? "היומן יישלח בסוף כל מסמך." : "היומן לא יישלח יותר.");
     });
-    // this browser only: the account's other devices stay signed in
-    out.addEventListener("click", async () => { await sb.auth.signOut({ scope: "local" }).catch(() => {}); leave(LOGIN); });
+    /* Signing out lands on the home page (the owner's decision, 6.10), which offers once to clear the
+       cases saved in this browser (landing.js, ?out). This browser only: the account's other devices
+       stay signed in. «יציאה מכל המכשירים» ends every session of the account. */
+    const HOME_OUT = ROOT + "?out=1";
+    out.addEventListener("click", async () => { leavingTo = HOME_OUT; await sb.auth.signOut({ scope: "local" }).catch(() => {}); leave(HOME_OUT); });
+    outAll.addEventListener("click", async () => {
+      if (!confirm("לצאת מהחשבון בכל המכשירים? כאן היציאה מיידית, ובשאר המכשירים הכניסה תסתיים תוך שעה לכל היותר.")) return;
+      leavingTo = HOME_OUT;
+      const { error } = await sb.auth.signOut({ scope: "global" });
+      if (error) { leavingTo = null; tell(msg, "היציאה לא הצליחה. אפשר לנסות שוב."); return; }
+      leave(HOME_OUT);
+    });
+    const pwShow = (open) => { pwForm.hidden = !open; pwBtn.setAttribute("aria-expanded", String(open)); if (open) pwIn.focus(); };
+    pwBtn.addEventListener("click", () => pwShow(pwForm.hidden));
+    pwForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (pwIn.value.length < 8) { pwIn.setAttribute("aria-invalid", "true"); tell(msg, "הסיסמה צריכה להיות באורך 8 תווים לפחות."); pwIn.focus(); return; }
+      if (new TextEncoder().encode(pwIn.value).length > 72) { pwIn.setAttribute("aria-invalid", "true"); tell(msg, "הסיסמה ארוכה מדי: עד 72 תווים באנגלית, או 36 בעברית."); pwIn.focus(); return; }
+      pwSave.disabled = true;
+      const { error } = await sb.auth.updateUser({ password: pwIn.value });
+      pwSave.disabled = false;
+      // same_password: what was typed is the account's password already
+      if (error && error.code !== "same_password") {
+        pwIn.setAttribute("aria-invalid", error.code === "weak_password" ? "true" : "false");
+        tell(msg, error.code === "weak_password" ? "הסיסמה חלשה מדי. כדאי לבחור סיסמה של 8 תווים לפחות, עם אותיות ומספרים."
+          : error.status === 429 ? "היו יותר מדי ניסיונות. אפשר לנסות שוב בעוד כמה דקות." : "הסיסמה לא נשמרה. אפשר לנסות שוב.");
+        return;
+      }
+      pwIn.value = ""; pwIn.setAttribute("aria-invalid", "false"); pwShow(false); pwBtn.focus();
+      tell(msg, google ? "הסיסמה נשמרה. מעכשיו אפשר להיכנס גם במייל וסיסמה." : "הסיסמה החדשה נשמרה.");
+      if (google) pwBtn.textContent = "שינוי סיסמה";
+    });
+    // a deleted account lands on a page that says what was deleted, and what only this browser holds
+    const GONE = ROOT + "deleted.html";
     del.addEventListener("click", async () => {
       if (!confirm("למחוק את החשבון? פרטי החשבון וכל יומני השימוש יימחקו לצמיתות. רשימות התיקים וההגדרות שבמחשב הזה לא נמחקות.")) return;
       const { error } = await sb.rpc("delete_my_account");
       if (error) { tell(msg, "המחיקה לא הצליחה. אפשר לנסות שוב, או לכתוב אל contact@inkognito.co.il."); return; }
-      leavingTo = ROOT;
+      leavingTo = GONE;
       await sb.auth.signOut({ scope: "local" }).catch(() => {});
-      leave(ROOT);
+      leave(GONE);
     });
   }
 })();

@@ -43,6 +43,14 @@ b,strong{font-weight:600}
 .btn-gilt:hover{background:#E6C772}
 .btn-lg{min-height:54px;padding:0 32px;font-size:18px}
 .btn-sm{min-height:40px;padding:0 18px;font-size:15px}
+.btn-line{background:none;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.btn-line:hover{background:var(--rule)}
+/* after signing out: one line about the cases left in this browser (landing.js) */
+.out-note{margin:24px var(--gut) 0;max-width:46em;padding:16px 20px;border:1.5px solid var(--ink);border-radius:14px;font-size:17px}
+.out-note div{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.out-note .btn{min-height:42px;font-size:15px;padding:0 20px}
+/* the page after deleting the account */
+.gone .btn{margin:6px 0 12px}
 
 /* ---------- the book ---------- */
 .book{display:grid;grid-template-columns:var(--spine-w) minmax(0,1fr)}

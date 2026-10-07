@@ -46,7 +46,8 @@ async function hosted(page, { session = true, logOn = true, state = {}, server =
   });
   // where the account panel sends people: stand-ins, so a test ends where it lands
   await page.route("**/dist/login.html", (route) => route.fulfill({ contentType: "text/html", body: "<title>login</title>" }));
-  await page.route(/\/dist\/$/, (route) => route.fulfill({ contentType: "text/html", body: "<title>home</title>" }));
+  await page.route(/\/dist\/(\?.*)?$/, (route) => route.fulfill({ contentType: "text/html", body: "<title>home</title>" }));
+  await page.route("**/dist/deleted.html", (route) => route.fulfill({ contentType: "text/html", body: "<title>deleted</title>" }));
   if (session) await page.addInitScript((s) => { if (!window.sessionStorage.getItem("seeded")) { localStorage.setItem("sb-cwsiranjlxbclmaqtucc-auth-token", JSON.stringify(s)); window.sessionStorage.setItem("seeded", "1"); } }, SESSION);
   return calls;
 }
@@ -173,11 +174,11 @@ test("Tab reaches the account button right after the day/night button, and goes 
   await page.keyboard.press("Enter");
   await expect(page.locator("#ink-account-panel")).toBeVisible();
   const walk = [];
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 12; i++) {
     await page.keyboard.press("Tab");
     walk.push(await page.evaluate(() => { const a = document.activeElement; return a === window.__below ? "below" : a.closest("#ink-account-panel") ? a.id || a.textContent.trim() : "elsewhere"; }));
   }
-  expect(walk).toEqual(["ink-log", "מה נשלח ביומן", "יציאה מהחשבון", "מחיקת החשבון", "below"]);
+  expect(walk).toEqual(["ink-log", "מה נשלח ביומן", "הוספת סיסמה", "יציאה מהחשבון", "יציאה מכל המכשירים", "מחיקת החשבון", "עמוד הבית", "תנאי שימוש", "מדיניות פרטיות", "הצהרת נגישות", "יצירת קשר", "below"]);
   // and Shift+Tab from its first stop goes back to the button
   await page.locator("#ink-log").focus();
   await page.keyboard.press("Shift+Tab");
@@ -230,7 +231,8 @@ test("every link of the account panel and of the card that asks is underlined", 
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "מחיקת החשבון" }).click();
   await expect(page.locator("#ink-account-msg").getByRole("link")).toBeVisible();
-  expect(await linkLooks(page, "#ink-account-panel")).toEqual(["מה נשלח ביומן: underline", "contact@inkognito.co.il: underline"]);
+  expect(await linkLooks(page, "#ink-account-panel")).toEqual(["מה נשלח ביומן: underline", "contact@inkognito.co.il: underline",
+    "עמוד הבית: underline", "תנאי שימוש: underline", "מדיניות פרטיות: underline", "הצהרת נגישות: underline", "יצירת קשר: underline"]);
   await btn.click();
   await runDoc(page, "one.docx");
   await sendDoc(page);
@@ -249,15 +251,15 @@ test("the account panel closes when the focus leaves it, and not while it moves 
   await btn.focus();
   await page.keyboard.press("Enter");
   await expect(pane).toBeVisible();
-  // through its four stops and back to the button: still open
-  for (let i = 0; i < 4; i++) await page.keyboard.press("Tab");
-  await expect(page.getByRole("button", { name: "מחיקת החשבון" })).toBeFocused();
-  for (let i = 0; i < 4; i++) await page.keyboard.press("Shift+Tab");
+  // through its eleven stops and back to the button: still open
+  for (let i = 0; i < 11; i++) await page.keyboard.press("Tab");
+  await expect(pane.getByRole("link", { name: "יצירת קשר" })).toBeFocused();
+  for (let i = 0; i < 11; i++) await page.keyboard.press("Shift+Tab");
   await expect(btn).toBeFocused();
   await expect(pane).toBeVisible();
   await expect(btn).toHaveAttribute("aria-expanded", "true");
   // on past its last stop: closed, and nothing covers the stop the focus reached
-  for (let i = 0; i < 5; i++) await page.keyboard.press("Tab");
+  for (let i = 0; i < 12; i++) await page.keyboard.press("Tab");
   await expect(pane).toBeHidden();
   await expect(btn).toHaveAttribute("aria-expanded", "false");
   expect(await page.evaluate(() => { const a = document.activeElement, r = a.getBoundingClientRect();
@@ -397,13 +399,14 @@ test("a switch already off on the server is respected from the start", async ({ 
   expect(submits(calls)).toHaveLength(0);
 });
 
-test("signing out ends the session and the cookie, and goes to sign-in", async ({ page }) => {
+test("signing out ends the session and the cookie, and lands on the home page, told to offer clearing the cases", async ({ page }) => {
   test.info().annotations.push({ type: "no-self-check" });
   const calls = await hosted(page);
   await boot(page);
   await page.getByRole("button", { name: "חשבון", exact: true }).click();
   await page.getByRole("button", { name: "יציאה מהחשבון" }).click();
-  await page.waitForURL("**/login.html");
+  // the home page, told to say once what is left in this browser (landing.js; the owner's decision, 6.10)
+  await page.waitForURL(/\/dist\/\?out=1$/);
   // this browser only (review 4.10): the account's other devices stay signed in
   const out = calls.find((c) => c.path === "/auth/v1/logout");
   expect(out && out.query).toContain("scope=local");
@@ -429,7 +432,7 @@ test("a file the gate answered with the sign-in page is asked for again after re
   expect((await (await sent).allHeaders()).cookie || "").toContain("ink_at=" + NEW);
 });
 
-test("deleting the account asks first, deletes, and leaves for the home page", async ({ page }) => {
+test("deleting the account asks first, deletes, and leaves for the page that says it was deleted", async ({ page }) => {
   test.info().annotations.push({ type: "no-self-check" });
   const calls = await hosted(page);
   await boot(page);
@@ -441,7 +444,7 @@ test("deleting the account asks first, deletes, and leaves for the home page", a
   expect(calls.some((c) => c.path === "/rest/v1/rpc/delete_my_account")).toBe(false);
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "מחיקת החשבון" }).click();
-  await page.waitForURL(/\/dist\/$/);
+  await page.waitForURL(/\/dist\/deleted\.html$/);
   expect(calls.some((c) => c.path === "/rest/v1/rpc/delete_my_account")).toBe(true);
   expect((await page.context().cookies()).find((c) => c.name === "ink_at")).toBeUndefined();
 });
@@ -765,3 +768,64 @@ for (const [why, state] of [["blocked", { blocked: true }], ["pending", { approv
     expect((await page.context().cookies()).find((c) => c.name === "ink_at")).toBeUndefined();
     expect(await page.evaluate(() => localStorage.getItem("sb-cwsiranjlxbclmaqtucc-auth-token"))).toBe(null);
   });
+
+/* The account panel's new items (the owner's approved features, 6.10; texts approved 7.10.2026). */
+test("the operator finds «ניהול» in the panel, and nobody else does; every panel has the site's links", async ({ page }) => {
+  await hosted(page, { state: { is_admin: true } });
+  await boot(page);
+  await page.getByRole("button", { name: "חשבון", exact: true }).click();
+  const panel = page.locator("#ink-account-panel");
+  await expect(panel.getByRole("link", { name: "ניהול", exact: true })).toHaveAttribute("href", /\/dist\/admin\.html$/);
+  const foot = panel.getByRole("navigation", { name: "מידע ומסמכים משפטיים" });
+  await expect(foot.getByRole("link")).toHaveText(["עמוד הבית", "תנאי שימוש", "מדיניות פרטיות", "הצהרת נגישות", "יצירת קשר"]);
+  expect(await foot.getByRole("link").evaluateAll((as) => as.map((a) => new URL(a.href).pathname.replace(/^.*\/dist\//, "") + "|" + a.target))).toEqual(
+    ["|_blank", "terms.html|_blank", "privacy.html|_blank", "accessibility.html|_blank", "contact@inkognito.co.il|"]);
+});
+
+test("someone who is not the operator has no «ניהול»", async ({ page }) => {
+  await hosted(page, { state: { is_admin: false } });
+  await boot(page);
+  await page.getByRole("button", { name: "חשבון", exact: true }).click();
+  await expect(page.locator("#ink-account-panel")).toContainText("a@example.co.il");
+  await expect(page.locator("#ink-account-panel").getByRole("link", { name: "ניהול", exact: true })).toHaveCount(0);
+});
+
+test("«יציאה מכל המכשירים» asks first, ends every session of the account, and lands on the home page", async ({ page }) => {
+  test.info().annotations.push({ type: "no-self-check" });
+  const calls = await hosted(page);
+  await boot(page);
+  await page.getByRole("button", { name: "חשבון", exact: true }).click();
+  let asked = "";
+  page.once("dialog", (d) => { asked = d.message(); d.dismiss(); });
+  await page.getByRole("button", { name: "יציאה מכל המכשירים" }).click();
+  await expect.poll(() => asked).toBe("לצאת מהחשבון בכל המכשירים? כאן היציאה מיידית, ובשאר המכשירים הכניסה תסתיים תוך שעה לכל היותר.");
+  expect(calls.some((c) => c.path === "/auth/v1/logout")).toBe(false);
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "יציאה מכל המכשירים" }).click();
+  await page.waitForURL(/\/dist\/\?out=1$/);
+  expect(calls.find((c) => c.path === "/auth/v1/logout").query).toContain("scope=global");
+  expect((await page.context().cookies()).find((c) => c.name === "ink_at")).toBeUndefined();
+});
+
+test("a Google-only account adds a password from the panel; a short one is refused before anything is sent", async ({ page }) => {
+  const calls = await hosted(page);
+  await boot(page);
+  await page.getByRole("button", { name: "חשבון", exact: true }).click();
+  const add = page.getByRole("button", { name: "הוספת סיסמה" });
+  await expect(add).toHaveAttribute("aria-expanded", "false");
+  await add.click();
+  await expect(add).toHaveAttribute("aria-expanded", "true");
+  const field = page.getByLabel("סיסמה חדשה");
+  await expect(field).toBeFocused();
+  await expect(page.locator("#ink-pw-hint")).toHaveText("לפחות 8 תווים.");
+  await field.fill("short");
+  await page.getByRole("button", { name: "שמירה" }).click();
+  await expect(page.locator("#ink-account-msg")).toHaveText("הסיסמה צריכה להיות באורך 8 תווים לפחות.");
+  expect(calls.some((c) => c.path === "/auth/v1/user" && c.body && c.body.password)).toBe(false);
+  await field.fill("a-long-enough-one-1");
+  await page.getByRole("button", { name: "שמירה" }).click();
+  await expect(page.locator("#ink-account-msg")).toHaveText("הסיסמה נשמרה. מעכשיו אפשר להיכנס גם במייל וסיסמה.");
+  expect(calls.find((c) => c.path === "/auth/v1/user" && c.body && c.body.password).body.password).toBe("a-long-enough-one-1");
+  await expect(page.getByRole("button", { name: "שינוי סיסמה" })).toBeFocused();
+  await expect(page.locator("#ink-pw")).toBeHidden();
+});
