@@ -33,6 +33,8 @@ for (const [name, type] of Object.entries(MAILS)) {
   ok(hrefs.length === 1 && hrefs[0] === link, "one link, through {{ .RedirectTo }}, the token after the # (" + hrefs.join(", ") + ")");
   ok(doc.includes(">" + link + "</p>"), "the copy-this-link line is the button's own link");
   ok(!/https?:\/\//.test(doc.replace(/<!DOCTYPE[^>]*>/, "")) && !/pages\.dev|SiteURL|ConfirmationURL/.test(doc), "no address written in: no pages.dev, no SiteURL or ConfirmationURL");
+  // the last line says who sent it and where to ask, as text (mail-footer, approved 7.10.2026)
+  ok(/המייל נשלח מאינקוגניטו \(inkognito\.co\.il\)\. לשאלות: contact@inkognito\.co\.il\.<\/p>\s*<\/td>/.test(doc), "the last line names the sender and the contact address");
   ok(/<a href="[^"]*" style="display:inline-block;background-color:#1F5B44;/.test(doc), "the button's colour is on the link itself");
   // classic Outlook (common in law offices) ignores the link's padding; comments are dropped by
   // Supabase's html/template, so no Outlook-only wrapper can do it
