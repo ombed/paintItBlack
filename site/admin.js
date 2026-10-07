@@ -66,9 +66,17 @@
     $("n-wait").textContent = users.filter((u) => !u.approved && !u.blocked).length;
     $("require").checked = !!(s.data && s.data.require_approval);
     $("updated").textContent = "עודכן: " + date(new Date().toISOString());
-    const rows = $("rows");
-    rows.replaceChildren(...users.map(row));
+    list = users;
+    show_rows();
   }
+  // the search box: a name or an address, as typed, in any case
+  let list = [];
+  function show_rows() {
+    const q = $("find").value.trim().toLowerCase();
+    const hit = (u) => !q || (u.email || "").toLowerCase().includes(q) || (u.full_name || "").toLowerCase().includes(q);
+    $("rows").replaceChildren(...list.filter(hit).map(row));
+  }
+  $("find").addEventListener("input", show_rows);
 
   const cell = (...kids) => { const td = document.createElement("td"); td.append(...kids); return td; };
   const bdi = (t) => { const b = document.createElement("bdi"); b.textContent = t; return b; };
@@ -92,6 +100,7 @@
     if (u.is_admin || u.id === me) acts.push(document.createTextNode("המפעיל"));
     else {
       if (!u.approved && !u.blocked) acts.push(act("אישור", false, () => change(u, { approved: true }, "אושר: ")));
+      acts.push(act("ייצוא", false, () => exportUser(u)));
       if (u.blocked) acts.push(act("ביטול חסימה", false, () => change(u, { blocked: false }, "החסימה בוטלה: ")));
       else acts.push(act("חסימה", true, () => {
         if (confirm("לחסום את " + who + "? מרגע זה לא תהיה לחשבון גישה לכלי.")) change(u, { blocked: true }, "נחסם: ");
@@ -142,6 +151,27 @@
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
     say("ירד קובץ עם " + data.length + " יומנים.");
+  });
+
+  // what is kept about one account, as one file: its profile and its usage logs (a request about one's data)
+  async function exportUser(u) {
+    say("מכין את הקובץ…");
+    const { data, error } = await all(() => sb.from("usage_logs").select("id,created_at,version,log,leaks", { count: "exact" }).eq("user_id", u.id)
+      .order("created_at", { ascending: false }).order("id", { ascending: false }), 200);
+    if (error) { say("ההורדה נכשלה. אפשר לנסות שוב."); return; }
+    const out = { export: "inkognito-account", exported: new Date().toISOString(), profile: u, logs: data };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(out, null, 1)], { type: "application/json" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = "inkognito-account-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    say("ירד קובץ עם פרטי החשבון ו" + (data.length === 1 ? "יומן אחד" : "־" + data.length + " יומנים") + ": " + (u.email || ""));
+  }
+  // every address of an account that is not blocked, for a notice to all (the owner's decision, 6.10)
+  $("mails").addEventListener("click", async () => {
+    const mails = list.filter((u) => !u.blocked && u.email).map((u) => u.email);
+    try { await navigator.clipboard.writeText(mails.join(", ")); say("הועתקו " + mails.length + " כתובות."); }
+    catch (_) { say("ההעתקה לא הצליחה. אפשר לנסות שוב."); }
   });
 
   $("out").addEventListener("click", async () => {

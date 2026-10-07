@@ -135,7 +135,7 @@ test("on a phone the spine is a green bar: its menu opens the links, and a link 
    bar, sticky, carried the open sheet down the page over a third of the screen (review of 6.10).
    landing.js runs it on every page of the site. The press goes on to what it was on: a link below
    the open sheet is still followed. */
-for (const p of ["index.html", "privacy.html", "terms.html", "accessibility.html", "changes.html", "login.html", "404.html"])
+for (const p of ["index.html", "privacy.html", "terms.html", "accessibility.html", "changes.html", "security.html", "login.html", "404.html"])
   test(`the phone menu closes on a press outside it, and not on one inside it (${p})`, async ({ page }) => {
     await siteAtRoot(page);
     await page.route(PROJECT + "/**", (route) => route.fulfill({ json: {} }));
@@ -172,7 +172,7 @@ for (const p of ["index.html", "privacy.html", "terms.html", "accessibility.html
 /* And when the focus leaves it: Tab past its last link left the sheet open, aria-expanded true, over
    the page the focus went on to (the class of the account panel's, review of 6.10; WCAG 2.4.11).
    Moving through its links keeps it open. */
-for (const p of ["index.html", "privacy.html", "terms.html", "accessibility.html", "changes.html", "login.html", "404.html"])
+for (const p of ["index.html", "privacy.html", "terms.html", "accessibility.html", "changes.html", "security.html", "login.html", "404.html"])
   test(`the phone menu closes when the focus leaves it, and not while it moves through it (${p})`, async ({ page }) => {
     await siteAtRoot(page);
     await page.route(PROJECT + "/**", (route) => route.fulfill({ json: {} }));
@@ -277,7 +277,7 @@ for (const [where, width] of [["desktop", 1440], ["phone", 390]])
     await axe(page, where + ", a question and the menu open");
   });
 
-for (const p of ["privacy.html", "terms.html", "accessibility.html", "changes.html", "404.html", "login.html"])
+for (const p of ["privacy.html", "terms.html", "accessibility.html", "changes.html", "security.html", "404.html", "login.html"])
   test(`${p} has the home page's frame: the spine, its phone menu, nothing cut at 320 px, and axe`, async ({ page }) => {
     await siteAtRoot(page);
     await page.route(PROJECT + "/**", (route) => route.fulfill({ json: {} }));

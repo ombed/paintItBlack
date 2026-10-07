@@ -22,11 +22,17 @@ try {
   const read = (f) => fs.readFileSync(path.join(dist, f), "utf8");
 
   console.log("\n— the site at the root —");
-  for (const f of ["index.html", "login.html", "terms.html", "privacy.html", "accessibility.html", "changes.html", "deleted.html", "admin.html", "admin.js", "site.css", "config.js", "cloud.js", "login.js"])
+  for (const f of ["index.html", "login.html", "terms.html", "privacy.html", "accessibility.html", "changes.html", "deleted.html", "security.html", "admin.html", "admin.js", "site.css", "config.js", "cloud.js", "login.js"])
     ok(files.includes(f), "the root has " + f);
   const sv = JSON.parse(fs.readFileSync(path.join(ROOT, "node_modules/@supabase/supabase-js/package.json"), "utf8")).version;
   ok(files.includes(`vendor/supabase-${sv}.js`), "the root has the sign-in client the pages name");
   ok(files.includes("_headers"), "security headers for Cloudflare (_headers)");
+  /* security.txt (RFC 9116; the owner's decision, 6.10): where to report a security problem. Its Expires
+     must lie ahead, and less than a year ahead: this check fails when it lapses, as a reminder to renew */
+  const sec = files.includes(".well-known/security.txt") ? read(".well-known/security.txt") : "";
+  const exp = Date.parse((/^Expires: (\S+)$/m.exec(sec) || [])[1] || "");
+  ok(/^Contact: mailto:contact@inkognito\.co\.il$/m.test(sec) && /^Policy: https:\/\/inkognito\.co\.il\/security$/m.test(sec), "security.txt names the contact address and the security page");
+  ok(exp > Date.now() && exp - Date.now() < 366 * 864e5, "security.txt's Expires lies ahead, within a year (renew it before " + new Date(exp).toISOString().slice(0, 10) + ")");
 
   console.log("\n— the tool under /app/ —");
   const model = SITE_FILES.filter((f) => /\.part\d+$/.test(f));
@@ -197,7 +203,7 @@ try {
   for (const p of ["/index.html", "/login.html", "/privacy.html", "/site.css", "/config.js", "/login.js"]) ok(routes.exclude.includes(p), p + " skips the gate");
   // without these, every visit to the landing and sign-in pages ran the gate, and with "fail closed"
   // an exhausted daily quota would have shut them too (4.10)
-  for (const p of ["/", "/login", "/privacy", "/terms", "/accessibility", "/changes", "/deleted"]) ok(routes.exclude.includes(p), p + " (the address Cloudflare serves the page at) skips the gate");
+  for (const p of ["/", "/login", "/privacy", "/terms", "/accessibility", "/changes", "/deleted", "/security"]) ok(routes.exclude.includes(p), p + " (the address Cloudflare serves the page at) skips the gate");
 
   console.log("\n— it only replaces a folder it made —");
   const other = path.join(out, "mine"); fs.mkdirSync(other); fs.writeFileSync(path.join(other, "keep.txt"), "x");

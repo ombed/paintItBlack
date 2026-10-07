@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<link rel="canonical" href="https://inkognito.co.il/security">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'self'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>אבטחה · אינקוגניטו</title>
+<meta name="description" content="איך אינקוגניטו בנוי: מה קורה במחשב שלכם ומה בשרת, מה השרת רואה, מי רואה מה, ואיך מדווחים על בעיית אבטחה.">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body class="legal-page">
+<a class="skip" href="#main">דילוג לתוכן</a>
+<div class="book">
+
+  <header class="spine" id="spine">
+    <div class="spine-in">
+      <a class="mark" href="index.html">אינקוגניטו</a>
+      <p class="tagline">השחרת מסמכים לפני AI</p>
+      <nav class="index" aria-label="ראשי">
+        <ul>
+          <li><a href="index.html#how">איך זה עובד</a></li>
+          <li><a href="index.html#privacy">פרטיות ואבטחה</a></li>
+          <li><a href="index.html#accuracy">כמה זה מדויק</a></li>
+          <li><a href="index.html#faq">שאלות נפוצות</a></li>
+        </ul>
+      </nav>
+      <ul class="keys">
+        <li><b>בדפדפן</b> <span>הזיהוי וההחלפה רצים במחשב שלך</span></li>
+        <li><b><bdi>Word</bdi> ו־<bdi>PDF</bdi></b> <span>נקראים ישירות, בלי המרה</span></li>
+        <li><b>בעברית</b> <span>כולל אותיות שימוש ושגיאות כתיב</span></li>
+        <li><b>כל כלי AI</b> <span>כל כלי שאפשר להדביק בו טקסט</span></li>
+      </ul>
+      <div class="spine-end">
+        <a class="login" href="login.html">כניסה</a>
+        <a class="btn btn-gilt" href="login.html?mode=signup">להרשמה חינם</a>
+      </div>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="sheet" aria-label="תפריט"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+    </div>
+    <div class="sheet" id="sheet" hidden>
+      <ul>
+        <li><a href="index.html#how">איך זה עובד</a></li>
+        <li><a href="index.html#privacy">פרטיות ואבטחה</a></li>
+        <li><a href="index.html#accuracy">כמה זה מדויק</a></li>
+        <li><a href="index.html#faq">שאלות נפוצות</a></li>
+        <li><a href="login.html">כניסה</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <div class="pages">
+  <main id="main">
+    <article class="legal">
+    <h1>אבטחה</h1>
+    <p class="status">מה קורה במחשב שלכם, מה מגיע לשרת ואיך הוא מוגן. הקוד של הכלי ושל האתר <a href="https://github.com/ombed/inkognito">פתוח לקריאה ב־<bdi>GitHub</bdi></a>, ורוב מה שכתוב כאן אפשר לבדוק בו.</p>
+
+    <h2>1. מה קורה במחשב שלכם</h2>
+    <p>בתוך הדפדפן נעשים קריאת המסמך, זיהוי השמות, ההחלפה והחזרת השמות לתשובה. מודל השפה העברי יורד פעם אחת מהאתר ורץ אצלכם. התיקים, השמות הבדויים וההגדרות נשמרים בדפדפן בלבד. הכלי באתר הזה לא פונה לאתרים אחרים: הספריות, הגופנים והמודל מגיעים מהאתר עצמו, והדף רשאי לפנות רק לאתר ולשירות ההתחברות.</p>
+
+    <h2>2. מה השרת רואה</h2>
+    <p>כתובת המייל של החשבון, ולמי שנכנסים עם <bdi>Google</bdi> גם השם, קישור לתמונה ומזהה החשבון. מתי נרשמתם, רישום של הכניסות, ומתי פתחתם את הכלי לאחרונה. ואם הסכמתם, גם יומן שימוש בסוף כל מסמך (לחיצות, זמנים ומספרים) ותיאור כללי של שם שסימנתם כפספוס, בלי השם עצמו. המסמך, השמות שבו, שמות הקבצים ורשימות התיקים לא מגיעים לשרת.</p>
+    <p>כל ערך ביומן הוא מספר, תשובת כן או לא, או קוד קצר. הדפדפן משמיט כל ערך אחר, והשרת בודק שוב ודוחה יומן שלא עומד בזה: מילה בעברית, כתובת מייל, מספר זהות או טלפון לא עוברים.</p>
+
+    <h2>3. מי נכנס, ומי רואה מה</h2>
+    <p>קובצי הכלי נשלחים רק למי שנכנס לחשבון פעיל: בכל פתיחה של הכלי נבדק שהכניסה בתוקף ושהחשבון פעיל, ואם אי אפשר לבדוק, הכלי לא נפתח. במסד הנתונים כל חשבון רואה רק את הפרטים שלו; רק המפעיל רואה את פרטי כל החשבונות ואת יומני השימוש. הסיסמה נשמרת אצל שירות ההתחברות (<bdi>Supabase</bdi>) בצורה מוצפנת חד־כיוונית, והמפעיל לא יכול לראות אותה.</p>
+
+    <h2>4. איפה המידע נשמר, וכמה זמן</h2>
+    <p>מסד הנתונים נמצא באיחוד האירופי, בפרנקפורט. יומני שימוש נמחקים אוטומטית אחרי 12 חודשים, והרשמה שכתובת המייל שלה לא אומתה נמחקת אחרי 7 ימים. מחיקת החשבון מוחקת מיד את פרטי החשבון ואת כל היומנים שלו. הפירוט המלא, כולל הספקים, ב<a href="privacy.html">מדיניות הפרטיות</a>.</p>
+
+    <h2>5. דיווח על בעיית אבטחה</h2>
+    <p>מצאתם בעיית אבטחה? כתבו אל <a href="mailto:contact@inkognito.co.il"><bdi>contact@inkognito.co.il</bdi></a>. אל תצרפו מסמכים או פרטים של לקוחות. נענה תוך שני ימי עסקים.</p>
+    </article>
+  </main>
+
+  <footer class="foot">
+    <a class="mark" href="index.html">אינקוגניטו</a>
+    <nav aria-label="מידע ומסמכים משפטיים">
+      <a href="terms.html">תנאי שימוש</a><a href="privacy.html">מדיניות פרטיות</a><a href="security.html" aria-current="page">אבטחה</a><a href="accessibility.html">הצהרת נגישות</a><a href="https://github.com/ombed/inkognito">הקוד ב־GitHub</a><a href="mailto:contact@inkognito.co.il">יצירת קשר</a>
+    </nav>
+    <span>© 2026 אינקוגניטו</span>
+  </footer>
+  </div>
+</div>
+<script src="landing.js"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+Contact: mailto:contact@inkognito.co.il
+Expires: 2027-10-06T21:00:00.000Z
+Preferred-Languages: he, en
+Canonical: https://inkognito.co.il/.well-known/security.txt
+Policy: https://inkognito.co.il/security

@@ -161,3 +161,38 @@ test("the sign-in page brings the owner back to this page, and to nothing else",
   await page.goto("/site/login.html?next=https://evil.example");
   await page.waitForURL("**/site/app/");
 });
+
+/* The owner's tools (the owner's decisions, 6.10): a way back to the tool, a search over names and
+   addresses, all the addresses copied for a notice, and one account's data as a file. */
+test("the owner's page leads back to the tool, searches names and addresses, and copies every address not blocked", async ({ page }) => {
+  await stub(page);
+  await page.goto(PAGE);
+  await expect(page.locator("#panel")).toBeVisible();
+  await expect(page.locator(".head").getByRole("link", { name: "לכלי" })).toHaveAttribute("href", "app/");
+  const find = page.getByLabel("חיפוש לפי שם או מייל");
+  await find.fill("BET");
+  await expect(page.locator("#rows tr")).toHaveCount(1);
+  await expect(rowOf(page, "b@example.co.il")).toBeVisible();
+  await find.fill("a@example");
+  await expect(page.locator("#rows tr")).toHaveCount(1);
+  await find.fill("");
+  await expect(page.locator("#rows tr")).toHaveCount(4);
+  await page.evaluate(() => { navigator.clipboard.writeText = (t) => { window.__copied = t; return Promise.resolve(); }; });
+  await page.getByRole("button", { name: "העתקת כל הכתובות" }).click();
+  await expect(page.locator("#msg")).toHaveText("הועתקו 3 כתובות.");
+  expect(await page.evaluate(() => window.__copied)).toBe("c@example.co.il, a@example.co.il, owner@example.co.il");
+});
+
+test("one account's data downloads as one file: its profile and its logs", async ({ page }) => {
+  await stub(page);
+  await page.goto(PAGE);
+  const [dl] = await Promise.all([page.waitForEvent("download"), rowOf(page, "a@example.co.il").getByRole("button", { name: "ייצוא" }).click()]);
+  expect(dl.suggestedFilename()).toMatch(/^inkognito-account-\d{4}-\d{2}-\d{2}\.json$/);
+  const file = JSON.parse(require("fs").readFileSync(await dl.path(), "utf8"));
+  expect(file.export).toBe("inkognito-account");
+  expect(file.profile.email).toBe("a@example.co.il");
+  expect(file.logs.length).toBe(1);
+  await expect(page.locator("#msg")).toHaveText("ירד קובץ עם פרטי החשבון ויומן אחד: a@example.co.il");
+  // the owner's own row has no actions
+  await expect(rowOf(page, "owner@example.co.il").getByRole("button")).toHaveCount(0);
+});

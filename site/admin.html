@@ -39,12 +39,15 @@
   .pill.off { background: #FBE3E1; color: #8C1D18; }
   #msg:empty { display: none; }
   #msg { margin: 14px 0 0; }
+  .head-links { display: flex; gap: 22px; align-items: center; }
+  .find { margin: 0 0 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .find input { font: inherit; padding: 8px 12px; border: 1px solid var(--rule); border-radius: 10px; min-width: 260px; background: #fff; color: var(--ink); }
 </style>
 </head>
 <body>
   <a class="skip" href="#main">דילוג לתוכן</a>
   <header class="head">
-    <div class="wrap"><a class="mark" href="index.html">אינקוגניטו</a><button class="linkish" type="button" id="out" hidden>יציאה</button></div>
+    <div class="wrap"><a class="mark" href="index.html">אינקוגניטו</a><span class="head-links"><a href="app/">לכלי</a><button class="linkish" type="button" id="out" hidden>יציאה</button></span></div>
   </header>
 
   <main id="main" class="wrap admin">
@@ -77,7 +80,9 @@
           <p class="hint" id="require-hint">כשהמתג מופעל, מי שנרשם לראשונה ממתין לאישור לפני שאפשר להשתמש בכלי. מי שכבר אושר לא מושפע.</p>
         </div>
         <button class="linkish" type="button" id="logs">הורדת יומני השימוש (<bdi>JSON</bdi>)</button>
+        <button class="linkish" type="button" id="mails">העתקת כל הכתובות</button>
       </div>
+      <p class="find"><label for="find">חיפוש לפי שם או מייל</label> <input type="search" id="find" autocomplete="off"></p>
       <div class="scroll">
         <table>
           <caption>משתמשים, מהחדש לישן</caption>
