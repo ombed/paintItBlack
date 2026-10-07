@@ -3,10 +3,11 @@ const H = require("./helpers");
 
 /* The first-run tour (Q15 of release 2, CHANGELOG v29).
 
-   Offered once per version, on a fake document built into the tool and
-   marked as such. It walks the screens itself, Next/Back/Skip/Close, and
-   nothing from the sample can reach real work: no profile is saved, and
-   copy and download are refused while it runs. */
+   Offered once, on a fake document built into the tool and marked as
+   such. It walks the screens itself, Next/Back/Skip/Close, and nothing
+   from the sample can reach real work: no profile is saved, and copy and
+   download are refused while it runs. Since 7.10.2026 it ends on the
+   restore screen, with a ready-made answer from the AI for the sample. */
 
 async function firstVisit(page) {
   await H.serveEngineWithStub(page);
@@ -24,8 +25,8 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   await expect(tour).toBeVisible();
   await expect(tour).toContainText("קובץ או טקסט");
   await expect(page.getByText("לפני שמתחילים")).toHaveCount(0);
-  // seven steps from the start: the places step is counted until it is known to be absent
-  await expect(tour).toContainText("1 מתוך 7");
+  // eight steps from the start: the places step is counted until it is known to be absent
+  await expect(tour).toContainText("1 מתוך 8");
   // the spotlight sits on the upload zone and does not block it
   await expect(page.locator("[data-spot]")).toBeVisible();
 
@@ -44,7 +45,7 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   // the panel moves only once the places screen is really there, rows and notes included
   await expect(page.locator('div:has(> button:text-is("לא להחליף"))').first()).toBeVisible();
   expect(await page.locator("[data-tags]").count()).toBeGreaterThan(0);
-  await expect(tour).toContainText("3 מתוך 7");
+  await expect(tour).toContainText("3 מתוך 8");
   // the spotlight moved to the places card
   const spot = await page.locator("[data-spot]").boundingBox();
   const card = await page.locator("[data-tour-target=places]").boundingBox();
@@ -60,7 +61,7 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   await tour.getByRole("button", { name: /החלת הקבוצה/ }).click();
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   await expect(tour).toContainText("מסך הבדיקה");
-  await expect(tour).toContainText("4 מתוך 7");
+  await expect(tour).toContainText("4 מתוך 8");
   // the step explains the marks as they are drawn: a deleted number is a chip with an eraser (it was the text
   // ∅ until 6.10, and the step still said «∅ — נמחק.»)
   await expect(tour).toContainText("סמל המחק — נמחק.");
@@ -82,8 +83,32 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   await expect(tour).toContainText("שמירה");
   await tour.getByRole("button", { name: "המשך", exact: true }).click();
   await expect(tour).toContainText("העתקה ל־AI");
+  await expect(tour).toContainText("בסיור לא מעתיקים");
+
+  // → the restore screen, with a ready-made answer «from the AI» in its box: the sample's own pseudonyms
   await tour.getByRole("button", { name: "המשך", exact: true }).click();
-  await expect(tour).toContainText("זהו");
+  await expect(tour).toContainText("7 מתוך 8");
+  await expect(tour).toContainText("בתיבה כבר יש תשובה לדוגמה");
+  await expect(page.locator("[data-rv-tour]")).toHaveText("תשובה לדוגמה, כאילו חזרה מ־AI. בעבודה רגילה מדביקים כאן את התשובה שקיבלתם.");
+  const answer = await page.getByPlaceholder("הדבקת תשובת ה-AI…").inputValue();
+  expect(answer).toContain("סיכום הפגישה בעניין הקטינה");
+  for (const s of ["שרעבי", "לודמילה", "כץ", "חולון", "רמת גן", "11.2.2026"]) expect(answer).not.toContain(s);
+  // no case from a file in the tour, and the spotlight is on the answer and its button
+  await expect(page.getByRole("button", { name: "ייבוא תיק מקובץ" })).toHaveCount(0);
+  await expect(page.locator("[data-spot]")).toBeVisible();
+  // the card's button does what the screen's button does, and the restore moves the tour on by itself
+  await tour.getByRole("button", { name: "החזרת שמות", exact: true }).click();
+  await expect(tour).toContainText("סוף הסיור");
+  await expect(tour).toContainText("8 מתוך 8");
+  const out = page.locator("[data-rv-out]");
+  for (const s of ["נועה שרעבי", "מיכל שרעבי", "בחולון", "אורן שרעבי", "ברמת גן", "לודמילה כץ", "11.2.2026"]) await expect(out).toContainText(s);
+  await expect(page.locator("[data-rv-left-none]")).toHaveText("לא נמצא בתשובה פרט בדוי שלא הוחזר.");
+  // the card does not sit on the restored answer it talks about: it rises above it
+  const apart = (a, b) => a.y + a.height <= b.y + 1 || a.y >= b.y + b.height - 1 || a.x + a.width <= b.x + 1 || a.x >= b.x + b.width - 1;
+  await expect.poll(async () => apart(await tour.boundingBox(), await out.boundingBox()), { message: "the card covers the restored answer" }).toBe(true);
+  // copying the restored sample is refused too
+  await page.getByRole("button", { name: "העתקת הטקסט המשוחזר" }).dispatchEvent("click");
+  await expect(page.getByText(/בסיור אין העתקה/)).toBeVisible();
   await tour.getByRole("button", { name: "סיום" }).click();
   await expect(tour).toHaveCount(0);
   await expect(page.getByRole("button", { name: /סיור על מסמך לדוגמה/ })).toBeVisible();
@@ -99,19 +124,37 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   expect(stored.tour).toMatch(/^v\d+$/);
 });
 
-test("skip closes the tour and is not offered again on this version; a new version offers it", async ({ page }) => {
+/* The owner's decision of 6.10 (Q33): the welcome shows once. Until v65 it came back after every update;
+   now an update shows one line instead, «אינקוגניטו עודכן. מה חדש», once per version, its «מה חדש» a link
+   to the changes page on the site. */
+test("skip closes the tour and the welcome is not offered again; a new version shows a one-line «מה חדש» note instead, once", async ({ page }) => {
   await firstVisit(page);
   await page.getByRole("button", { name: /סיור קצר על מסמך לדוגמה/ }).click();
   await page.locator("[data-tour]").getByRole("button", { name: "דילוג" }).click();
   await expect(page.locator("[data-tour]")).toHaveCount(0);
+  const ready = async () => {
+    await expect(page.locator("#dc-root")).toBeAttached({ timeout: 60000 });
+    await expect(page.getByRole("button", { name: /סיור על מסמך לדוגמה/ })).toBeVisible();
+  };
   await page.reload();
-  await expect(page.locator("#dc-root")).toBeAttached({ timeout: 60000 });
+  await ready();
   await expect(page.getByText("לפני שמתחילים")).toHaveCount(0);
-  // an older version's flag does not count
+  await expect(page.locator("[data-whats-new]")).toHaveCount(0);
+  // an older version's flag: no welcome again, but one line that links to what changed
   await page.evaluate(() => localStorage.setItem("redact-tour-seen", "v1"));
   await page.reload();
-  await expect(page.locator("#dc-root")).toBeAttached({ timeout: 60000 });
-  await expect(page.getByText("לפני שמתחילים")).toBeVisible();
+  await ready();
+  await expect(page.getByText("לפני שמתחילים")).toHaveCount(0);
+  await expect(page.locator("[data-notice]")).toHaveText("אינקוגניטו עודכן.מה חדש");
+  const link = page.locator("[data-whats-new]");
+  await expect(link).toHaveText("מה חדש");
+  await expect(link).toHaveAttribute("href", "https://inkognito.co.il/changes");
+  await expect(link).toHaveAttribute("target", "_blank");
+  // once per version
+  await page.reload();
+  await ready();
+  await expect(page.locator("[data-whats-new]")).toHaveCount(0);
+  await expect(page.getByText("לפני שמתחילים")).toHaveCount(0);
 });
 
 /* The spotlight is measured on every render, on resize and scroll, and when its target resizes. Two

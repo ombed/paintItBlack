@@ -40,14 +40,16 @@ test("copying unlocks step three, and the restore screen puts the real name back
   await expect(bar.locator("[data-steps]")).toContainText("2 העתקה או הורדה ✓");
   // the text alone would still hold the ✓ if it were hidden from screen readers (aria-hidden, display:none);
   // the accessibility tree is what a screen reader reads
-  await expect(bar.locator("[data-steps]")).toMatchAriaSnapshot("- text: 1 החלפת שמות ✓ 2 העתקה או הורדה ✓ 3 החזרת שמות");
+  // and step three is now a button to the restore screen (the owner's approved rs-step3, 7.10.2026)
+  await expect(bar.locator("[data-steps]")).toMatchAriaSnapshot('- text: 1 החלפת שמות ✓ 2 העתקה או הורדה ✓\n- button "3 החזרת שמות"');
   /* Putting the answer back used to be reachable from three places: a button
      here in the bar, an identical one in the header, and a rail section that
      ran a different code path. That third one built its pairs from a list
      that does not drop blacked-out values, while the screen used one that
      does, so the same pasted text could come back differently depending on
-     where it was pasted. One way survives, the header button, and it is
-     emphasised once the text has been copied. */
+     where it was pasted. One screen survives, reached by the header button,
+     which is emphasised once the text has been copied, and by step three:
+     both only open that screen, so there is one code path. No paste box in the bar. */
   await expect(bar.getByRole("button", { name: "הדבקת תשובת ה-AI" })).toHaveCount(0);
   const step3 = page.getByRole("button", { name: "החזרת שמות מתשובת AI" });
   await expect(step3).toBeVisible();

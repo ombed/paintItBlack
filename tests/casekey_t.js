@@ -3,10 +3,11 @@
    case key that skips caseKey() would show one account's clients to another, or write into the wrong
    account. So the two case keys appear in index.html only as the argument of caseKey(), or in
    CASE_KEYS, the one list forgetCases() removes for every account (the keys themselves and every key
-   that is one of them followed by ":"). Nothing calls forgetCases() yet: deleting the model
-   (modelForget) deleted every case with it, under a label and a notice about the model and with no
-   question (the independent review of 6.10), and a later step gives it its own button, approved words
-   and a confirmation. The display keys stay shared: they are never passed through caseKey().
+   that is one of them followed by ":"). Deleting the model (modelForget) deleted every case with it,
+   under a label and a notice about the model and with no question (the independent review of 6.10);
+   now forgetCases() has one caller, its own button «ניקוי התיקים מהמחשב» (clearCases, 7.10.2026), in
+   the owner's approved words and after a confirmation. The display keys stay shared: they are never
+   passed through caseKey().
    e2e/case-store.spec.js checks the behaviour in a browser. */
 const fs = require("fs");
 const path = require("path");
@@ -37,9 +38,13 @@ const mf = code.match(/modelForget = async \(\) => \{[\s\S]*?\n {2}\};/);
 ok(!!mf, "modelForget («מחיקת המודל והקבצים השמורים מהמחשב») is found");
 ok(!!mf && !/forgetCases|CASE_KEYS|caseKey|localStorage|redact-|cases:|lastProfile:|profile:/.test(mf[0]),
   "modelForget touches no saved case, no case key and no case in use: " + (mf ? mf[0].replace(/\s+/g, " ").slice(0, 400) : "none"));
-// a caller needs its own button, words the owner approved and a confirmation; until then there is none
+// one caller: its own button, in words the owner approved, and only after the confirmation says yes
 const calls = [...code.matchAll(/\bforgetCases\b(?!\(\)\{)/g)].map((m) => code.slice(Math.max(0, m.index - 40), m.index + 20).replace(/\s+/g, " "));
-ok(!!forget && calls.length === 0, "nothing calls forgetCases() yet: " + calls.join(" · "));
+ok(!!forget && calls.length === 1, "forgetCases() has exactly one caller: " + calls.join(" · "));
+const clear = code.match(/clearCases = \(\) => \{[\s\S]*?\n {2}\};/);
+ok(!!clear && /^clearCases = \(\) => \{\s*if\(!confirm\("למחוק מהמחשב הזה את כל התיקים השמורים\? אי אפשר לבטל את זה\."\)\) return;\s*this\.forgetCases\(\);/.test(clear[0]),
+  "the caller is clearCases, which asks in the approved words before anything is deleted: " + (clear ? clear[0].replace(/\s+/g, " ").slice(0, 200) : "none"));
+ok(/onClick="\{\{ onClearCases \}\}"[^>]*>ניקוי התיקים מהמחשב</.test(html) && /onClearCases:this\.clearCases/.test(code), "its button is «ניקוי התיקים מהמחשב»");
 
 console.log("\n— the display keys stay shared —");
 for (const k of ["redact-theme", "redact-intro-seen", "redact-tour-seen"]) {

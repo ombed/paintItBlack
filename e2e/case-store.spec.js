@@ -120,9 +120,12 @@ test("with an account suffix, cases are read, written and removed under the acco
    every case of that browser in one file; after signing up she chooses it here. Its cases join the saved
    cases of whoever uses the tool (caseKey), its last profile only when there is none, and nothing is
    ever overwritten: a case whose name is taken stays, and the imported one gets the next free number.
-   The saved-cases list is what she sees of it. The import says nothing else: 8b54f7d showed «יובאו N
-   תיקים.», words the owner had not approved, which read «יובאו 1 תיקים.» for one case and «יובאו 0
-   תיקים.» for a file of a last profile alone (the independent review of 6.10). */
+   The saved-cases list is what she sees of it, and one line in the owner's approved words (7.10.2026):
+   «התיקים מהקובץ נוספו לרשימת התיקים.», only when cases were added. 8b54f7d had shown «יובאו N תיקים.»,
+   words the owner had not approved, which read «יובאו 1 תיקים.» for one case and «יובאו 0 תיקים.» for a
+   file of a last profile alone (the independent review of 6.10): that file still says nothing. */
+const ADDED = "התיקים מהקובץ נוספו לרשימת התיקים.";
+const BAD_CASES = "הקובץ לא נקרא: הוא לא קובץ תיקים של אינקוגניטו, או שהוא פגום. שום תיק לא נוסף.";
 
 test("«ייבוא תיקים מקובץ» on the entry screen adds every case of a cases file, and its last profile when there is none", async ({ page }) => {
   await H.serveEngineWithStub(page);
@@ -133,7 +136,7 @@ test("«ייבוא תיקים מקובץ» on the entry screen adds every case o
   await expect(page.locator(`[data-case="${a.name}"]`)).toBeVisible();
   await expect(page.locator(`[data-case="${b.name}"]`)).toBeVisible();
   await expect(page.getByText(LAST_CARD)).toBeVisible();
-  await expect(notice(page)).toHaveCount(0);
+  await expect(notice(page)).toContainText(ADDED);
   expect(await store(page)).toEqual({ "redact-cases": { [a.name]: a, [b.name]: b }, "redact-profile-last": last });
 });
 
@@ -149,8 +152,8 @@ test("a cases file of a last profile alone brings the last profile, and says not
 });
 
 /* With a case in use on the entry screen («שימוש בתיק הזה», or a profile file), the saved-cases list is
-   not shown (hasCases), so nothing on the screen tells of an import there; the owner is to decide on
-   words. Until then: the case in use stays exactly as it was, and the imported cases are stored. */
+   not shown (hasCases), so only the approved line tells of an import there (7.10.2026). The case in use
+   stays exactly as it was, and the imported cases are stored. */
 test("with a case in use on the entry screen, an import stores its cases and leaves the case in use as it is", async ({ page }) => {
   await H.serveEngineWithStub(page);
   await seed(page, { "redact-cases": { [PLAIN_CASE.name]: PLAIN_CASE } });
@@ -167,7 +170,7 @@ test("with a case in use on the entry screen, an import stores its cases and lea
   expect(await using()).toEqual(before);
   await expect(page.locator("[data-case-chip]")).toContainText("תיק: " + PLAIN_CASE.name);
   await expect(page.locator("[data-case]")).toHaveCount(0);
-  await expect(notice(page)).toHaveCount(0);
+  await expect(notice(page)).toContainText(ADDED);
   await expect(page.getByRole("alert").filter({ hasText: "ייבוא התיק נכשל" })).toHaveCount(0);
   // the case set aside («החלפה»), the list shows the imported case next to hers
   await page.locator("[data-case-chip]").getByRole("button", { name: "בלי התיק הזה" }).click();
@@ -184,13 +187,13 @@ test("a case whose name is taken stays as it is, the imported one gets the next 
   const theirs = profile("לוי נ׳ לוי", "רינה לוי", "גילה נוי", "2026-09-07T09:00:00.000Z"), other = profile("אבן נ׳ אבן", "עוז אבן", "טל דור");
   await importFile(page, casesFile([theirs, other], profile("", "אלה גור", "מאיה רון")));
   for (const n of [mine.name, mine2.name, "לוי נ׳ לוי 3", other.name]) await expect(page.locator(`[data-case="${n}"]`)).toBeVisible();
-  await expect(notice(page)).toHaveCount(0);
+  await expect(notice(page)).toContainText(ADDED);
   const s = await store(page);
   expect(s["redact-cases"]).toEqual({ [mine.name]: mine, [mine2.name]: mine2, "לוי נ׳ לוי 3": { ...theirs, name: "לוי נ׳ לוי 3" }, [other.name]: other });
   expect(s["redact-profile-last"]).toEqual(myLast);
 });
 
-test("a malformed or foreign file changes nothing and gets the message of a broken profile file", async ({ page }) => {
+test("a malformed or foreign file changes nothing and gets the approved message that no case was added", async ({ page }) => {
   await H.serveEngineWithStub(page);
   await seed(page, { "redact-cases": { [PLAIN_CASE.name]: PLAIN_CASE }, "redact-profile-last": PLAIN_LAST });
   await H.boot(page);
@@ -204,10 +207,8 @@ test("a malformed or foreign file changes nothing and gets the message of a brok
     await page.reload();
     await expect(page.locator(`[data-case="${PLAIN_CASE.name}"]`)).toBeVisible({ timeout: 60000 });
     await importFile(page, { name: "cases.json", mimeType: "application/json", buffer: Buffer.from(body) });
-    const err = page.getByRole("alert").filter({ hasText: "ייבוא התיק נכשל" });
-    await expect(err, body).toBeVisible();
-    await expect(err, body).toContainText("ייצוא לקובץ");
-    await expect(err, body).not.toContainText(/Expected|position|JSON|Unexpected|undefined/);
+    const err = page.getByRole("alert").filter({ hasText: "הקובץ לא נקרא" });
+    await expect(err, body).toHaveText(BAD_CASES);
     await expect(notice(page), body).toHaveCount(0);
     expect(await store(page), body).toEqual(before);
     await expect(page.locator(`[data-case="${ACCOUNT_CASE.name}"]`), body).toHaveCount(0);
@@ -220,7 +221,7 @@ test("case names from a file are shown as text, never as markup", async ({ page 
   const name = '<img src=x onerror="window.__pwned=1">פרץ';
   await importFile(page, casesFile([profile(name, "חנה פרץ", "רות שני")]));
   await expect(page.locator("[data-case]").getByText(name, { exact: true })).toBeVisible();
-  await expect(notice(page)).toHaveCount(0);
+  await expect(notice(page)).toContainText(ADDED);
   expect(await page.evaluate(() => [window.__pwned, document.querySelectorAll("main img").length])).toEqual([undefined, 0]);
 });
 
@@ -229,7 +230,7 @@ test("the single-profile import still loads one profile, and a cases file given 
   await H.boot(page);
   await importFile(page, casesFile([ACCOUNT_CASE]), "ייבוא תיק מקובץ");
   await expect(page.locator(`[data-case="${ACCOUNT_CASE.name}"]`)).toBeVisible();
-  await expect(notice(page)).toHaveCount(0);
+  await expect(notice(page)).toContainText(ADDED);
   // a profile exported from one case («ייצוא לקובץ»): it is loaded as the case in use, as before
   const one = profile("גל נ׳ גל", "איתי גל", "עידו נר");
   await importFile(page, { name: "פרופיל-גל נ׳ גל.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(one)) }, "ייבוא תיק מקובץ");
@@ -243,7 +244,7 @@ test("with an account suffix the import adds to the account's cases only", async
   await H.boot(page);
   await importFile(page, casesFile([ACCOUNT_CASE], PLAIN_LAST));
   await expect(page.locator(`[data-case="${ACCOUNT_CASE.name}"]`)).toBeVisible();
-  await expect(notice(page)).toHaveCount(0);
+  await expect(notice(page)).toContainText(ADDED);
   expect(await store(page)).toEqual({ "redact-cases": { [PLAIN_CASE.name]: PLAIN_CASE },
     "redact-cases:acct-9": { [ACCOUNT_CASE.name]: ACCOUNT_CASE }, "redact-profile-last:acct-9": PLAIN_LAST });
   await expect(page.locator(`[data-case="${PLAIN_CASE.name}"]`)).toHaveCount(0);
@@ -270,10 +271,9 @@ const BAD_SHAPES = {
   "sent as a number": (p) => ({ ...p, sent: 3 }),
   "a name that is a number": (p) => ({ ...p, name: 12 }),
 };
-const BROKEN_FILE = "הקובץ אינו קובץ תיק, או שהוא פגום";
 const loadErr = (page) => page.getByRole("alert").filter({ hasText: "ייבוא התיק נכשל" });
 
-test("a cases file with one entry the screen cannot show is refused whole: nothing is written, and it gets the broken-profile message", async ({ page }) => {
+test("a cases file with one entry the screen cannot show is refused whole: nothing is written, and it gets the approved message that no case was added", async ({ page }) => {
   await H.serveEngineWithStub(page);
   await seed(page, { "redact-cases": { [PLAIN_CASE.name]: PLAIN_CASE }, "redact-profile-last": PLAIN_LAST });
   await H.boot(page);
@@ -286,7 +286,7 @@ test("a cases file with one entry the screen cannot show is refused whole: nothi
     await page.reload();
     await expect(page.locator(`[data-case="${PLAIN_CASE.name}"]`), what).toBeVisible({ timeout: 60000 });
     await importFile(page, file);
-    await expect(loadErr(page), what).toContainText(BROKEN_FILE);
+    await expect(page.getByRole("alert").filter({ hasText: "הקובץ לא נקרא" }), what).toHaveText(BAD_CASES);
     expect(await store(page), what).toEqual(before);
     await expect(page.locator(`[data-case="${a.name}"]`), what).toHaveCount(0);
     await expect(page.locator("[data-case]"), what).toHaveCount(1);

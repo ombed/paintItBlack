@@ -154,5 +154,27 @@ for(const [said,want] of [["פלוני ב׳ היא האם.","מיכל שרעבי
 for(const t of ["פלוני בא לדיון.","פלונית בכתה.","פלוני ב-2020 הגיש.","פלונית ב2 הגישה.","פלוני ה׳ לא בתיק הזה.","אלמוני ב׳ אמר.","פלוניב׳ אמר.","פלוני י העיד."])
   eq(lab(t),t,"not a label of this document, left alone: «"+t+"»");
 
+console.log("\n— restoreNames: what is left of the invented details in the answer —");
+// each item read back from the restored text at its own places: [pseudonym, real name or null, what stands there]
+const leftOf=r=>JSON.stringify(r.left.map(x=>[x.fake,x.real,x.at.map(([s,e])=>r.text.slice(s,e))]));
+r=C.restoreNames("אביבה ביטון היא האם, ולאלירן כהן אין התנגדות. ביטון חתמה.",SAMPLE_MAP);
+eq(leftOf(r),"[]","every pseudonym came back: nothing is left");
+r=C.restoreNames("אלירן כהן הוא האב. כהן גר בכפר סבא.",SAMPLE_MAP);
+eq(leftOf(r),JSON.stringify([["כהן","שרעבי",["כהן"]]]),"the sample's three-letter surname alone is not restored, so it is left");
+r=C.restoreNames("אביבה ביטון ופלוני א׳ הגיעו. פלוני א׳ חתם.",[["מיכל שרעבי","אביבה ביטון"],["דוד כהן","פלוני א׳"],["רות לוי","פלוני א׳"]]);
+eq(leftOf(r),JSON.stringify([["פלוני א׳",null,["פלוני א׳","פלוני א׳"]]]),
+  "a pseudonym of two people is left, with no real name, marked twice where it stands after the restore before it (prefix «ו» not marked)");
+r=C.restoreNames("הדירה של אלירן כהןים",SAMPLE_MAP);
+eq(leftOf(r),JSON.stringify([["אלירן כהן","אורן שרעבי",["אלירן כהן"]]]),"a full pseudonym glued to a suffix is left, with its real name");
+r=C.restoreNames("כהן הגיע.",[["דוד לוי","יוסי כהן"],["רות מור","דנה כהן"]]);
+eq(leftOf(r),JSON.stringify([["כהן",null,["כהן"]]]),"a surname two pseudonyms share is left, with no real name");
+r=C.restoreNames("לוי הגישה, וללוי יש בקשה. מיכל לוי חתמה.",[["רונית כץ","מיכל לוי"]]);
+eq(r.text,"לוי הגישה, וללוי יש בקשה. רונית כץ חתמה.","a three-letter surname alone is not restored");
+eq(leftOf(r),JSON.stringify([["לוי","כץ",["לוי","לוי"]]]),"and it is left twice, with its real part; the prefix «ול» is not marked");
+r=C.restoreNames("לאור האמור, הבקשה נדחית.",[["דוד לוי","אור ברנע"]]);
+eq(leftOf(r),"[]","a part that is also a word («לאור») is not counted as left, as it is not restored");
+r=C.restoreNames("כהן אמר שפלוני א׳ חתם.",[["דוד לוי","יוסי כהן"],["רות מור","דנה כהן"],["אבי רז","פלוני א׳"],["גיל טל","פלוני א׳"]]);
+eq(r.left.map(x=>x.fake).join("|"),"כהן|פלוני א׳","the items are in the order they appear in the answer");
+
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail?1:0);

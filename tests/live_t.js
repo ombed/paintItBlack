@@ -55,7 +55,7 @@ const fileErr = doc.querySelector("[data-file-err]");
 ok(rvErr && rvErr.getAttribute("key") === "{{ rvKey }}", "the restore's alert is keyed by the press (rvKey)");
 ok(rvHead && rvHead.getAttribute("key") === "{{ rvKey }}", "the restore's heading is keyed by the press (rvKey)");
 ok(fileErr && fileErr.getAttribute("key") === "{{ fileErrKey }}", "the refused file's alert is keyed by the refusal (fileErrKey)");
-ok(/onRvGo:\(\)=>\{ this\._rvN=\(this\._rvN\|\|0\)\+1;/.test(app), "each press of «החזרת שמות» counts");
+ok(/onRvGo:this\.rvGo,/.test(app) && /rvGo = \(\) => \{\s*const S=this\.state, E=S\.E; this\._rvN=\(this\._rvN\|\|0\)\+1;/.test(app), "each press of «החזרת שמות» counts");
 ok((app.split("\n").find((l) => l.includes("const bad=(m,code)=>")) || "").includes("this._fileErrN=(this._fileErrN||0)+1;"), "each refused file counts");
 ok(/rvKey:"rv"\+\(this\._rvN\|\|0\)/.test(app) && /fileErrKey:"fe"\+\(this\._fileErrN\|\|0\)/.test(app), "the keys are made of the counts");
 

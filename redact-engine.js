@@ -3390,12 +3390,15 @@ function restoreNames(txt,pairs){
   }
   for(const k of conflict)seen.delete(k);
   // התאמות חלקיות: "מיכל ברנע" → ה-AI כותב "ברנע". רק כשחלק השם ייחודי.
-  const partial=new Map(), bad=new Set();
+  // reals: כל החלקים האמיתיים של כל חלק בדוי, גם של חלק שלא יוחזר, בשביל מה שנשאר בתשובה (leftOver)
+  const partial=new Map(), bad=new Set(), reals=new Map();
   for(const [pseudo,real] of seen){
     const pw=pseudo.split(/\s+/), rw=real.split(/\s+/);
     if(pw.length!==2||rw.length!==2)continue;
     for(const i of [0,1]){
       const k=pw[i];
+      if(!reals.has(k))reals.set(k,new Set());
+      reals.get(k).add(rw[i]);
       if(seen.has(k)||k.length<4||WORDLIKE.has(k)){bad.add(k);continue}
       if(partial.has(k)&&partial.get(k)!==rw[i])bad.add(k);
       else partial.set(k,rw[i]);
@@ -3431,12 +3434,46 @@ function restoreNames(txt,pairs){
   // שם מלא שנמצא בטקסט ולא נלקח — דבוק לאותיות שאינן אותיות שימוש, או עם סיומת — שומר על החלקים שלו
   for(const [,pseudo] of pairs){
     const p=typeof pseudo==="string"?pseudo.trim():"";
-    if(/\s/.test(p))for(const m of txt.matchAll(new RegExp(pseudoPat(p),"gu")))held.push([m.index,m.index+m[0].length]);
+    if(/\s/.test(p))for(const m of txt.matchAll(new RegExp(pseudoPat(p),"gu")))held.push([m.index,m.index+m[0].length,p]);
   }
   for(const [pseudo,real] of longFirst(partial))n+=run(pseudoRX(pseudo),back(real),held);
   let out="",at=0;
   for(const [s,e,t] of took.sort((a,b)=>a[0]-b[0])){out+=txt.slice(at,s)+t;at=e}
-  return {text:out+txt.slice(at),count:n,missing,conflict:[...conflict]};
+  const left=leftOver(txt,took,{conflict,held,bad,reals,seen});
+  return {text:out+txt.slice(at),count:n,missing,conflict:[...conflict],left};
+}
+/* מה שנשאר בתשובה מהפרטים הבדויים שהכלי נתן ולא הוחזר, כדי שמסך ההחזרה יסמן אותו ויאמר מה לתקן ביד
+   (החזרת שמות, 7.10.2026): כינוי של יותר מאדם אחד; שם מלא דבוק לאותיות שאינן אותיות שימוש ("אלירן כהןים");
+   וחלק של שם שלא חוזר לבדו, כי הוא משותף לכמה אנשים או קצר מ-4 אותיות. מילה שהיא גם שם (WORDLIKE) אינה
+   נספרת, כמו שהיא אינה מוחזרת לבדה: "לאור האמור" אינו "אור" שנשאר. תאריך בדוי של שני ימים אמיתיים בכתיב
+   אחר (restoreNames) אינו נספר: אין לדעת לאיזה מהם. כל פריט: הכינוי, הערך האמיתי (null כשהוא של יותר
+   מאדם אחד) והמקומות שלו בטקסט שחוזר, לפי הסדר שבו הוא מופיע. tests/t.js */
+function leftOver(txt,took,{conflict,held,bad,reals,seen}){
+  const marked=[], left=[];
+  const hit=(s,e)=>took.some(t=>t[0]<e&&s<t[1])||marked.some(t=>t[0]<e&&s<t[1]);
+  const add=(fake,real,s,e,from)=>{
+    if(hit(from,e))return;
+    marked.push([s,e]);
+    let it=left.find(x=>x.fake===fake);
+    if(!it)left.push(it={fake,real,at:[]});
+    it.at.push([s,e]);
+  };
+  // אותיות השימוש שלפני הכינוי אינן חלק ממנו: הן לא מסומנות
+  const each=(p,real)=>{for(const m of txt.matchAll(pseudoRX(p))){
+    const pre=(m[1]||"").length+(typeof m[2]==="string"?m[2].length:0);
+    add(p,real,m.index+pre,m.index+m[0].length,m.index);
+  }};
+  for(const p of conflict)each(p,null);
+  for(const [s,e,p] of held)add(p,seen.has(p)?seen.get(p):null,s,e,s);
+  for(const k of bad){
+    if(seen.has(k)||WORDLIKE.has(k))continue;
+    const rs=reals.get(k);
+    each(k,rs&&rs.size===1?[...rs][0]:null);
+  }
+  // המקומות בטקסט שחוזר: כל החזרה שלפני הפריט מזיזה אותו בהפרש האורכים (פריט לעולם אינו בתוך החזרה)
+  const shift=p=>took.reduce((d,[s,e,t])=>e<=p?d+t.length-(e-s):d,0);
+  for(const it of left)it.at=it.at.sort((a,b)=>a[0]-b[0]).map(([s,e])=>[s+shift(s),e+shift(s)]);
+  return left.sort((a,b)=>a.at[0][0]-b.at[0][0]);
 }
 /* זוגות ההחזרה במסך ההחזרה: המסמך שבעבודה קודם, והתיק משלים שמות ממסמכים קודמים.
    תווית ("פלוני א׳", "[ת"ז א׳]") נספרת מחדש בכל מסמך, ולכן אותה תווית יכולה להיות של

@@ -104,7 +104,11 @@ async function disturb(page, label, opts = {}) {
     const word = page.locator("[data-work] section p, main p, main h1, main h2").filter({ hasText: /[א-ת]{3}/ }).first();
     if (await word.isVisible().catch(() => false)) {
       const box = await word.boundingBox();
-      if (box && box.y > 0 && box.y < vp.height) {
+      // a word under something laid over it (the tour's card, which rises to the top when it would cover its
+      // target) is not one a person can double-click: the press would land on what covers it
+      const reachable = box && await word.evaluate((el, p) => { const at = document.elementFromPoint(p.x, p.y); return !!at && el.contains(at); },
+        { x: box.x + Math.min(20, box.width / 2), y: box.y + Math.min(8, box.height / 2) });
+      if (box && reachable && box.y > 0 && box.y < vp.height) {
         await page.mouse.dblclick(box.x + Math.min(20, box.width / 2), box.y + Math.min(8, box.height / 2));
         await checked(page, label, "double-click on a word");
       }

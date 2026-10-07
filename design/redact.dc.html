@@ -130,6 +130,10 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
   [data-bar]>div{flex-wrap:wrap;gap:10px}
   [data-bar-text]{flex:1 1 200px!important}
   [data-bar] button{flex:1 1 auto;padding:8px 10px!important;font-size:12.5px!important}
+  /* השלב השלישי, כשהוא כפתור, נשאר שלב בשורת השלבים ולא נמתח לכפתור רחב */
+  [data-bar] [data-steps] button{flex:none;padding:3px 8px!important;font-size:inherit!important}
+  /* כלי ה־AI ושורת הזהירות: בטלפון רק אחרי ההעתקה, כשמחפשים אותם; לפני כן הסרגל כבר תופס רבע מהמסך */
+  [data-ai][data-ai-later]{display:none!important}
   [data-bar]{padding:6px 12px!important}
   [data-steps]{flex:1 1 100%;justify-content:center}
   /* מסך של 320px (וזום של 400%): שורת השלבים בתחתית עוטפת כשאין לה מקום, והחיצים המצוירים, רחבים מה-›
@@ -263,7 +267,7 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
   </sc-if>
   <div role="status" aria-live="polite"><!-- ההודעה נאמרת: אזור המצב כבר בדף כשהיא מגיעה, ולא עולה איתה (הביקורת של 6.10) --><sc-if value="{{ notice }}">
     <div data-notice style="position:fixed;bottom:calc(var(--bar-h, 64px) + 14px);left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);font-size:13px;color:var(--ink)">
-      <span>{{ notice }}</span>
+      <span>{{ notice }}<sc-if value="{{ noticeNew }}"><a data-whats-new href="https://inkognito.co.il/changes" target="_blank" rel="noopener" style="margin-inline-start:5px;color:var(--accent-ink);font-weight:500;text-underline-offset:2px">מה חדש</a></sc-if></span>
       <sc-if value="{{ noticeUndo }}"><button onClick="{{ onNoticeUndo }}" style="padding:4px 10px;border-radius:9px;border:1px solid var(--line);font-size:12.5px;font-weight:500">ביטול <svg class="ic" data-icon="undo" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg></button></sc-if>
       <button onClick="{{ onNoticeClose }}" aria-label="סגירה" style="width:22px;height:22px;border-radius:50%;color:var(--ink3);display:grid;place-items:center"><svg class="ic" data-icon="x" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="m7 7 10 10"/></svg></button>
     </div>
@@ -276,7 +280,13 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
       <h1 style="font-size:29px;font-weight:500;letter-spacing:-.02em;margin:0 0 6px;flex:1;min-width:0">להיעזר ב־AI בלי לחשוף את הלקוח</h1>
       <button data-tour-start onClick="{{ onTourStart }}" title="סיור קצר על מסמך בדוי שמובנה בכלי — שום דבר ממנו לא נשמר" style="font-size:13px;color:var(--ink2);padding:8px 13px;border-radius:9px;border:1px solid var(--line);background:var(--panel);white-space:nowrap;margin-top:6px" style-hover="background:var(--panel2);color:var(--ink)">סיור על מסמך לדוגמה</button>
     </div>
-    <p style="margin:0 0 26px;color:var(--ink2);font-size:14.5px;max-width:62ch">אינקוגניטו מחליף במסמך שמות ופרטים מזהים בשמות ובפרטים בדויים לפני שמדביקים אותו ב־ChatGPT או בכלי AI אחר, ומחזיר את השמות האמיתיים לתשובה.</p>
+    <p style="margin:0 0 14px;color:var(--ink2);font-size:14.5px;max-width:62ch">אינקוגניטו מחליף במסמך שמות ופרטים מזהים בשמות ובפרטים בדויים לפני שמדביקים אותו ב־ChatGPT או בכלי AI אחר, ומחזיר את השמות האמיתיים לתשובה.</p>
+    <!-- שלושת השלבים, באותן מילים כמו בסרגל התחתון ובעמוד הבית (הנוסח שאושר, 7.10.2026); בטלפון זה מעל זה -->
+    <ol data-first-steps data-stack style="list-style:none;margin:0 0 24px;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      <li style="display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.55;color:var(--ink2)"><span style="width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center;font-size:11.5px;font-weight:500;flex:none;margin-top:1px">1</span><span><b style="font-weight:500;color:var(--ink)">החלפת שמות:</b> בוחרים קובץ Word או PDF, או מדביקים טקסט, ועוברים על השמות שנמצאו.</span></li>
+      <li style="display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.55;color:var(--ink2)"><span style="width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center;font-size:11.5px;font-weight:500;flex:none;margin-top:1px">2</span><span><b style="font-weight:500;color:var(--ink)">העתקה או הורדה:</b> מעתיקים את הטקסט עם השמות הבדויים ומדביקים אותו ב־ChatGPT או בכלי AI אחר, או מורידים אותו כקובץ Word.</span></li>
+      <li style="display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.55;color:var(--ink2)"><span style="width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center;font-size:11.5px;font-weight:500;flex:none;margin-top:1px">3</span><span><b style="font-weight:500;color:var(--ink)">החזרת שמות:</b> מדביקים את התשובה ב«החזרת שמות מתשובת AI», והשמות האמיתיים חוזרים אליה.</span></li>
+    </ol>
 
     <div data-stack style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch">
       <button data-tour-target="upload" aria-describedby="{{ fileErrRef }}" onClick="{{ onPick }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDropFile }}" style="{{ dropStyle }}">
@@ -366,7 +376,8 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
       </div>
     </sc-if>
     <!-- כל התיקים מקובץ אחד (importCases): הקובץ שירד בכתובת הישנה, גם כשאין עדיין אף תיק שמור -->
-    <div style="margin-top:12px"><button data-import-cases onClick="{{ onImportCases }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel);font-size:12.5px;font-weight:500;color:var(--ink)" style-hover="background:var(--panel2)">ייבוא תיקים מקובץ</button></div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button data-import-cases onClick="{{ onImportCases }}" style="padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel);font-size:12.5px;font-weight:500;color:var(--ink)" style-hover="background:var(--panel2)">ייבוא תיקים מקובץ</button>
+      <sc-if value="{{ casesHere }}"><button data-clear-cases onClick="{{ onClearCases }}" style="padding:7px 12px;border-radius:9px;font-size:12.5px;color:var(--ink2)" style-hover="background:var(--panel2);color:var(--bad)">ניקוי התיקים מהמחשב</button></sc-if></div>
 
     <!-- ההגדרות מאחורי כותרת שנפתחת (UX #3): ברירות המחדל טובות, והמסך נקרא כמו "להגדיר קודם".
          במחשב פתוח — יש מקום; בטלפון סגור, שם העמוד היה באורך 1,744 פיקסלים. -->
@@ -692,21 +703,47 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
   <main style="max-width:760px;margin:0 auto;padding:38px 22px 70px;animation:rise .3s ease">
     <h1 style="font-size:26px;font-weight:500;letter-spacing:-.02em;margin:0 0 6px">החזרת שמות מתשובת AI</h1>
     <p style="margin:0 0 14px;color:var(--ink2);font-size:14px;max-width:68ch">השלב האחרון: מדביקים כאן את התשובה שקיבלתם מה־AI, והשמות הבדויים שבה מתחלפים בחזרה בשמות האמיתיים. הכול נשאר במחשב הזה.</p>
-    <div style="{{ rvCtxStyle }}">
-      <b style="display:block;font-weight:500;margin-bottom:2px">{{ rvCtxTitle }}</b>
-      <span style="color:var(--ink2)">{{ rvCtxText }}</span>
-    </div>
-    <textarea dir="auto" value="{{ rvIn }}" onChange="{{ onRvIn }}" rows="8" aria-label="תשובת ה-AI" placeholder="הדבקת תשובת ה-AI…" aria-describedby="rv-help" style="width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;font:14px/1.7 Rubik,sans-serif;resize:vertical"></textarea>
-    <small id="rv-help" style="display:block;margin-top:5px;font-size:12px;color:var(--ink3)">מדביקים כאן את מה שה-AI החזיר (Ctrl+V), ולוחצים «החזרת שמות».</small>
-    <div style="display:flex;gap:9px;margin-top:12px;flex-wrap:wrap">
-      <button onClick="{{ onRvGo }}" disabled="{{ rvEmpty }}" style="{{ rvGoStyle }}">החזרת שמות</button>
-      <button onClick="{{ onLoadProf }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">ייבוא תיק מקובץ</button>
+    <!-- אחרי רענון או בלשונית חדשה אין מסמך ואין תיק: המסך שואל אם להחזיר לפי התיק האחרון, ולא מניח (rvLastOffer) -->
+    <sc-if value="{{ rvLastOn }}">
+      <div data-rv-last role="group" aria-labelledby="rv-last-q" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 15px;border-radius:11px;font-size:13px;margin-bottom:16px;border:1px solid var(--line);background:var(--accent-soft)">
+        <div style="flex:1 1 240px;min-width:0">
+          <b id="rv-last-q" style="display:block;font-weight:500;margin-bottom:2px">{{ rvLastTitle }}</b>
+          <span style="color:var(--ink2)">{{ rvLastMeta }}</span>
+        </div>
+        <button onClick="{{ onRvLastOther }}" style="font-size:13px;color:var(--ink2);padding:8px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel);white-space:nowrap" style-hover="background:var(--panel2)">תיק אחר</button>
+        <button onClick="{{ onRvLastUse }}" style="padding:8px 14px;border-radius:9px;background:var(--accent);color:var(--panel);font-size:13px;font-weight:600;letter-spacing:.01em;white-space:nowrap">{{ rvLastUseLabel }}</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ rvCtxOn }}">
+      <div style="{{ rvCtxStyle }}">
+        <b style="display:block;font-weight:500;margin-bottom:2px">{{ rvCtxTitle }}</b>
+        <span style="color:var(--ink2)">{{ rvCtxText }}</span>
+      </div>
+    </sc-if>
+    <sc-if value="{{ rvTour }}"><p data-rv-tour style="margin:0 0 8px;font-size:13px;color:var(--ink2)">תשובה לדוגמה, כאילו חזרה מ־AI. בעבודה רגילה מדביקים כאן את התשובה שקיבלתם.</p></sc-if>
+    <div data-tour-target="restore">
+      <textarea dir="auto" value="{{ rvIn }}" onChange="{{ onRvIn }}" rows="8" aria-label="תשובת ה-AI" placeholder="הדבקת תשובת ה-AI…" aria-describedby="rv-help" style="width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;font:14px/1.7 Rubik,sans-serif;resize:vertical"></textarea>
+      <small id="rv-help" style="display:block;margin-top:5px;font-size:12px;color:var(--ink3)">מדביקים כאן את מה שה-AI החזיר (Ctrl+V), ולוחצים «החזרת שמות».</small>
+      <div style="display:flex;gap:9px;margin-top:12px;flex-wrap:wrap">
+        <button data-rv-go onClick="{{ onRvGo }}" disabled="{{ rvEmpty }}" style="{{ rvGoStyle }}">החזרת שמות</button>
+        <sc-if value="{{ rvImportOn }}"><button onClick="{{ onLoadProf }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">ייבוא תיק מקובץ</button></sc-if>
+      </div>
     </div>
     <sc-if value="{{ rvErr }}"><div role="alert" key="{{ rvKey }}" style="margin-top:10px;padding:10px 13px;border-radius:10px;background:var(--bad-soft);color:var(--bad);font-size:13.5px">{{ rvErr }}</div></sc-if>
-    <div role="status"><sc-if value="{{ rvOut }}"><h2 data-rv-result key="{{ rvKey }}" style="margin:24px 0 8px;font-size:16px;font-weight:500">{{ rvHead }}</h2></sc-if></div><!-- השגיאה והתוצאה נאמרות לקורא מסך: אזור המצב כבר במסך כשהתוצאה מגיעה (בדיקה חיה, 6.10), וכל החזרה מעלה אותן כאלמנט חדש (rvKey), כך שגם תוצאה או שגיאה זהות לקודמות נאמרות שוב (הביקורת של 6.10) -->
+    <!-- מה שנשאר בתשובה מהפרטים הבדויים (leftOver במנוע) נאמר עם התוצאה, באותו אזור מצב: לפני שמעתיקים אותה -->
+    <div role="status"><sc-if value="{{ rvOut }}"><h2 data-rv-result key="{{ rvKey }}" style="margin:24px 0 8px;font-size:16px;font-weight:500">{{ rvHead }}</h2>
+      <sc-if value="{{ rvLeftOn }}"><div data-rv-left key="{{ rvKey }}" style="margin:0 0 10px;padding:11px 14px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:13px;line-height:1.6">
+        <b style="display:block;font-weight:600">{{ rvLeftHead }}</b>
+        <span>הם מסומנים בתשובה. כדאי לתקן אותם ביד לפני שמשתמשים בה.</span>
+        <ul style="margin:6px 0 0;padding-inline-start:18px;color:var(--ink)"><sc-for list="{{ rvLeftItems }}" as="x" hint-placeholder-count="2"><li>{{ x.t }}</li></sc-for></ul>
+      </div></sc-if>
+      <sc-if value="{{ rvLeftNone }}"><p data-rv-left-none key="{{ rvKey }}" style="margin:0 0 10px;font-size:13px;color:var(--ink2)">לא נמצא בתשובה פרט בדוי שלא הוחזר.</p></sc-if></sc-if></div><!-- השגיאה והתוצאה נאמרות לקורא מסך: אזור המצב כבר במסך כשהתוצאה מגיעה (בדיקה חיה, 6.10), וכל החזרה מעלה אותן כאלמנט חדש (rvKey), כך שגם תוצאה או שגיאה זהות לקודמות נאמרות שוב (הביקורת של 6.10) -->
     <sc-if value="{{ rvOut }}">
-      <div data-rv-out dir="rtl" style="background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;font:15px/1.9 'Noto Serif Hebrew',serif;white-space:pre-wrap;unicode-bidi:plaintext;text-align:start">{{ rvOut }}</div><!-- כל פסקה בכיוון של האות הראשונה שלה, כמו בתיבת ההדבקה; dir="auto" נתן לתשובה כולה כיוון אחד (בדיקה חיה, 6.10) -->
-      <button onClick="{{ onRvCopy }}" style="{{ rvCopyStyle }};margin-top:11px">{{ rvCopyLabel }}</button>
+      <div data-rv-out dir="rtl" style="background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;font:15px/1.9 'Noto Serif Hebrew',serif;white-space:pre-wrap;unicode-bidi:plaintext;text-align:start"><sc-for list="{{ rvSegs }}" as="sg" hint-placeholder-count="3"><sc-if value="{{ sg.plain }}"><span>{{ sg.t }}</span></sc-if><sc-if value="{{ sg.mark }}"><mark data-left title="{{ sg.title }}" style="background:var(--warn-soft);color:inherit;border-bottom:2px dashed var(--warn);border-radius:3px;padding:0 1px">{{ sg.t }}</mark></sc-if></sc-for></div><!-- כל פסקה בכיוון של האות הראשונה שלה, כמו בתיבת ההדבקה; dir="auto" נתן לתשובה כולה כיוון אחד (בדיקה חיה, 6.10) -->
+      <div style="display:flex;gap:9px;margin-top:11px;flex-wrap:wrap">
+        <button onClick="{{ onRvCopy }}" style="{{ rvCopyStyle }}">{{ rvCopyLabel }}</button>
+        <sc-if value="{{ rvBackOn }}"><button data-rv-back onClick="{{ onBack }}" style="padding:12px 18px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">חזרה למסמך</button></sc-if>
+      </div>
     </sc-if>
   </main>
   </sc-if>
@@ -1036,10 +1073,15 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
       <div data-steps style="display:flex;gap:6px;align-items:center;font-size:11.5px;white-space:nowrap" title="שלושת השלבים: החלפת שמות, העתקה או הורדה, והחזרת השמות לתשובה">
         <span data-step="1" style="{{ step1Style }}">1 החלפת שמות <svg class="ic" data-icon="check" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span class="vh">✓</span></span><span style="color:var(--ink3)"><svg class="ic" data-icon="chevron-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></span>
         <span data-step="2" style="{{ step2Style }}">2 העתקה או הורדה<sc-if value="{{ step2Done }}"> <svg class="ic" data-icon="check" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span class="vh">✓</span></sc-if></span><span style="color:var(--ink3)"><svg class="ic" data-icon="chevron-left" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></span>
-        <span data-step="3" style="{{ step3Style }}">3 החזרת שמות</span>
+        <sc-if value="{{ step3Btn }}"><button data-step="3" onClick="{{ onReverse }}" title="מעבר למסך שבו מדביקים את תשובת ה־AI" style="{{ step3Style }}" style-hover="background:var(--accent);color:var(--panel)">3 החזרת שמות</button></sc-if><sc-if value="{{ step3Plain }}"><span data-step="3" style="{{ step3Style }}">3 החזרת שמות</span></sc-if>
       </div>
       <button data-tour-target="copy" onClick="{{ onCopyAi }}" title="מעתיק את הטקסט עם השמות הבדויים. מדביקים אותו בכלי ה־AI, ואת התשובה מדביקים ב«החזרת שמות מתשובת AI» למעלה, והשמות האמיתיים חוזרים." style="{{ copyBtnStyle }}">{{ copyLabel }}</button>
       <button onClick="{{ onDownload }}" title="קובץ Word עם השמות הבדויים, בשם כללי עם תאריך ולא בשם הקובץ המקורי" style="padding:11px 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap" style-hover="background:var(--panel2)">הורדת Word</button>
+    </div>
+    <!-- כלי ה־AI המוכרים בלשונית חדשה, בלי טקסט ממולא, ושורת זהירות אחת לידם (הנוסח שאושר, 7.10.2026) -->
+    <div data-ai data-ai-later="{{ aiLater }}" style="max-width:1520px;margin:6px auto 0;display:flex;align-items:baseline;justify-content:flex-end;gap:3px 14px;flex-wrap:wrap;font-size:12px;color:var(--ink3)">
+      <span role="group" aria-label="פתיחת כלי AI בלשונית חדשה" style="display:flex;gap:6px;flex-wrap:wrap;white-space:nowrap"><a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" title="נפתח בלשונית חדשה" style="color:var(--ink2);text-decoration:underline;text-underline-offset:2px">ChatGPT</a><span aria-hidden="true">·</span><a href="https://claude.ai/" target="_blank" rel="noopener noreferrer" title="נפתח בלשונית חדשה" style="color:var(--ink2);text-decoration:underline;text-underline-offset:2px">Claude</a><span aria-hidden="true">·</span><a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer" title="נפתח בלשונית חדשה" style="color:var(--ink2);text-decoration:underline;text-underline-offset:2px">Gemini</a><span aria-hidden="true">·</span><a href="https://copilot.microsoft.com/" target="_blank" rel="noopener noreferrer" title="נפתח בלשונית חדשה" style="color:var(--ink2);text-decoration:underline;text-underline-offset:2px">Copilot</a></span>
+      <span data-ai-safety>בחשבון אישי, השיחות עשויות לשמש לאימון ה־AI, אלא אם מכבים את זה. <a href="https://inkognito.co.il/#training" target="_blank" rel="noopener" style="color:var(--ink2);text-decoration:underline;text-underline-offset:2px">איך מכבים</a></span>
     </div>
   </div>
 
@@ -1143,7 +1185,7 @@ class Component extends DCLogic {
     sel:null, filter:"all", cat:"", open:null, pane:"doc", hot:null,
     addV:"", addR:"", addK:"NAME",
 
-    rvIn:"", rvOut:"", rvCopyLabel:"העתקת הטקסט המשוחזר",
+    rvIn:"", rvOut:"", rvLeft:[], rvLast:null, rvCopyLabel:"העתקת הטקסט המשוחזר",
     copyLabel:"העתקה ל־AI", busyT:"מעבד…", err:"",
     geo:null, geoV:0, geoNames:[], geoExtra:[], geoEdits:{}, popup:null, tip:null, repDraft:"", sent:{}, peoKept:[], peoNotSame:[], inline:null, inlineDraft:"",
     // הפרופיל של התיק נשמר בדפדפן אחרי כל שינוי; lastProfile הוא מה שנמצא בכניסה
@@ -1163,10 +1205,14 @@ class Component extends DCLogic {
     this.applyTheme(th);
     if(!chosen){ try{ const mq=matchMedia("(prefers-color-scheme:dark)"); mq.addEventListener("change", e=>{ let c=null; try{ c=localStorage.getItem("redact-theme"); }catch(_){}
       if(!c){ const t=e.matches?"dark":"light"; this.applyTheme(t); this.setState({theme:t}); } }); }catch(_){} }
-    // הסיור מוצע פעם אחת לכל גרסה: המפתח נושא את מספר הגרסה, ו-"*" (מהבדיקות) מכסה את כולן
-    let seen=false; try{ const t=localStorage.getItem("redact-tour-seen"); seen = localStorage.getItem("redact-intro-seen")==="1" && (t==="*"||t===this.ver()); }catch(_){}
+    /* «לפני שמתחילים» נפתח פעם אחת (Q33, 6.10.2026); עד כאן הוא חזר אחרי כל עדכון. אחרי עדכון באה במקומו שורה
+       אחת, «אינקוגניטו עודכן. מה חדש», פעם אחת לכל גרסה, עם קישור לעמוד השינויים באתר. המפתח נושא את מספר הגרסה
+       האחרונה שנראתה, ו-"*" (מהבדיקות) מכסה את כולן. e2e/restore-ux.spec.js */
+    let seen=false, updated=false;
+    try{ const t=localStorage.getItem("redact-tour-seen"); seen=localStorage.getItem("redact-intro-seen")==="1";
+      updated=seen&&t!=="*"&&t!==this.ver(); if(updated) localStorage.setItem("redact-tour-seen", this.ver()); }catch(_){}
     const lastProfile=this.readLast();
-    this.setState({theme:th, intro:!seen, lastProfile, cases:this.readCases()});
+    this.setState({theme:th, intro:!seen, lastProfile, cases:this.readCases(), ...(updated?{notice:this.constructor.WHATS_NEW, noticeUndo:false}:{})});
     // יומן הסשן (PLAN-v18 Q16): זמנים ואירועים בלי טקסט, בדפדפן בלבד, מיוצא בכפתור ליד דוח הדליפה
     const ver=((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"");
     this.log=window.PL?window.PL.sessionLog(ver):{add(){},export(){return "{}"}};
@@ -1253,6 +1299,9 @@ class Component extends DCLogic {
       return e.returnValue;
     };
     this._pop = () => {
+      // מסך ההחזרה (componentDidUpdate): "אחורה" חוזר ממנו למסך שממנו הגיעו, בלי שאלה; ורשומה שהכפתור שבדף הוציא אינה יציאה
+      if(this._rvSkip){ this._rvSkip=false; return; }
+      if(this._rvHist&&this.state.screen==="reverse"){ this._rvPopped=true; this.goBack(); return; }
       if(!(this._hist && this.state.buf && !this.state.tour)) return;
       if(confirm("לצאת מהמסמך? המסמך וההחלטות שקיבלתם לגביו יאבדו. התיק נשאר שמור בדפדפן.")){
         this._hist=false; this._leaving=true; this.log.add("leave",{how:"back"});
@@ -1339,6 +1388,12 @@ class Component extends DCLogic {
     // רשומת היסטוריה אחת לכל מסמך (H5): "אחורה" חוזר אליה ולא יוצא מהאתר
     if(this.state.buf&&!this.state.tour&&!this._hist){ this._hist=true; this._leaving=false; try{ history.pushState({pib:1}, ""); }catch(_){} }
     else if(!this.state.buf&&this._hist) this._hist=false;
+    /* ומסך ההחזרה רשומה משלו (החזרת שמות, 7.10.2026): "אחורה" בדפדפן חזר עד כאן אל השאלה "לצאת מהמסמך?",
+       כשמה שרצו היה לחזור מהתשובה אל המסמך. כניסה למסך דוחפת רשומה, "אחורה" חוזר ממנו (_pop), ויציאה בכפתור
+       שבדף מוציאה את הרשומה, כך ש"אחורה" הבא לא חוזר למסך שנסגר. לא בסיור. e2e/restore-ux.spec.js */
+    const rv=this.state.screen==="reverse"&&!this.state.tour;
+    if(rv&&!this._rvHist){ this._rvHist=true; try{ history.pushState({pib:"rv"}, ""); }catch(_){} }
+    else if(!rv&&this._rvHist){ this._rvHist=false; if(!this._rvPopped){ this._rvSkip=true; try{ history.back(); }catch(_){ this._rvSkip=false; } } this._rvPopped=false; }
     // "לפני שמתחילים" מקבל פוקוס כשהוא נפתח, כך שהמקלדת מתחילה בתוכו (ביקורת QA 003)
     if(this.state.intro&&!this.state.tour&&!this._introFocused){
       const b=document.querySelector("[data-intro] button"); if(b){ b.focus(); this._introFocused=true; }
@@ -1451,7 +1506,7 @@ class Component extends DCLogic {
       res:null, sel:null, hot:null, query:"", cat:"", filter:"all", addV:"", addR:"", addK:"NAME", inline:null, inlineDraft:"", popup:null, tip:null,
       repDraft:"", approved:[], formSel:null, markIdx:0, docView:"red", exportAsk:"", notice:"", leaks:[], copied:false, copyLabel:"העתקה ל־AI", undoN:0, redoN:0,
       // החזרת שמות
-      rvIn:"", rvOut:"", rvCount:0,
+      rvIn:"", rvOut:"", rvCount:0, rvLeft:[], rvLast:null,
       // מה שהתיק שומר (profileObj)
       rules:[], allow:[], removed:[], sent:{}};
     if(keepCase&&(S.profile||S.caseName)) for(const k of ["rules","allow","removed","sent"]) delete reset[k];
@@ -2796,9 +2851,9 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      redact-intro-seen, redact-tour-seen) נשארים משותפים. tests/casekey_t.js, e2e/case-store.spec.js */
   caseKey(k){ const s=window.__inkStoreSuffix; return s===undefined||s===null||s===""?k:k+":"+s; }
   /* מחיקת כל התיקים השמורים במחשב הזה, של כל חשבון: שני המפתחות עצמם, וכל מפתח שהוא אחד מהם ואחריו ":".
-     זה המקום היחיד שלא עובר דרך caseKey, כי הוא לא של חשבון אחד. אף כפתור לא קורא לה עדיין: מחיקת המודל
-     (modelForget) מחקה איתה את כל התיקים, בלי שאלה ובמילים שמדברות רק על המודל (הביקורת העצמאית, 6.10).
-     היא תקבל כפתור משלה, במילים שאושרו ועם שאלה לפני המחיקה. tests/casekey_t.js */
+     זה המקום היחיד שלא עובר דרך caseKey, כי הוא לא של חשבון אחד. מחיקת המודל (modelForget) מחקה איתה את כל
+     התיקים, בלי שאלה ובמילים שמדברות רק על המודל (הביקורת העצמאית, 6.10); עכשיו היא של «ניקוי התיקים מהמחשב»
+     בלבד (clearCases), במילים שאושרו ואחרי שאלה. tests/casekey_t.js */
   static CASE_KEYS=["redact-cases","redact-profile-last"];
   forgetCases(){
     try{
@@ -2906,11 +2961,27 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      text:"קו מלא — הוחלף. קו מקווקו עם ? — מחכה לכם. סמל המחק — נמחק. עכשיו: לחצו על מילה מסומנת, ותיפתח עריכה במקום."},
     {screen:"work", title:"שמירה", next:"המשך", open:"profile", target:"[data-tour-target=case]",
      text:"עם שם תיק, אותו אדם מקבל אותו שם בדוי גם במסמך הבא. עכשיו: הקלידו שם תיק בשדה המסומן."},
-    {screen:"work", title:"העתקה ל־AI, ובחזרה", next:"המשך", target:"[data-tour-target=copy]",
-     text:"הכפתור המסומן מעתיק את הטקסט המושחר ל-AI. כשהתשובה חוזרת: «החזרת שמות מתשובת AI» למעלה מחזיר את השמות."},
-    {screen:"work", title:"זהו", next:"סיום",
-     text:"זהו. המסמך הבדוי נמחק עכשיו ושום דבר ממנו לא נשמר. עכשיו: לחצו «סיום» והעלו תיק אמיתי."},
+    {screen:"work", title:"העתקה ל־AI", next:"המשך", target:"[data-tour-target=copy]",
+     text:"הכפתור המסומן מעתיק את הטקסט עם השמות הבדויים, להדבקה ב־AI. בסיור לא מעתיקים: לחצו «המשך», ונראה מה קורה כשהתשובה חוזרת."},
+    // מסך ההחזרה, עם תשובה לדוגמה בתיבה (tourAnswer); restore: ההחזרה עצמה מעבירה לצעד הבא (rvGo)
+    {screen:"reverse", title:"החזרת שמות", next:"החזרת שמות", target:"[data-tour-target=restore]", restore:true,
+     text:"כאן מדביקים את התשובה שחזרה מה־AI. בתיבה כבר יש תשובה לדוגמה, עם השמות הבדויים מהמסמך. עכשיו: לחצו «החזרת שמות»."},
+    {screen:"reverse", title:"סוף הסיור", next:"סיום", target:"[data-rv-out]",
+     text:"השמות מהמסמך חזרו לתשובה. בלחיצה על «סיום» המסמך לדוגמה יימחק, ושום דבר ממנו לא יישמר. אחר כך אפשר לבחור מסמך אמיתי."},
   ];
+  /* התשובה לדוגמה בצעד ההחזרה של הסיור (הנוסח שאושר, 7.10.2026): בכל מקום של שם, יישוב או תאריך — מה שהכלי נתן
+     בריצה הזאת, כך ש«החזרת שמות» מחזירה את השמות, היישובים והתאריך של המסמך לדוגמה. שמות מלאים בלבד, כך שההחזרה
+     תמיד מצליחה; ערך שלא הוחלף (שם שהוצא מהרשימה) נשאר כמו שהוא. */
+  tourAnswer(){
+    const m=this.currentMap(), f=v=>m[v]||v;
+    return [
+      `סיכום הפגישה בעניין הקטינה ${f("נועה שרעבי")}, בת 9:`,
+      `1. האם, ${f("מיכל שרעבי")}, גרה עם הקטינה ב${f("חולון")}.`,
+      `2. האב, ${f("אורן שרעבי")}, גר ב${f("רמת גן")}, והקטינה אצלו בסופי שבוע.`,
+      `3. המורה, ${f("לודמילה כץ")}, דיווחה על שיפור בלימודים ותעדכן שוב בחודש הבא.`,
+      `4. הדיון הקודם התקיים ב־${f("11.2.2026")}.`,
+    ].join("\n");
+  }
   tourStart = async () => {
     if(!this.state.E) return this.afterEngine(()=>this.tourStart());
     this.log.add("tour",{at:"start"});
@@ -3038,6 +3109,13 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       return;
     }
     const nx=T[t.i+1];
+    // מצעד ההעתקה אל מסך ההחזרה: התשובה לדוגמה כבר בתיבה, ושם «החזרת שמות» מחזירה אותה
+    if(nx.screen==="reverse"&&cur.screen!=="reverse"){
+      this.setState({tour:{...t, i:t.i+1}, screen:"reverse", returnTo:"work", rvIn:this.tourAnswer(), rvOut:"", rvLeft:[], rvCount:0, err:""});
+      return;
+    }
+    // בצעד ההחזרה, כפתור הכרטיס עושה מה שעושה הכפתור שבמסך (rvGo מעביר לצעד הבא); תיבה שרוקנה מתמלאת שוב
+    if(cur.restore){ if((this.state.rvIn||"").trim()) this.rvGo(); else this.setState({rvIn:this.tourAnswer()}, this.rvGo); return; }
     this.setState({tour:{...t, i:t.i+1}, open:nx.open?this.openWith(nx.open):this.state.open});
   };
   // עד עשרים שניות, בפסיעות קטנות, עד שהתנאי מתקיים — העיבוד רץ בלי await
@@ -3069,10 +3147,15 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const shown=T.filter((s,i)=>!(s.screen==="places"&&t.hadPlaces===false&&i!==t.i));
     const pos=shown.indexOf(cur)+1;
     const sp=this.state.tourSpot;
+    /* ולא את היעד של הצעד (החזרת שמות, 7.10.2026): התשובה המשוחזרת בצעד האחרון ישבה מתחת לכרטיס. כשהזרקור
+       יורד אל המקום של הכרטיס בתחתית, ויש מקום מעליו, הכרטיס עולה למעלה. הכרטיס בצד ההתחלה (ימין), ובטלפון ברוחב המסך */
+    const card=document.querySelector("[data-tour]"), ch=(card&&card.offsetHeight)||200, cw=(card&&card.offsetWidth)||400;
+    const covers=!!sp&&sp.y+sp.h>innerHeight-ch-24&&sp.y>ch+24&&sp.x+sp.w>innerWidth-18-cw;
+    const up=(this.state.inline&&this.state.inline.y>innerHeight/2-120)||covers;
     return {tourOn:true, tourTitle:cur.title, tourText:cur.text, tourNextLabel:cur.next,
       tourPos:`${pos} מתוך ${shown.length}`, tourHasBack:t.i>0,
       // כרטיס הסיור אינו מכסה את חלונית העריכה (L3): כשהיא פתוחה בחצי התחתון, הכרטיס עולה למעלה
-      tourCardStyle:"position:fixed;inset-inline-start:18px;"+((this.state.inline&&this.state.inline.y>innerHeight/2-120)?"top:18px;":"bottom:18px;")+"z-index:80;max-width:400px;background:var(--panel);border:1px solid var(--accent);border-radius:14px;padding:16px 18px;box-shadow:0 18px 48px rgba(0,0,0,.28)",
+      tourCardStyle:"position:fixed;inset-inline-start:18px;"+(up?"top:18px;":"bottom:18px;")+"z-index:80;max-width:400px;background:var(--panel);border:1px solid var(--accent);border-radius:14px;padding:16px 18px;box-shadow:0 18px 48px rgba(0,0,0,.28)",
       tourSpot:!!sp, tourSpotStyle:sp?this.spotCss(sp).spot:"", ...(sp?this.spotCss(sp).blocks:{}),
       tourNudge:!!(this.state.tour&&this.state.tour.nudge===this.state.tour.i), onTourBlocked:e=>{ if(e&&e.preventDefault) e.preventDefault(); this.log.add("tour",{at:"blocked-click"}); this.setState({tour:{...this.state.tour, nudge:this.state.tour.i}}); },
       onTourNext:this.tourNext, onTourBack:this.tourBack, onTourClose:this.tourClose};
@@ -3100,9 +3183,86 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     this.log.add("profile-export",{});
     this.setState({profileDirty:false, notice:`הקובץ «${name}» ירד לתיקיית ההורדות. התיק עצמו נשמר בדפדפן גם בלי זה.`, noticeUndo:false});
   };
-  loadProfileClick = () => this.profEl && this.profEl.click();
+  loadProfileClick = () => { this._importAll=false; if(this.profEl) this.profEl.click(); };
   resumeLast = () => { const p=this.state.lastProfile; if(!p) return; this.setState({lastProfile:null, caseName:p.name||""}); this.applyProfile(p); };
   dismissLast = () => this.setState({lastProfile:null});
+  /* ── מסך ההחזרה (החזרת שמות, 7.10.2026) ── */
+  // לאן חוזרים מכל מסך, ובאיזו מילה; ממסך ההחזרה — למסך שממנו הגיעו, כשהוא עוד קיים
+  // השורה שאחרי עדכון (componentDidMount); «מה חדש» לידה הוא קישור לעמוד השינויים באתר
+  static WHATS_NEW="אינקוגניטו עודכן.";
+  static SCR_LBL={entry:"לבחירת מסמך", people:"מי בתיק", places:"יישובים", work:"חזרה למסמך"};
+  backOf(){
+    const S=this.state, L=this.constructor.SCR_LBL;
+    if(S.screen==="people") return {to:"entry", label:"קובץ"};
+    if(S.screen==="places"||S.screen==="work") return {to:"people", label:"מי בתיק"};
+    if(S.screen==="reverse"){
+      let to = S.returnTo && S.returnTo!=="reverse" ? S.returnTo : "entry";
+      if((to==="work" && !S.res) || (to!=="entry" && !S.buf)) to="entry";
+      return {to, label:L[to]||L.entry};
+    }
+    return {to:"entry", label:"קובץ"};
+  }
+  goBack = () => { const b=this.backOf(); if(b.to==="people"){ this.showList(); return; } this.setState({screen:b.to, pending:b.to==="entry"?!!this.state.buf:false, err:""}); };
+  /* אחרי רענון או בלשונית חדשה אין מסמך ואין תיק, אבל הדפדפן זוכר את התיק האחרון: המסך שואל אם להחזיר לפיו,
+     ולא מניח, כי התשובה יכולה להיות של תיק אחר. תיק עם שם נקרא מרשימת התיקים, שבה הוא שלם (mergeCase), ותיק
+     שנמחק משם אינו מוצע; רשימה בלי שם — כמו שהיא. e2e/restore-ux.spec.js */
+  rvLastOffer(){
+    const last=this.readLast(); if(!last) return null;
+    return last.name?(this.readCases().find(c=>c.name===last.name)||null):last;
+  }
+  openReverse = () => {
+    const S=this.state;
+    this.setState({screen:"reverse", returnTo:S.screen==="reverse"?(S.returnTo||"entry"):S.screen, err:"",
+      rvLast:!S.res&&!S.profile&&!S.tour?this.rvLastOffer():null});
+  };
+  rvGo = () => {
+    const S=this.state, E=S.E; this._rvN=(this._rvN||0)+1;
+    /* ביקורת QA (ISSUE-001): אחרי הצמדת תיק שמור מ"תיקים אחרונים" ההחזרה קראה
+       רק את המפה של התיק השמור, ולא את זו של המסמך שבעבודה — הכינוי שהכלי
+       עצמו כתב רגע קודם לא נמצא. המסמך הנוכחי קודם; הפרופיל משלים שמות
+       ממסמכים קודמים באותו תיק. */
+    const map=E.restorePairs((S.profile&&S.profile.map)||{}, this.currentMap());
+    if(!S.rvIn.trim()){ this.setState({err:"אין טקסט להחזרה. מדביקים כאן את התשובה שה-AI החזיר (Ctrl+V)."}); return; }
+    if(!Object.keys(map).length){ this.setState({err:"עדיין אין שמות להחזרה. בחרו תיק שמור במסך הפתיחה, או ייבאו תיק מקובץ."}); return; }
+    /* הכתיב שחוזר הוא הכתיב שבמסמך (UX #19): "ברקוביץ׳" ו"ברקוביץ'" התערבבו,
+       כי הערך ברשימה הוקלד בגרש אחר מזה שבמסמך */
+    const orig=(S.origBlocks||[]).map(b=>b.text).join("\n");
+    const surface=real=>{
+      if(!orig||!/['׳’"״”]/.test(real)) return real;
+      const pat=[...real].map(c=>/['׳’]/.test(c)?"['׳’]":/["״”]/.test(c)?'["״”]':c.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("");
+      const m=new RegExp(pat,"u").exec(orig); return m?m[0]:real;
+    };
+    const pairs=Object.entries(map).map(([real,fake])=>[surface(real),fake]);
+    // כינויים שיצאו קודם ושונו מאז חוזרים גם הם לאדם שלהם (H1); כינוי שכבר במפה לא נכפל
+    for(const [real,arr] of Object.entries(this.sentAll())) for(const fake of arr) if(!pairs.some(p=>p[1]===fake)) pairs.push([surface(real),fake]);
+    const r=E.restoreNames(S.rvIn, pairs);
+    // ההחזרה בסיור היא של המסמך לדוגמה: ביומן נרשם הסיור עצמו
+    if(!S.tour) this.log.add("restore",{count:r.count, left:(r.left||[]).length});
+    // כינוי שמשותף ליותר מאדם אחד אינו "לא נמצא" — הוא נמצא ולא הוחזר, וזה מה שנאמר (M3)
+    const conflictMsg=(r.conflict&&r.conflict.length)?`«${r.conflict.join("», «")}» ${r.conflict.length===1?"הוא שם בדוי":"הם שמות בדויים"} של יותר מאדם אחד במסמך הזה, ולכן לא הוחזר${r.conflict.length===1?"":"ו"}; אפשר לתקן את זה בכרטיס של אחד מהם.`:"";
+    // "לא נמצא אף שם בדוי" רק כשבאמת לא נמצא: כינוי שנשאר בתשובה נמצא, והרשימה שלו אומרת מה נשאר
+    const none=!r.count&&!(r.left||[]).length;
+    this.setState({rvOut:r.text, rvCount:r.count, rvLeft:r.left||[], err: conflictMsg||(none?"לא נמצא בתשובה אף שם בדוי מהרשימה. ייתכן שהתשובה שייכת למסמך או לתיק אחר.":"")},
+      ()=>{ const el=document.querySelector("[data-rv-result]"); if(el&&el.scrollIntoView) el.scrollIntoView({block:"start", behavior:(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)?"auto":"smooth"});
+        // בצעד ההחזרה של הסיור, ההחזרה עצמה מעבירה לצעד הבא, בכפתור שבמסך כמו בכפתור הכרטיס
+        const t=this.state.tour, T=this.constructor.TOUR;
+        if(t&&T[t.i]&&T[t.i].restore&&this.state.rvOut) this.setState({tour:{...t, i:t.i+1}}); });
+  };
+  // שורה ברשימת מה שנשאר בתשובה: «בדוי» במקום «אמיתי», וכמה פעמים כשיותר מפעם אחת; כינוי של יותר מאדם אחד — בלי אמיתי
+  leftLine(x){
+    const n=x.at.length;
+    return x.real==null?`«${x.fake}» · שייך ליותר מאדם אחד`:`«${x.fake}» במקום «${x.real}»`+(n>1?` · ${n} פעמים`:"");
+  }
+  // התשובה שחזרה, בקטעים: מה שנשאר בה מהפרטים הבדויים מסומן, והשורה שלו מהרשימה היא התיאור שלו
+  rvSegs(){
+    const S=this.state, t=S.rvOut||"", at=[];
+    for(const x of S.rvLeft||[]) for(const [s,e] of x.at) at.push([s,e,this.leftLine(x)]);
+    at.sort((a,b)=>a[0]-b[0]);
+    const out=[]; let i=0;
+    for(const [s,e,title] of at){ if(s<i) continue; if(s>i) out.push({t:t.slice(i,s), plain:true}); out.push({t:t.slice(s,e), mark:true, title}); i=e; }
+    if(i<t.length||!out.length) out.push({t:t.slice(i), plain:true});
+    return out;
+  }
   // הסיבה בהודעה על קובץ פרופיל פגום (L17), וגם על קובץ תיקים פגום (importCases)
   static BAD_PROFILE="הקובץ אינו קובץ תיק, או שהוא פגום";
   /* ייבוא כל התיקים מקובץ אחד («ייבוא תיקים מקובץ»; המעבר ל-inkognito.co.il, 6.10.2026). הקובץ יורד
@@ -3132,27 +3292,47 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const last=file.last&&localStorage.getItem(kl)===null?file.last:null;
     if(last) localStorage.setItem(kl, JSON.stringify(last));
     this.log.add("cases-import",{n, last:!!last});
-    // רשימת התיקים היא מה שהיא רואה; אין הודעה, עד שיאושרו לה מילים (הביקורת העצמאית, 6.10). כשתיק בשימוש
-    // הרשימה מוסתרת (hasCases), והתיק שבשימוש נשאר כמו שהוא
-    this.setState({cases:this.readCases(), casesHidden:false, err:"",
+    // ההודעה במילים שאושרו (7.10.2026). כשתיק בשימוש הרשימה מוסתרת (hasCases), והתיק שבשימוש נשאר כמו שהוא
+    // בלי תיק אחד בקובץ (רק רשימה אחרונה) אין מה לומר: הכרטיס של הרשימה האחרונה הוא מה שנוסף
+    this.setState({cases:this.readCases(), casesHidden:false, err:"", ...(n?{notice:"התיקים מהקובץ נוספו לרשימת התיקים.", noticeUndo:false}:{}),
       ...(last&&!this.state.lastProfile&&last.rules.length?{lastProfile:last}:{})});
   }
+  // «ייבוא תיקים מקובץ»: אותה בחירת קובץ, וקובץ שלא נקרא מקבל את ההודעה של קובץ תיקים (onProfFile)
+  importCasesClick = () => { this._importAll=true; if(this.profEl) this.profEl.click(); };
+  static BAD_CASES="הקובץ לא נקרא: הוא לא קובץ תיקים של אינקוגניטו, או שהוא פגום. שום תיק לא נוסף.";
   onProfFile = async e => {
     const f=e.target.files[0]; e.target.value=""; if(!f) return;
+    const all=!!this._importAll; this._importAll=false;
+    let cases=false;
     try{
       const prof=JSON.parse(await f.text());
       // קובץ של כל התיקים נקלט מכל כפתור ייבוא; כל קובץ אחר הוא הפרופיל של תיק אחד, כמו קודם
-      if(prof&&prof.inkognito==="cases"){ this.importCases(prof); return; }
+      if(prof&&prof.inkognito==="cases"){ cases=true; this.importCases(prof); return; }
       // אותה בדיקה של כל פרופיל שנכנס או נקרא (profileOk), עם אותה הודעה של קובץ שאינו פרופיל
       if(!this.constructor.profileOk(prof)) throw new Error("קובץ תיק לא מזוהה");
       this.setState({caseName:prof.name||this.state.caseName});
       this.applyProfile(prof);
     }catch(err){
+      // קובץ תיקים פגום, או קובץ שלא נקרא אחרי «ייבוא תיקים מקובץ»: שום תיק לא נוסף, וזה מה שנאמר (הנוסח שאושר, 7.10.2026)
+      if(cases||all){ this.setState({err:this.constructor.BAD_CASES}); return; }
       // L17: שגיאת JSON גולמית באנגלית לא אמרה לה כלום
       const m=String((err&&err.message)||err||"");
       const why=/JSON|Unexpected|Expected|position/i.test(m)?this.constructor.BAD_PROFILE:m;
       this.setState({err:"ייבוא התיק נכשל: "+why+". קובץ תיק הוא הקובץ שירד בלחיצה על «ייצוא לקובץ» (סיומת ‎.json)."});
     }
+  };
+  /* «ניקוי התיקים מהמחשב» (הנוסח שאושר, 7.10.2026): כל התיקים השמורים במחשב הזה, של כל חשבון (forgetCases), אחרי
+     שאלה. גם התיק שמחובר למסמך שבעבודה מתנתק, אחרת השינוי הבא היה שומר אותו שוב. e2e/restore-ux.spec.js */
+  casesHere(){
+    try{ const K=this.constructor.CASE_KEYS;
+      for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(K.some(c=>k===c||k.startsWith(c+":"))) return true; } }catch(_){}
+    return false;
+  }
+  clearCases = () => {
+    if(!confirm("למחוק מהמחשב הזה את כל התיקים השמורים? אי אפשר לבטל את זה.")) return;
+    this.forgetCases();
+    this.log.add("cases-clear",{});
+    this.setState({cases:[], lastProfile:null, rvLast:null, caseName:"", profile:null, profileDirty:false, notice:"התיקים השמורים נמחקו מהמחשב.", noticeUndo:false});
   };
   applyProfile(prof){
     try{
@@ -3427,18 +3607,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     // others stay cream (in the header's cream, the current step was 1.12:1 against the rest)
     const stepStyle=(active, enabled)=>"font-size:12.5px;padding:4px 2px;white-space:nowrap;cursor:"+(enabled?"pointer":"default")+
       ";color:"+(active?"var(--accent)":enabled?"var(--ink2)":"var(--ink3)");
-    const SCR_LBL={entry:"לבחירת מסמך", people:"מי בתיק", places:"יישובים", work:"חזרה למסמך"};
-    const backOf=(screen, ret)=>{
-      if(screen==="people") return {to:"entry", label:"קובץ"};
-      if(screen==="places") return {to:"people", label:"מי בתיק"};
-      if(screen==="work") return {to:"people", label:"מי בתיק"};
-      if(screen==="reverse"){
-        let to = ret && ret!=="reverse" ? ret : "entry";
-        if((to==="work" && !S.res) || (to!=="entry" && !S.buf)) to="entry";
-        return {to, label:SCR_LBL[to]||SCR_LBL.entry};
-      }
-      return {to:"entry", label:"קובץ"};
-    };
+    const back=this.backOf();
 
     const MV = S.screen==="places" ? this.mapView() : null;
 
@@ -3460,8 +3629,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       goStep2:()=>{ if(this.unscanned()) this.start(); else this.showList(); },
       goStep3:()=>{ if(!S.buf) return; if(this.unscanned()) this.start(); else this.toPlaces(S.rules); },
       showBack:S.screen!=="entry",
-      backLabel:backOf(S.screen, S.returnTo).label,
-      onBack:()=>{ const b=backOf(S.screen, S.returnTo); if(b.to==="people"){ this.showList(); return; } this.setState({screen:b.to, pending:b.to==="entry"?!!S.buf:false, err:""}); },
+      backLabel:back.label, onBack:this.goBack,
       pasteText:S.pasteText||"", hasPaste:(S.pasteText||"").trim().length>0,
       pasteLabel:"שימוש בטקסט הזה", onPasteGo:this.usePastedText,
       onPasteText:e=>this.setState({pasteText:e.target.value}),
@@ -3469,6 +3637,23 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       nerAsk:!!S.nerAsk&&!!S.pending, onNerAskYes:this.onNerAskYes, onNerAskNo:this.onNerAskNo,
       startLabel:S.o.auto?"המשך — איתור שמות במסמך":"המשך לעיבוד",
       rvBackLabel:S.returnTo==="work"?"חזרה למסמך":"חזרה",
+      // התיק האחרון, כשאין מסמך ואין תיק (rvLastOffer): שאלה עם שני כפתורים, במקום תיבת ההקשר
+      rvLastOn:!!S.rvLast&&!S.res&&!S.profile&&!S.tour, rvCtxOn:!(S.rvLast&&!S.res&&!S.profile&&!S.tour),
+      rvLastTitle:S.rvLast?(S.rvLast.name?"להחזיר את השמות לפי התיק «"+S.rvLast.name+"»?":"להחזיר את השמות לפי רשימת השמות מהפעם הקודמת?"):"",
+      rvLastMeta:S.rvLast?((n=>n===1?"שם או פרט אחד":n+" שמות ופרטים")(this.profileCount(S.rvLast))+" · עודכן "+new Date(S.rvLast.updated||S.rvLast.created).toLocaleString("he-IL",{dateStyle:"short",timeStyle:"short"})):"",
+      rvLastUseLabel:S.rvLast&&S.rvLast.name?"שימוש בתיק הזה":"שימוש ברשימה הזאת",
+      onRvLastUse:()=>{ const p=S.rvLast; if(!p) return; this.setState({rvLast:null, caseName:p.name||"", lastProfile:null}); this.applyProfile(p); },
+      onRvLastOther:()=>this.setState({rvLast:null}),
+      // בסיור: שורה מעל התשובה לדוגמה, ובלי ייבוא תיק (המסמך לדוגמה אינו תיק)
+      rvTour:!!S.tour, rvImportOn:!S.tour,
+      // מה שנשאר בתשובה (leftOver במנוע): הרשימה, או שורה שלא נמצא דבר, רק כשההחזרה מצאה משהו להחזיר
+      rvLeftOn:!!S.rvOut&&(S.rvLeft||[]).length>0,
+      rvLeftNone:!!S.rvOut&&!(S.rvLeft||[]).length&&S.rvCount>0,
+      rvLeftHead:(n=>n===1?"נשאר בתשובה פרט בדוי אחד":"נשארו בתשובה "+n+" פרטים בדויים")((S.rvLeft||[]).length),
+      rvLeftItems:(S.rvLeft||[]).map(x=>({t:this.leftLine(x)})),
+      rvSegs:this.rvSegs(),
+      // «חזרה למסמך» גם מתחת לתוצאה, כשיש מסמך לחזור אליו; בכפתור העליון בלי מסמך כתוב «לבחירת מסמך»
+      rvBackOn:back.to==="work"&&!S.tour,
       rvCtxStyle:"padding:12px 15px;border-radius:11px;font-size:13px;margin-bottom:16px;border:1px solid var(--line);background:"+(S.res||S.profile?"var(--accent-soft)":"var(--panel2)"),
       rvCtxTitle:(S.res?"השמות מהמסמך שבעבודה":(S.profile?"השמות מתיק שמור":"עדיין אין כאן שמות להחזרה"))+
         ((S.profile&&(S.profile.name||S.caseName))?" · תיק: "+(S.profile.name||S.caseName):""),
@@ -3492,7 +3677,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
         {n:"3", title:"החזרת שמות", text:"את התשובה של ה־AI מדביקים ב«החזרת שמות מתשובת AI», והשמות האמיתיים חוזרים למקומם."}
       ],
       isDark:S.theme==="dark", isLight:S.theme!=="dark", onTheme:this.toggleTheme,
-      onReverse:()=>this.setState({screen:"reverse", returnTo:S.screen==="reverse"?(S.returnTo||"entry"):S.screen, err:""}),
+      onReverse:this.openReverse,
       /* היה כפתור אחד בכותרת, כפתור שני זהה בסרגל התחתון, ומקטע שלישי במסילה
          שרץ בכלל על מסלול אחר: הוא בנה את הזוגות מ-livePairs, שאינה מסננת ערך
          שהושחר ל-███, בעוד שהמסך בנה אותם מ-currentMap שכן. אותה הדבקה יכלה
@@ -3504,7 +3689,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
           ? "border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent-ink);font-weight:500"
           : "color:var(--ink2)"),
       onHome:()=>this.setState({screen:"entry", pending:!!S.buf, err:""}),
-      notice:S.notice||"", onNoticeClose:()=>this.setState({notice:""}),
+      notice:S.notice||"", onNoticeClose:()=>this.setState({notice:""}), noticeNew:S.notice===this.constructor.WHATS_NEW,
       noticeUndo:S.noticeUndo!==false,
       onNoticeUndo:()=>{ this.setState({notice:""}); this.undo(); },
       err:S.err, busyT:S.busyT, primaryBtn,
@@ -3561,7 +3746,8 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
          ברקע; אם יסיים לפני "המשך" — השמות נכנסים לרשימה, אחרת לכללים. */
       onGoNow:()=>{ if(!S.scanning) return; this._goneAhead=this._scan; this.log.add("go-without-model",{names:S.peo.length});
         this.setState({scanning:false, nerBox:false, nerUsed:false, peoNote:"ממשיכים בלי לחכות. השמות כאן נלקחו מראש המסמך ומשמות הדוברים; שמות שהמודל ימצא בהמשך יתווספו לרשימה, או יוחלפו במסמך אם כבר המשכתם."}); },
-      onLoadProf:this.loadProfileClick, onSaveProf:this.saveProfile, onImportCases:this.loadProfileClick,
+      onLoadProf:this.loadProfileClick, onSaveProf:this.saveProfile, onImportCases:this.importCasesClick,
+      casesHere:this.casesHere(), onClearCases:this.clearCases,
       fileErr:S.screen==="entry"?(S.fileErr||""):"",
       /* הודעה שחוזרת באותן מילים נאמרת שוב: אזור חי שלא השתנה אינו אומר דבר, ולכן כל דחייה של קובץ וכל החזרת
          שמות מעלות את האזעקה ואת הכותרת שלהן כאלמנט חדש (key), שקורא מסך קורא כחדש (הביקורת של 6.10) */
@@ -3634,38 +3820,13 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       rvErr:S.screen==="reverse"?S.err:"", errTop:(S.screen==="reverse"||(S.screen==="work"&&S.res))?"":S.err,
       rvIn:S.rvIn, rvOut:S.rvOut, rvCopyLabel:S.rvCopyLabel,
       onRvIn:e=>this.setState({rvIn:e.target.value, err:""}),
-      onRvGo:()=>{ this._rvN=(this._rvN||0)+1;
-        /* ביקורת QA (ISSUE-001): אחרי הצמדת תיק שמור מ"תיקים אחרונים" ההחזרה קראה
-           רק את המפה של התיק השמור, ולא את זו של המסמך שבעבודה — הכינוי שהכלי
-           עצמו כתב רגע קודם לא נמצא. המסמך הנוכחי קודם; הפרופיל משלים שמות
-           ממסמכים קודמים באותו תיק. */
-        const map=E.restorePairs((S.profile&&S.profile.map)||{}, this.currentMap());
-        if(!S.rvIn.trim()){ this.setState({err:"אין טקסט להחזרה. מדביקים כאן את התשובה שה-AI החזיר (Ctrl+V)."}); return; }
-        if(!Object.keys(map).length){ this.setState({err:"עדיין אין שמות להחזרה. בחרו תיק שמור במסך הפתיחה, או ייבאו תיק מקובץ."}); return; }
-        /* הכתיב שחוזר הוא הכתיב שבמסמך (UX #19): "ברקוביץ׳" ו"ברקוביץ'" התערבבו,
-           כי הערך ברשימה הוקלד בגרש אחר מזה שבמסמך */
-        const orig=(S.origBlocks||[]).map(b=>b.text).join("\n");
-        const surface=real=>{
-          if(!orig||!/['׳’"״”]/.test(real)) return real;
-          const pat=[...real].map(c=>/['׳’]/.test(c)?"['׳’]":/["״”]/.test(c)?'["״”]':c.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("");
-          const m=new RegExp(pat,"u").exec(orig); return m?m[0]:real;
-        };
-        const pairs=Object.entries(map).map(([real,fake])=>[surface(real),fake]);
-        // כינויים שיצאו קודם ושונו מאז חוזרים גם הם לאדם שלהם (H1); כינוי שכבר במפה לא נכפל
-        for(const [real,arr] of Object.entries(this.sentAll())) for(const fake of arr) if(!pairs.some(p=>p[1]===fake)) pairs.push([surface(real),fake]);
-        const r=E.restoreNames(S.rvIn, pairs);
-        this.log.add("restore",{count:r.count});
-        // כינוי שמשותף ליותר מאדם אחד אינו "לא נמצא" — הוא נמצא ולא הוחזר, וזה מה שנאמר (M3)
-        const conflictMsg=(r.conflict&&r.conflict.length)?`«${r.conflict.join("», «")}» ${r.conflict.length===1?"הוא שם בדוי":"הם שמות בדויים"} של יותר מאדם אחד במסמך הזה, ולכן לא הוחזר${r.conflict.length===1?"":"ו"}; אפשר לתקן את זה בכרטיס של אחד מהם.`:"";
-        this.setState({rvOut:r.text, rvCount:r.count, err: r.count?(conflictMsg?conflictMsg:""):(conflictMsg||"לא נמצא בתשובה אף שם בדוי מהרשימה. ייתכן שהתשובה שייכת למסמך או לתיק אחר.")},
-          ()=>{ const el=document.querySelector("[data-rv-result]"); if(el&&el.scrollIntoView) el.scrollIntoView({block:"start", behavior:(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)?"auto":"smooth"}); });
-      },
+      onRvGo:this.rvGo,
       // אחרי החזרה, ההעתקה היא הפעולה הראשית; לפני — ההחזרה (UX #19). ריק — אין מה להחזיר (UX #20).
       rvEmpty:!(S.rvIn||"").trim(),
       rvGoStyle:S.rvOut?"padding:12px 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:500;font-size:14px;white-space:nowrap":primaryBtn,
       rvCopyStyle:S.rvOut?primaryBtn:"",
       rvHead:S.rvOut?("התשובה עם השמות האמיתיים"+(S.rvCount?` · ${S.rvCount===1?"שם אחד הוחזר":S.rvCount+" שמות הוחזרו"}`:"")):"",
-      onRvCopy:()=>this.copyTo(S.rvOut, "rvCopyLabel", "העתקת הטקסט המשוחזר"),
+      onRvCopy:()=>{ if(this.tourBlocks("copy")) return; this.copyTo(S.rvOut, "rvCopyLabel", "העתקת הטקסט המשוחזר"); },
       hasGeo:!!S.geo, noGeo:S.screen==="places" && !S.geo,
       // ההודעה הזאת אמרה "לא נמצאו יישובים" גם כשהזיהוי מצא אותם, רק לא כאלה
       // שאפשר למפות. עכשיו היא מבחינה בין השניים.
@@ -4089,7 +4250,11 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
     v.barErr=S.err||""; v.barOk=!S.err; v.onClearErr=()=>this.setState({err:""});
     // שלושת השלבים בסרגל: הנוכחי מודגש
     const stepOn="padding:3px 8px;border-radius:10px;background:var(--accent-soft);color:var(--accent-ink);font-weight:500", stepOff="padding:3px 8px;border-radius:10px;color:var(--ink3)";
-    v.step1Style=stepOff; v.step2Style=S.copied?stepOff:stepOn; v.step3Style=S.copied?stepOn:stepOff; v.step2Done=!!S.copied;
+    v.step1Style=stepOff; v.step2Style=S.copied?stepOff:stepOn; v.step3Style=S.copied?stepOn+";border:1px solid var(--accent);font-size:inherit;cursor:pointer":stepOff; v.step2Done=!!S.copied;
+    // אחרי ההעתקה השלב השלישי הוא כפתור אל מסך ההחזרה, באותן מילים (הנוסח שאושר, 7.10.2026)
+    v.step3Btn=!!S.copied; v.step3Plain=!S.copied;
+    // undefined משאיר את התכונה בחוץ: אחרי ההעתקה השורה של כלי ה־AI מוצגת גם בטלפון
+    v.aiLater=S.copied?undefined:"1";
     v.copyLabel=S.copyLabel;
     v.copyBtnStyle="padding:11px 20px;border-radius:10px;font-weight:600;letter-spacing:.01em;font-size:14px;white-space:nowrap;color:var(--panel);background:"+(kind==="ok"?"var(--accent)":kind==="warn"?"var(--warn)":"var(--bad)");
     v.onCopyAi=this.copyAi; v.onDownload=this.download;

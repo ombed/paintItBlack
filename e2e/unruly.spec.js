@@ -1,6 +1,6 @@
 const { test, expect } = require("./base");
 const H = require("./helpers");
-const { disturb } = require("./unruly");
+const { disturb, checked } = require("./unruly");
 
 /* The main journeys, walked by a misbehaving user (docs/QUALITY-PLAN.md, layer 3).
 
@@ -89,11 +89,15 @@ for (const size of SIZES) {
 
       await page.getByRole("button", { name: "החזרת שמות מתשובת AI" }).click();
       await expect(page.getByPlaceholder("הדבקת תשובת ה-AI…")).toBeVisible();
-      await disturb(page, "restore, empty");
+      // on the restore screen Back is a request to move, to the document (v65), so it is pressed apart
+      await disturb(page, "restore, empty", { back: false });
       await page.getByPlaceholder("הדבקת תשובת ה-AI…").fill("לדעתי " + fake[1] + " צריכה להגיש תצהיר.");
       await page.getByRole("button", { name: "החזרת שמות", exact: true }).click();
       await expect(page.locator("main")).toContainText("רחל פרידמן צריכה להגיש");
-      await disturb(page, "restore, result");
+      await disturb(page, "restore, result", { back: false });
+      await page.evaluate(() => window.history.back());
+      await expect(page.locator("[data-bar]")).toBeVisible();
+      await checked(page, "restore", "Back, to the document");
     });
 
     test("the tour, disturbed at every step", async ({ page }) => {
@@ -124,8 +128,11 @@ for (const size of SIZES) {
       await expect(tour).toContainText("העתקה ל־AI");
       await disturb(page, "tour 6, copy", T);
       await next();
-      await expect(tour).toContainText("זהו");
-      await disturb(page, "tour 7, end", T);
+      await expect(tour).toContainText("בתיבה כבר יש תשובה לדוגמה");
+      await disturb(page, "tour 7, restore", T);
+      await tour.getByRole("button", { name: "החזרת שמות", exact: true }).click();
+      await expect(tour).toContainText("סוף הסיור");
+      await disturb(page, "tour 8, end", T);
       await tour.getByRole("button", { name: "סיום" }).click();
       await expect(tour).toHaveCount(0);
     });

@@ -41,6 +41,8 @@ test("M1: a case name typed during the tour does not follow the next real docume
   await page.getByPlaceholder(/שם התיק/).fill("תיק-מהסיור");
   await tour.getByRole("button", { name: "המשך", exact: true }).click();
   await tour.getByRole("button", { name: "המשך", exact: true }).click();
+  // the restore step, on the sample's ready answer, and the end
+  await tour.getByRole("button", { name: "החזרת שמות", exact: true }).click();
   await tour.getByRole("button", { name: "סיום" }).click();
   await expect(tour).toHaveCount(0);
   // a real document now
