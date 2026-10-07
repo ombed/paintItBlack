@@ -17,7 +17,8 @@ test("«עזרה» opens a menu of help, closes as a menu does, and each item do
   await expect(help(page)).toHaveAttribute("aria-expanded", "false");
   await help(page).click();
   await expect(help(page)).toHaveAttribute("aria-expanded", "true");
-  await expect(menu(page).locator("li")).toHaveText(["סיור על מסמך לדוגמה", "איך זה עובד", "שאלות נפוצות"]);
+  await expect(menu(page).locator("li")).toHaveText(["סיור על מסמך לדוגמה", "איך זה עובד", "שאלות נפוצות", "מדריך שימוש"]);
+  await expect(menu(page).getByRole("link", { name: "מדריך שימוש" })).toHaveAttribute("href", "https://inkognito.co.il/help");
   const faq = menu(page).getByRole("link", { name: "שאלות נפוצות" });
   await expect(faq).toHaveAttribute("href", "https://inkognito.co.il/#faq");
   await expect(faq).toHaveAttribute("target", "_blank");
@@ -32,7 +33,7 @@ test("«עזרה» opens a menu of help, closes as a menu does, and each item do
   await expect(menu(page)).toHaveCount(0);
   // and so does the focus going on past it
   await help(page).click();
-  for (let i = 0; i < 4; i++) await page.keyboard.press("Tab");
+  for (let i = 0; i < 5; i++) await page.keyboard.press("Tab");
   await expect(menu(page)).toHaveCount(0);
 
   // «איך זה עובד» opens the welcome window again
