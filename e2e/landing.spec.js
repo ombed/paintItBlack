@@ -390,3 +390,9 @@ test("the help page has the approved questions, each one linkable, and the conta
   await expect(page.locator("article > p").last()).toHaveText("שאלה, תקלה או הצעה? כתבו אל contact@inkognito.co.il, ונענה תוך שני ימי עסקים.");
   await axe(page, "help.html");
 });
+
+// the no-account demo, under the tour's own name, beside the sign-up on the first screen (v68)
+test("the home page's first screen leads to the no-account demo", async ({ page }) => {
+  await page.goto(HOME);
+  await expect(page.locator(".hero .actions").getByRole("link", { name: "סיור על מסמך לדוגמה" })).toHaveAttribute("href", "demo/");
+});

@@ -21,7 +21,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { SITE_FILES } = require("./build-site.js");
-const { hostedApp, hostedManifest, hostedWorker, resourcesScript, LIBS, ORT_FILES, ortFrom, ortPin, ORT_DIR } = require("./hosted.js");
+const { hostedApp, demoApp, hostedManifest, hostedWorker, resourcesScript, LIBS, ORT_FILES, ortFrom, ortPin, ORT_DIR } = require("./hosted.js");
 
 const ROOT = path.resolve(__dirname, "..");
 const LIMIT = 25 * 1024 * 1024; // Cloudflare Pages: no file over 25 MiB
@@ -45,6 +45,9 @@ const HEADERS_NOW = `/*
   Permissions-Policy: camera=(), microphone=(), geolocation=()
 ${LAUNCHED ? "" : "  X-Robots-Tag: noindex\n"}
 /app/*
+  X-Robots-Tag: noindex
+
+/demo/*
   X-Robots-Tag: noindex
 
 https://:project.pages.dev/*
@@ -130,6 +133,25 @@ function build(out) {
     for (let i = 0; i < n; i++) put(ORT_DIR() + name + ".wasm.part" + (i + 1), buf.subarray(i * size, Math.min(buf.length, (i + 1) * size)));
   }
   put("hosted-resources.js", resourcesScript(ortParts));
+
+  /* /demo/: the no-account demo (scripts/hosted.js, demoApp). Public, outside the gate: only what the tool
+     needs for the invented sample, never the model, the AI runtime, the PDF reader or the service worker,
+     and no sign-in. Its libraries are the same checked copies as /app/'s. */
+  const DEMO_SKIP = /^(sw\.js|manifest\.webmanifest|pdf-text\.js|models\/|vendor\/(transformers|ort|pdfjs))/;
+  for (const f of SITE_FILES.filter((x) => !model.includes(x) && !DEMO_SKIP.test(x) && x !== "index.html")) {
+    const to = path.join(out, "demo", f);
+    fs.mkdirSync(path.dirname(to), { recursive: true });
+    fs.copyFileSync(path.join(ROOT, f), to);
+  }
+  fs.writeFileSync(path.join(out, "demo", "index.html"), demoApp(fs.readFileSync(path.join(ROOT, "index.html"), "utf8")));
+  for (const l of LIBS) {
+    const to = path.join(out, "demo", l.to);
+    fs.mkdirSync(path.dirname(to), { recursive: true });
+    fs.copyFileSync(path.join(out, "app", l.to), to);
+  }
+  // the libraries' addresses without the AI runtime, which the demo never loads
+  const demoRes = resourcesScript({}), cut = demoRes.indexOf(',\n "ort"');
+  fs.writeFileSync(path.join(out, "demo", "hosted-resources.js"), cut > 0 ? demoRes.slice(0, cut) + "\n});\n" : demoRes);
   // the tool's fonts and their licences came with SITE_FILES above: the page names them itself (v60)
 
   /* The public files skip the gate by exact name; everything else, /app/ above all, meets it. A
@@ -141,7 +163,10 @@ function build(out) {
   const files = walk(out).map((f) => "/" + path.relative(out, f).split(path.sep).join("/"))
     .filter((p) => !/^\/app\//i.test(p) && !/(^|\/)\./.test(p) && !["/_headers", "/_routes.json"].includes(p));
   const pretty = files.filter((p) => /^\/[^/]+\.html$/.test(p)).map((p) => p === "/index.html" ? "/" : p.slice(0, -".html".length));
-  const pub = [...new Set([...files, ...pretty])].sort();
+  // and a public folder's page by its folder's address, with and without the slash (/demo/ and /demo,
+  // which Cloudflare sends on to /demo/; without it the gate would send it to sign-in)
+  const folders = files.filter((p) => /^\/[^/]+\/index\.html$/.test(p)).flatMap((p) => [p.slice(0, -"index.html".length), p.slice(0, -"/index.html".length)]);
+  const pub = [...new Set([...files, ...pretty, ...folders])].sort();
   if (pub.length + 1 > ROUTE_LIMIT) throw new Error("build-hosted: " + pub.length + " public files exceed Cloudflare's " + ROUTE_LIMIT + " route rules");
   fs.writeFileSync(path.join(out, "_routes.json"), JSON.stringify({ version: 1, include: ["/*"], exclude: pub }, null, 1));
 

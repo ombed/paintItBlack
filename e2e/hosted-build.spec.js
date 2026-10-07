@@ -50,3 +50,20 @@ test("the built tool opens under /app/ and its model loads from the re-split par
   const foreign = asked.filter((u) => !/^(https?:\/\/127\.0\.0\.1:4173\/|https:\/\/cwsiranjlxbclmaqtucc\.supabase\.co\/|data:|blob:)/.test(u));
   expect(foreign).toEqual([]);
 });
+
+/* The no-account demo (/demo/, v68): it opens with no session, starts the tour on the sample, and asks
+   nothing of the project, of another site, or for the model; its sign-up leads to the site's own page. */
+test("the built demo opens without an account, starts the tour, and asks no one but the site for anything", async ({ page }) => {
+  const asked = [];
+  page.on("request", (r) => asked.push(r.url()));
+  await page.goto("/dist/demo/index.html");
+  await expect(page.locator("#dc-root")).toBeAttached({ timeout: 60000 });
+  await expect(page.locator("[data-tour]")).toContainText("קובץ או טקסט", { timeout: 30000 });
+  await expect(page.locator("[data-demo][role=note]").getByRole("link", { name: "פתיחת חשבון חינם" })).toHaveAttribute("href", "../login.html?mode=signup");
+  await expect(page.getByRole("button", { name: "חשבון", exact: true })).toHaveCount(0);
+  await page.locator("[data-tour]").getByRole("button", { name: /טעינת המסמך לדוגמה/ }).click();
+  await expect(page.locator("[data-tour]")).toContainText("מי בתיק", { timeout: 30000 });
+  const origin = new URL(page.url()).origin;
+  expect(asked.filter((u) => !u.startsWith(origin) && !u.startsWith("blob:") && !u.startsWith("data:")), "nothing from another site").toEqual([]);
+  expect(asked.filter((u) => /\/(models|app)\/|\.wasm|onnx|supabase/.test(u)), "no model, no runtime, nothing of the app or the project").toEqual([]);
+});

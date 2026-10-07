@@ -146,4 +146,26 @@ function hostedApp(html) {
   return out;
 }
 
-module.exports = { hostedApp, hostedManifest, hostedWorker, NAME, STORE_KEY, STORE_SUFFIX, resourcesScript, PROJECT, LIBS, ORT_FILES, ORT_V, ortFrom, ortPin, ORT_DIR, SLOT_CSS };
+/* The no-account demo at /demo/ (the owner's decisions 18 and 29, 6.10): the same page, without the sign-in, the
+   account or the project. The tool's demo mode (window.__inkDemo, index.html) keeps it to the invented sample:
+   no file, paste or import, no model, nothing saved, and its strip and end card lead to sign-up. Its cases, if
+   any could be made, would sit under their own key ("demo"), apart from every account's. The libraries are the
+   site's own copies, as in /app/; the policy connects to the site alone. */
+const DEMO_FLAG = '<script>window.__inkDemo={signup:"../login.html?mode=signup"};window.__inkStoreSuffix="demo";</script>';
+function demoApp(html) {
+  const anchor = '<script src="./page-logic.js"></script>';
+  const cspRe = /(<meta http-equiv="Content-Security-Policy" content=")([^"]*)(")/;
+  if (!html.includes(anchor) || !cspRe.test(html)) throw new Error("hosted: index.html no longer has the places the demo inserts into");
+  let out = html.replace(cspRe, (_, a, csp, z) => a + csp.split(";").map((d) => d.trim().split(/\s+/).filter((t) => !THIRD.test(t)).join(" ")).join("; ") + z);
+  for (const l of LIBS.filter((x) => x.via === "page" || x.via === "atlas")) {
+    if (!out.includes(l.url)) throw new Error("hosted: the page no longer loads " + l.url);
+    out = out.split(l.url).join("./" + l.to);
+  }
+  if (out.split("<title>" + NAME + "</title>").length !== 3) throw new Error("hosted: the tool's name is no longer where it was");
+  out = out.replace(anchor, DEMO_FLAG + '\n<script src="./hosted-resources.js"></script>\n' + anchor);
+  const left = out.match(new RegExp(THIRD.source + "[^\"'\\s)]*"));
+  if (left) throw new Error("hosted: demo/index.html still names another site: " + left[0]);
+  return out;
+}
+
+module.exports = { hostedApp, demoApp, DEMO_FLAG, hostedManifest, hostedWorker, NAME, STORE_KEY, STORE_SUFFIX, resourcesScript, PROJECT, LIBS, ORT_FILES, ORT_V, ortFrom, ortPin, ORT_DIR, SLOT_CSS };

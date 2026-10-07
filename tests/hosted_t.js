@@ -27,6 +27,12 @@ try {
   const sv = JSON.parse(fs.readFileSync(path.join(ROOT, "node_modules/@supabase/supabase-js/package.json"), "utf8")).version;
   ok(files.includes(`vendor/supabase-${sv}.js`), "the root has the sign-in client the pages name");
   ok(files.includes("_headers"), "security headers for Cloudflare (_headers)");
+  // the no-account demo (/demo/, v68): public, its own page with the demo flag, no sign-in, no model
+  const demo = files.includes("demo/index.html") ? read("demo/index.html") : "";
+  ok(demo.includes("window.__inkDemo={signup:") && demo.includes('window.__inkStoreSuffix="demo"'), "the demo page sets the tool's demo mode and its own case key");
+  ok(!/<script src="[^"]*(cloud|config|supabase)[^"]*"/.test(demo) && /connect-src 'self'(;|")/.test(demo), "it loads no sign-in and connects to the site alone");
+  ok(!files.some((f) => /^demo\/(models\/|sw\.js|vendor\/(transformers|ort|pdfjs))/.test(f)), "no model, no runtime, no PDF reader, no service worker under /demo/");
+  ok(files.includes("demo/vendor/react-18.3.1.production.min.js") && files.includes("demo/redact-engine.js"), "the demo has the tool's own copies of what it runs");
   /* security.txt (RFC 9116; the owner's decision, 6.10): where to report a security problem. Its Expires
      must lie ahead, and less than a year ahead: this check fails when it lapses, as a reminder to renew */
   const sec = files.includes(".well-known/security.txt") ? read(".well-known/security.txt") : "";
@@ -197,7 +203,9 @@ try {
   ok(routes.exclude.length > 0 && routes.exclude.length + routes.include.length <= 100, "within Cloudflare's 100 route rules (" + (routes.exclude.length + 1) + ")");
   ok(routes.exclude.every((p) => !/[*:]/.test(p)), "the public files are named exactly, no patterns");
   // a page is also served at its address without .html (/login.html redirects to /login, /index.html is /)
-  const served = (p) => files.includes(p.slice(1)) || files.includes(p === "/" ? "index.html" : p.slice(1) + ".html");
+  // and a public folder at its folder's address (/demo/ serves demo/index.html, the no-account demo)
+  const served = (p) => files.includes(p.slice(1)) || files.includes(p === "/" ? "index.html" : p.slice(1) + ".html") || (p.endsWith("/") && files.includes(p.slice(1) + "index.html")) || files.includes(p.slice(1) + "/index.html");
+  ok(routes.exclude.includes("/demo/") && routes.exclude.includes("/demo") && !routes.exclude.some((p) => p.startsWith("/app")), "the demo's address skips the gate; nothing of /app/ does");
   ok(routes.exclude.every(served), "each is a file the site has, or the address a page is served at");
   ok(!routes.exclude.some((p) => /^\/app(\/|$)/i.test(p) || /(^|\/)\./.test(p)), "none is under /app/, and no dot file");
   for (const p of ["/index.html", "/login.html", "/privacy.html", "/site.css", "/config.js", "/login.js"]) ok(routes.exclude.includes(p), p + " skips the gate");
