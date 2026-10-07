@@ -39,7 +39,7 @@ for (const p of pages) {
   const loads = [...h.matchAll(/<(?:script|img|source|iframe)[^>]*\bsrc="([^"]+)"|<link(?![^>]*rel="canonical")[^>]*\bhref="([^"]+)"/g)].map((m) => m[1] || m[2]);
   // search engines: the four public pages are found under their one address; the rest stay out
   const canon = (h.match(/<link rel="canonical" href="([^"]+)">/) || [])[1];
-  if (/^(index|privacy|terms|accessibility|security)\.html$/.test(p)) {
+  if (/^(index|privacy|terms|accessibility|security|help)\.html$/.test(p)) {
     ok(!/name="robots" content="noindex"/.test(h) && canon === "https://inkognito.co.il/" + (p === "index.html" ? "" : p.replace(".html", "")), p + ": indexable, under its one address (" + canon + ")");
   } else {
     ok(/name="robots" content="noindex"/.test(h) && !canon, p + ": kept out of search engines");
