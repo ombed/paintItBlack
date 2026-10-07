@@ -367,6 +367,8 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
     await db.query("delete from auth.users where id = $1", [U5]);
     const owner0 = JSON.stringify(await profileOf(OWNER)), a0 = JSON.stringify(await profileOf(A));
     await db.exec(sql9);
+    // 0009 run again put back its own make_profile; 0012, which replaces it and can run again, follows it as on the live project
+    await db.exec(fs.readFileSync(path.join(dir, "0012_consent_records.sql"), "utf8"));
     ok(!(await profileOf(U1)) && await count(U1) === 0, "the profile of an address never confirmed is gone, and its logs");
     ok((await profileOf(U2)).full_name === null, "a name with no Google identity behind it is cleared");
     ok((await profileOf(U3)).full_name === "Google Name", "an account with a Google identity has Google's name");
@@ -546,6 +548,32 @@ const A = "00000000-0000-0000-0000-00000000000a", B = "00000000-0000-0000-0000-0
     ok(/owner's account/.test(await tries(() => as(OWNER, () => db.query("select public.admin_delete_user($1)", [O2]))) || "") && !!(await profileOf(O2)), "nor another owner");
     ok((await tries(() => as(OWNER, () => db.query("select public.admin_delete_user($1)", [F])))) === null && !(await profileOf(F)), "the owner deletes another account");
     ok((await db.query("select count(*)::int n from public.usage_logs where user_id = $1", [F])).rows[0].n === 0, "and its logs go with it");
+  }
+
+  console.log("\n— what each account agreed to, and when (0012) —");
+  {
+    const K = "00000000-0000-0000-0000-0000000001c1", L = "00000000-0000-0000-0000-0000000001c2", M = "00000000-0000-0000-0000-0000000001c3";
+    await addUser(K, "k@example.com", "Kilo");
+    let pk = await profileOf(K);
+    ok(pk.terms_version === "2026-10-04" && pk.privacy_version === "2026-10-05" && !!pk.terms_at, "a new account records the terms and privacy versions in force, and when: " + [pk.terms_version, pk.privacy_version].join(" "));
+    await db.query("update public.app_settings set terms_version = '2026-11-01'");
+    await addUser(L, "l@example.com", "Lima");
+    ok((await profileOf(L)).terms_version === "2026-11-01" && (await profileOf(K)).terms_version === "2026-10-04", "a new version applies to accounts made after it; earlier ones keep theirs");
+    await db.query("update public.app_settings set terms_version = '2026-10-04'");
+    // the log's yes, and when
+    await as(K, () => db.query("select public.set_log_enabled(true)"));
+    pk = await profileOf(K);
+    ok(pk.log_enabled === true && !!pk.log_answered_at && pk.log_text_version === "2026-10-07", "a yes to the log records when, and the version of the asking words");
+    // a second «לא עכשיו» is a no, and is recorded; the first is not an answer
+    await addUser(M, "m@example.com", "Mike");
+    await as(M, () => db.query("select public.log_not_now()"));
+    ok(!(await profileOf(M)).log_answered_at, "a first «לא עכשיו» is not recorded as an answer");
+    await as(M, () => db.query("select public.log_not_now()"));
+    const pm = await profileOf(M);
+    ok(pm.log_enabled === false && !!pm.log_answered_at && pm.log_text_version === "2026-10-07", "the second is a no, recorded with when and the version");
+    // nobody writes these but the functions
+    ok(/permission denied/.test(await tries(() => as(K, () => db.query("update public.profiles set terms_version = 'x' where id = $1", [K]))) || ""), "an account cannot change what it agreed to");
+    ok((await as(K, () => db.query("select public.export_my_data() d"))).rows[0].d.profile.terms_version === "2026-10-04", "«הורדת המידע שלי» carries it");
   }
 
   // The checks above try one door at a time. Supabase's default grants open more doors than
