@@ -9,6 +9,15 @@
   const login = new URL("login.html", document.currentScript ? document.currentScript.src : location.href).pathname;
   if (!document.body.classList.contains("signin-page") && /^#(?:confirm|error|access_token)=/.test(location.hash)) location.replace(login + location.hash);
 
+  // a link to one answer (the tool's «איך מכבים» goes to #training) opens it, and so does a later
+  // change of the address's # on the same page
+  const openAnswer = () => {
+    const d = /^#[\w-]+$/.test(location.hash) && document.getElementById(location.hash.slice(1));
+    if (d && d.tagName === "DETAILS") d.open = true;
+  };
+  openAnswer();
+  addEventListener("hashchange", openAnswer);
+
   // the phone menu: the green bar's button opens a sheet of links; a link, or Escape, closes it
   const menu = document.querySelector(".menu-btn"), sheet = document.getElementById("sheet");
   if (menu && sheet) {

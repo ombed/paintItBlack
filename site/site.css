@@ -176,6 +176,10 @@ h1{font-family:var(--serif);font-weight:700;font-size:clamp(48px,6.2vw,92px);lin
 .faq summary::after{content:"";flex:none;width:10px;height:10px;margin-inline-end:4px;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:translateY(-3px) rotate(45deg);transition:transform .2s}
 .faq details[open] summary::after{transform:translateY(2px) rotate(-135deg)}
 .faq details p{padding:0 0 22px;max-width:46em;color:var(--ink-2)}
+/* an answer in parts (#training): its parts sit close together, the last keeps the answer's own space */
+.faq details h3{margin:0;font-size:17px;font-weight:700}
+.faq details .lead,.faq details h3+p{padding-bottom:12px}
+.faq-contact{margin-top:22px;max-width:46em;color:var(--ink-2)}
 
 /* final: the back board */
 .final{background:var(--cloth);color:var(--cloth-ink);margin:110px var(--gut) 0;border-radius:24px;padding:64px clamp(24px,4vw,64px);display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:24px 48px}

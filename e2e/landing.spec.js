@@ -135,7 +135,7 @@ test("on a phone the spine is a green bar: its menu opens the links, and a link 
    bar, sticky, carried the open sheet down the page over a third of the screen (review of 6.10).
    landing.js runs it on every page of the site. The press goes on to what it was on: a link below
    the open sheet is still followed. */
-for (const p of ["index.html", "privacy.html", "terms.html", "accessibility.html", "login.html", "404.html"])
+for (const p of ["index.html", "privacy.html", "terms.html", "accessibility.html", "changes.html", "login.html", "404.html"])
   test(`the phone menu closes on a press outside it, and not on one inside it (${p})`, async ({ page }) => {
     await siteAtRoot(page);
     await page.route(PROJECT + "/**", (route) => route.fulfill({ json: {} }));
@@ -172,7 +172,7 @@ for (const p of ["index.html", "privacy.html", "terms.html", "accessibility.html
 /* And when the focus leaves it: Tab past its last link left the sheet open, aria-expanded true, over
    the page the focus went on to (the class of the account panel's, review of 6.10; WCAG 2.4.11).
    Moving through its links keeps it open. */
-for (const p of ["index.html", "privacy.html", "terms.html", "accessibility.html", "login.html", "404.html"])
+for (const p of ["index.html", "privacy.html", "terms.html", "accessibility.html", "changes.html", "login.html", "404.html"])
   test(`the phone menu closes when the focus leaves it, and not while it moves through it (${p})`, async ({ page }) => {
     await siteAtRoot(page);
     await page.route(PROJECT + "/**", (route) => route.fulfill({ json: {} }));
@@ -209,6 +209,25 @@ for (const width of [1440, 1180, 860, 390, 320])
     expect(await cutOff(page)).toEqual([]);
   });
 
+/* The tool's line of care beside the AI links ends with «איך מכבים», a link to #training on the home page
+   (v65, 7.10.2026). Arriving there opens that answer: how to turn training off in each AI, with each
+   company's own help page, and the contact line under the questions. */
+test("a link to #training opens the answer about turning training off, with a part and a help page for each AI", async ({ page }) => {
+  await page.goto(HOME + "#training");
+  const d = page.locator("details#training");
+  await expect(d).toHaveAttribute("open", "");
+  await expect(d.locator("summary")).toHaveText("איך מכבים את השימוש בשיחות לאימון");
+  await expect(d.locator("h3")).toHaveText(["ב־ChatGPT", "ב־Claude", "ב־Gemini", "ב־Copilot"]);
+  for (const host of ["help.openai.com", "privacy.claude.com", "support.google.com", "support.microsoft.com"])
+    await expect(d.locator(`a[href^="https://${host}/"]`), host).toHaveCount(1);
+  await expect(page.locator(".faq-contact")).toHaveText("שאלה, תקלה או הצעה? כתבו אל contact@inkognito.co.il, ונענה תוך שני ימי עסקים.");
+  // and on the same page, a later link to it opens it too
+  await d.locator("summary").click();
+  await expect(d).not.toHaveAttribute("open", "");
+  await page.evaluate(() => { window.location.hash = ""; window.location.hash = "#training"; });
+  await expect(d).toHaveAttribute("open", "");
+});
+
 test("reduced motion: no smooth scrolling and no transitions", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto(HOME);
@@ -231,7 +250,7 @@ for (const [where, width] of [["desktop", 1440], ["phone", 390]])
     await axe(page, where + ", a question and the menu open");
   });
 
-for (const p of ["privacy.html", "terms.html", "accessibility.html", "404.html", "login.html"])
+for (const p of ["privacy.html", "terms.html", "accessibility.html", "changes.html", "404.html", "login.html"])
   test(`${p} has the home page's frame: the spine, its phone menu, nothing cut at 320 px, and axe`, async ({ page }) => {
     await siteAtRoot(page);
     await page.route(PROJECT + "/**", (route) => route.fulfill({ json: {} }));
