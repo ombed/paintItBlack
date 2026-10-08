@@ -27,6 +27,11 @@ try {
   const sv = JSON.parse(fs.readFileSync(path.join(ROOT, "node_modules/@supabase/supabase-js/package.json"), "utf8")).version;
   ok(files.includes(`vendor/supabase-${sv}.js`), "the root has the sign-in client the pages name");
   ok(files.includes("_headers"), "security headers for Cloudflare (_headers)");
+  // the site's icon (the owner's decision 23, 6.10: the tool's icon until the new one): every page names it,
+  // and it is at the root, where /favicon.ico had been a 404
+  const pages = files.filter((f) => /^[^/]+\.html$/.test(f));
+  ok(pages.length > 8 && pages.every((f) => read(f).includes('<link rel="icon" href="/icon.svg" type="image/svg+xml">')), "every page at the root names the icon");
+  ok(files.includes("icon.svg") && files.includes("icon-192.png"), "and the root has it");
   // the no-account demo (/demo/, v68): public, its own page with the demo flag, no sign-in, no model
   const demo = files.includes("demo/index.html") ? read("demo/index.html") : "";
   ok(demo.includes("window.__inkDemo={signup:") && demo.includes('window.__inkStoreSuffix="demo"'), "the demo page sets the tool's demo mode and its own case key");
