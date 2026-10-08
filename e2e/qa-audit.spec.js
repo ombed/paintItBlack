@@ -26,7 +26,7 @@ async function scanAndList(page, name) {
   await input.fill(name); await input.press("Enter");
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה|המשך לעיבוד|המשך|עיבוד/ }).first();
-  if (await run.isVisible({ timeout: 3000 }).catch(() => false)) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
 }
 const sheet = (page) => page.locator("[data-work] section").first();
@@ -86,7 +86,7 @@ test("ISSUE-002: a name ending in geresh keeps its ׳, matches the document, and
 
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה|המשך לעיבוד|המשך|עיבוד/ }).first();
-  if (await run.isVisible({ timeout: 3000 }).catch(() => false)) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   const text = await sheet(page).innerText();
   // what the user gets: every occurrence replaced, none of the real names left, archive verification clean

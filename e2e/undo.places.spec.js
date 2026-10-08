@@ -51,7 +51,7 @@ test("a place the map cannot use is still offered, not silently dropped", async 
 test("a selected word can be marked as an ordinary word", async ({ page }) => {
   await toPlaces(page, DOC);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך|עיבוד/ }).first();
-  if (await run.isVisible().catch(() => false)) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
 
   // select a word inside the document sheet
@@ -73,7 +73,7 @@ test("a selected word can be marked as an ordinary word", async ({ page }) => {
 test("Ctrl+Z takes a decision back, and the arrows do the same", async ({ page }) => {
   await toPlaces(page, DOC);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך|עיבוד/ }).first();
-  if (await run.isVisible().catch(() => false)) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
 
   const marks = page.locator("[data-mark]");

@@ -1354,6 +1354,14 @@ class Component extends DCLogic {
     this._hide=()=>this.docEnd("leave");
     addEventListener("pagehide", this._hide);
     addEventListener("popstate", this._pop);
+    // the document's history entry waits for a click or a key (canPush): it is pushed by the first one
+    this._histNow = () => {
+      if(!this._histWait||!this.canPush()) return;
+      this._histWait=false;
+      if(this.state.buf&&!this.state.tour&&!this._hist){ this._hist=true; this._leaving=false; try{ history.pushState({pib:1}, ""); }catch(_){} }
+    };
+    document.addEventListener("click", this._histNow, true);
+    document.addEventListener("keydown", this._histNow, true);
     this._follow=()=>{ if(this.state.inline||this.state.tip) this.followAnchors(); };
     /* שתי לשוניות (L15 בביקורת השנייה): תיק שנמחק בלשונית אחת נוצר מחדש מהשינוי הבא בשנייה,
        והרצועות לא התעדכנו. שינוי ברשימת התיקים מלשונית אחרת מרענן את הרצועה; ואם התיק של
@@ -1413,7 +1421,7 @@ class Component extends DCLogic {
     }
   }
   componentWillUnmount(){ document.removeEventListener("mousedown", this._docClick); document.removeEventListener("keydown", this._keys); document.removeEventListener("keyup", this._selKeys); removeEventListener("resize", this._resize);
-    removeEventListener("beforeunload", this._unload); removeEventListener("pagehide", this._hide); removeEventListener("popstate", this._pop);
+    removeEventListener("beforeunload", this._unload); removeEventListener("pagehide", this._hide); removeEventListener("popstate", this._pop); document.removeEventListener("click", this._histNow, true); document.removeEventListener("keydown", this._histNow, true);
     removeEventListener("scroll", this._follow, true); removeEventListener("resize", this._follow); removeEventListener("animationend", this._follow, true); removeEventListener("transitionend", this._follow, true);
     removeEventListener("scroll", this._scNudge, {capture:true}); removeEventListener("resize", this._scNudge); if(this._scT) clearTimeout(this._scT); removeEventListener("storage", this._storage); document.removeEventListener("focusin", this._helpFocus); removeEventListener("error", this._pageErr); removeEventListener("unhandledrejection", this._pageErr);
     if(this._barObs) this._barObs.disconnect(); if(this._headObs) this._headObs.disconnect(); }
@@ -1428,13 +1436,16 @@ class Component extends DCLogic {
     // חלונית המופעים אינה שורדת מעבר מסך: העכבר נשאר במקומו והחלונית של המסך הקודם כיסתה את הבא
     if(this.state.screen!==this._tipScreen){ this._tipScreen=this.state.screen; if(this.state.tip) this.setState({tip:null}); }
     // רשומת היסטוריה אחת לכל מסמך (H5): "אחורה" חוזר אליה ולא יוצא מהאתר
-    if(this.state.buf&&!this.state.tour&&!this._hist){ this._hist=true; this._leaving=false; try{ history.pushState({pib:1}, ""); }catch(_){} }
-    else if(!this.state.buf&&this._hist) this._hist=false;
+    if(this.state.buf&&!this.state.tour&&!this._hist){
+      if(this.canPush()){ this._hist=true; this._histWait=false; this._leaving=false; try{ history.pushState({pib:1}, ""); }catch(_){} }
+      else this._histWait=true;
+    }
+    else if(!this.state.buf){ this._hist=false; this._histWait=false; }
     /* ומסך ההחזרה רשומה משלו (החזרת שמות, 7.10.2026): "אחורה" בדפדפן חזר עד כאן אל השאלה "לצאת מהמסמך?",
        כשמה שרצו היה לחזור מהתשובה אל המסמך. כניסה למסך דוחפת רשומה, "אחורה" חוזר ממנו (_pop), ויציאה בכפתור
        שבדף מוציאה את הרשומה, כך ש"אחורה" הבא לא חוזר למסך שנסגר. לא בסיור. e2e/restore-ux.spec.js */
     const rv=this.state.screen==="reverse"&&!this.state.tour;
-    if(rv&&!this._rvHist){ this._rvHist=true; try{ history.pushState({pib:"rv"}, ""); }catch(_){} }
+    if(rv&&!this._rvHist&&this.canPush()){ this._rvHist=true; try{ history.pushState({pib:"rv"}, ""); }catch(_){} }
     else if(!rv&&this._rvHist){ this._rvHist=false; if(!this._rvPopped){ this._rvSkip=true; try{ history.back(); }catch(_){ this._rvSkip=false; } } this._rvPopped=false; }
     // "לפני שמתחילים" מקבל פוקוס כשהוא נפתח, כך שהמקלדת מתחילה בתוכו (ביקורת QA 003)
     if(this.state.intro&&!this.state.tour&&!this._introFocused){
@@ -3076,7 +3087,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     };
     document.addEventListener("focusin", this._tourFocus, true);
     // browser Back closes the tour and stays in the tool (the owner's decision 27, 6.10); it used to leave the site
-    if(!this._tourHist){ this._tourHist=true; try{ history.pushState({pib:"tour"}, ""); }catch(_){} }
+    if(!this._tourHist&&this.canPush()){ this._tourHist=true; try{ history.pushState({pib:"tour"}, ""); }catch(_){} }
     this._spotRO=typeof ResizeObserver==="function"?new ResizeObserver(this._onSpot):null;
     /* the sticky header can change height with no render and no resize: a web font arriving late (the
        wordmark's Frank Ruhl, the interface's Rubik) moves the target without resizing it. A font that
@@ -3103,6 +3114,14 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     set('[data-tour-block="t"]', c.blocks.tourBlockT); set('[data-tour-block="b"]', c.blocks.tourBlockB);
     set('[data-tour-block="l"]', c.blocks.tourBlockL); set('[data-tour-block="r"]', c.blocks.tourBlockR);
   }
+  /* A history entry is pushed only right after a click or a key (the owner, 8.10: Chrome's Back arrow sometimes
+     did nothing, or was grey). Chrome marks the entry a page leaves by history.pushState without such a gesture
+     as one its Back button skips, and with nothing before it the button is greyed out. The document's entry was
+     pushed when the file finished loading, after the file dialog, with no gesture; the demo's tour, started on
+     its own, pushed one too. Without the gesture, the document's entry waits for the next click or key
+     (_histNow), and the tour's and the restore screen's are not pushed at all: Back then does what the browser
+     does. Where the browser cannot say (no navigator.userActivation), it is pushed as before. */
+  canPush(){ const ua=navigator.userActivation; return !ua||ua.isActive; }
   /* The part of a tour target that can be seen, which is what the spotlight lights (tourMeasure) and what the
      self-check holds it to. The document's box runs on under the bottom bar, and on step 4 the bar was lit with
      it (the owner, 8.10): the header and the bar cut the target off where they sit over it (fixed or sticky),

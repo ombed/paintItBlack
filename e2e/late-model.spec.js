@@ -46,7 +46,7 @@ test("a name the model finds after she continued still gets replaced", async ({ 
 
   // through the places screen if it appears, on to the check screen
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה|המשך לעיבוד|המשך|עיבוד/ }).first();
-  if (await run.isVisible({ timeout: 5000 }).catch(() => false)) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
 
   // the late result arrives: the name is replaced in the document. The rail

@@ -34,7 +34,7 @@ test("each correction says what caused it, and the log still carries no text", a
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
 
   // a new pseudonym from the editor
@@ -104,7 +104,7 @@ test("a page error in her session is logged as a type and a screen, never its me
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   // an error whose message holds document text, raised the way a failing handler would
   await page.evaluate(() => window.dispatchEvent(new window.ErrorEvent("error", { error: new TypeError("רחל פרידמן is undefined"), message: "רחל פרידמן" })));

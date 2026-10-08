@@ -33,7 +33,7 @@ test("stepping to a replacement never makes it invisible", async ({ page }) => {
   await H.goOn(page);
 
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך|עיבוד/ }).first();
-  if (await run.isVisible().catch(() => false)) await run.click();
+  await H.throughPlaces(page, run);
 
   const marks = page.locator("[data-mark]");
   await expect(marks.first()).toBeVisible({ timeout: 20000 });

@@ -34,7 +34,7 @@ test("a name in quotation marks is replaced, found in context, and has one card"
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   // add the school from the work screen, as she would
   await page.getByPlaceholder("שם או פרט שפוספס").fill("אלונים");

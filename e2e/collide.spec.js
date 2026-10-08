@@ -24,7 +24,7 @@ test("a colliding replacement is kept, and the card warns", async ({ page }) => 
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה|המשך לעיבוד|המשך|עיבוד/ }).first();
-  if (await run.isVisible({ timeout: 3000 }).catch(() => false)) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
 
   const marks = page.locator('[data-mark][data-val="רונית לוי"]');

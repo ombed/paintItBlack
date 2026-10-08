@@ -24,7 +24,7 @@ async function toWork(page, doc, names) {
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   const bar = page.locator("[data-bar]");
   await expect(run.or(bar).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(bar).toBeVisible({ timeout: 20000 });
 }
 async function manualAdd(page, value) {
@@ -101,7 +101,7 @@ test("the dates choice is one setting, and it is kept with the case", async ({ p
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   const bar = page.locator("[data-bar]");
   await expect(run.or(bar).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(bar).toBeVisible({ timeout: 20000 });
   await expect(page.locator('[data-mark][data-kind="date"]')).toHaveCount(0);
   expect(await sheet(page).innerText()).not.toMatch(/\d{1,2}\.\d{1,2}\.\d{4}/);

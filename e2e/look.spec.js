@@ -263,7 +263,7 @@ for (const vp of [PHONE, DESK]) {
     await H.goOn(page);
     const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
     await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-    if (await run.isVisible()) await run.click();
+    await H.throughPlaces(page, run);
     await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
     // on a phone the findings are a tab of their own
     const tab = page.getByRole("button", { name: "ממצאים ובדיקה" });

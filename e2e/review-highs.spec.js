@@ -15,7 +15,7 @@ async function toCheck(page, doc) {
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 15000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
 }
 
@@ -61,7 +61,7 @@ test("a failed verification stops the download until she says so", async ({ page
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 15000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
   await expect(page.locator("[data-bar-text]").first()).toContainText("האימות נכשל");
 
@@ -89,7 +89,7 @@ test("a name removed from the list stays removed in the next document of the cas
   const toWork = async () => {
     const run = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first();
     await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 15000 });
-    if (await run.isVisible()) await run.click();
+    await H.throughPlaces(page, run);
     await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
   };
   await H.serveEngineWithStub(page);
@@ -151,7 +151,7 @@ test("accepting the question puts the name back, and the case forgets the remova
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 15000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
   await expect(page.locator("[data-work] section").first()).not.toContainText("אבנר שטרן");
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("redact-cases") || "{}")["תיק בדיקה"].removed || [])).not.toContain("אבנר שטרן");
@@ -168,7 +168,7 @@ test("removing the last rule is saved too: the case does not keep a list she emp
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 15000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
   const stored = () => page.evaluate(() => JSON.parse(localStorage.getItem("redact-cases") || "{}")["תיק של אחת"]);
   await expect.poll(async () => ((await stored()) || { rules: [] }).rules.map((r) => r.value)).toContain("רחל פרידמן");
@@ -221,7 +221,7 @@ test("a model that fails after she moved on says so on the screen she is on", as
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 15000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
   const notice = page.locator("[data-notice]");
   await expect(notice).toBeVisible({ timeout: 15000 });
@@ -241,7 +241,7 @@ test("deleting a case deletes its names too", async ({ page }) => {
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 15000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
   const store = () => page.evaluate(() => ({ cases: Object.keys(JSON.parse(localStorage.getItem("redact-cases") || "{}")), last: localStorage.getItem("redact-profile-last") || "" }));
   await expect.poll(async () => (await store()).cases).toContain("תיק למחיקה");

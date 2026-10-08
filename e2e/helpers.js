@@ -86,6 +86,17 @@ async function goOn(page) {
   if (await skip.isVisible({ timeout: 800 }).catch(() => false)) await skip.click();
 }
 
+/* Through the places screen, when it comes, to the check screen. The places screen comes a moment after
+   «המשך»; tests asked once whether its button was there (isVisible does not wait, even given a timeout), went
+   on without it when it came late, and then waited for a check screen that never came: the CI flakes of
+   rail, late-model, leak and merge (8.10). This waits until the tool is on one screen or the other, and
+   presses run only on the places screen. */
+async function throughPlaces(page, run) {
+  const screen = () => page.evaluate(() => window.__pib && window.__pib.state().screen);
+  await expect.poll(screen, { timeout: 20000 }).toMatch(/^(places|work)$/);
+  if ((await screen()) === "places") await run.click();
+}
+
 // Each people row carries a delete button; the name is the row's own span.
 const peopleRows = (page) => page.locator('div:has(> button[aria-label="הסרה"])');
 const listedNames = (page) => peopleRows(page).locator("> span").allTextContents();
@@ -100,4 +111,4 @@ async function servePdfJsLocally(page) {
   await page.route("**/pdfjs-dist@*/**", (route) => route.abort());
 }
 
-module.exports = { servePdfJsLocally, DOCX, serveEngineWithStub, boot, upload, startScan, scanning, goButton, goOn, skipButton, peopleRows, listedNames };
+module.exports = { servePdfJsLocally, DOCX, serveEngineWithStub, boot, upload, startScan, scanning, goButton, goOn, throughPlaces, skipButton, peopleRows, listedNames };

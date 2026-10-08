@@ -27,7 +27,7 @@ async function toCheck(page) {
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה|המשך לעיבוד|המשך|עיבוד/ }).first();
-  if (await run.isVisible({ timeout: 3000 }).catch(() => false)) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
 }
 const sheet = (page) => page.locator("[data-work] section").first();

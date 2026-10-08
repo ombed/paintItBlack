@@ -26,7 +26,7 @@ async function toCheckScreen(page) {
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך|עיבוד/ }).first();
-  if (await run.isVisible().catch(() => false)) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
 }
 
@@ -114,7 +114,7 @@ for (const width of [390, 320]) {
     await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
     await H.goOn(page);
     const run = page.getByRole("button", { name: /החלת הקבוצה|המשך|עיבוד/ }).first();
-    if (await run.isVisible().catch(() => false)) await run.click();
+    await H.throughPlaces(page, run);
     await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
     const gap = await page.evaluate(() => {
       const bar = document.querySelector("[data-bar]"), main = document.querySelector("[data-work]");

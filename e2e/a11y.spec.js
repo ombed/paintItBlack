@@ -65,7 +65,7 @@ async function toWork(page) {
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
 }
 
@@ -130,7 +130,7 @@ test("axe at night: entry and work screens, a selected card and the inline edito
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   await axe(page, "work, night");
   // a selected card marks its name in the document with the highlighter, in dark ink at night too
@@ -185,7 +185,7 @@ test("M29, M30: where a name appears, and choosing a card, work from the keyboar
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   const name = page.locator("[data-group] [data-kbd]").first();
   await name.focus();
@@ -279,7 +279,7 @@ async function toWorkFrom(page) {
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
 }
 
@@ -386,7 +386,7 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
     await H.goOn(page);
     const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
     await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-    if (await run.isVisible()) await run.click();
+    await H.throughPlaces(page, run);
     await expect(page.locator("[data-mark]").first()).toBeAttached({ timeout: 20000 });
     const walk = async (key) => {
       const found = [];
@@ -439,7 +439,7 @@ test("at 320px, the bottom bar's steps stay on the screen", async ({ page }) => 
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-steps]")).toBeVisible({ timeout: 20000 });
   await expect(page.locator('[data-step="3"]')).toContainText("3 החזרת שמות");
   const off = await page.evaluate(() => [...document.querySelectorAll("[data-bar] *")]

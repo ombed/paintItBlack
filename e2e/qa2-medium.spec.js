@@ -19,7 +19,7 @@ async function toWork(page, doc, names) {
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   const bar = page.locator("[data-bar]");
   await expect(run.or(bar).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(bar).toBeVisible({ timeout: 20000 });
 }
 const DOC = ["פרוטוקול", "מרים לוין: אני מבקשת לפתוח. הפגישה נקבעה ל-14.3.2026.", "מרים לוין: למרים יש טענות. ת.ז. 034567891."].join("\n");
@@ -55,7 +55,7 @@ test("M1: a case name typed during the tour does not follow the next real docume
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   const bar = page.locator("[data-bar]");
   await expect(run.or(bar).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(bar).toBeVisible({ timeout: 20000 });
   const cases = await page.evaluate(() => JSON.parse(localStorage.getItem("redact-cases") || "{}"));
   expect(Object.keys(cases)).not.toContain("תיק-מהסיור");
@@ -75,7 +75,7 @@ test("M2: model findings of the previous document are not pending on the next on
   await H.goOn(page);
   let run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   // a different client's document, model off
   page.once("dialog", (d) => d.accept());
@@ -87,7 +87,7 @@ test("M2: model findings of the previous document are not pending on the next on
   await H.goOn(page);
   run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   await expect(page.locator("[data-bar]")).not.toContainText("גדי פרץ");
   await expect(page.locator("[data-work]")).not.toContainText("גדי פרץ");
@@ -177,7 +177,7 @@ test("M6: on a phone, tapping a mark keeps the document on screen", async ({ pag
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   const mark = page.locator('[data-mark][data-val="מרים לוין"]').first();
   await mark.click();
@@ -250,7 +250,7 @@ test("L8, L20: a phone opens each screen at the top, and the document has room",
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   expect(await page.evaluate(() => window.scrollY)).toBe(0);
   const paper = await page.locator("[data-paper]").evaluate((el) => ({ w: el.getBoundingClientRect().width, pad: parseFloat(getComputedStyle(el).paddingLeft) }));
@@ -405,7 +405,7 @@ test("L22: a chip removed with ✕ is not offered again as a suggestion, and the
   await H.goOn(page);
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 20000 });
   const flagged = await page.locator('[data-mark][data-badge="?"]').count();
   await expect(page.locator("[data-legend]")).toContainText(flagged ? "מחכה להחלטה" : "נמחק");

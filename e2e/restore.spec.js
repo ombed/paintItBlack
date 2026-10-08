@@ -27,7 +27,7 @@ async function toWork(page) {
   const run = page.getByRole("button", { name: /החלת הקבוצה|המשך לבדיקה/ }).first();
   const bar = page.locator("[data-bar]");
   await expect(run.or(bar).first()).toBeVisible({ timeout: 20000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(bar).toBeVisible({ timeout: 20000 });
 }
 

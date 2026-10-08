@@ -107,7 +107,7 @@ test("a new document starts with an empty leak report", async ({ page }) => {
   if (await H.goButton(page).isVisible()) await H.goOn(page); else await H.skipButton(page).click();
   const run = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first();
   await expect(run.or(page.locator("[data-bar]")).first()).toBeVisible({ timeout: 15000 });
-  if (await run.isVisible()) await run.click();
+  await H.throughPlaces(page, run);
   await expect(page.locator("[data-bar]")).toBeVisible({ timeout: 15000 });
   await markByHand(page, "וסילייבסקי");
   await page.getByRole("button", { name: /מה נוקה מהקובץ/ }).click();
