@@ -736,6 +736,9 @@ function geoMap(names,variant,avoid,forbidden){
             if(used.has(p.n))continue;
             const pen=(typeof atlasPenalty==="function")?atlasPenalty(from,p.n):0;
             if(pen===Infinity)continue;
+            // המרחק צפון-דרום לבדו אינו גדול מהמרחק האמיתי: יישוב שגם הוא לא יעבור את הטוב ביותר עד
+            // כאן אינו נמדד. אותה תוצאה, בלי רוב חישובי המרחק (המעבר לצעד 3 בסיור, 8.10)
+            if(pen+Math.abs(p.a-tA)*111.19>=bs)continue;
             const d=hav(p.a,p.o,tA,tO), sc=d+pen;
             if(sc<bs){bs=sc;best=p;bp=pen}
           }

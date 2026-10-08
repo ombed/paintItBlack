@@ -61,10 +61,6 @@ async function tourToWork(page) {
   await expect(tour).toContainText("מי בתיק", { timeout: 20000 });
   return tour;
 }
-const gap = (page, sel) => page.evaluate((sel) => {
-  const s = document.querySelector("[data-spot]").getBoundingClientRect(), t = document.querySelector(sel).getBoundingClientRect();
-  return Math.round(Math.abs(s.top - (t.top - 6)));
-}, sel);
 
 for (const vp of [{ width: 1280, height: 600 }, { width: 390, height: 700 }]) {
   test(`the spotlight moves with the page while scrolling, with no lag (${vp.width}px)`, async ({ page }) => {
@@ -80,7 +76,9 @@ for (const vp of [{ width: 1280, height: 600 }, { width: 390, height: 700 }]) {
       await page.mouse.wheel(0, 250);
       // one frame after the scroll, the spotlight is already on its target
       await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
-      expect(await gap(page, "[data-work] section")).toBeLessThanOrEqual(1);
+      // on the visible part of its target: since v70 the header and the bottom bar cut it off (spotRect), and
+      // the self-check's spotlight-drift rule holds the spotlight to that part
+      expect(await page.evaluate(() => (window.__pib.check(true) || []).filter((f) => f.rule === "spotlight-drift").map((f) => f.detail || f.rule))).toEqual([]);
     }
     // and it does not pull the page back
     const y = await page.evaluate(() => window.scrollY);

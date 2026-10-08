@@ -186,8 +186,6 @@ button:disabled{opacity:.55;cursor:not-allowed}
    וקורא המסך אומר שאינו זמין. עד v60 הוא קיבל מיקוד, ולחיצה עליו לא עשתה דבר. המראה שלו לא
    משתנה: בלי השקיפות של כפתור מושבת (e2e/look.spec.js) */
 header nav button:disabled{opacity:1;cursor:default}
-/* the page holds still under the tour (tourStart); a target that scrolls on its own still does */
-html.touring{overflow:hidden}
 [data-tour]:focus{outline:none}
 [data-tour]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 /* לתיבה ריקה עם dir="auto" אין אות שתקבע את הכיוון, והדפדפן פורש אותה משמאל לימין: הרמז העברי
@@ -290,7 +288,7 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
 </div></div>
 <script>
 (function(){
-  console.log("אינקוגניטו — גרסה v69");
+  console.log("אינקוגניטו — גרסה v70");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -337,8 +335,8 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
         console.log("עובד שירות: "+served);
         var el=document.getElementById("ver"); if(!el) return;
         if(chip===null) chip=el.innerHTML; else el.innerHTML=chip;
-        if(served==="v69") return;
-        el.innerHTML='גרסה v69 · <b style="color:var(--warn)">יש גרסה חדשה: רעננו עם Ctrl+Shift+R</b>';
+        if(served==="v70") return;
+        el.innerHTML='גרסה v70 · <b style="color:var(--warn)">יש גרסה חדשה: רעננו עם Ctrl+Shift+R</b>';
       });
       var ask=function(){ if(sw.controller) sw.controller.postMessage("version") };
       sw.ready.then(ask);
@@ -1370,7 +1368,7 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
 
 </div>
 </x-dc>
-<footer><nav data-foot aria-label="מידע ומסמכים משפטיים"><a href="https://inkognito.co.il/" target="_blank" rel="noopener">עמוד הבית</a><a href="https://inkognito.co.il/terms" target="_blank" rel="noopener">תנאי שימוש</a><a href="https://inkognito.co.il/privacy" target="_blank" rel="noopener">מדיניות פרטיות</a><a href="https://inkognito.co.il/accessibility" target="_blank" rel="noopener">הצהרת נגישות</a><a href="mailto:contact@inkognito.co.il">יצירת קשר</a></nav><div id="ver">גרסה v69</div></footer>
+<footer><nav data-foot aria-label="מידע ומסמכים משפטיים"><a href="https://inkognito.co.il/" target="_blank" rel="noopener">עמוד הבית</a><a href="https://inkognito.co.il/terms" target="_blank" rel="noopener">תנאי שימוש</a><a href="https://inkognito.co.il/privacy" target="_blank" rel="noopener">מדיניות פרטיות</a><a href="https://inkognito.co.il/accessibility" target="_blank" rel="noopener">הצהרת נגישות</a><a href="mailto:contact@inkognito.co.il">יצירת קשר</a></nav><div id="ver">גרסה v70</div></footer>
 <script type="text/x-dc" data-dc-script data-props="{&quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
 class Component extends DCLogic {
@@ -3229,9 +3227,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       if(t.nudge!==t.i) this.setState({tour:{...t, nudge:t.i}});
     };
     document.addEventListener("click", this._tourGuard, true);
-    /* The page holds still under the tour (the gap review of 6.10, the tour lens): the wheel and the keys moved it,
-       and on the save step the spotlight lost its target and did not find it again. Only a target that scrolls on
-       its own (the document's pane) still does. The tour itself still brings a target into view (tourMeasure). */
+    /* The page scrolls under the tour, and the spotlight goes with it (tourMeasure on every scroll). v69 held the
+       page still, after the tour lens of 6.10 saw the spotlight lose its target on the save step; that did not
+       reproduce on the old code either, and holding the page hid everything below the window (the owner, 8.10).
+       e2e/tour-hold.spec.js scrolls every way and checks the spotlight. "touring" marks the page during the tour. */
     document.documentElement.classList.add("touring");
     /* And the keyboard stays with the tour: Tab and Enter reached the dimmed page (a field outside the lit area
        took typing, Enter on the rail chose a card). Focus that lands outside the card and the lit area goes back
@@ -3273,6 +3272,21 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     set('[data-tour-block="t"]', c.blocks.tourBlockT); set('[data-tour-block="b"]', c.blocks.tourBlockB);
     set('[data-tour-block="l"]', c.blocks.tourBlockL); set('[data-tour-block="r"]', c.blocks.tourBlockR);
   }
+  /* The part of a tour target that can be seen, which is what the spotlight lights (tourMeasure) and what the
+     self-check holds it to. The document's box runs on under the bottom bar, and on step 4 the bar was lit with
+     it (the owner, 8.10): the header and the bar cut the target off where they sit over it (fixed or sticky),
+     unless the target is inside them. */
+  spotRect(el){
+    const r=el.getBoundingClientRect(); let top=r.top, bottom=r.bottom;
+    for(const bar of document.querySelectorAll("header,[data-bar]")){
+      if(bar.contains(el)||el.contains(bar)) continue;
+      const pos=getComputedStyle(bar).position; if(pos!=="fixed"&&pos!=="sticky") continue;
+      const b=bar.getBoundingClientRect(); if(!b.height) continue;
+      if(b.top<=0&&b.bottom>top&&b.bottom<bottom) top=b.bottom+6;
+      else if(b.bottom>=innerHeight-1&&b.top<bottom&&b.top>top) bottom=b.top-6;
+    }
+    return {left:r.left, width:r.width, top, height:Math.max(0,bottom-top)};
+  }
   tourMeasure(onStep){
     const t=this.state.tour; if(!t) return;
     const cur=this.constructor.TOUR[t.i]; const el=cur&&cur.target?document.querySelector(cur.target):null;
@@ -3285,7 +3299,8 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const r=el.getBoundingClientRect();
     // גלילה אל היעד רק במעבר צעד; בגלילה של המשתמשת הזרקור הולך איתה, לא מושך אותה חזרה
     if(onStep&&(r.bottom<0||r.top>innerHeight)){ el.scrollIntoView({block:"center"}); return; }
-    const spot={x:Math.round(r.left)-6, y:Math.round(r.top)-6, w:Math.round(r.width)+12, h:Math.round(r.height)+12, slide:!!onStep};
+    const v=this.spotRect(el);
+    const spot={x:Math.round(v.left)-6, y:Math.round(v.top)-6, w:Math.round(v.width)+12, h:Math.round(v.height)+12, slide:!!onStep};
     const p=this.state.tourSpot;
     if(!p||p.x!==spot.x||p.y!==spot.y||p.w!==spot.w||p.h!==spot.h){
       if(!onStep) this.applySpot(spot);
@@ -3731,7 +3746,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     const near=(a,b)=>Math.abs(a-b)<=1.5;
     if(S.tour&&S.tourSpot){
       const cur=this.constructor.TOUR[S.tour.i], el=cur&&cur.target?document.querySelector(cur.target):null, sp=document.querySelector("[data-spot]");
-      if(el&&sp){ const a=el.getBoundingClientRect(), b=sp.getBoundingClientRect();
+      if(el&&sp){ const a=this.spotRect(el), b=sp.getBoundingClientRect();
         if(!(near(b.top,a.top-6)&&near(b.left,a.left-6)&&near(b.height,a.height+12)&&near(b.width,a.width+12))) add("spotlight-drift", Math.round(b.top-(a.top-6))+"px"); }
     }
     if(S.inline&&S.inline.anchor&&document.contains(S.inline.anchor)){

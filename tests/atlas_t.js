@@ -99,5 +99,14 @@ console.log("\n— end to end: the kind survives in the document —");
   ok(rep["בית חנן"] && C.atlasTags(rep["בית חנן"].replace(/^ל/, ""))["סוג"] === "מושב" || (rep["בית חנן"] && C.atlasTags(rep["בית חנן"])["סוג"] === "מושב"), "מושב בית חנן → מושב <moshav>: " + rep["בית חנן"]);
 }
 
+{
+  // the places screen mapped each town against every town in the atlas, re-reading its tags for every pair:
+  // the tour's step 2 to 3 took over a second (8.10). Old: about 1.5 s here; now about 0.1 s
+  const t = process.hrtime.bigint();
+  C.geoMap(["חיפה", "עכו", "נהריה", "כרמיאל"], 0, [], new Set());
+  const ms = Number(process.hrtime.bigint() - t) / 1e6;
+  ok(ms < 750, "mapping four towns takes well under a second (" + Math.round(ms) + " ms)");
+}
+
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

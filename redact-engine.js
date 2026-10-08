@@ -945,11 +945,17 @@ const ATLAS_TAGS={
 "ברקן":"יישוב קהילתי|יהודי|חילוני|קטן|יהודה ושומרון",
 "יקיר":"יישוב קהילתי|יהודי|דתי|קטן|יהודה ושומרון",
 "פדואל":"יישוב קהילתי|יהודי|דתי|קטן|יהודה ושומרון"};
-// מאפייני יישוב כאובייקט; יישוב בלי שורה בטבלה מקבל "לא ידוע" בכל ציר
+/* מאפייני יישוב כאובייקט; יישוב בלי שורה בטבלה מקבל "לא ידוע" בכל ציר. נקרא פעם אחת לכל יישוב ונשמר:
+   מסך היישובים משווה כל יישוב במסמך לכל יישוב באטלס, ופירוק השורה מחדש בכל השוואה לקח יותר משנייה
+   (המעבר מצעד 2 לצעד 3 בסיור, 8.10). האובייקט קפוא: מי שקורא לכאן רק קורא. */
+const ATLAS_SEEN=new Map();
 function atlasTags(name){
-  const raw=ATLAS_TAGS[name]; const o={};
+  let o=ATLAS_SEEN.get(name);
+  if(o)return o;
+  const raw=ATLAS_TAGS[name]; o={};
   const parts=raw?raw.split("|"):[];
   ATLAS_KEYS.forEach((k,i)=>{o[k]=parts[i]||"לא ידוע";});
+  Object.freeze(o); ATLAS_SEEN.set(name,o);
   return o;
 }
 // כפרי מול עירוני: מושב, קיבוץ ויישוב קהילתי דומים זה לזה יותר מלעיר
@@ -1710,6 +1716,9 @@ function geoMap(names,variant,avoid,forbidden){
             if(used.has(p.n))continue;
             const pen=(typeof atlasPenalty==="function")?atlasPenalty(from,p.n):0;
             if(pen===Infinity)continue;
+            // המרחק צפון-דרום לבדו אינו גדול מהמרחק האמיתי: יישוב שגם הוא לא יעבור את הטוב ביותר עד
+            // כאן אינו נמדד. אותה תוצאה, בלי רוב חישובי המרחק (המעבר לצעד 3 בסיור, 8.10)
+            if(pen+Math.abs(p.a-tA)*111.19>=bs)continue;
             const d=hav(p.a,p.o,tA,tO), sc=d+pen;
             if(sc<bs){bs=sc;best=p;bp=pen}
           }
