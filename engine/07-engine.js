@@ -76,6 +76,11 @@ function ageZones(n){
   const b=/(?<![\d])(\d{1,3})\s+(?:שנה|שנים|שנתיים|וחצי)(?![א-ת])/gu;
   while((m=b.exec(n)))z.push([m.index,m.index+m[1].length]);
   return z}
+/* מילה שהיא גם מילה רגילה, לא רק שם: שם פרטי שהוא מילה, מילה שכיחה, מילת עצירה או פועל — או
+   מילה שהטקסט עצמו כותב עם ה' הידיעה ("הכהן"). toks: המילים של הטקסט. בדיקה אחת לצורה עם אות
+   שימוש של שם קצר כאן, ולחלק של שם שעומד לבד בתשובת AI (restoreNames). */
+function wordish(x,toks){
+  return WORDLIKE.has(x)||COMMON.has(x)||STOP.has(x)||VRB.has(x)||(!!toks&&toks.has("ה"+x))}
 class Engine{
   constructor(subs,allow,opt,docText){
     subs=subs.map(x=>({...x}));
@@ -142,7 +147,7 @@ class Engine{
       // צורה של שם בן שתיים-שלוש אותיות חיכתה לאישור, וצורות כמו "ושי", "לרן",
       // "שרן" היה צריך להוסיף ביד, אחת-אחת, ו"לשי" עדיין יכול היה לצאת גלוי.
       const shortSingle = s.kind==="NAME" && nv.split(/\s+/).length===1 && nv.length<=3;
-      const isWord=x=>WORDLIKE.has(x)||COMMON.has(x)||STOP.has(x)||VRB.has(x)||this.forbidden.has("ה"+x);
+      const isWord=x=>wordish(x,this.forbidden);
       for(const [v,pre] of variants(s.value,lvl,protect)){
         if(seen.has(v))continue; seen.add(v);
         this.rules.push({rx:new RegExp(NW+flex(v)+NWE,"gu"),base:s.value,

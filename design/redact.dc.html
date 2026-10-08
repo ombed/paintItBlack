@@ -111,6 +111,10 @@ button:disabled{opacity:.55;cursor:not-allowed}
    וקורא המסך אומר שאינו זמין. עד v60 הוא קיבל מיקוד, ולחיצה עליו לא עשתה דבר. המראה שלו לא
    משתנה: בלי השקיפות של כפתור מושבת (e2e/look.spec.js) */
 header nav button:disabled{opacity:1;cursor:default}
+/* the page holds still under the tour (tourStart); a target that scrolls on its own still does */
+html.touring{overflow:hidden}
+[data-tour]:focus{outline:none}
+[data-tour]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 /* לתיבה ריקה עם dir="auto" אין אות שתקבע את הכיוון, והדפדפן פורש אותה משמאל לימין: הרמז העברי
    ישב בצד שמאל, וה"…" שלו לפניו. עד שיש בה טקסט היא מימין לשמאל (e2e/look.spec.js) */
 textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction:rtl}
@@ -248,7 +252,7 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
       <div data-tour-block="l" onClick="{{ onTourBlocked }}" style="{{ tourBlockL }}"></div>
       <div data-tour-block="r" onClick="{{ onTourBlocked }}" style="{{ tourBlockR }}"></div>
     </sc-if>
-    <div data-tour role="dialog" aria-label="סיור בכלי" style="{{ tourCardStyle }}">
+    <div data-tour role="dialog" aria-label="סיור בכלי" tabindex="-1" style="{{ tourCardStyle }}">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
         <span style="font-size:11.5px;font-weight:500;color:var(--ink3)">סיור · מסמך לדוגמה</span>
         <span style="font-size:11.5px;color:var(--ink3)">{{ tourPos }}</span>
@@ -1336,6 +1340,8 @@ class Component extends DCLogic {
     this._pop = () => {
       // מסך ההחזרה (componentDidUpdate): "אחורה" חוזר ממנו למסך שממנו הגיעו, בלי שאלה; ורשומה שהכפתור שבדף הוציא אינה יציאה
       if(this._rvSkip){ this._rvSkip=false; return; }
+      if(this._tourSkip){ this._tourSkip=false; return; }
+      if(this._tourHist&&this.state.tour){ this._tourPopped=true; this.tourClose(); return; }
       if(this._rvHist&&this.state.screen==="reverse"){ this._rvPopped=true; this.goBack(); return; }
       if(!(this._hist && this.state.buf && !this.state.tour)) return;
       if(confirm("לצאת מהמסמך? המסמך וההחלטות שקיבלתם לגביו יאבדו. התיק נשאר שמור בדפדפן.")){
@@ -3046,13 +3052,32 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       const t=this.state.tour; if(!t||!e.isTrusted) return;
       const cur=this.constructor.TOUR[t.i], target=cur&&cur.target?document.querySelector(cur.target):null;
       const el=e.target;
-      if(!target||!el||!el.closest) return;
-      if(target.contains(el)||el.closest("[data-tour],[data-inline],[data-notice],[data-intro],[data-tip],[data-demo]")) return;
+      // a step whose target is not on the screen lets nothing through either (the tour lens, 6.10: step 7 did)
+      if(!el||!el.closest) return;
+      if((target&&target.contains(el))||el.closest("[data-tour],[data-inline],[data-notice],[data-intro],[data-tip],[data-demo]")) return;
       e.preventDefault(); e.stopPropagation();
       this.log.add("tour",{at:"blocked-click"});
       if(t.nudge!==t.i) this.setState({tour:{...t, nudge:t.i}});
     };
     document.addEventListener("click", this._tourGuard, true);
+    /* The page holds still under the tour (the gap review of 6.10, the tour lens): the wheel and the keys moved it,
+       and on the save step the spotlight lost its target and did not find it again. Only a target that scrolls on
+       its own (the document's pane) still does. The tour itself still brings a target into view (tourMeasure). */
+    document.documentElement.classList.add("touring");
+    /* And the keyboard stays with the tour: Tab and Enter reached the dimmed page (a field outside the lit area
+       took typing, Enter on the rail chose a card). Focus that lands outside the card and the lit area goes back
+       to the card itself, which has no action of its own, so a stray Enter does nothing there. */
+    this._tourFocus=e=>{
+      const t=this.state.tour; if(!t) return;
+      const cur=this.constructor.TOUR[t.i], target=cur&&cur.target?document.querySelector(cur.target):null, el=e.target;
+      if(!el||!el.closest||(target&&target.contains(el))||el.closest("[data-tour],[data-inline],[data-notice],[data-intro],[data-tip],[data-demo]")) return;
+      // the text caret stays in a field the focus left: text inserted without a key press went there
+      try{ const sel=getSelection(); if(sel) sel.removeAllRanges(); }catch(_){}
+      const card=document.querySelector("[data-tour]"); if(card) card.focus({preventScroll:true});
+    };
+    document.addEventListener("focusin", this._tourFocus, true);
+    // browser Back closes the tour and stays in the tool (the owner's decision 27, 6.10); it used to leave the site
+    if(!this._tourHist){ this._tourHist=true; try{ history.pushState({pib:"tour"}, ""); }catch(_){} }
     this._spotRO=typeof ResizeObserver==="function"?new ResizeObserver(this._onSpot):null;
     /* the sticky header can change height with no render and no resize: a web font arriving late (the
        wordmark's Frank Ruhl, the interface's Rubik) moves the target without resizing it. A font that
@@ -3099,6 +3124,13 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     }
   }
   tourStep(i){ return this.constructor.TOUR[i]; }
+  /* On a phone the review screen shows one pane at a time: the save step's field sits in «ממצאים ובדיקה», and the
+     step said «הקלידו שם תיק בשדה המסומן» over the document, with nothing lit (the tour lens, 6.10). A step
+     whose target is in the rail shows the rail; the step about the document shows the document. */
+  tourPane(step){
+    if(!this.state.narrow||!step||!step.target) return {};
+    return step.target.includes("data-tour-target=case")?{pane:"find"}:step.target.includes("[data-work] section")?{pane:"doc"}:{};
+  }
   tourClose = () => {
     const t=this.state.tour; if(!t) return;
     this.log.add("tour",{at:"close", step:t.i, done:t.i>=this.constructor.TOUR.length-1});
@@ -3109,6 +3141,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
       if(document.fonts&&document.fonts.removeEventListener) document.fonts.removeEventListener("loadingdone", this._onSpot);
       this._onSpot=null; }
     if(this._spotRO){ this._spotRO.disconnect(); this._spotRO=null; this._spotEl=null; }
+    document.documentElement.classList.remove("touring");
+    if(this._tourFocus){ document.removeEventListener("focusin", this._tourFocus, true); this._tourFocus=null; }
+    // closed by its own buttons: its history entry goes too, so the next Back is the page's own
+    if(this._tourHist){ this._tourHist=false; if(!this._tourPopped){ this._tourSkip=true; try{ history.back(); }catch(_){ this._tourSkip=false; } } this._tourPopped=false; }
     // שם תיק שהוקלד בסיור הוא חלק מהמסמך הבדוי (M1 בביקורת השנייה): הוא לא עובר למסמך
     // הבא, ולא נשמר כתיק — הסיור מבטיח ששום דבר ממנו לא נשמר
     // והמסמך הבדוי נמחק כולו, באותה רשימה שמאפסת כל מסמך (docReset): עד כאן נשארו ממנו ההחלטות, הטקסט והסריקה
@@ -3159,7 +3195,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     }
     // בצעד ההחזרה, כפתור הכרטיס עושה מה שעושה הכפתור שבמסך (rvGo מעביר לצעד הבא); תיבה שרוקנה מתמלאת שוב
     if(cur.restore){ if((this.state.rvIn||"").trim()) this.rvGo(); else this.setState({rvIn:this.tourAnswer()}, this.rvGo); return; }
-    this.setState({tour:{...t, i:t.i+1}, open:nx.open?this.openWith(nx.open):this.state.open});
+    this.setState({tour:{...t, i:t.i+1}, open:nx.open?this.openWith(nx.open):this.state.open, ...this.tourPane(nx)});
   };
   // עד עשרים שניות, בפסיעות קטנות, עד שהתנאי מתקיים — העיבוד רץ בלי await
   async tourWait(cond){ for(let i=0;i<200&&!cond();i++) await new Promise(r=>setTimeout(r,100)); }
@@ -3169,7 +3205,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
     if(T[i].screen==="places"&&!t.hadPlaces) i--;
     const cur=T[i];
     this.log.add("tour",{at:"back", step:t.i});
-    const patch={tour:{...t, i}};
+    const patch={tour:{...t, i}, ...this.tourPane(cur)};
     if(cur.screen==="entry") Object.assign(patch,{screen:"entry", pending:!!this.state.buf});
     else if(cur.screen==="people") Object.assign(patch,{screen:"people"});
     else if(cur.screen==="places") Object.assign(patch,{screen:"places"});

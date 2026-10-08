@@ -226,10 +226,19 @@ test("M32: the tour is a dialog left by keyboard, and a key press outside the li
   const toggle = page.getByRole("button", { name: "מצב יום או לילה" });
   const dark = () => page.evaluate(() => document.documentElement.classList.contains("dark"));
   const before = await dark();
+  // focus that lands outside the lit area goes back to the card itself (tour lens, 6.10: Tab and Enter reached the
+  // dimmed page), and Enter there does nothing: the tour stays on its step, and the page as it was
   await toggle.focus();
+  await expect(card).toBeFocused();
   await page.keyboard.press("Enter");
   expect(await dark()).toBe(before);
-  await expect(page.locator("[data-tour-nudge]")).toBeVisible();
+  await expect(card).toContainText("קובץ או טקסט");
+  // Tab from the card's last button wraps to nothing outside: never a dimmed control
+  for (let i = 0; i < 6; i++) {
+    await page.keyboard.press("Tab");
+    expect(await page.evaluate(() => { const a = document.activeElement, t = document.querySelector("[data-tour-target=upload]");
+      return !!a && (!!a.closest("[data-tour]") || (t && t.contains(a))); }), "Tab " + (i + 1) + " stays with the tour").toBe(true);
+  }
   // the way out by keyboard is the card's close button; a stray Escape does not end the tour
   // (e2e/unruly.spec.js pins that a stray key never changes her screen)
   await page.keyboard.press("Escape");

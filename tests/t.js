@@ -160,7 +160,8 @@ const leftOf=r=>JSON.stringify(r.left.map(x=>[x.fake,x.real,x.at.map(([s,e])=>r.
 r=C.restoreNames("אביבה ביטון היא האם, ולאלירן כהן אין התנגדות. ביטון חתמה.",SAMPLE_MAP);
 eq(leftOf(r),"[]","every pseudonym came back: nothing is left");
 r=C.restoreNames("אלירן כהן הוא האב. כהן גר בכפר סבא.",SAMPLE_MAP);
-eq(leftOf(r),JSON.stringify([["כהן","שרעבי",["כהן"]]]),"the sample's three-letter surname alone is not restored, so it is left");
+eq(r.text,"אורן שרעבי הוא האב. שרעבי גר ברמת גן.","the sample's three-letter surname alone comes back (since v69; it was left before)");
+eq(leftOf(r),"[]","so nothing is left");
 r=C.restoreNames("אביבה ביטון ופלוני א׳ הגיעו. פלוני א׳ חתם.",[["מיכל שרעבי","אביבה ביטון"],["דוד כהן","פלוני א׳"],["רות לוי","פלוני א׳"]]);
 eq(leftOf(r),JSON.stringify([["פלוני א׳",null,["פלוני א׳","פלוני א׳"]]]),
   "a pseudonym of two people is left, with no real name, marked twice where it stands after the restore before it (prefix «ו» not marked)");
@@ -169,12 +170,61 @@ eq(leftOf(r),JSON.stringify([["אלירן כהן","אורן שרעבי",["אלי
 r=C.restoreNames("כהן הגיע.",[["דוד לוי","יוסי כהן"],["רות מור","דנה כהן"]]);
 eq(leftOf(r),JSON.stringify([["כהן",null,["כהן"]]]),"a surname two pseudonyms share is left, with no real name");
 r=C.restoreNames("לוי הגישה, וללוי יש בקשה. מיכל לוי חתמה.",[["רונית כץ","מיכל לוי"]]);
-eq(r.text,"לוי הגישה, וללוי יש בקשה. רונית כץ חתמה.","a three-letter surname alone is not restored");
-eq(leftOf(r),JSON.stringify([["לוי","כץ",["לוי","לוי"]]]),"and it is left twice, with its real part; the prefix «ול» is not marked");
+eq(r.text,"כץ הגישה, וללוי יש בקשה. רונית כץ חתמה.","a three-letter surname alone comes back, but not after «ול» («לכהן» is a verb)");
+eq(leftOf(r),JSON.stringify([["לוי","כץ",["לוי"]]]),"and that one is left, with its real part; the prefix «ול» is not marked");
+r=C.restoreNames("גב' כץ הגיעה, וכץ לא.",[["רונית לוי","דנה כץ"]]);
+eq(leftOf(r),JSON.stringify([["כץ","לוי",["כץ"]]]),"a two-letter part alone, not after a title, is left with its real part");
+r=C.restoreNames("ביום ראשון נפגשנו.",[["גבעת שמואל","ראשון לציון"]]);
+eq(leftOf(r),"[]","a word of a place is not a person's part: not left");
 r=C.restoreNames("לאור האמור, הבקשה נדחית.",[["דוד לוי","אור ברנע"]]);
 eq(leftOf(r),"[]","a part that is also a word («לאור») is not counted as left, as it is not restored");
 r=C.restoreNames("כהן אמר שפלוני א׳ חתם.",[["דוד לוי","יוסי כהן"],["רות מור","דנה כהן"],["אבי רז","פלוני א׳"],["גיל טל","פלוני א׳"]]);
 eq(r.left.map(x=>x.fake).join("|"),"כהן|פלוני א׳","the items are in the order they appear in the answer");
+
+console.log("\n— restoreNames: a first name or a surname alone —");
+// live check, 6.10: «מר כהן», «רחל תעדכן», «בני הזוג כהן» and both parts of «יפעת בן פלדמן» stayed invented
+for(const [said,want] of [["מר כהן הוא האב.","מר שרעבי הוא האב."],["רחל תעדכן בחודש הבא.","לודמילה תעדכן בחודש הבא."],
+  ["בני הזוג כהן נפרדו.","בני הזוג שרעבי נפרדו."],["הגב' לוי היא המורה.","הגב' כץ היא המורה."],["גב׳ ביטון היא האם.","גב׳ שרעבי היא האם."],
+  ['עו"ד לוי השיבה.','עו"ד כץ השיבה.'],["עוה״ד לוי השיבה.","עוה״ד כץ השיבה."],['ד"ר לוי העידה.','ד"ר כץ העידה.'],
+  ["השופטת לוי קבעה.","השופטת כץ קבעה."],["כב' השופט כהן קבע.","כב' השופט שרעבי קבע."],["כב' כהן קבע.","כב' שרעבי קבע."],
+  ["ולמר כהן אין טענות.","ולמר שרעבי אין טענות."],["ורחל תעדכן.","ולודמילה תעדכן."],["לאירינה אין התנגדות.","לנועה אין התנגדות."],
+  ["אלירן: אני האב.","אורן: אני האב."],["רחל לוי אמרה שרחל לא תגיע, ורחל תעדכן.","לודמילה כץ אמרה שלודמילה לא תגיע, ולודמילה תעדכן."],
+  ["כשכהן הגיע, ושלוי לא.","כששרעבי הגיע, ושכץ לא."]])
+  eq(back(said),want,"a part alone: «"+said+"»");
+const THREE=[["שרה בן דוד","יפעת בן פלדמן"],["יעקב אבוטבול","סרגיי סלומון"]];
+for(const [said,want] of [["גב' בן פלדמן ביקשה דחייה.","גב' בן דוד ביקשה דחייה."],["יפעת ביקשה דחייה.","שרה ביקשה דחייה."],
+  ["פלדמן ביקשה דחייה.","דוד ביקשה דחייה."],["לבן פלדמן אין התנגדות.","לבן דוד אין התנגדות."],["מר סלומון התנגד.","מר אבוטבול התנגד."],
+  ["סרגיי התנגד.","יעקב התנגד."],["הוא בן 9, והיא בת 7.","הוא בן 9, והיא בת 7."]])
+  eq(C.restoreNames(said,THREE).text,want,"a three-word name: «"+said+"»");
+eq(C.restoreNames("גב' כץ הגיעה, וכץ לא.",[["רונית לוי","דנה כץ"]]).text,"גב' לוי הגיעה, וכץ לא.","two letters come back only after a title");
+r=C.restoreNames("מר כהן ורחל הגיעו.",SAMPLE_MAP);
+eq(r.count,2,"each part counts as a restored name");
+// ordinary words with the same letters stay as they are
+for(const t of ["הוא שימש כהן בבית המקדש, והכהן הגדול הסכים.","הוא מונה לכהן כשופט, ומכהן בו עד היום.","בני משפחת הכהנים, ורחלי.",
+  "המעיל בלוי, והסוד גלוי.","רחלה ורחלי הגיעו.","ביטוני הגיע.","כהןים"])
+  eq(back(t),t,"ordinary words with the same letters, untouched: «"+t+"»");
+for(const [t,pairs] of [["ביום ראשון נפגשנו.",[["גבעת שמואל","ראשון לציון"]]],["רמת הסיכון גבוהה.",[["נווה שאנן","רמת אביב"]]],
+  ["פלוני לא הגיע.",[["מיכל שרעבי","פלוני א׳"]]],["קטפה ורד אדום.",[["רונית לוי","גלית ורד"]]],["האופק רחוק, וגלים באופק.",[["מכון שלווה","מכון אופק"]]],
+  ["דנה אמרה, וגב' מלמד הסכימה.",[["רות לוי","דנה מלמד"],["שירה כץ","דנה מלמד"]]],["החוק אשר נקבע.",[["רונן לוי","אשר גבאי"]]]])
+  eq(C.restoreNames(t,pairs).text,t,"not a person's own part, untouched: «"+t+"»");
+eq(C.restoreNames("גב' ורד הסכימה.",[["רונית לוי","גלית ורד"]]).text,"גב' לוי הסכימה.","a part that is also a word comes back after a title");
+
+console.log("\n— restoreNames: two-digit years of the 1900s, labels without brackets, names with nikud —");
+// review, 6.10: a two-digit year was always 20xx, so a shifted birth date «8.10.95» written as «8.10.1995» stayed shifted
+for(const t of ["נולד ב-8.10.1995.","נולד ב-8 באוקטובר 1995.","נולד ב-8.10.95."])
+  eq(C.restoreNames(t,[["3.5.95","8.10.95"]]).text,"נולד ב-3.5.95.","a shifted 19xx date in another spelling: «"+t+"»");
+eq(C.restoreNames("עד 8.10.2030.",[["3.5.30","8.10.30"]]).text,"עד 3.5.30.","a two-digit year a few years ahead is still 20xx");
+eq(C.fakeDate("3.5.95",30),"2.6.95","a shifted two-digit date keeps its two digits");
+// review, 6.10: a bracket label the AI writes without its brackets stayed
+for(const [said,want] of [['מספר הזהות: ת"ז א׳.','מספר הזהות: 012345678.'],['ולת״ז א׳ אין רישום.','ול012345678 אין רישום.'],
+  ['[ת"ז א׳] ו-ת"ז א׳','012345678 ו-012345678']])
+  eq(C.restoreNames(said,[["012345678",'[ת"ז א׳]']]).text,want,"a label without its brackets: «"+said+"»");
+for(const t of ['מקום א הוא','ת"ז אחת','ת"ז א׳]'])
+  eq(C.restoreNames(t,[["חיפה","[מקום א׳]"],["012345678",'[ת"ז א׳]']]).text,t,"not the label without its brackets, untouched: «"+t+"»");
+// review, 6.10: a name the AI writes with nikud came back half: the surname only, a person who does not exist
+for(const [said,want] of [["אֲבִיבָה ביטון חתמה.","מיכל שרעבי חתמה."],["אֲבִיבָה בִּיטוֹן חתמה.","מיכל שרעבי חתמה."],
+  ["ולאֲבִיבָה ביטון אין.","ולמיכל שרעבי אין."],["גב׳ בִּיטוֹן חתמה.","גב׳ שרעבי חתמה."]])
+  eq(back(said),want,"a name with nikud: «"+said+"»");
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail?1:0);

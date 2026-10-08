@@ -1257,25 +1257,33 @@ const PRE_SEQ=(()=>{
 })();
 // אחרי ב/ל/כ ה' הידיעה נבלעת ("בגפן" ל"הגפן"): כל רצף שמסתיים באחת מהן, ו"כש" מהרשימה הקודמת
 const PRE_MERGED=PRE_SEQ.filter(x=>/[בלכ]$/.test(x)).concat("כש");
-// גוף התבנית של כינוי, בלי הגבולות: כל צורה של גרש וגרשיים, וכל רצף של רווח או מקף בין המילים
+/* גוף התבנית של כינוי, בלי הגבולות: כל צורה של גרש וגרשיים, כל רצף של רווח או מקף בין המילים, וניקוד
+   אחרי כל אות. בלי הניקוד, שם שה-AI ניקד בחלקו ("אֲבִיבָה ביטון") לא נתפס כשם מלא, ורק שם המשפחה חזר:
+   אדם שאינו קיים (ביקורת, 6.10). הניקוד והטעמים בלבד, לא המקף, הפסק והנקודתיים שבאותו טווח. */
+const NIKUD="[\\u0591-\\u05bd\\u05bf\\u05c1\\u05c2\\u05c4\\u05c5\\u05c7]*";
 function pseudoPat(p){
   return [...p].map(c=>/['\u05f3\u2019]/.test(c)?"['\u05f3\u2019]"
     :/["\u05f4\u201d]/.test(c)?'["\u05f4\u201d]'
-    :/[-\u05be\u2013\s]/.test(c)?"[-\\u05be\\u2013\\s]+":esc(c)).join("");
+    :/[-\u05be\u2013\s]/.test(c)?"[-\\u05be\\u2013\\s]+"
+    :/[\u05d0-\u05ea]/.test(c)?c+NIKUD:esc(c)).join("");
 }
 /* תווית כפי שה-AI כותב אותה: "פלוני ב׳" בלשון נקבה ("פלונית ב׳") ובלי הגרש ("פלוני ב"), והמספר
    של תווית בסוגריים בלי הגרש ("[ת"ז א]"). עד כאן חזרה רק התווית כפי שיצאה, ו"פלונית ב׳" נשארה
    בתשובה (בדיקה בכלי החי, 6.10). בלי גרש, אות שאחריה מקף או ספרה אינה מספר של תווית ("פלוני
-   ב-2020"). כינוי שאינו תווית: null. */
+   ב-2020"). תווית בסוגריים חוזרת גם בלי הסוגריים ("ת"ז א׳"), שה-AI מוריד בטקסט רגיל — אבל רק עם
+   הגרש, כדי שמילה ואות ("מקום א") לא ייתפסו (ביקורת, 6.10). כינוי שאינו תווית: null. */
 function labelPat(p){
   const MK="['\"\u05f3\u05f4\u2019\u201d]";
   const m=new RegExp("^(.+?)[\\s\u00a0]+((?:[\u05d0-\u05ea]"+MK+"?){1,3})(\\]?)$","u").exec(String(p).trim());
   if(!m||!new RegExp(MK).test(m[2]))return null;
   const head=m[1]==="פלוני"&&!m[3]?"פלונית?":/^\[/.test(m[1])&&m[3]?pseudoPat(m[1]):null;
   if(!head)return null;
-  const ls=[...m[2].replace(new RegExp(MK,"g"),"")];
-  return head+"[-\\u05be\\u2013\\s]+"+
+  const ls=[...m[2].replace(new RegExp(MK,"g"),"")], SEP="[-\\u05be\\u2013\\s]+";
+  const pat=head+SEP+
     ls.map((c,i)=>c+(i<ls.length-1?MK+"?":"(?:"+MK+"|(?![-\u05be0-9]))")).join("")+(m[3]?"\\]":"");
+  if(!m[3])return pat;
+  const bare=pseudoPat(m[1].slice(1))+SEP+ls.map((c,i)=>c+(i<ls.length-1?MK+"?":MK)).join("")+"(?!\\])";
+  return "(?:"+pat+"|"+bare+")";
 }
 function pseudoRX(p){
   const pat=labelPat(p)||pseudoPat(p);
@@ -1305,7 +1313,7 @@ const MONTHS_HE=["ינואר","פברואר","מר[ץס]","אפריל","מאי",
 function dateParts(s){
   const m=/^(\d{1,2})([./-])(\d{1,2})\2(\d{4}|\d{2})$/.exec(String(s||"").trim());
   if(!m)return null;
-  const d=+m[1], mo=+m[3], y=m[4].length===2?2000+ +m[4]:+m[4];
+  const d=+m[1], mo=+m[3], y=fullYear(m[4]);
   return d>=1&&d<=31&&mo>=1&&mo<=12?{d,m:mo,y}:null;
 }
 const sameDay=(a,b)=>!!a&&!!b&&a.d===b.d&&a.m===b.m&&a.y===b.y;
@@ -1315,6 +1323,34 @@ function dateRX(f){
   const body=D+"(?<sep>[./-])"+M+"\\k<sep>(?:"+Y+"|"+YY+")|"+Y+"-"+M+"-"+D+"|"+
     D+"\\s+[בל]?"+MONTHS_HE[f.m-1]+",?\\s+"+Y;
   return new RegExp("(?<!["+B+"])(?<pre>(?:"+PRE_SEQ.join("|")+")[-\u05be]?)?(?:"+body+")(?!["+B+"])","gu");
+}
+/* חלקי השם של אדם, כזוגות [חלק בדוי, חלק אמיתי]: השם הפרטי, שם המשפחה כולו ("בן פלדמן"), והמילה
+   האחרונה בשם של שלוש מילים — כמו החלקים שהמעבר על המסמך מחליף. לכינוי שאינו שם של אדם — תווית,
+   תאריך, מספר, יישוב, שכונה, רחוב או גוף — אין חלקים. עד כאן "ראשון" של "ראשון לציון" חזר לבדו
+   ("ביום ראשון"), וכך "פלוני" של "פלוני א׳" כשם פרטי. */
+function nameParts(pseudo,real){
+  const pw=String(pseudo||"").trim().split(/\s+/), rw=String(real||"").trim().split(/\s+/);
+  const np=norm(pw.join(" ")), nr=norm(rw.join(" "));
+  if(pw.length<2||rw.length<2||!np.split(" ").every(w=>/^[\u05d0-\u05ea][\u05d0-\u05ea'-]*$/.test(w)))return [];
+  if(/^(?:פלוני|פלונית|אלמוני|אלמונית)$/.test(np.split(" ")[0]))return [];
+  const place=x=>!!(PLACE_BY[x]||NEIGHBORHOODS.includes(x)||STREETS.includes(x)||(typeof GAZ!=="undefined"&&GAZ.includes(x)));
+  if(place(np)||place(nr)||orgHead(np)||orgHead(nr))return [];
+  const out=[[pw[0],rw[0]],[pw.slice(1).join(" "),rw.slice(1).join(" ")]];
+  if(pw.length>2)out.push([pw[pw.length-1],rw[rw.length-1]]);
+  return out;
+}
+// התארים שאחריהם בא שם, בכל צורות הגרש והגרשיים, ואות שימוש לפניהם ("ולמר")
+const TITLE_BEFORE="(?:"+PRE_SEQ.join("|")+")?(?:מר|גב['\u05f3\u2019]|הגב['\u05f3\u2019]|עו[\"\u05f4\u201d]ד|עוה[\"\u05f4\u201d]ד|"+
+  "ד[\"\u05f4\u201d]ר|השופטת|השופט|כב['\u05f3\u2019])";
+/* חלק של שם שעומד לבד. אחרי תואר — חלק של שתי אותיות ומעלה; בלי תואר — שלוש ומעלה, ומי שקורא
+   לכאן בודק שאינו מילה רגילה. לפני חלק של ארבע אותיות ומעלה כל רצף של אותיות שימוש בלי ה' (שם אינו
+   מיודע); לפני חלק של שלוש רק ו, ש וכש: "לכהן" ו"מכהן" הם פעלים, "בלוי" שם תואר. null: אין כלל כזה. */
+function partRX(k,title){
+  const L="\u0591-\u05bd\u05bf-\u05c7\u05d0-\u05ea", pat=pseudoPat(k), n=norm(k).replace(/[^\u05d0-\u05ea]/g,"").length;
+  if(title)return n>=2?new RegExp("(?<=(?<!["+L+"])"+TITLE_BEFORE+"[\\s\u00a0]+)()"+pat+"(?!["+L+"])","gu"):null;
+  if(n<3)return null;
+  const pre=n>=4?PRE_SEQ.filter(x=>!x.endsWith("ה")):["וכש","וש","כש","ו","ש"];
+  return new RegExp("(?<!["+L+"])((?:"+pre.join("|")+")[-\u05be]?)?"+pat+"(?!["+L+"])","gu");
 }
 // זוגות [שם אמיתי, כינוי]. מחזיר טקסט, כמה הוחזרו, ומה לא נמצא —
 // כינוי שלא נמצא הוא לא בהכרח תקלה, אבל כדאי לדעת עליו.
@@ -1326,20 +1362,22 @@ function restoreNames(txt,pairs){
     else seen.set(pseudo,real);
   }
   for(const k of conflict)seen.delete(k);
-  // התאמות חלקיות: "מיכל ברנע" → ה-AI כותב "ברנע". רק כשחלק השם ייחודי.
-  // reals: כל החלקים האמיתיים של כל חלק בדוי, גם של חלק שלא יוחזר, בשביל מה שנשאר בתשובה (leftOver)
+  /* חלק של שם לבד: "מיכל ברנע" → ה-AI כותב "ברנע", "גב' ברנע" או "מיכל". רק חלק של אדם אחד
+     במיפוי; חלק של שניים, של כינוי ששני אנשים חולקים, או מילה של כינוי שאינו אדם — לא נוחש. עד
+     כאן רק שם של שתי מילים בדיוק וחלק של ארבע אותיות ומעלה: "מר כהן", "רחל תעדכן", "בני הזוג
+     כהן" ושני החלקים של "יפעת בן פלדמן" נשארו בדויים (בדיקה בכלי החי, 6.10).
+     reals: כל החלקים האמיתיים של כל חלק של אדם, גם של חלק שלא יוחזר, בשביל מה שנשאר בתשובה (leftOver) */
   const partial=new Map(), bad=new Set(), reals=new Map();
-  for(const [pseudo,real] of seen){
-    const pw=pseudo.split(/\s+/), rw=real.split(/\s+/);
-    if(pw.length!==2||rw.length!==2)continue;
-    for(const i of [0,1]){
-      const k=pw[i];
-      if(!reals.has(k))reals.set(k,new Set());
-      reals.get(k).add(rw[i]);
-      if(seen.has(k)||k.length<4||WORDLIKE.has(k)){bad.add(k);continue}
-      if(partial.has(k)&&partial.get(k)!==rw[i])bad.add(k);
-      else partial.set(k,rw[i]);
+  for(const [real,pseudo] of pairs){
+    if(!real||!pseudo||pseudo==="███")continue;
+    const ps=nameParts(pseudo,real);
+    for(const [k,v] of ps){if(!reals.has(k))reals.set(k,new Set()); reals.get(k).add(v)}
+    if(conflict.has(pseudo)||!ps.length){
+      for(const w of String(pseudo).trim().split(/\s+/))bad.add(w);
+      for(const [k] of ps)bad.add(k);
+      continue;
     }
+    for(const [k,v] of ps){if(seen.has(k)||(partial.has(k)&&partial.get(k)!==v))bad.add(k);else partial.set(k,v)}
   }
   for(const k of bad)partial.delete(k);
   const longFirst=m=>[...m.entries()].sort((a,b)=>b[0].length-a[0].length);
@@ -1373,19 +1411,25 @@ function restoreNames(txt,pairs){
     const p=typeof pseudo==="string"?pseudo.trim():"";
     if(/\s/.test(p))for(const m of txt.matchAll(new RegExp(pseudoPat(p),"gu")))held.push([m.index,m.index+m[0].length,p]);
   }
-  for(const [pseudo,real] of longFirst(partial))n+=run(pseudoRX(pseudo),back(real),held);
+  /* חלק לבד: קודם אחרי תואר ("מר כהן"), ואחר כך בלי תואר — רק כשאינו מילה רגילה, ברשימות או בתשובה
+     הזאת עצמה ("הכהן", גם אחרי אות שימוש: "והכהן"); אותה בדיקה שהמנוע עושה לשם קצר עם אות שימוש */
+  const toks=new Set(), parts=longFirst(partial);
+  for(const w of norm(txt).match(WRX)||[]){toks.add(w);const h=/^[וכלבמש]{1,3}(ה.+)$/.exec(w);if(h)toks.add(h[1])}
+  for(const [k,v] of parts){const rx=partRX(k,true); if(rx)n+=run(rx,back(v),held)}
+  for(const [k,v] of parts){const rx=partRX(k,false); if(rx&&!wordish(norm(k).trim(),toks))n+=run(rx,back(v),held)}
   let out="",at=0;
   for(const [s,e,t] of took.sort((a,b)=>a[0]-b[0])){out+=txt.slice(at,s)+t;at=e}
-  const left=leftOver(txt,took,{conflict,held,bad,reals,seen});
+  const left=leftOver(txt,took,{conflict,held,bad,reals,seen,partial,toks});
   return {text:out+txt.slice(at),count:n,missing,conflict:[...conflict],left};
 }
 /* מה שנשאר בתשובה מהפרטים הבדויים שהכלי נתן ולא הוחזר, כדי שמסך ההחזרה יסמן אותו ויאמר מה לתקן ביד
    (החזרת שמות, 7.10.2026): כינוי של יותר מאדם אחד; שם מלא דבוק לאותיות שאינן אותיות שימוש ("אלירן כהןים");
-   וחלק של שם שלא חוזר לבדו, כי הוא משותף לכמה אנשים או קצר מ-4 אותיות. מילה שהיא גם שם (WORDLIKE) אינה
-   נספרת, כמו שהיא אינה מוחזרת לבדה: "לאור האמור" אינו "אור" שנשאר. תאריך בדוי של שני ימים אמיתיים בכתיב
+   וחלק של שם שלא חוזר לבדו, כי הוא משותף לכמה אנשים או קצר משלוש אותיות (שחוזר רק אחרי תואר). מילה שהיא
+   גם מילה רגילה (wordish) אינה נספרת, כמו שהיא אינה מוחזרת לבדה: "לאור האמור" אינו "אור" שנשאר; וכך מילה
+   של כינוי שאינו אדם ("ראשון" של "ראשון לציון"). תאריך בדוי של שני ימים אמיתיים בכתיב
    אחר (restoreNames) אינו נספר: אין לדעת לאיזה מהם. כל פריט: הכינוי, הערך האמיתי (null כשהוא של יותר
    מאדם אחד) והמקומות שלו בטקסט שחוזר, לפי הסדר שבו הוא מופיע. tests/t.js */
-function leftOver(txt,took,{conflict,held,bad,reals,seen}){
+function leftOver(txt,took,{conflict,held,bad,reals,seen,partial,toks}){
   const marked=[], left=[];
   const hit=(s,e)=>took.some(t=>t[0]<e&&s<t[1])||marked.some(t=>t[0]<e&&s<t[1]);
   const add=(fake,real,s,e,from)=>{
@@ -1402,10 +1446,12 @@ function leftOver(txt,took,{conflict,held,bad,reals,seen}){
   }};
   for(const p of conflict)each(p,null);
   for(const [s,e,p] of held)add(p,seen.has(p)?seen.get(p):null,s,e,s);
-  for(const k of bad){
-    if(seen.has(k)||WORDLIKE.has(k))continue;
+  // חלק קצר (שתיים-שלוש אותיות) חוזר רק אחרי תואר או עם חלק מאותיות השימוש: במקום שלא חזר הוא נשאר
+  const short=[...partial.keys()].filter(k=>norm(k).replace(/[^א-ת]/g,"").length<4);
+  for(const k of [...bad,...short]){
     const rs=reals.get(k);
-    each(k,rs&&rs.size===1?[...rs][0]:null);
+    if(!rs||seen.has(k)||wordish(norm(k).trim(),toks))continue;
+    each(k,rs.size===1?[...rs][0]:null);
   }
   // המקומות בטקסט שחוזר: כל החזרה שלפני הפריט מזיזה אותו בהפרש האורכים (פריט לעולם אינו בתוך החזרה)
   const shift=p=>took.reduce((d,[s,e,t])=>e<=p?d+t.length-(e-s):d,0);

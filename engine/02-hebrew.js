@@ -56,10 +56,16 @@ function addPre(pre,rep){ if(!pre)return rep; if(!rep)return pre;
    נותנת לו לחשב פרקי זמן. לכן כל תאריך מלא במסמך זז באותו מספר ימים — ההיסט
    נגזר מהמסמך (30–400 יום) ולכן יציב בין הרצות, המרווחים והסדר נשמרים, וההחזרה
    מחזירה כל תאריך למקורו כמו שם. הפורמט נשמר: אותו מפריד, אותו רוחב שנה. */
+/* שנה בשתי ספרות: 20xx עד עשר שנים קדימה, ואחרת 19xx. עד כאן תמיד 20xx, ותאריך לידה מוזז "8.10.95"
+   שה-AI כתב "8.10.1995" או "8 באוקטובר 1995" נשאר מוזז בתשובה (ביקורת, 6.10). fakeDate ו-dateParts. */
+function fullYear(s){
+  const n=+s; if(String(s).length!==2)return n;
+  return 2000+n<=new Date().getUTCFullYear()+10?2000+n:1900+n;
+}
 function fakeDate(s,offDays){
   const m=/^(\d{1,2})([./])(\d{1,2})\2(\d{4}|\d{2})$/.exec(String(s||"").trim());
   if(!m)return null;
-  const d=+m[1], mo=+m[3], y2=m[4].length===2, y=y2?2000+ +m[4]:+m[4];
+  const d=+m[1], mo=+m[3], y2=m[4].length===2, y=fullYear(m[4]);
   if(d<1||d>31||mo<1||mo>12)return null;
   const t=new Date(Date.UTC(y,mo-1,d));
   if(t.getUTCDate()!==d||t.getUTCMonth()!==mo-1)return null;

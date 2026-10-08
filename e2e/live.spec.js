@@ -134,8 +134,8 @@ test("the tour's nudge is said, inside the card's live region", async ({ page })
   await page.getByRole("button", { name: /סיור קצר על מסמך לדוגמה/ }).click();
   const live = page.locator('[data-tour] [aria-live="polite"]');
   await expect(live).toContainText("קובץ או טקסט");
-  // a click outside the lit area is stopped, and the card says so
-  await page.getByRole("button", { name: "מצב יום או לילה" }).focus();
-  await page.keyboard.press("Enter");
+  // a click outside the lit area is stopped, and the card says so (the keyboard never gets there since v69:
+  // e2e/tour-hold.spec.js)
+  await page.getByRole("button", { name: "מצב יום או לילה" }).click({ force: true });
   await expect(live.locator("[data-tour-nudge]")).toBeVisible();
 });

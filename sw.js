@@ -5,7 +5,7 @@
    שים לב לאסטרטגיה: הכלי עצמו נטען קודם מהרשת ורק בנפילה מהמטמון.
    ההפך — מטמון קודם — נראה מהיר יותר, אבל אז כל עדכון מגיע רק
    בטעינה השנייה, וזו דרך בטוחה להריץ קוד ישן בלי לדעת. */
-const V="hedact-v68";
+const V="hedact-v69";
 const FILES=["./","./index.html","./manifest.webmanifest","./icon.svg",
   "./support.js","./page-logic.js","./redact-engine.js","./pdf-text.js","./text-to-docx.js"];
 // מה שהכלי צריך כדי לעלות ולהיראות כמו שצריך בלי רשת: ספריית ההרצה (React) וכל הגופנים.
