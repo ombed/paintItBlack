@@ -4,7 +4,9 @@
 const fs = require("fs"), path = require("path");
 const { chromium } = require("@playwright/test");
 const SITE = path.join(__dirname, "..", "site");
-const icon = fs.readFileSync(path.join(SITE, "icon.svg"), "utf8").replace("<svg ", '<svg width="200" height="200" ');
+// the phone icon's drawing (512 px, the mask inside the safe zone on the same green): the tab icon is a small
+// picture since the owner's finished icon (8.10), too small for this size
+const icon = '<img width="240" height="240" alt="" style="border-radius:52px" src="data:image/png;base64,' + fs.readFileSync(path.join(__dirname, "..", "icon-512.png")).toString("base64") + '">';
 const font = (f) => "data:font/woff2;base64," + fs.readFileSync(path.join(SITE, "fonts", f)).toString("base64");
 const html = `<!doctype html><html lang="he" dir="rtl"><meta charset="utf-8"><style>
 @font-face{font-family:F;font-weight:300 900;src:url(${font("FrankRuhlLibre-hebrew.woff2")}) format("woff2")}
