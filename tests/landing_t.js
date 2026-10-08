@@ -116,5 +116,15 @@ for (const fam of families) {
   ok(fs.existsSync(lic) && /SIL Open Font License, Version 1\.1/.test(fs.readFileSync(lic, "utf8")), fam + ": its Open Font License sits beside its files");
 }
 
+console.log("\n— the tagline and the titles —");
+// the owner, 8.10: «השחרת» said the tool blacks text out; it replaces names (review items s4-tagline, s4-home-title)
+for (const f of pages) {
+  const html = fs.readFileSync(path.join(SITE, f), "utf8");
+  const tag = (/<p class="tagline">([^<]*)<\/p>/.exec(html) || [])[1], title = (/<title>([^<]*)<\/title>/.exec(html) || [])[1] || "";
+  if (tag !== undefined) ok(tag === "החלפת שמות במסמכים לפני AI", f + ": the approved tagline (" + tag + ")");
+  ok(!/השחר/.test(title), f + ": the tab title does not say «השחרה» (" + title + ")");
+}
+ok(/<title>אינקוגניטו: החלפת שמות במסמכים משפטיים לפני AI<\/title>/.test(fs.readFileSync(path.join(SITE, "index.html"), "utf8")), "the home page's approved title");
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exitCode = 1;

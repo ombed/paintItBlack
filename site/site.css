@@ -125,6 +125,8 @@ h1{font-family:var(--serif);font-weight:700;font-size:clamp(48px,6.2vw,92px);lin
 .block{padding-top:96px;padding-bottom:24px;max-width:1240px}
 .block h2{font-family:var(--serif);font-weight:700;font-size:clamp(36px,4.2vw,60px);line-height:1.04;letter-spacing:-.005em;max-width:11.84em;text-wrap:balance;padding-top:18px;border-top:2px solid var(--ink);margin-bottom:28px}
 .intro{font-size:19px;max-width:40em;margin-bottom:36px}
+/* the accuracy section opens with three paragraphs (8.10): they read as one intro */
+.intro:has(+ .intro){margin-bottom:14px}
 .problem .cols{display:grid;grid-template-columns:1fr 1fr;gap:28px 56px;max-width:60em}
 .problem .cols p{font-size:19px}
 
