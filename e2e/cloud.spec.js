@@ -44,10 +44,11 @@ async function hosted(page, { session = true, logOn = true, state = {}, server =
     }
     return route.fulfill({ status: u.pathname.startsWith("/rest/v1/rpc/") ? 204 : 200, body: "" });
   });
-  // where the account panel sends people: stand-ins, so a test ends where it lands
-  await page.route("**/dist/login.html", (route) => route.fulfill({ contentType: "text/html", body: "<title>login</title>" }));
+  // where the account panel sends people: stand-ins, so a test ends where it lands. The hosted build names
+  // pages without .html (scripts/build-hosted.js cleanLinks), as Cloudflare serves them
+  await page.route(/\/dist\/login(\.html)?([?#].*)?$/, (route) => route.fulfill({ contentType: "text/html", body: "<title>login</title>" }));
   await page.route(/\/dist\/(\?.*)?$/, (route) => route.fulfill({ contentType: "text/html", body: "<title>home</title>" }));
-  await page.route("**/dist/deleted.html", (route) => route.fulfill({ contentType: "text/html", body: "<title>deleted</title>" }));
+  await page.route(/\/dist\/deleted(\.html)?([?#].*)?$/, (route) => route.fulfill({ contentType: "text/html", body: "<title>deleted</title>" }));
   if (session) await page.addInitScript((s) => { if (!window.sessionStorage.getItem("seeded")) { localStorage.setItem("sb-cwsiranjlxbclmaqtucc-auth-token", JSON.stringify(s)); window.sessionStorage.setItem("seeded", "1"); } }, SESSION);
   return calls;
 }
@@ -444,7 +445,7 @@ test("deleting the account asks first, deletes, and leaves for the page that say
   expect(calls.some((c) => c.path === "/rest/v1/rpc/delete_my_account")).toBe(false);
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "מחיקת החשבון" }).click();
-  await page.waitForURL(/\/dist\/deleted\.html$/);
+  await page.waitForURL(/\/dist\/deleted$/);
   expect(calls.some((c) => c.path === "/rest/v1/rpc/delete_my_account")).toBe(true);
   expect((await page.context().cookies()).find((c) => c.name === "ink_at")).toBeUndefined();
 });
@@ -475,7 +476,7 @@ test("without a session the tool sends the person to sign in", async ({ page }) 
   test.info().annotations.push({ type: "no-self-check" });
   await hosted(page, { session: false });
   await page.goto(APP);
-  await page.waitForURL("**/login.html");
+  await page.waitForURL("**/dist/login");
 });
 
 test("the public tool, without the hosted injection, never talks to the project", async ({ page }) => {
@@ -726,7 +727,7 @@ test("the card names the report on missed names, links the details, and its samp
   await sendDoc(page);
   const card = page.locator("#ink-ask");
   await expect(card).toContainText("שם שהכלי פספס");
-  await expect(card.getByRole("link", { name: "הפירוט המלא" })).toHaveAttribute("href", /privacy\.html$/);
+  await expect(card.getByRole("link", { name: "הפירוט המלא" })).toHaveAttribute("href", /\/privacy$/);
   await card.getByText("מה בדיוק יישלח?").click();
   const sample = JSON.parse(await card.locator("pre").innerText());
   expect(sample.leaks.shapes[0].lens).toEqual([10]);
@@ -764,7 +765,7 @@ for (const [why, state] of [["blocked", { blocked: true }], ["pending", { approv
     test.info().annotations.push({ type: "no-self-check" });
     await hosted(page, { state });
     await page.goto(APP);
-    await page.waitForURL("**/login.html#error=" + why);
+    await page.waitForURL("**/dist/login#error=" + why);
     expect((await page.context().cookies()).find((c) => c.name === "ink_at")).toBeUndefined();
     expect(await page.evaluate(() => localStorage.getItem("sb-cwsiranjlxbclmaqtucc-auth-token"))).toBe(null);
   });
@@ -775,11 +776,11 @@ test("the operator finds «ניהול» in the panel, and nobody else does; ever
   await boot(page);
   await page.getByRole("button", { name: "חשבון", exact: true }).click();
   const panel = page.locator("#ink-account-panel");
-  await expect(panel.getByRole("link", { name: "ניהול", exact: true })).toHaveAttribute("href", /\/dist\/admin\.html$/);
+  await expect(panel.getByRole("link", { name: "ניהול", exact: true })).toHaveAttribute("href", /\/dist\/admin$/);
   const foot = panel.getByRole("navigation", { name: "מידע ומסמכים משפטיים" });
   await expect(foot.getByRole("link")).toHaveText(["עמוד הבית", "תנאי שימוש", "מדיניות פרטיות", "הצהרת נגישות", "יצירת קשר"]);
   expect(await foot.getByRole("link").evaluateAll((as) => as.map((a) => new URL(a.href).pathname.replace(/^.*\/dist\//, "") + "|" + a.target))).toEqual(
-    ["|_blank", "terms.html|_blank", "privacy.html|_blank", "accessibility.html|_blank", "contact@inkognito.co.il|"]);
+    ["|_blank", "terms|_blank", "privacy|_blank", "accessibility|_blank", "contact@inkognito.co.il|"]);
 });
 
 test("someone who is not the operator has no «ניהול»", async ({ page }) => {

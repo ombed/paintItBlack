@@ -75,9 +75,12 @@
     } catch (_) {}
     const r = await siteFetch(input, init);
     const method = String((init && init.method) || (input && input.method) || "GET").toUpperCase();
-    // the gate sends to login.html, which Cloudflare serves as /login
+    // the gate sends to login.html, which Cloudflare serves as /login: either address is the sign-in page.
+    // A pattern, not two names: the hosted build writes page names without .html (cleanLinks), which
+    // had made both names the same one
     const at = String(r.url).split(/[?#]/)[0];
-    if (mine && session && r.redirected && (at === LOGIN || at === ROOT + "login") && (method === "GET" || method === "HEAD")) {
+    const signIn = at.startsWith(ROOT) && /^login(?:\.html)?$/.test(at.slice(ROOT.length));
+    if (mine && session && r.redirected && signIn && (method === "GET" || method === "HEAD")) {
       try { await renew(); } catch (_) {}
       return siteFetch(input, init);
     }
