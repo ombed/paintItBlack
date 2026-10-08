@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<link rel="canonical" href="https://inkognito.co.il/guide-anonymization">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'self'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<title>מה זה התממה, ולמה השחרה ידנית לא מספיקה · אינקוגניטו</title>
+<meta name="description" content="מה ההבדל בין השחרה של מסמך לבין החלפת שמות בשמות בדויים, ולמה פס שחור לא מתאים לעבודה עם AI.">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body class="legal-page">
+<a class="skip" href="#main">דילוג לתוכן</a>
+<div class="book">
+
+  <header class="spine" id="spine">
+    <div class="spine-in">
+      <a class="mark" href="index.html">אינקוגניטו</a>
+      <p class="tagline">החלפת שמות במסמכים לפני AI</p>
+      <nav class="index" aria-label="ראשי">
+        <ul>
+          <li><a href="index.html#how">איך זה עובד</a></li>
+          <li><a href="index.html#privacy">פרטיות ואבטחה</a></li>
+          <li><a href="index.html#accuracy">כמה זה מדויק</a></li>
+          <li><a href="index.html#faq">שאלות נפוצות</a></li>
+        </ul>
+      </nav>
+      <ul class="keys">
+        <li><b>בדפדפן</b> <span>הזיהוי וההחלפה רצים במחשב שלך</span></li>
+        <li><b><bdi>Word</bdi> ו־<bdi>PDF</bdi></b> <span>נקראים ישירות, בלי המרה</span></li>
+        <li><b>בעברית</b> <span>כולל אותיות שימוש ושגיאות כתיב</span></li>
+        <li><b>כל כלי AI</b> <span>כל כלי שאפשר להדביק בו טקסט</span></li>
+      </ul>
+      <div class="spine-end">
+        <a class="login" href="login.html">כניסה</a>
+        <a class="btn btn-gilt" href="login.html?mode=signup">להרשמה חינם</a>
+      </div>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="sheet" aria-label="תפריט"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+    </div>
+    <div class="sheet" id="sheet" hidden>
+      <ul>
+        <li><a href="index.html#how">איך זה עובד</a></li>
+        <li><a href="index.html#privacy">פרטיות ואבטחה</a></li>
+        <li><a href="index.html#accuracy">כמה זה מדויק</a></li>
+        <li><a href="index.html#faq">שאלות נפוצות</a></li>
+        <li><a href="login.html">כניסה</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <div class="pages">
+  <main id="main">
+    <article class="legal guide">
+    <h1>מה זה התממה, ולמה השחרה ידנית לא מספיקה</h1>
+    <p>התממה היא הסרה של הפרטים שמזהים אדם ממסמך, כך שאי אפשר לדעת על מי מדובר. יש שתי דרכים לעשות את זה: השחרה, כלומר מחיקה או פס שחור, והחלפה, כלומר שם בדוי במקום השם האמיתי.</p>
+    <h2>למה השחרה לא מתאימה לעבודה עם AI</h2>
+    <p>כשכל השמות הפכו לפסים, ה־AI לא יודע מי אמר מה ולמי. במשפט כמו «███ טענה ש־███ איחר» אין מה לסכם ואין מה לנתח. עם שמות בדויים המסמך נקרא כרגיל, ה־AI עונה עליו כרגיל, ואחר כך השמות האמיתיים חוזרים לתשובה.</p>
+    <h2>למה השחרה ידנית מסוכנת</h2>
+    <ul>
+      <li><b>מספיק מופע אחד.</b> שם שנשכח בכותרת, בהערת שוליים, בכינוי, או בצורה עם אות שימוש («ולרחל»), חושף את כל המסמך.</li>
+      <li><b>פס שחור לא תמיד מוחק.</b> ב־<bdi>PDF</bdi>, פס שצויר מעל הטקסט לפעמים רק מכסה אותו, והטקסט עצמו נשאר בקובץ.</li>
+      <li><b>מה שמסתתר בקובץ.</b> בקובץ <bdi>Word</bdi> נשארים לפעמים מעקב שינויים, הערות ושם המחבר.</li>
+    </ul>
+    <h2>לא רק שמות</h2>
+    <p>גם מספר זהות, טלפון, כתובת, יישוב קטן, תאריך לידה, מקום עבודה או תיאור ייחודי יכולים לזהות אדם. <a href="guide-identifying-details.html">רשימת בדיקה מלאה</a>.</p>
+    <h2>איך אינקוגניטו עושה את זה</h2>
+    <p>כל אדם מקבל שם בדוי מאותו מגדר, כל יישוב מקבל יישוב דומה לו, כל התאריכים זזים באותו מספר ימים כך שהמרווחים נשמרים, ומספרים מזהים נמחקים. הכול נעשה בתוך הדפדפן, והמסמך לא יוצא מהמחשב.</p>
+    </article>
+  </main>
+
+  <footer class="foot">
+    <a class="mark" href="index.html">אינקוגניטו</a>
+    <nav aria-label="מידע ומסמכים משפטיים">
+      <a href="terms.html">תנאי שימוש</a><a href="privacy.html">מדיניות פרטיות</a><a href="security.html">אבטחה</a><a href="accessibility.html">הצהרת נגישות</a><a href="https://github.com/ombed/inkognito">הקוד ב־GitHub</a><a href="mailto:contact@inkognito.co.il">יצירת קשר</a>
+    </nav>
+    <span>© 2026 אינקוגניטו</span>
+  </footer>
+  </div>
+</div>
+<script src="landing.js"></script>
+</body>
+</html>

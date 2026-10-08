@@ -33,7 +33,7 @@ http
     let file = path.join(ROOT, url === "/" ? "/index.html" : url);
     // as Cloudflare serves them: a folder by its index.html, a page by its name without .html. The hosted
     // build links its pages by those names (scripts/build-hosted.js cleanLinks)
-    if (url.endsWith("/")) file = path.join(file, "index.html");
+    if (url !== "/" && url.endsWith("/")) file = path.join(file, "index.html");
     else if (!path.extname(file) && fs.existsSync(file + ".html")) file += ".html";
     // inside ROOT means ROOT plus a separator: a bare prefix test also let a sibling folder through
     if (file !== ROOT && !file.startsWith(ROOT + path.sep)) {

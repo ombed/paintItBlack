@@ -78,7 +78,7 @@ function seo(name, html) {
 function llms(pages) {
   const home = head(pages["index.html"] || "");
   const lines = ["# אינקוגניטו", "", "> " + home.description, "", home.title, "", "## עמודים", ""];
-  const order = ["help.html", "security.html", "privacy.html", "terms.html", "accessibility.html"];
+  const order = ["help.html", "guide-ai-with-client-documents.html", "guide-anonymization.html", "guide-identifying-details.html", "guide-ai-training.html", "security.html", "privacy.html", "terms.html", "accessibility.html"];
   for (const f of order.filter((f) => pages[f])) {
     const h = head(pages[f]);
     if (h.canonical && h.description) lines.push(`- [${h.title.replace(/ · אינקוגניטו$/, "")}](${h.canonical}): ${h.description}`);

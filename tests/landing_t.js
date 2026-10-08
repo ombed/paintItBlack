@@ -37,9 +37,9 @@ for (const p of pages) {
   ok(!/<script(?![^>]*\bsrc=)[^>]*>/.test(h), p + ": no inline script");
   // a canonical link names the page's own address and loads nothing
   const loads = [...h.matchAll(/<(?:script|img|source|iframe)[^>]*\bsrc="([^"]+)"|<link(?![^>]*rel="canonical")[^>]*\bhref="([^"]+)"/g)].map((m) => m[1] || m[2]);
-  // search engines: the four public pages are found under their one address; the rest stay out
+  // search engines: the public pages (and, since 8.10, the guides) are found under their one address; the rest stay out
   const canon = (h.match(/<link rel="canonical" href="([^"]+)">/) || [])[1];
-  if (/^(index|privacy|terms|accessibility|security|help)\.html$/.test(p)) {
+  if (/^(index|privacy|terms|accessibility|security|help|guide-[a-z-]+)\.html$/.test(p)) {
     ok(!/name="robots" content="noindex"/.test(h) && canon === "https://inkognito.co.il/" + (p === "index.html" ? "" : p.replace(".html", "")), p + ": indexable, under its one address (" + canon + ")");
   } else {
     ok(/name="robots" content="noindex"/.test(h) && !canon, p + ": kept out of search engines");
@@ -122,9 +122,25 @@ for (const f of pages) {
   const html = fs.readFileSync(path.join(SITE, f), "utf8");
   const tag = (/<p class="tagline">([^<]*)<\/p>/.exec(html) || [])[1], title = (/<title>([^<]*)<\/title>/.exec(html) || [])[1] || "";
   if (tag !== undefined) ok(tag === "החלפת שמות במסמכים לפני AI", f + ": the approved tagline (" + tag + ")");
-  ok(!/השחר/.test(title), f + ": the tab title does not say «השחרה» (" + title + ")");
+  // the old tagline; guide 2's approved title uses «השחרה» on purpose («ולמה השחרה ידנית לא מספיקה»)
+  ok(!/השחרת מסמכים/.test(title), f + ": the tab title does not use the old tagline «השחרת מסמכים» (" + title + ")");
 }
 ok(/<title>אינקוגניטו: החלפת שמות במסמכים משפטיים לפני AI<\/title>/.test(fs.readFileSync(path.join(SITE, "index.html"), "utf8")), "the home page's approved title");
+
+console.log("\n— the sitemap and the guides —");
+// the sitemap names exactly the pages search engines may index; each guide (8.10) is linked from the home and help pages
+{
+  const indexable = pages.filter((p) => /<link rel="canonical"/.test(fs.readFileSync(path.join(SITE, p), "utf8")))
+    .map((p) => "https://inkognito.co.il/" + (p === "index.html" ? "" : p.replace(".html", ""))).sort();
+  const listed = [...fs.readFileSync(path.join(SITE, "sitemap.xml"), "utf8").matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]).sort();
+  ok(JSON.stringify(listed) === JSON.stringify(indexable), "the sitemap lists every indexable page and nothing else (" + listed.length + ")");
+  const guides = pages.filter((p) => p.startsWith("guide-"));
+  ok(guides.length === 4, "four guides: " + guides.join(", "));
+  for (const host of ["index.html", "help.html"]) {
+    const h = fs.readFileSync(path.join(SITE, host), "utf8");
+    ok(guides.every((g) => h.includes('href="' + g + '"')), host + " links every guide");
+  }
+}
 
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exitCode = 1;

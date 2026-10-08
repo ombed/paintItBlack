@@ -383,13 +383,26 @@ test("the help page has the approved questions, each one linkable, and the conta
   await page.goto("/site/help.html");
   await expect(page).toHaveTitle("מדריך שימוש · אינקוגניטו");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("מדריך שימוש");
-  const qs = page.locator("article h2");
+  const qs = page.locator('article h2[id^="q"]');
   await expect(qs).toHaveCount(17);
+  // and, after them, the four guides (8.10)
+  await expect(page.getByRole("heading", { level: 2, name: "מדריכים" })).toBeVisible();
+  await expect(page.locator('article a[href^="guide-"]')).toHaveCount(4);
   await expect(qs.first()).toHaveText("מה הכלי עושה, בשני משפטים?");
   await expect(page.locator("#q09 + p")).toContainText("יישוב דתי ביישוב דתי");
   await expect(page.locator("article > p").last()).toHaveText("שאלה, תקלה או הצעה? כתבו אל contact@inkognito.co.il, ונענה תוך שני ימי עסקים.");
   await axe(page, "help.html");
 });
+
+// the four guides (approved 8.10): each has its heading, its title, and no accessibility violation
+for (const g of ["guide-ai-with-client-documents", "guide-anonymization", "guide-identifying-details", "guide-ai-training"]) {
+  test("the guide " + g + " reads as a page of its own", async ({ page }) => {
+    await page.goto("/site/" + g + ".html");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page).toHaveTitle(/ · אינקוגניטו$/);
+    await axe(page, g + ".html");
+  });
+}
 
 // the no-account demo, under the tour's own name, beside the sign-up on the first screen (v68)
 test("the home page's first screen leads to the no-account demo", async ({ page }) => {
