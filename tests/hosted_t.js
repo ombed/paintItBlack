@@ -32,6 +32,12 @@ try {
   const pages = files.filter((f) => /^[^/]+\.html$/.test(f));
   ok(pages.length > 8 && pages.every((f) => read(f).includes('<link rel="icon" href="/icon.svg" type="image/svg+xml">')), "every page at the root names the icon");
   ok(files.includes("icon.svg") && files.includes("icon-192.png"), "and the root has it");
+  // clean links (the gap review, finding 10): no page or script at the root names a page by its .html
+  // address, which Cloudflare answers with a redirect; and each address it names is a page there
+  const dirty = files.filter((f) => /^[^/]+\.(html|js)$/.test(f)).flatMap((f) => (read(f).match(/["'/][a-z][a-z0-9-]*\.html(?=["'#?])/g) || []).map((m) => f + ": " + m));
+  ok(!dirty.length, "no link at the root names a page.html" + (dirty.length ? ": " + dirty.slice(0, 4).join(", ") : ""));
+  const named = [...new Set(pages.flatMap((f) => [...read(f).matchAll(/href="([a-z][a-z0-9-]*)(?:[?#][^"]*)?"/g)].map((m) => m[1])))];
+  ok(named.length >= 5 && named.every((n) => files.includes(n + ".html")), "every clean address a page links to is a page: " + named.filter((n) => !files.includes(n + ".html")).join(", "));
   // the no-account demo (/demo/, v68): public, its own page with the demo flag, no sign-in, no model
   const demo = files.includes("demo/index.html") ? read("demo/index.html") : "";
   ok(demo.includes("window.__inkDemo={signup:") && demo.includes('window.__inkStoreSuffix="demo"'), "the demo page sets the tool's demo mode and its own case key");

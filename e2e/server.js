@@ -30,7 +30,11 @@ http
     // a malformed escape must not kill the server: a crashed server reads as a red test run (review L3)
     let url;
     try { url = decodeURIComponent(req.url.split("?")[0]); } catch (_) { res.writeHead(400).end("bad request"); return; }
-    const file = path.join(ROOT, url === "/" ? "/index.html" : url);
+    let file = path.join(ROOT, url === "/" ? "/index.html" : url);
+    // as Cloudflare serves them: a folder by its index.html, a page by its name without .html. The hosted
+    // build links its pages by those names (scripts/build-hosted.js cleanLinks)
+    if (url.endsWith("/")) file = path.join(file, "index.html");
+    else if (!path.extname(file) && fs.existsSync(file + ".html")) file += ".html";
     // inside ROOT means ROOT plus a separator: a bare prefix test also let a sibling folder through
     if (file !== ROOT && !file.startsWith(ROOT + path.sep)) {
       res.writeHead(403).end("forbidden");

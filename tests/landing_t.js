@@ -108,7 +108,8 @@ for (const s of scripts) {
 console.log("\n— the fonts —");
 // the site serves its own fonts, under the SIL Open Font License, which travels with each family
 const fontsCss = fs.readFileSync(path.join(SITE, "fonts", "fonts.css"), "utf8");
-const families = [...new Set([...fontsCss.matchAll(/font-family: '([^']+)'/g)].map((m) => m[1]))];
+// the families the site serves files for; a size-matched fallback is the computer's own font (local())
+const families = [...new Set([...fontsCss.matchAll(/font-family: '([^']+)'[^}]*src: url\(/g)].map((m) => m[1]))];
 ok(families.length >= 3, "the site's font families (" + families.join(", ") + ")");
 for (const fam of families) {
   const lic = path.join(SITE, "fonts", fam.toLowerCase().replace(/ /g, "-") + "-LICENSE.txt");

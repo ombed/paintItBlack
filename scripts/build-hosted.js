@@ -74,6 +74,21 @@ function copyTree(from, to) {
   }
 }
 
+/* Clean links (the gap review, finding 10, 6.10). Cloudflare serves each page at its name without .html
+   and sends the .html address there, so every link between the site's pages cost a redirect, and a search
+   engine met two addresses for each page. The root's pages and scripts name the clean address instead:
+   "privacy.html#x" is "privacy#x", "index.html" is "./" ("/" when it was "/index.html"). The sources keep
+   the .html names, which a plain file server (e2e/server.js, GitHub Pages) also serves. */
+function cleanLinks(out) {
+  const names = fs.readdirSync(out).filter((f) => /^[a-z][a-z0-9-]*\.html$/.test(f) && f !== "404.html").map((f) => f.slice(0, -".html".length));
+  const rx = new RegExp("([\"'/])(" + names.join("|") + ")\\.html(?=[\"'#?])", "g");
+  for (const f of fs.readdirSync(out).filter((x) => /\.(html|js)$/.test(x))) {
+    const file = path.join(out, f), s = fs.readFileSync(file, "utf8");
+    const t = s.replace(rx, (m, a, n) => n !== "index" ? a + n : a === "/" ? "/" : a + "./");
+    if (t !== s) fs.writeFileSync(file, t);
+  }
+}
+
 function build(out) {
   if (path.basename(out).startsWith("-")) throw new Error("not a folder name: " + path.basename(out));
   if (!safeToReplace(out)) throw new Error("refusing to delete " + out + ": it is not a folder this script built");
@@ -84,6 +99,7 @@ function build(out) {
   const site = path.join(ROOT, "site");
   if (!fs.existsSync(path.join(site, "vendor"))) throw new Error("site/vendor/ is missing: run npm install (scripts/vendor.js)");
   copyTree(site, out);
+  cleanLinks(out);
 
   const model = SITE_FILES.filter((f) => /\.part\d+$/.test(f));
   for (const f of SITE_FILES.filter((x) => !model.includes(x))) {
