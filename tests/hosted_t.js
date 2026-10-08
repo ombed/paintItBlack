@@ -58,6 +58,11 @@ try {
   ok(helpQ.length === 17 && help[0] && help[0].mainEntity.length === 17, "the help page's 17 questions");
   ok(!/<\/script/i.test(JSON.stringify(home)) && /<\\u003c|<script type="application\/ld\+json">/.test(read("index.html")), "the data cannot close its own script element");
   ok(!indexable.includes("login.html") && !/og:title/.test(read("login.html")), "a page with no canonical address (sign-in) gets none");
+  // /llms.txt (llmstxt.org): the name, the home page's description, each indexable page, the FAQ
+  const llms = files.includes("llms.txt") ? read("llms.txt") : "";
+  ok(llms.startsWith("# אינקוגניטו\n\n> " + head(read("index.html")).description + "\n"), "llms.txt opens with the name and the home page's description");
+  ok(indexable.filter((f) => f !== "index.html").every((f) => llms.includes("](" + head(read(f)).canonical + "): " + head(read(f)).description)), "it lists every indexable page with its own description");
+  ok(homeQ.every(({ q }) => llms.includes("### " + q + "\n")), "and every question of the home page's FAQ");
   // the no-account demo (/demo/, v68): public, its own page with the demo flag, no sign-in, no model
   const demo = files.includes("demo/index.html") ? read("demo/index.html") : "";
   ok(demo.includes("window.__inkDemo={signup:") && demo.includes('window.__inkStoreSuffix="demo"'), "the demo page sets the tool's demo mode and its own case key");

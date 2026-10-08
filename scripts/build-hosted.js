@@ -21,7 +21,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { SITE_FILES } = require("./build-site.js");
-const { seo } = require("./seo.js");
+const { seo, llms } = require("./seo.js");
 const { hostedApp, demoApp, hostedManifest, hostedWorker, resourcesScript, LIBS, ORT_FILES, ortFrom, ortPin, ORT_DIR } = require("./hosted.js");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -101,7 +101,8 @@ function build(out) {
   if (!fs.existsSync(path.join(site, "vendor"))) throw new Error("site/vendor/ is missing: run npm install (scripts/vendor.js)");
   copyTree(site, out);
   cleanLinks(out);
-  // link previews and structured data, from each page's own texts (scripts/seo.js)
+  // /llms.txt and link previews and structured data, from each page's own texts (scripts/seo.js)
+  fs.writeFileSync(path.join(out, "llms.txt"), llms(Object.fromEntries(fs.readdirSync(out).filter((x) => x.endsWith(".html")).map((x) => [x, fs.readFileSync(path.join(out, x), "utf8")]))));
   for (const f of fs.readdirSync(out).filter((x) => x.endsWith(".html"))) {
     const file = path.join(out, f), s = fs.readFileSync(file, "utf8"), t = seo(f, s);
     if (t !== s) fs.writeFileSync(file, t);

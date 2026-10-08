@@ -72,4 +72,23 @@ function seo(name, html) {
   return html.replace(/(<link rel="canonical" href="[^"]+">)/, (m) => m + "\n" + add);
 }
 
-module.exports = { seo, homeFaq, helpFaq, head, text };
+/* /llms.txt (llmstxt.org): the site in one short Markdown file, for the AI assistants that read it. Made, like
+   the rest, of the pages' own texts: the home page's title, description and FAQ, and each indexable page with
+   its description. pages: {name: html} of the root's pages. */
+function llms(pages) {
+  const home = head(pages["index.html"] || "");
+  const lines = ["# אינקוגניטו", "", "> " + home.description, "", home.title, "", "## עמודים", ""];
+  const order = ["help.html", "security.html", "privacy.html", "terms.html", "accessibility.html"];
+  for (const f of order.filter((f) => pages[f])) {
+    const h = head(pages[f]);
+    if (h.canonical && h.description) lines.push(`- [${h.title.replace(/ · אינקוגניטו$/, "")}](${h.canonical}): ${h.description}`);
+  }
+  const faq = homeFaq(pages["index.html"] || "");
+  if (faq.length) {
+    lines.push("", "## שאלות נפוצות", "");
+    for (const { q, a } of faq) lines.push("### " + q, "", a, "");
+  }
+  return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
+}
+
+module.exports = { seo, llms, homeFaq, helpFaq, head, text };
