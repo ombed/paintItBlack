@@ -783,6 +783,17 @@ test("the operator finds «ניהול» in the panel, and nobody else does; ever
     ["|_blank", "terms|_blank", "privacy|_blank", "accessibility|_blank", "contact@inkognito.co.il|"]);
 });
 
+// the owner, 8.10: three of the panel's actions ran into one line («הוספת סיסמהשינוי כתובת המייל…»)
+test("each action in the panel is a row of its own", async ({ page }) => {
+  await hosted(page);
+  await boot(page);
+  await page.getByRole("button", { name: "חשבון", exact: true }).click();
+  const panel = page.locator("#ink-account-panel");
+  const rows = await panel.getByRole("button").evaluateAll((bs) => bs.filter((b) => b.getClientRects().length).map((b) => { const r = b.getBoundingClientRect(); return [b.textContent, Math.round(r.top), Math.round(r.bottom)]; }));
+  expect(rows.map((r) => r[0])).toEqual(["הוספת סיסמה", "שינוי כתובת המייל", "הורדת המידע שלי", "יציאה מהחשבון", "יציאה מכל המכשירים", "מחיקת החשבון"]);
+  for (let i = 1; i < rows.length; i++) expect(rows[i][1], rows[i][0] + " starts below " + rows[i - 1][0]).toBeGreaterThanOrEqual(rows[i - 1][2]);
+});
+
 test("someone who is not the operator has no «ניהול»", async ({ page }) => {
   await hosted(page, { state: { is_admin: false } });
   await boot(page);

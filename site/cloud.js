@@ -254,21 +254,25 @@
     const btn = el("button", { type: "button", textContent: "חשבון" });
     btn.style.cssText = "padding:7px 14px;border-radius:999px;border:1px solid var(--line,#ccc);background:var(--panel,#fff);color:var(--ink,#111);cursor:pointer;font:inherit";
     const who = el("p", { textContent: profile.full_name ? profile.full_name + " · " : "" }, el("bdi", { textContent: profile.email }));
-    who.style.cssText = "margin:0 0 10px;color:var(--ink2,#444)";
+    who.style.cssText = "margin:0 0 10px;color:var(--ink2,#444);overflow-wrap:anywhere";
     const sw = el("input", { type: "checkbox", id: "ink-log", checked: profile.log_enabled === true });
     syncSwitch = () => { sw.checked = profile.log_enabled === true; };
     const swLabel = el("label", { htmlFor: "ink-log" }, sw, " שליחת יומן שימוש, בלי טקסט מהמסמכים");
     swLabel.style.cssText = "display:flex;gap:8px;align-items:center;cursor:pointer";
     const more = link(ROOT + "privacy.html", "מה נשלח ביומן");
+    more.style.cssText += ";display:inline-block;margin:2px 0 0;margin-inline-start:24px;font-size:12px";
     const msg = el("p", { id: "ink-account-msg" }); msg.setAttribute("role", "status"); msg.style.cssText = "margin:8px 0 0;min-height:1em";
-    const plain = "font:inherit;background:none;border:0;padding:6px 0;text-decoration:underline;cursor:pointer;color:var(--ink,#111);text-align:start";
+    /* Each action is a row of its own (the owner, 8.10: three of them ran into one line, «הוספת סיסמהשינוי
+       כתובת המייל…», and the panel looked crowded): a full-width button, its form or its line under it, grouped
+       by a line between the groups. A row lights under the pointer and shows the keyboard's focus. */
+    const plain = "font:inherit;display:block;width:calc(100% + 16px);box-sizing:border-box;margin:0 -8px;background:none;border:0;border-radius:8px;padding:7px 8px;cursor:pointer;color:var(--ink,#111);text-align:start";
     const out = el("button", { type: "button", textContent: "יציאה מהחשבון" });
     // the approved words (7.10.2026); the gate lets a token run out (up to an hour), as the question says
     const outAll = el("button", { type: "button", textContent: "יציאה מכל המכשירים" });
     const del = el("button", { type: "button", textContent: "מחיקת החשבון" });
     for (const b of [out, outAll, del]) b.style.cssText = plain;
     del.style.color = "#B3261E";
-    const row = el("div", {}, out, outAll, del); row.style.cssText = "display:flex;flex-wrap:wrap;gap:0 18px;margin-top:6px";
+    const row = el("div", {}, out, outAll, del); row.style.cssText = "border-top:1px solid var(--line,#ddd);margin-top:8px;padding-top:6px";
     /* «שינוי סיסמה», or «הוספת סיסמה» for an account that has only Google: a short form under it, in the
        sign-in page's words. supabase-js saves it for the session that is signed in. */
     const google = !((session.user.app_metadata && session.user.app_metadata.providers) || []).includes("email");
@@ -298,8 +302,11 @@
     dlBtn.style.cssText = plain;
     dlBtn.setAttribute("aria-describedby", "ink-dl-hint");
     const dlHint = el("small", { id: "ink-dl-hint", textContent: "קובץ עם פרטי החשבון ויומני השימוש שנשמרו אצלנו." });
-    dlHint.style.cssText = "display:block;margin:-4px 0 4px;color:var(--ink2,#444)";
+    dlHint.style.cssText = "display:block;margin:-4px 0 4px;font-size:12px;color:var(--ink2,#444)";
     const acts = el("div", {}, pwBtn, pwForm, mailBtn, mailForm, dlBtn, dlHint); acts.style.cssText = "border-top:1px solid var(--line,#ddd);margin-top:10px;padding-top:6px";
+    const logBox = el("div", {}, swLabel, more); logBox.style.cssText = "border-top:1px solid var(--line,#ddd);padding-top:10px";
+    const rowLook = el("style", { textContent: "#ink-account-panel .ink-row:hover{background:rgba(127,127,127,.12)}#ink-account-panel .ink-row:focus-visible{outline:2px solid var(--accent,#1F5B44);outline-offset:-2px}" });
+    for (const b of [pwBtn, mailBtn, dlBtn, out, outAll, del]) b.className = "ink-row";
     // the site's links, in the words and order of the site's footer (the approved list, 7.10.2026)
     const foot = el("nav", {}, ...[["", "עמוד הבית"], ["terms.html", "תנאי שימוש"], ["privacy.html", "מדיניות פרטיות"], ["accessibility.html", "הצהרת נגישות"]]
       .map(([p, t]) => link(ROOT + p, t)), link("mailto:" + CONTACT, "יצירת קשר"));
@@ -307,10 +314,10 @@
     foot.style.cssText = "display:flex;flex-wrap:wrap;gap:2px 12px;border-top:1px solid var(--line,#ddd);margin-top:10px;padding-top:8px;font-size:12px";
     const top = [who];
     // the operator's own way to the admin page (the owner's decision, 6.10), named as that page is
-    if (profile.is_admin === true) { const adm = link(ROOT + "admin.html", "ניהול"); adm.style.display = "inline-block"; adm.style.marginBottom = "8px"; top.push(adm); }
-    const pane = el("div", { id: "ink-account-panel", hidden: true }, ...top, swLabel, more, acts, msg, row, foot);
+    if (profile.is_admin === true) { const adm = link(ROOT + "admin.html", "ניהול"); adm.style.cssText += ";display:inline-block;margin-bottom:10px;font-weight:600"; top.push(adm); }
+    const pane = el("div", { id: "ink-account-panel", hidden: true }, rowLook, ...top, logBox, acts, row, msg, foot);
     pane.setAttribute("role", "region"); pane.setAttribute("aria-label", "חשבון");
-    const paneLook = "position:absolute;inset-inline-end:0;width:300px;max-width:calc(100vw - 24px);z-index:70;background:var(--panel,#fff);color:var(--ink,#111);border:1px solid var(--line,#ccc);border-radius:12px;padding:14px 16px;box-shadow:0 12px 34px rgba(0,0,0,.22);text-align:start";
+    const paneLook = "position:absolute;inset-inline-end:0;width:300px;max-width:calc(100vw - 24px);z-index:70;background:var(--panel,#fff);color:var(--ink,#111);border:1px solid var(--line,#ccc);border-radius:12px;padding:14px 16px;box-shadow:0 12px 34px rgba(0,0,0,.22);text-align:start;max-height:calc(100vh - 70px);overflow:auto";
     box.append(btn, pane);
     /* The button is the top bar's own: the hosted build draws it last in the bar, right after the
        day/night button, in the bar's colours (scripts/hosted.js), so Tab and a screen reader reach
