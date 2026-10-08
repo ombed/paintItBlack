@@ -38,6 +38,26 @@ try {
   ok(!dirty.length, "no link at the root names a page.html" + (dirty.length ? ": " + dirty.slice(0, 4).join(", ") : ""));
   const named = [...new Set(pages.flatMap((f) => [...read(f).matchAll(/href="([a-z][a-z0-9-]*)(?:[?#][^"]*)?"/g)].map((m) => m[1])))];
   ok(named.length >= 5 && named.every((n) => files.includes(n + ".html")), "every clean address a page links to is a page: " + named.filter((n) => !files.includes(n + ".html")).join(", "));
+  /* link previews and structured data (step 4, 8.10; scripts/seo.js): every page with a canonical address
+     carries Open Graph and Twitter tags made of its own title and description; the home page a JSON-LD graph
+     with its FAQ; the help page its questions. The texts are the pages' own, so they are compared to them. */
+  const { homeFaq, helpFaq, head } = require("../scripts/seo.js");
+  ok(files.includes("og.png"), "the preview image is at the root");
+  const indexable = pages.filter((f) => /<link rel="canonical"/.test(read(f)));
+  ok(indexable.length >= 6, "the pages with a canonical address: " + indexable.join(", "));
+  for (const f of indexable) {
+    const h = read(f), me = head(h), og = (p) => decodeURIComponent(((new RegExp('<meta property="og:' + p + '" content="([^"]*)">').exec(h) || [])[1] || "")).replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+    ok(og("title") === me.title && og("description") === me.description && og("url") === me.canonical && og("image") === "https://inkognito.co.il/og.png" && /twitter:card" content="summary_large_image"/.test(h), f + ": its preview is its own title, description and address");
+  }
+  const graph = (f) => { const m = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(read(f)); try { return m ? JSON.parse(m[1])["@graph"] : []; } catch (_) { return null; } };
+  const home = graph("index.html") || [], homeQ = homeFaq(fs.readFileSync(path.join(ROOT, "site", "index.html"), "utf8"));
+  ok(["Organization", "WebSite", "WebApplication", "FAQPage"].every((t) => home.some((x) => x["@type"] === t)), "the home page's graph: organisation, site, application, FAQ");
+  const hf = home.find((x) => x["@type"] === "FAQPage");
+  ok(!!hf && homeQ.length >= 5 && hf.mainEntity.length === homeQ.length && hf.mainEntity.every((q, i) => q.name === homeQ[i].q), "its FAQ is every question on the page, in order (" + homeQ.length + ")");
+  const helpQ = helpFaq(fs.readFileSync(path.join(ROOT, "site", "help.html"), "utf8")), help = graph("help.html") || [];
+  ok(helpQ.length === 17 && help[0] && help[0].mainEntity.length === 17, "the help page's 17 questions");
+  ok(!/<\/script/i.test(JSON.stringify(home)) && /<\\u003c|<script type="application\/ld\+json">/.test(read("index.html")), "the data cannot close its own script element");
+  ok(!indexable.includes("login.html") && !/og:title/.test(read("login.html")), "a page with no canonical address (sign-in) gets none");
   // the no-account demo (/demo/, v68): public, its own page with the demo flag, no sign-in, no model
   const demo = files.includes("demo/index.html") ? read("demo/index.html") : "";
   ok(demo.includes("window.__inkDemo={signup:") && demo.includes('window.__inkStoreSuffix="demo"'), "the demo page sets the tool's demo mode and its own case key");
