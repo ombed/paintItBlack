@@ -49,16 +49,23 @@ test("the passage: a name lights every place that person appears, by mouse and b
   await expect(demo).not.toHaveClass(/\bfocus\b/);
   await expect(demo.locator(".on")).toHaveCount(0);
 
-  // Tab goes from the hero's last link (the demo's, since v68) to the names, in reading order, each with a focus ring
+  // Tab goes from the hero's last link (the demo's, since v68) to the details, in reading order, each with a focus ring:
+  // first the date (since v73 it moves too, 9.10), lighting its shifted pair, then the names
   await page.locator(".hero .actions").getByRole("link", { name: "סיור על מסמך לדוגמה" }).focus();
   await page.keyboard.press("Tab");
-  const first = demo.locator(".nm").first();
+  const date = demo.locator(".nm").first();
+  await expect(date).toBeFocused();
+  await expect(date).toHaveText("12.3");
+  await expect(demo.locator('.on[data-p="e"]')).toHaveCount(2);
+  await expect(demo.locator('.al.on[data-p="e"]')).not.toHaveText("12.3");
+  await page.keyboard.press("Tab");
+  const first = demo.locator(".nm").nth(1);
   await expect(first).toBeFocused();
   await expect(first).toHaveText("עו״ד נעמה ברק");
   expect(await first.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe("solid");
   await expect(demo.locator('.on[data-p="a"]')).toHaveCount(2);
   await page.keyboard.press("Tab");
-  await expect(demo.locator(".nm").nth(1)).toBeFocused();
+  await expect(demo.locator(".nm").nth(2)).toBeFocused();
   await expect(demo.locator('.on[data-p="b"]')).toHaveCount(5);
   await expect(demo.locator('.on[data-p="a"]')).toHaveCount(0);
   for (let i = 0; i < 4; i++) await page.keyboard.press("Tab");
