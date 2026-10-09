@@ -288,7 +288,7 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
 </div></div>
 <script>
 (function(){
-  console.log("אינקוגניטו — גרסה v72");
+  console.log("אינקוגניטו — גרסה v73");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -335,8 +335,8 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
         console.log("עובד שירות: "+served);
         var el=document.getElementById("ver"); if(!el) return;
         if(chip===null) chip=el.innerHTML; else el.innerHTML=chip;
-        if(served==="v72") return;
-        el.innerHTML='גרסה v72 · <b style="color:var(--warn)">יש גרסה חדשה: רעננו עם Ctrl+Shift+R</b>';
+        if(served==="v73") return;
+        el.innerHTML='גרסה v73 · <b style="color:var(--warn)">יש גרסה חדשה: רעננו עם Ctrl+Shift+R</b>';
       });
       var ask=function(){ if(sw.controller) sw.controller.postMessage("version") };
       sw.ready.then(ask);
@@ -1368,7 +1368,7 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
 
 </div>
 </x-dc>
-<footer><nav data-foot aria-label="מידע ומסמכים משפטיים"><a href="https://inkognito.co.il/" target="_blank" rel="noopener">עמוד הבית</a><a href="https://inkognito.co.il/terms" target="_blank" rel="noopener">תנאי שימוש</a><a href="https://inkognito.co.il/privacy" target="_blank" rel="noopener">מדיניות פרטיות</a><a href="https://inkognito.co.il/accessibility" target="_blank" rel="noopener">הצהרת נגישות</a><a href="mailto:contact@inkognito.co.il">יצירת קשר</a></nav><div id="ver">גרסה v72</div></footer>
+<footer><nav data-foot aria-label="מידע ומסמכים משפטיים"><a href="https://inkognito.co.il/" target="_blank" rel="noopener">עמוד הבית</a><a href="https://inkognito.co.il/terms" target="_blank" rel="noopener">תנאי שימוש</a><a href="https://inkognito.co.il/privacy" target="_blank" rel="noopener">מדיניות פרטיות</a><a href="https://inkognito.co.il/accessibility" target="_blank" rel="noopener">הצהרת נגישות</a><a href="mailto:contact@inkognito.co.il">יצירת קשר</a></nav><div id="ver">גרסה v73</div></footer>
 <script type="text/x-dc" data-dc-script data-props="{&quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
 class Component extends DCLogic {

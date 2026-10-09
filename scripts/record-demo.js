@@ -54,19 +54,19 @@ async function walk(page, pause, shot) {
   await go.click();
   const addAll = page.getByRole("button", { name: /הוספת כולם והמשך/ });
   if (await addAll.isVisible({ timeout: 1500 }).catch(() => false)) { await pause(2500); await addAll.click(); }
-  for (let i = 0; i < 3; i++) {
-    const next = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first();
-    if (!(await next.isVisible({ timeout: 2500 }).catch(() => false))) break;
-    await pause(2000);
-    await next.click();
-  }
+  // through the places screen when it comes: wait for its button or the check screen's bar (isVisible does not
+  // wait, and a places screen that came late was skipped; 8.10). The page's test hook is not here, so the
+  // screens are told apart by what they show.
+  const next = page.getByRole("button", { name: /החלת הקבוצה והמשך|המשך לבדיקה|המשך לעיבוד/ }).first(), bar = page.locator("[data-bar]");
+  await next.or(bar).first().waitFor({ timeout: 60000 });
+  if (await next.isVisible()) { await pause(2000); await next.click(); }
   await page.locator("[data-mark]").first().waitFor({ timeout: 60000 });
   await pause(4500);
   await shot("2-redacted.png");
 
   // what goes to the AI, and an answer written the way an AI would, with the substitutes
   await page.evaluate(() => { navigator.clipboard.writeText = (t) => { window.__copied = t; return Promise.resolve(); }; });
-  await page.locator("[data-bar]").getByRole("button", { name: /העתקה ל-AI|הועתק/ }).click();
+  await page.locator("[data-bar]").getByRole("button", { name: /העתקה ל[-־]AI|הועתק/ }).click();
   const anyway = page.getByRole("button", { name: "להעתיק בכל זאת" });
   if (await anyway.isVisible({ timeout: 800 }).catch(() => false)) await anyway.click();
   const sent = await page.evaluate(() => window.__copied || "");
@@ -112,8 +112,9 @@ async function walk(page, pause, shot) {
     ff(["-i", webm, "-vf", "setpts=PTS/2.5,fps=8,scale=800:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse=dither=bayer:bayer_scale=4", path.join(OUT, "demo.gif")]);
     for (const f of fs.readdirSync(OUT)) console.log(f, (fs.statSync(path.join(OUT, f)).size / 1e6).toFixed(2) + " MB");
   } finally {
-    fs.rmSync(profile, { recursive: true, force: true });
-    fs.rmSync(raw, { recursive: true, force: true });
+    // on Windows the browser can still hold its profile for a moment: a failed clean-up must not hide the
+    // error that ended the run (8.10, EPERM on the profile replaced the real one)
+    for (const d of [profile, raw]) try { fs.rmSync(d, { recursive: true, force: true, maxRetries: 5, retryDelay: 400 }); } catch (e) { console.error("left behind: " + d); }
     if (srv) srv.kill();
   }
 })().catch((e) => { console.error(e); process.exit(1); });

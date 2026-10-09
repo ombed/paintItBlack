@@ -1310,17 +1310,20 @@ function pseudoRX(p){
    שכתב את התאריך אחרת קיבל בחזרה את התאריך המוזז (בדיקה בכלי החי, 6.10). שמות החודשים כאן רק
    לקריאה: התאריך האמיתי חוזר כפי שהמסמך כתב אותו, כמו שם. */
 const MONTHS_HE=["ינואר","פברואר","מר[ץס]","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+// כל כתיב ש-parseDate קורא, גם תאריך במילים ותאריך בלי שנה (9.10). y: null — יום וחודש בלבד
 function dateParts(s){
-  const m=/^(\d{1,2})([./-])(\d{1,2})\2(\d{4}|\d{2})$/.exec(String(s||"").trim());
-  if(!m)return null;
-  const d=+m[1], mo=+m[3], y=fullYear(m[4]);
-  return d>=1&&d<=31&&mo>=1&&mo<=12?{d,m:mo,y}:null;
+  const p=parseDate(s);
+  return p?{d:p.d,m:p.m,y:p.y}:null;
 }
 const sameDay=(a,b)=>!!a&&!!b&&a.d===b.d&&a.m===b.m&&a.y===b.y;
 function dateRX(f){
-  const z=n=>n<10?"0?"+n:String(n), D=z(f.d), M=z(f.m), Y=String(f.y), YY=String(f.y%100).padStart(2,"0");
+  const z=n=>n<10?"0?"+n:String(n), D=z(f.d), M=z(f.m);
+  const Y=f.y==null?"":String(f.y), YY=f.y==null?"":String(f.y%100).padStart(2,"0");
   const B="0-9A-Za-z\u0591-\u05bd\u05bf-\u05c7\u05d0-\u05ea";
-  const body=D+"(?<sep>[./-])"+M+"\\k<sep>(?:"+Y+"|"+YY+")|"+Y+"-"+M+"-"+D+"|"+
+  /* יום וחודש בלי שנה חוזרים רק בלי שנה: "27.4" ו"27 באפריל", לא "27/4/2026" ולא "27 באפריל 2026",
+     שבהם ה-AI הוסיף שנה משלו */
+  const body=f.y==null?D+"[./]"+M+"(?![./-]?[0-9])|"+D+"\\s+[בל]?[-\u05be]?"+MONTHS_HE[f.m-1]+"(?!,?\\s+[0-9])":
+    D+"(?<sep>[./-])"+M+"\\k<sep>(?:"+Y+"|"+YY+")|"+Y+"-"+M+"-"+D+"|"+
     D+"\\s+[בל]?"+MONTHS_HE[f.m-1]+",?\\s+"+Y;
   return new RegExp("(?<!["+B+"])(?<pre>(?:"+PRE_SEQ.join("|")+")[-\u05be]?)?(?:"+body+")(?!["+B+"])","gu");
 }
@@ -1475,7 +1478,7 @@ function restorePairs(caseMap,docMap){
 
 export {nerLast, hiddenPart, nerForget, VRB, COMMON, KNOWN_FIRST, NW, NWE, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
   variants, validID, ibanOK, luhn, hord, POOL, WORDLIKE, FEM, MASC, fakeName, near1, HOMO, WEAK,
-  findNear, mergeSignals, fakeDate, foldEvidence, tokPieces, namePosition, nerReset, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
+  findNear, mergeSignals, fakeDate, parseDate, foldEvidence, tokPieces, namePosition, nerReset, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,
   discover, PLACES, PLACE_BY, geoMap, geoNames, placesFound, examplesOf, findPlaces, fakePlace,
   atlasTags, atlasDiff, atlasPenalty, placeKind, nerEnv, nerCached, nerPersist, nerLoad, nerRun,

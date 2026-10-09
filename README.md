@@ -2,11 +2,12 @@
 
 InKognito removes identifying details (people, places, organisations, ID and phone numbers) from Hebrew Word and PDF documents before they are pasted into an AI tool.
 Each detail is replaced with a consistent substitute, and when the AI answers, the tool puts the real names back into the answer.
-Everything runs in the browser. There is no server, and the document never leaves the computer.
+Reading the file, recognising the names and replacing them all run in the browser: the document never leaves the computer.
+The hosted service adds sign-in and, only with the user's consent, a usage log without any text from the documents.
 It was built for a real client, a lawyer, and shaped by her feedback and her session logs, which record timings and clicks but never text.
 The interface is in Hebrew; the Hebrew documentation follows this section.
 
-**Live:** https://ombed.github.io/inkognito/ · **Demo (36 s):** [docs/demo/demo.mp4](docs/demo/demo.mp4), on an invented court transcript from the benchmark corpus
+**Live:** https://inkognito.co.il · **Try it without an account:** https://inkognito.co.il/demo/ (a guided tour on an invented document) · **Demo video (36 s):** [docs/demo/demo.mp4](docs/demo/demo.mp4), on an invented court transcript from the benchmark corpus
 
 ![Demo: load a document, review the people found, redact, paste an AI answer, get the real names back](docs/demo/demo.gif)
 
@@ -25,7 +26,7 @@ The interface is in Hebrew; the Hebrew documentation follows this section.
 - Vanilla JavaScript, no framework and no build step for the page; the engine is plain files concatenated into one script.
 - Name recognition: the NER head of DictaBERT-parse, exported to ONNX, quantized to 8 bits and run in the browser with transformers.js. It is served from this site and checked against a pinned SHA-256 before use.
 - Rules, Hebrew prefix handling and a gazetteer run alongside the model; the model only adds suggestions.
-- Tests: about 3,000 Node checks and over 200 Playwright browser tests in CI, plus the benchmark gate above.
+- Tests: about 3,700 Node checks and over 300 Playwright browser tests in CI, plus the benchmark gate above.
 - Developed with Claude Code as the coding agent. The design decisions are mine, and I can explain each one.
 
 ---
@@ -112,13 +113,13 @@ GitHub Pages או כל אירוח סטטי מספיק. **כתובת `https` הי
 
 | קובץ | שורה | המחרוזת | תפקיד |
 |---|---|---|---|
-| `index.html` | 1371 | `<div id="ver">גרסה v72</div>` | השבב התחתון — מה שנראה על המסך |
-| `index.html` | 291 | `console.log("… גרסה v72")` | שורת הפתיחה בקונסול |
-| `index.html` | 338 | `if(served==="v72") return;` | **בדיקת ההשוואה** מול מה שהעובד מגיש |
-| `index.html` | 339 | `el.innerHTML='גרסה v72 · …'` | תווית האזהרה שמוצגת כשיש פער |
-| `sw.js` | 8 | `const V="hedact-v72";` | מפתח המטמון |
+| `index.html` | 1371 | `<div id="ver">גרסה v73</div>` | השבב התחתון — מה שנראה על המסך |
+| `index.html` | 291 | `console.log("… גרסה v73")` | שורת הפתיחה בקונסול |
+| `index.html` | 338 | `if(served==="v73") return;` | **בדיקת ההשוואה** מול מה שהעובד מגיש |
+| `index.html` | 339 | `el.innerHTML='גרסה v73 · …'` | תווית האזהרה שמוצגת כשיש פער |
+| `sw.js` | 8 | `const V="hedact-v73";` | מפתח המטמון |
 
-מספרי השורות נכונים לגרסה v72 והם עזר בלבד — לחפש את המחרוזת, לא לסמוך
+מספרי השורות נכונים לגרסה v73 והם עזר בלבד — לחפש את המחרוזת, לא לסמוך
 על המספר.
 
 **בדיקת ההשוואה (`if(served===…)`, השורה השלישית בטבלה) היא הכי קלה לפספוס, והפספוס שקט-למחצה.** אם השבב והקונסול

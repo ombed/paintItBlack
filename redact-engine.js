@@ -147,17 +147,36 @@ function fullYear(s){
   const n=+s; if(String(s).length!==2)return n;
   return 2000+n<=new Date().getUTCFullYear()+10?2000+n:1900+n;
 }
+/* כל כתיב רגיל של תאריך, ומה שצריך כדי לכתוב תאריך מוזז באותו כתיב: "12.3.2026", "12-03-26",
+   "2026-03-12", "12 במרץ 2026" (גם ל, בלי אות, פסיק, מרס), ובלי שנה — "12.3", "12 במרץ". עד כאן רק
+   תאריך מספרי עם שנה היה תאריך, ו"12 במרץ 2026" או "ביום 12.3" הגיעו ל-AI אמיתיים (הבעלים, 9.10, בדוגמה
+   שבדף הבית). תאריך בלי שנה נבדק מול שנה מעוברת, כדי ש-29.2 יהיה תאריך. null: אינו תאריך אמיתי. */
+const DATE_MONTHS=["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+// בלי שנה: שנה רגילה, ושנה מעוברת רק ל-29.2
+const dateRefYear=p=>p.m===2&&p.d===29?2024:2025;
+function parseDate(s){
+  const t=norm(String(s||"")).replace(/\u0000/g,"").trim(), lead=x=>x.length===2&&x[0]==="0";
+  let m,p=null;
+  if((m=/^(\d{1,2})([./-])(\d{1,2})(?:\2(\d{4}|\d{2}))?$/.exec(t))&&(m[4]||m[2]!=="-"))
+    p={d:+m[1],m:+m[3],y:m[4]?fullYear(m[4]):null,form:"num",sep:m[2],y2:!!m[4]&&m[4].length===2,pd:lead(m[1]),pm:lead(m[3])};
+  else if((m=/^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(t)))
+    p={d:+m[3],m:+m[2],y:+m[1],form:"iso",pd:m[3].length===2,pm:m[2].length===2};
+  else if((m=/^(\d{1,2})(\s+)([בל]?-?)(ינואר|פברואר|מר[ץס]|אפריל|מאי|יוני|יולי|אוגוסט|ספטמבר|אוקטובר|נובמבר|דצמבר)(?:(,?\s+)(\d{4}))?$/.exec(t)))
+    p={d:+m[1],m:m[4]==="מרס"?3:DATE_MONTHS.indexOf(m[4])+1,y:m[6]?+m[6]:null,form:"words",sp:m[2],conn:m[3],yc:m[5]||"",mar:m[4]==="מרס"?"מרס":null};
+  if(!p||p.d<1||p.d>31||p.m<1||p.m>12)return null;
+  const c=new Date(Date.UTC(p.y??dateRefYear(p),p.m-1,p.d));
+  return c.getUTCDate()===p.d&&c.getUTCMonth()===p.m-1?p:null;
+}
 function fakeDate(s,offDays){
-  const m=/^(\d{1,2})([./])(\d{1,2})\2(\d{4}|\d{2})$/.exec(String(s||"").trim());
-  if(!m)return null;
-  const d=+m[1], mo=+m[3], y2=m[4].length===2, y=fullYear(m[4]);
-  if(d<1||d>31||mo<1||mo>12)return null;
-  const t=new Date(Date.UTC(y,mo-1,d));
-  if(t.getUTCDate()!==d||t.getUTCMonth()!==mo-1)return null;
+  const p=parseDate(s);
+  if(!p)return null;
+  const t=new Date(Date.UTC(p.y??dateRefYear(p),p.m-1,p.d));
   t.setUTCDate(t.getUTCDate()+(offDays|0));
-  const yy=t.getUTCFullYear();
-  const ys=y2?String(yy%100).padStart(2,"0"):String(yy);
-  return `${t.getUTCDate()}${m[2]}${t.getUTCMonth()+1}${m[2]}${ys}`;
+  const d=t.getUTCDate(), mo=t.getUTCMonth()+1, y=t.getUTCFullYear(), z=(n,pad)=>pad&&n<10?"0"+n:String(n);
+  if(p.form==="iso")return `${y}-${z(mo,p.pm)}-${z(d,p.pd)}`;
+  if(p.form==="words")return d+p.sp+p.conn+(mo===3&&p.mar?p.mar:DATE_MONTHS[mo-1])+(p.y==null?"":p.yc+y);
+  const dm=z(d,p.pd)+p.sep+z(mo,p.pm);
+  return p.y==null?dm:dm+p.sep+(p.y2?String(y%100).padStart(2,"0"):String(y));
 }
 function validID(s){const d=s.replace(/\D/g,"");if(!d||d.length>9)return false;
   if(/^0+$/.test(d)||/^(\d)\1+$/.test(d))return false;
@@ -1190,12 +1209,21 @@ function nerClean(ents,text,opt){
   return keep.sort((a,b)=>b.n-a.n||b.score-a.score)}
 
 const STREET="(?:רחוב|רח'|שדרות|שד'|סמטת|סמטה|דרך|שכונת|כיכר|ככר|מעלה|נחל|משעול)";
+const D_DAY="(?:0?[1-9]|[12][0-9]|3[01])", D_MON="(?:0?[1-9]|1[0-2])",
+  D_MONTH="(?:ינואר|פברואר|מר[ץס]|אפריל|מאי|יוני|יולי|אוגוסט|ספטמבר|אוקטובר|נובמבר|דצמבר)",
+  // "רף ה-4.1 מיליון", "ה-2.5 חדרים": מספר עם יחידה אחריו אינו תאריך (49,700 משפטי iahlt, 9.10)
+  D_UNIT='מיליון|מיליארד|אלף|אלפי|אחוז|חדר|ש"ח|₪|\\$|דולר|יורו|ק"ג|ק"מ|מ"ר|מטר|שנ|נקוד|ליטר|גרם|קילו|דונם|מעלות';
 const PAT=[
  ["EMAIL",'כתובת דוא"ל',`(?<![\\w.%+-])[\\w.%+-]+@[\\w.-]+\\.[A-Za-z\u05d0-\u05ea]{2,}`,0,null,0,1],
  // תאריך מלא. עד כאן תאריכים לא זוהו בכלל (רק תאריך לידה אחרי "יליד"), והמשתמשת ביקשה
  // שתאריכים ומספרי תיק יושמטו מאליהם. תאריך מושמט כברירת מחדל, ובכל כרטיס אפשר
  // להשאיר אותו. גיל ("בת 9") אינו תאריך ואינו נתפס כאן.
- ["DATE","תאריך",`${NW}\\d{1,2}[./]\\d{1,2}[./](?:\\d{4}|\\d{2})${NWE}`,0,null,5,1],
+ // ועוד כל כתיב רגיל אחר (9.10, parseDate): במקפים, שנה קודם, במילים, ובלי שנה. יום וחודש במספרים
+ // בלי שנה נראים כמו "סעיף 12.3" או "2.5 מיליון", ולכן הם תאריך רק אחרי מילה שמבשרת תאריך; שם של
+ // חודש הוא ראיה מספיקה בעצמו. מקף עברי (U+05BE) הופך ב-norm לאפס, ולכן [-\0] אחרי ה, מה וב.
+ ["DATE","תאריך",`${NW}\\d{1,2}[./]\\d{1,2}[./](?:\\d{4}|\\d{2})${NWE}|${NW}${D_DAY}-${D_MON}-(?:\\d{4}|\\d{2})${NWE}|`+
+   `${NW}\\d{4}-${D_MON}-${D_DAY}${NWE}|${NW}${D_DAY}\\s+[בל]?[-\\u0000]?${D_MONTH}(?:,?\\s+\\d{4}(?![0-9]))?(?![א-ת0-9])|`+
+   `(?<=(?<![א-ת])ו?(?:ביום|מיום|ליום|בתאריך|מתאריך|לתאריך|תאריך|ה[-\\u0000]|מה[-\\u0000])[:\\s]*)${D_DAY}[./]${D_MON}(?![0-9%]|[./-][0-9]|\\s*(?:${D_UNIT}))`,0,null,5,1],
  ["PHONE_MOBILE","טלפון נייד",`${NW}(?:\\+?972[-\\s]?|0)5\\d[-\\s.]?\\d{3}[-\\s.]?\\d{4}${NWE}`,0,null,3,1],
  ["PHONE_LAND","טלפון קווי",`${NW}(?:\\+?972[-\\s]?|0)(?:[2-4689]|7\\d)[-\\s.]?\\d{3}[-\\s.]?\\d{4}${NWE}`,0,null,4,1],
  ["PHONE_TOLL","מספר חיוג","(?:\\*\\d{3,5}|1[-\\s]?[38]00[-\\s]?\\d{3}[-\\s]?\\d{3})",0,null,3,1],
@@ -3393,17 +3421,20 @@ function pseudoRX(p){
    שכתב את התאריך אחרת קיבל בחזרה את התאריך המוזז (בדיקה בכלי החי, 6.10). שמות החודשים כאן רק
    לקריאה: התאריך האמיתי חוזר כפי שהמסמך כתב אותו, כמו שם. */
 const MONTHS_HE=["ינואר","פברואר","מר[ץס]","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+// כל כתיב ש-parseDate קורא, גם תאריך במילים ותאריך בלי שנה (9.10). y: null — יום וחודש בלבד
 function dateParts(s){
-  const m=/^(\d{1,2})([./-])(\d{1,2})\2(\d{4}|\d{2})$/.exec(String(s||"").trim());
-  if(!m)return null;
-  const d=+m[1], mo=+m[3], y=fullYear(m[4]);
-  return d>=1&&d<=31&&mo>=1&&mo<=12?{d,m:mo,y}:null;
+  const p=parseDate(s);
+  return p?{d:p.d,m:p.m,y:p.y}:null;
 }
 const sameDay=(a,b)=>!!a&&!!b&&a.d===b.d&&a.m===b.m&&a.y===b.y;
 function dateRX(f){
-  const z=n=>n<10?"0?"+n:String(n), D=z(f.d), M=z(f.m), Y=String(f.y), YY=String(f.y%100).padStart(2,"0");
+  const z=n=>n<10?"0?"+n:String(n), D=z(f.d), M=z(f.m);
+  const Y=f.y==null?"":String(f.y), YY=f.y==null?"":String(f.y%100).padStart(2,"0");
   const B="0-9A-Za-z\u0591-\u05bd\u05bf-\u05c7\u05d0-\u05ea";
-  const body=D+"(?<sep>[./-])"+M+"\\k<sep>(?:"+Y+"|"+YY+")|"+Y+"-"+M+"-"+D+"|"+
+  /* יום וחודש בלי שנה חוזרים רק בלי שנה: "27.4" ו"27 באפריל", לא "27/4/2026" ולא "27 באפריל 2026",
+     שבהם ה-AI הוסיף שנה משלו */
+  const body=f.y==null?D+"[./]"+M+"(?![./-]?[0-9])|"+D+"\\s+[בל]?[-\u05be]?"+MONTHS_HE[f.m-1]+"(?!,?\\s+[0-9])":
+    D+"(?<sep>[./-])"+M+"\\k<sep>(?:"+Y+"|"+YY+")|"+Y+"-"+M+"-"+D+"|"+
     D+"\\s+[בל]?"+MONTHS_HE[f.m-1]+",?\\s+"+Y;
   return new RegExp("(?<!["+B+"])(?<pre>(?:"+PRE_SEQ.join("|")+")[-\u05be]?)?(?:"+body+")(?!["+B+"])","gu");
 }
@@ -3558,7 +3589,7 @@ function restorePairs(caseMap,docMap){
 
 export {nerLast, hiddenPart, nerForget, VRB, COMMON, KNOWN_FIRST, NW, NWE, crc32, unzip, zip, parseXML, serXML, TEXTPART, TXT, ENC, norm, esc, flex, H, A,
   variants, validID, ibanOK, luhn, hord, POOL, WORDLIKE, FEM, MASC, fakeName, near1, HOMO, WEAK,
-  findNear, mergeSignals, fakeDate, foldEvidence, tokPieces, namePosition, nerReset, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
+  findNear, mergeSignals, fakeDate, parseDate, foldEvidence, tokPieces, namePosition, nerReset, nameish, bodyNames, nerChunks, nerClean, PAT, WHYP, KINDS, KINDLBL, CANON, ckey,
   resolve, Engine, flatten, acceptTracked, stripComments, redactDocx, partName, ctxHTML, verify,
   discover, PLACES, PLACE_BY, geoMap, geoNames, placesFound, examplesOf, findPlaces, fakePlace,
   atlasTags, atlasDiff, atlasPenalty, placeKind, nerEnv, nerCached, nerPersist, nerLoad, nerRun,

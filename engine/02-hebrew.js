@@ -62,17 +62,36 @@ function fullYear(s){
   const n=+s; if(String(s).length!==2)return n;
   return 2000+n<=new Date().getUTCFullYear()+10?2000+n:1900+n;
 }
+/* כל כתיב רגיל של תאריך, ומה שצריך כדי לכתוב תאריך מוזז באותו כתיב: "12.3.2026", "12-03-26",
+   "2026-03-12", "12 במרץ 2026" (גם ל, בלי אות, פסיק, מרס), ובלי שנה — "12.3", "12 במרץ". עד כאן רק
+   תאריך מספרי עם שנה היה תאריך, ו"12 במרץ 2026" או "ביום 12.3" הגיעו ל-AI אמיתיים (הבעלים, 9.10, בדוגמה
+   שבדף הבית). תאריך בלי שנה נבדק מול שנה מעוברת, כדי ש-29.2 יהיה תאריך. null: אינו תאריך אמיתי. */
+const DATE_MONTHS=["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+// בלי שנה: שנה רגילה, ושנה מעוברת רק ל-29.2
+const dateRefYear=p=>p.m===2&&p.d===29?2024:2025;
+function parseDate(s){
+  const t=norm(String(s||"")).replace(/\u0000/g,"").trim(), lead=x=>x.length===2&&x[0]==="0";
+  let m,p=null;
+  if((m=/^(\d{1,2})([./-])(\d{1,2})(?:\2(\d{4}|\d{2}))?$/.exec(t))&&(m[4]||m[2]!=="-"))
+    p={d:+m[1],m:+m[3],y:m[4]?fullYear(m[4]):null,form:"num",sep:m[2],y2:!!m[4]&&m[4].length===2,pd:lead(m[1]),pm:lead(m[3])};
+  else if((m=/^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(t)))
+    p={d:+m[3],m:+m[2],y:+m[1],form:"iso",pd:m[3].length===2,pm:m[2].length===2};
+  else if((m=/^(\d{1,2})(\s+)([בל]?-?)(ינואר|פברואר|מר[ץס]|אפריל|מאי|יוני|יולי|אוגוסט|ספטמבר|אוקטובר|נובמבר|דצמבר)(?:(,?\s+)(\d{4}))?$/.exec(t)))
+    p={d:+m[1],m:m[4]==="מרס"?3:DATE_MONTHS.indexOf(m[4])+1,y:m[6]?+m[6]:null,form:"words",sp:m[2],conn:m[3],yc:m[5]||"",mar:m[4]==="מרס"?"מרס":null};
+  if(!p||p.d<1||p.d>31||p.m<1||p.m>12)return null;
+  const c=new Date(Date.UTC(p.y??dateRefYear(p),p.m-1,p.d));
+  return c.getUTCDate()===p.d&&c.getUTCMonth()===p.m-1?p:null;
+}
 function fakeDate(s,offDays){
-  const m=/^(\d{1,2})([./])(\d{1,2})\2(\d{4}|\d{2})$/.exec(String(s||"").trim());
-  if(!m)return null;
-  const d=+m[1], mo=+m[3], y2=m[4].length===2, y=fullYear(m[4]);
-  if(d<1||d>31||mo<1||mo>12)return null;
-  const t=new Date(Date.UTC(y,mo-1,d));
-  if(t.getUTCDate()!==d||t.getUTCMonth()!==mo-1)return null;
+  const p=parseDate(s);
+  if(!p)return null;
+  const t=new Date(Date.UTC(p.y??dateRefYear(p),p.m-1,p.d));
   t.setUTCDate(t.getUTCDate()+(offDays|0));
-  const yy=t.getUTCFullYear();
-  const ys=y2?String(yy%100).padStart(2,"0"):String(yy);
-  return `${t.getUTCDate()}${m[2]}${t.getUTCMonth()+1}${m[2]}${ys}`;
+  const d=t.getUTCDate(), mo=t.getUTCMonth()+1, y=t.getUTCFullYear(), z=(n,pad)=>pad&&n<10?"0"+n:String(n);
+  if(p.form==="iso")return `${y}-${z(mo,p.pm)}-${z(d,p.pd)}`;
+  if(p.form==="words")return d+p.sp+p.conn+(mo===3&&p.mar?p.mar:DATE_MONTHS[mo-1])+(p.y==null?"":p.yc+y);
+  const dm=z(d,p.pd)+p.sep+z(mo,p.pm);
+  return p.y==null?dm:dm+p.sep+(p.y2?String(y%100).padStart(2,"0"):String(y));
 }
 function validID(s){const d=s.replace(/\D/g,"");if(!d||d.length>9)return false;
   if(/^0+$/.test(d)||/^(\d)\1+$/.test(d))return false;
