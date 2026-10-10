@@ -15,7 +15,7 @@ const H = require("./helpers");
 
 const DOC = [
   "תסקיר בעניין המשפחה",
-  "גדעון לוי מתגורר בחיפה מאז 2019.",
+  "עמרי לוי מתגורר בחיפה מאז 2019.",
   "הוא עובד באזור התעשייה בנתניה, וכל האזור סבל מהצפות.",
 ].join("\n");
 
@@ -80,10 +80,10 @@ test("a name typed by hand on the people screen carries its sentences too", asyn
   await H.startScan(page);
   await expect(H.goButton(page)).toBeVisible({ timeout: 10000 });
 
-  await page.getByRole("textbox").first().fill("גדעון לוי");
+  await page.getByRole("textbox").first().fill("עמרי לוי");
   await page.getByRole("button", { name: "הוספה", exact: true }).click();
 
-  const chip = page.locator('span[data-tip="1"]').filter({ hasText: "גדעון לוי" }).first();
+  const chip = page.locator('span[data-tip="1"]').filter({ hasText: "עמרי לוי" }).first();
   await expect(chip).toBeVisible();
   await chip.hover();
   const panel = page.locator('[data-tip="panel"]');

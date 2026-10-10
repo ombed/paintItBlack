@@ -57,9 +57,9 @@ test.describe("people screen", () => {
     await expect(page.getByText(/בלי «עו"ד»/)).toBeVisible();
 
     // An org prefix sets the kind, shown on the chip's kind button.
-    await input.fill("עמותת פנים מאירות");
+    await input.fill("עמותת נרות מאירות");
     await add.click();
-    await expect(rows.filter({ hasText: "פנים מאירות" }).getByRole("combobox")).toHaveValue("ORG");
+    await expect(rows.filter({ hasText: "נרות מאירות" }).getByRole("combobox")).toHaveValue("ORG");
 
     // Pasting a list splits on newlines and commas.
     await input.evaluate((el) => {

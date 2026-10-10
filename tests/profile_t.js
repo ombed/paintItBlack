@@ -165,7 +165,7 @@ ok(/profileOk\(p,true\)/.test(body("readCases")), "readCases lists only the entr
 ok(/profileOk\(/.test(body("readLast")) && /\.rules\.length/.test(body("readLast")), "readLast offers the last profile only when profileOk accepts it and its list is not empty");
 {
   const w = body("writeCase");
-  ok(/profileOk\(prev,true\)/.test(w) && w.indexOf("profileOk(prev,true)") < w.indexOf("mergeCase("), "writeCase merges only into an entry profileOk accepts; any other is replaced, so her case is saved");
+  ok(/profileOk\(prev,true\)/.test(w) && w.indexOf("profileOk(prev,true)") < w.indexOf("mergeCase("), "writeCase merges only into an entry profileOk accepts; any other is replaced, so the case is saved");
 }
 {
   const im = body("importCases"), first = im.indexOf("localStorage.setItem");

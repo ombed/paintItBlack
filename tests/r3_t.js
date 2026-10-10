@@ -2,8 +2,8 @@
    Every Q number in this file is one of release 3's questions (CHANGELOG v33).
 
    Short names: "לשי" survived because a two-letter name's prefixed
-   forms only waited for review (Q3). Prefixed chips: "שארסן" got its own fake
-   name beside "ארסן" (Q4). Dates: a deleted date made the AI say "the date is
+   forms only waited for review (Q3). Prefixed chips: "שגורגן" got its own fake
+   name beside "גורגן" (Q4). Dates: a deleted date made the AI say "the date is
    missing" (Q5). Places: "ירושלים" became a kibbutz from the untagged pool (Q7).
    And "שדוברת רוסית" was offered as a name. */
 const C = require("./core.js");
@@ -34,26 +34,26 @@ const DOPT = { ...OPT, on: new Set(["DATE"]) };
   }
 
   console.log("\n— the prefix-letter merge signal (Q4 fallback) —");
-  ok(C.mergeSignals("ארסן", "שארסן").includes("אות שימוש?"), "ארסן / שארסן");
+  ok(C.mergeSignals("גורגן", "שגורגן").includes("אות שימוש?"), "גורגן / שגורגן");
   ok(C.mergeSignals("רון", "שרון").includes("אות שימוש?"), "רון / שרון: a suggestion she answers, never a fold");
   ok(C.mergeSignals("דנה כהן", "לדנה כהן").includes("אות שימוש?"), "two words with a prefix");
 
   console.log("\n— fold evidence from the model (Q4) —");
   {
-    const TEXT = "ארסן חזר. שארסן נכנס. שרון: אני כאן. רון בא. שרון הלכה.";
+    const TEXT = "גורגן חזר. שגורגן נכנס. שרון: אני כאן. רון בא. שרון הלכה.";
     const mk = (value, cut) => ({ value, kind: "NAME", n: 1, cut: !!cut });
-    const pipe = { tokenizer: { tokenize: (w) => (w === "שארסן" ? ["ש", "##ארסן"] : w === "שרון" ? ["שרון"] : [w]) } };
-    const out = [mk("ארסן"), mk("שארסן"), mk("רון"), mk("שרון")];
+    const pipe = { tokenizer: { tokenize: (w) => (w === "שגורגן" ? ["ש", "##גורגן"] : w === "שרון" ? ["שרון"] : [w]) } };
+    const out = [mk("גורגן"), mk("שגורגן"), mk("רון"), mk("שרון")];
     await C.foldEvidence(pipe, out, TEXT);
     const g = (v) => out.find((o) => o.value === v);
-    ok(g("שארסן").prefixOf === "ארסן" && g("שארסן").fold === "yes", "שארסן folds: " + g("שארסן").foldWhy);
+    ok(g("שגורגן").prefixOf === "גורגן" && g("שגורגן").fold === "yes", "שגורגן folds: " + g("שגורגן").foldWhy);
     ok(g("שרון").prefixOf === "רון" && g("שרון").fold === "no", "שרון never folds: " + g("שרון").foldWhy);
     // no tokenizer: unknown, never a fold
-    const out2 = [mk("ארסן"), mk("שארסן")];
+    const out2 = [mk("גורגן"), mk("שגורגן")];
     await C.foldEvidence({}, out2, TEXT);
     ok(out2[1].fold === "unknown", "model off: unknown, so a suggestion, not a fold");
     // a cut span is prefix evidence; a speaker position blocks
-    const out3 = [mk("ארסן"), mk("שארסן", true)];
+    const out3 = [mk("גורגן"), mk("שגורגן", true)];
     await C.foldEvidence({}, out3, TEXT);
     ok(out3[1].fold === "yes" && /cut/.test(out3[1].foldWhy), "a cut span folds: " + out3[1].foldWhy);
     const out4 = [mk("רון"), mk("שרון", true)];
@@ -106,11 +106,11 @@ const DOPT = { ...OPT, on: new Set(["DATE"]) };
   console.log("\n— transcript anchors: 'שמי X', and a possessive after a role —");
   {
     const an = (t) => C.anchored(t).map((a) => a.text + "/" + a.anchor);
-    ok(an("טוב, נעים מאוד. אז שמי ולנטינה.").includes("ולנטינה/self"), "שמי X: " + an("טוב, נעים מאוד. אז שמי ולנטינה."));
+    ok(an("בוקר טוב לכולם. אז שמי ולנטינה.").includes("ולנטינה/self"), "שמי X: " + an("בוקר טוב לכולם. אז שמי ולנטינה."));
     ok(an("קוראים לי דנה, ואני מהמחלקה.").includes("דנה/self"), "קוראים לי X");
     ok(an("ואני הולכת הביתה.").length === 0, "ואני is not an anchor");
-    ok(an("עובד סוציאלי שלו, ברנשטיין, אמר לו.").includes("ברנשטיין/carep"), "the possessive after the role is skipped: " + an("עובד סוציאלי שלו, ברנשטיין, אמר לו."));
-    ok(!an("עובד סוציאלי שלו, ברנשטיין, אמר לו.").some((x) => /^שלו/.test(x)), "and 'שלו ברנשטיין' is not offered");
+    ok(an("הפסיכולוג שלו, ברקוביץ, אמר לו.").includes("ברקוביץ/carep"), "the possessive after the role is skipped: " + an("הפסיכולוג שלו, ברקוביץ, אמר לו."));
+    ok(!an("הפסיכולוג שלו, ברקוביץ, אמר לו.").some((x) => /^שלו/.test(x)), "and 'שלו ברקוביץ' is not offered");
     ok(an("העובדת הסוציאלית שלה אמרה.").length === 0, "a possessive followed by a verb: nothing");
   }
 

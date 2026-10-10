@@ -42,7 +42,7 @@ const test = base.test.extend({
     await page.addInitScript(() => {
       window.__PIB_TEST = true;
       // the Content-Security-Policy (review H14): anything the page is refused is recorded, and a
-      // refusal fails the test, so a host the policy forgot shows here and not in her session
+      // refusal fails the test, so a host the policy forgot shows here and not in a session
       window.__csp = [];
       document.addEventListener("securitypolicyviolation", (e) => window.__csp.push(e.violatedDirective + " " + String(e.blockedURI).slice(0, 80)));
     });

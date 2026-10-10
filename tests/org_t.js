@@ -28,17 +28,17 @@ const OPT={on:new Set(["PLACES"]),flag:new Set(["NAME_ANCHORED"]),mode:"real",ne
 let pass=0,fail=0;const ok=(c,m)=>{c?pass++:(fail++,console.log("  ✗ "+m))};
 (async()=>{
  console.log("\n— סוג «גוף» מקצה לקצה, כפי שהמודל מציע אותו —");
- const ps=["התובעת שהתה במעון של עמותת פנים מאירות בחיפה.",
-           "פנים מאירות סירבה. לפנים מאירות יש סניף. מפנים מאירות לא התקבלה תשובה.",
-           "רונית לוי הגישה תלונה נגד פנים מארות."];
+ const ps=["התובעת שהתה במעון של עמותת נרות מאירות בחיפה.",
+           "נרות מאירות סירבה. לנרות מאירות יש סניף. מנרות מאירות לא התקבלה תשובה.",
+           "רונית לוי הגישה תלונה נגד נרות מארות."];
  const r=await E.redactDocx(mk(ps),[
-   {value:"פנים מאירות",kind:"ORG",replacement:""},
+   {value:"נרות מאירות",kind:"ORG",replacement:""},
    {value:"רונית לוי",kind:"NAME",replacement:""}],[],OPT);
  const out=r.preview.map(b=>b.text).join("\n");
  console.log("   "+out.replace(/\n/g,"\n   "));
- ok(!out.includes("פנים מאירות"),"כל מופעי הגוף הוחלפו");
+ ok(!out.includes("נרות מאירות"),"כל מופעי הגוף הוחלפו");
  // גוף שאושר מקבל שם בדוי של גוף, לא תווית; אות השימוש נשמרת לפניו ("לגפן", "מהגפן")
- const orgRep=(r.applied.find(x=>x.value==="פנים מאירות")||{}).rep;
+ const orgRep=(r.applied.find(x=>x.value==="נרות מאירות")||{}).rep;
  ok(orgRep&&!/^\[/.test(orgRep)&&!/\s/.test(orgRep),"הגוף קיבל שם בדוי של גוף ולא תווית: "+orgRep);
  const stem=(orgRep||"").replace(/^ה/,"");
  ok(stem&&new RegExp("[בלמ]ה?"+stem).test(out),"כולל אותיות שימוש: "+(out.match(new RegExp("[בלמ]ה?"+stem,"g"))||[]).join(", "));
@@ -47,9 +47,9 @@ let pass=0,fail=0;const ok=(c,m)=>{c?pass++:(fail++,console.log("  ✗ "+m))};
 
  console.log("\n— החזרה של תווית גוף —");
  const back=E.restoreNames("לדעתי "+orgRep+" פעלה כדין, ול"+orgRep+" יש אחריות.",
-   [["פנים מאירות",orgRep]]);
+   [["נרות מאירות",orgRep]]);
  console.log("   "+back.text);
- ok(back.text.includes("פנים מאירות")&&back.text.includes("לפנים מאירות"),
+ ok(back.text.includes("נרות מאירות")&&back.text.includes("לנרות מאירות"),
     "התווית חוזרת לשם הגוף, כולל אות שימוש");
  ok(!back.text.includes("גוף א"),"ולא נשארה תווית");
 

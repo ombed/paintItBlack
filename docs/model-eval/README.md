@@ -165,7 +165,14 @@ leaks against 7 on the synthetic set). The new model does not.
 
 Every run's output is here, so every number above can be checked or recomputed. File shapes are in
 [FORMATS.md](FORMATS.md). RESULTS.md names these files by their working paths under
-`bench/model-eval/out/`; they were copied here unchanged.
+`bench/model-eval/out/`; they were copied here unchanged, with one later exception:
+
+**Reworded on 10.10.2026.** Five synthetic documents (x1, x2, a1, a2, v1) and two known cases
+(`v39-glued-full-name`, `v39-infinitive`) were reworded with new invented sentences that keep every keyed
+name, trap and pattern they test. In `data/gold/`, `data/full/gold/` and the known cases, they carry the
+new wording, rebuilt with the same scripts (every other document is byte for byte as before). In
+`data/browser/` their recorded text and token words are withheld (`"withheld"` on the document); the
+labels, scores and timings are as recorded. The tables above were computed on the earlier wording.
 
 | Path | What |
 |---|---|

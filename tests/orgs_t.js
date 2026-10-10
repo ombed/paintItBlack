@@ -16,7 +16,7 @@ for (const v of ["חסידות נורבין", "חסידי גור", "תנועת �
   ok(C.GROUP_HEADS.test(C.norm(v)), "group, never offered: " + v);
 for (const [v, head] of [["עמותת שביל הלב", "עמותת"], ["מעון נעמת", "מעון"], ["בית ספר אורט", "בית ספר"], ["מרפאת טיפת חלב", "מרפאת"], ["קופת חולים מכבי", "קופת חולים"], ['ביה"ס רמות', 'ביה"ס']])
   ok(C.orgHead(v) === head, "institution head of " + v + ": " + C.orgHead(v));
-for (const v of ["נורבין", "שביל הלב", "פנים מאירות"])
+for (const v of ["נורבין", "שביל הלב", "נרות מאירות"])
   ok(C.orgHead(v) === null && !C.GROUP_HEADS.test(v), "no head, review: " + v);
 
 console.log("\n— fake keeps the type word, and is stable —");
@@ -36,7 +36,7 @@ console.log("\n— fake keeps the type word, and is stable —");
   const a3 = C.fakeOrg("עמותת שביל הלב", new Set(), forb);
   ok(a3 !== a && /^עמותת /.test(a3), "forbidden tail is skipped: " + a3);
   // no head: a name is still produced, without inventing a type word
-  const c = C.fakeOrg("פנים מאירות", new Set(), new Set());
+  const c = C.fakeOrg("נרות מאירות", new Set(), new Set());
   ok(c && !/\s/.test(c), "headless org gets a plain fake: " + c);
 }
 

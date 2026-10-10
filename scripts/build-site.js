@@ -24,7 +24,7 @@ const SITE_FILES = [
   ...[400, 500].flatMap((w) => ["hebrew", "latin", "latin-ext"].map((s) => `fonts/noto-serif-hebrew-${s}-${w}-normal.woff2`)),
   "fonts/FrankRuhlLibre-900-hebrew.woff2",
   "fonts/rubik-LICENSE.txt", "fonts/noto-serif-hebrew-LICENSE.txt", "fonts/frank-ruhl-libre-LICENSE.txt",
-  // the libraries that see her document, served by the site itself (review H14); each name
+  // the libraries that see the document, served by the site itself (review H14); each name
   // carries its version, so the service worker can keep them cache-first
   "vendor/transformers-4.2.0.min.js",
   "vendor/ort-1.24.0-dev.20251116-b39e144322/ort-wasm-simd-threaded.asyncify.mjs",

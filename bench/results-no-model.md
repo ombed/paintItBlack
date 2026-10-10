@@ -1,6 +1,6 @@
 # Benchmark results (no model)
 
-43 documents, 332 keyed entities: 268 identifying details the tool must replace, and 64 traps and public bodies it must leave alone. Model off. Generated 2026-09-23.
+43 documents, 332 keyed entities: 268 identifying details the tool must replace, and 64 traps and public bodies it must leave alone. Model off. Generated 2026-10-10.
 
 ## Per category
 
@@ -179,46 +179,46 @@ Counted, not optimised for: the list is read, accept-all is not how the tool is 
 
 | doc | genre | ms | rules confirmed | unlisted |
 |---|---|---|---|---|
-| m1 | meeting | 110 | 4 | 1 |
-| m2 | meeting | 38 | 6 | 0 |
-| m3 | meeting | 22 | 3 | 0 |
-| m4 | meeting | 29 | 3 | 1 |
-| f1 | filing | 60 | 10 | 1 |
-| f2 | filing | 72 | 13 | 1 |
-| f3 | filing | 30 | 5 | 0 |
-| f4 | filing | 39 | 8 | 3 |
-| t1 | transcript | 40 | 6 | 0 |
-| t2 | transcript | 24 | 5 | 1 |
-| t3 | transcript | 26 | 6 | 1 |
-| t4 | transcript | 32 | 8 | 1 |
-| w1 | welfare | 18 | 1 | 0 |
-| w2 | welfare | 23 | 3 | 0 |
+| m1 | meeting | 87 | 4 | 1 |
+| m2 | meeting | 34 | 6 | 0 |
+| m3 | meeting | 24 | 3 | 0 |
+| m4 | meeting | 23 | 3 | 1 |
+| f1 | filing | 51 | 10 | 1 |
+| f2 | filing | 65 | 13 | 1 |
+| f3 | filing | 29 | 5 | 0 |
+| f4 | filing | 40 | 8 | 3 |
+| t1 | transcript | 32 | 6 | 0 |
+| t2 | transcript | 36 | 5 | 1 |
+| t3 | transcript | 29 | 6 | 1 |
+| t4 | transcript | 33 | 8 | 1 |
+| w1 | welfare | 16 | 1 | 0 |
+| w2 | welfare | 22 | 3 | 0 |
 | w3 | welfare | 17 | 2 | 0 |
 | w4 | welfare | 23 | 5 | 1 |
-| h1 | medical | 31 | 6 | 2 |
-| h2 | medical | 23 | 2 | 0 |
+| h1 | medical | 30 | 6 | 2 |
+| h2 | medical | 18 | 2 | 0 |
 | h3 | medical | 21 | 3 | 3 |
-| p1 | police | 24 | 2 | 1 |
-| p2 | police | 20 | 3 | 1 |
-| p3 | police | 17 | 1 | 0 |
-| p4 | police | 27 | 3 | 0 |
-| b1 | bank | 30 | 5 | 2 |
-| b2 | bank | 8 | 1 | 0 |
-| b3 | bank | 17 | 2 | 0 |
-| c1 | chat | 16 | 1 | 0 |
-| c2 | chat | 18 | 2 | 1 |
-| c3 | chat | 14 | 1 | 0 |
-| c4 | chat | 15 | 3 | 0 |
-| x1 | position | 37 | 5 | 1 |
-| x2 | position | 29 | 4 | 0 |
-| x3 | position | 30 | 4 | 0 |
-| a1 | audio | 15 | 3 | 0 |
-| a2 | audio | 26 | 5 | 0 |
-| a3 | audio | 38 | 7 | 1 |
-| a4 | audio | 25 | 4 | 0 |
-| v1 | interview | 20 | 2 | 0 |
+| p1 | police | 20 | 2 | 1 |
+| p2 | police | 22 | 3 | 1 |
+| p3 | police | 13 | 1 | 0 |
+| p4 | police | 19 | 3 | 0 |
+| b1 | bank | 25 | 5 | 2 |
+| b2 | bank | 9 | 1 | 0 |
+| b3 | bank | 14 | 2 | 0 |
+| c1 | chat | 14 | 1 | 0 |
+| c2 | chat | 15 | 2 | 1 |
+| c3 | chat | 13 | 1 | 0 |
+| c4 | chat | 14 | 3 | 0 |
+| x1 | position | 29 | 5 | 1 |
+| x2 | position | 19 | 4 | 0 |
+| x3 | position | 21 | 4 | 0 |
+| a1 | audio | 14 | 3 | 0 |
+| a2 | audio | 23 | 5 | 0 |
+| a3 | audio | 32 | 7 | 1 |
+| a4 | audio | 16 | 4 | 0 |
+| v1 | interview | 23 | 2 | 0 |
 | v2 | interview | 23 | 3 | 0 |
 | v3 | interview | 16 | 2 | 0 |
-| s1 | structure | 30 | 4 | 2 |
-| s2 | structure | 23 | 4 | 2 |
-| s3 | structure | 24 | 4 | 2 |
+| s1 | structure | 38 | 4 | 2 |
+| s2 | structure | 22 | 4 | 2 |
+| s3 | structure | 23 | 4 | 2 |

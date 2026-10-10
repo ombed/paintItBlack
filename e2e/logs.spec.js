@@ -94,7 +94,7 @@ test("each correction says what caused it, and the log still carries no text", a
   expect(text).toContain("set-rep: what changed both (1)");
 });
 
-test("a page error in her session is logged as a type and a screen, never its message", async ({ page }) => {
+test("a page error in a session is logged as a type and a screen, never its message", async ({ page }) => {
   await H.serveEngineWithStub(page);
   await H.boot(page);
   await page.getByRole("checkbox").first().uncheck();

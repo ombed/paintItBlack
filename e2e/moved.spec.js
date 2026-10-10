@@ -226,7 +226,7 @@ test("the handover: the tool's worker gives way, its caches and the model go, th
 test("a file the moved page downloads, imported in the tool, brings every case; importing it again adds numbered copies", async ({ page, context }) => {
   const site = await serve(forwardSite());
   try {
-    // the old address, where her cases are
+    // the old address, where the cases are
     const old = await context.newPage();
     const outside = await guard(old);
     await seedOld(old, { "redact-cases": CASES, "redact-profile-last": LAST });

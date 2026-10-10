@@ -34,9 +34,9 @@ module.exports = function interview(Doc, C) {
     const [w, wb] = d.ent("P_WORD_VERB", "NAME", true, "אור", ["אור אמרה", "אור"], "everyday word as a first name, before a speech verb");
     const [town] = d.ent("L_TOWN", "PLACE", true, "כפר האורנים", ["כפר האורנים"]);
     d.ent("T_NUMBERS", "TRAP", false, "כיתה ג", ["כיתה ג"]);
-    d.p("מה זאת אומרת, זה לא נורא?")
+    d.p("ספרי לי, איך עבר עלייך השבוע?")
      .p("מה?")
-     .p("לא נורא שעברת בית ספר. את מסתדרת?")
+     .p("שאלתי איך היה בכיתה החדשה. את מסתדרת?")
      .p("כן.")
      .p(`אז מי המורה שלך עכשיו? אמרת לי בפעם הקודמת, ${k}, ושכחתי.`)
      .p(`${t}. כן, ${tb}.`)

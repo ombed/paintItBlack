@@ -192,32 +192,32 @@
    "id": "v39-glued-full-name",
    "group": "leak",
    "what": "A full name that the model glued to the next word (v39): rejecting the span allow-listed the name inside it. Glued fails.",
-   "text": "הבקשה הוגשה בעניינה של גב' נחמה ברקת אלמוג (להלן: נחמה) ביום ראשון.\nשוחחה הח\"מ עם נחמה בבוקר, בנוכחות בנה.\nנחמה ברקת אלמוג מסרה כי היא מבינה את ההליך ומסכימה לו.",
+   "text": "התביעה הוגשה בשמה של גב' נחמה ברקת אלמוג (להלן: נחמה) ביום שלישי.\nהח\"מ שוחח עם נחמה בטלפון, בנוכחות אחיה.\nנחמה ברקת אלמוג אישרה כי קיבלה את המסמכים ותחתום עליהם.",
    "mentions": [
     {
-     "s": 27,
-     "e": 42,
+     "s": 25,
+     "e": 40,
      "type": "PER",
      "must": true,
      "surface": "נחמה ברקת אלמוג"
     },
     {
-     "s": 50,
-     "e": 54,
+     "s": 48,
+     "e": 52,
      "type": "PER",
      "must": true,
      "surface": "נחמה"
     },
     {
-     "s": 82,
-     "e": 86,
+     "s": 79,
+     "e": 83,
      "type": "PER",
      "must": true,
      "surface": "נחמה"
     },
     {
-     "s": 107,
-     "e": 122,
+     "s": 106,
+     "e": 121,
      "type": "PER",
      "must": true,
      "surface": "נחמה ברקת אלמוג"
@@ -229,33 +229,33 @@
    "id": "v39-infinitive",
    "group": "leak",
    "what": "An infinitive after a prefixed first name taken as a surname (v39): the word that decides the sentence is swallowed.",
-   "text": "בשים לב לכך סבורה הח\"מ כי דין הבקשה לקביעת דיון חוזר לנחמה להידחות.\nנחמה ציינה כי היא מבינה את ההחלטה. נחמה חזרה על כך פעמיים.",
+   "text": "לאור האמור, הח\"מ מבקש להורות לנחמה להשלים את המסמכים עד סוף החודש.\nנחמה אמרה שתעשה זאת. נחמה חזרה על כך פעמיים.",
    "mentions": [
     {
-     "s": 54,
-     "e": 58,
+     "s": 30,
+     "e": 34,
      "type": "PER",
      "must": true,
      "surface": "נחמה",
      "prefix": "ל"
     },
     {
-     "s": 59,
-     "e": 66,
+     "s": 35,
+     "e": 41,
      "type": "PER",
      "must": false,
-     "surface": "להידחות"
+     "surface": "להשלים"
     },
     {
-     "s": 68,
-     "e": 72,
+     "s": 67,
+     "e": 71,
      "type": "PER",
      "must": true,
      "surface": "נחמה"
     },
     {
-     "s": 103,
-     "e": 107,
+     "s": 88,
+     "e": 92,
      "type": "PER",
      "must": true,
      "surface": "נחמה"

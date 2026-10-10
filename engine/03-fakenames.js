@@ -119,7 +119,7 @@ function fakeName(value,hint,used,forbidden,firstish){
   const firsts=POOL[org+"_"+(g==="f"?"f":"m")], surs=POOL[org+"_s"];
   if(parts.length===1){
     // מילה אחת: שם פרטי כשהיא שם פרטי מוכר, או כשהמסמך מציג אותה אחרי מילת
-    // תפקיד או קרבה ("הקטין גדעון", "התובעת: שלהבת"); אחרת שם משפחה.
+    // תפקיד או קרבה ("הקטין עמרי", "התובעת: שלהבת"); אחרת שם משפחה.
     // עד עכשיו רק רשימת ה-POOL נחשבה, וכל שם פרטי שאינו בה קיבל שם משפחה בדוי.
     const w=parts[0], nw=norm(w);
     const knownFirst=FEM.has(w)||MASC.has(w)||MALE_HE.has(w)||(typeof KNOWN_FIRST!=="undefined"&&KNOWN_FIRST.has(w));

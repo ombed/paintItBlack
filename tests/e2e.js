@@ -73,9 +73,9 @@ const paras=[
  'בעניין: התובעת רונית לוי, ת"ז 123456782, מרחוב הרצל 15 תל אביב',
  'נגד: הנתבע אורי בן-שחר, ת"ז 987654321, טלפון 052-4471938',
  'ב"כ התובעת עו"ד תמר גולדשמיט, דוא"ל tamar@example.co.il',
- 'התובעת רונית לוי שהתה במעון של עמותת פנים מאירות בחיפה.',
+ 'התובעת רונית לוי שהתה במעון של עמותת נרות מאירות בחיפה.',
  'בהמשך עברה לונית לוי לירושלים, ושם פגשה את אורי בן-שחר.',
- 'העמותה פנים מהירות סירבה למסור מסמכים, וכך גם גולדשמיט.',
+ 'העמותה נרות מהירות סירבה למסור מסמכים, וכך גם גולדשמיט.',
  'המצהירה מיכל ברנע אישרה את הדברים בפני עו"ד תמר גולדשמיט.',
 ];
 const docXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'+
@@ -103,7 +103,7 @@ const ok=(c,m)=>{c?pass++:(fail++,console.log("  ✗ "+m))};
    {value:"אורי בן-שחר",kind:"NAME",replacement:"",auto:true,g:"m"},
    {value:"תמר גולדשמיט",kind:"NAME",replacement:"",auto:true,g:"f"},
    {value:"מיכל ברנע",kind:"NAME",replacement:"",auto:true,g:"f"},
-   {value:"פנים מאירות",kind:"OTHER",replacement:"",auto:false},
+   {value:"נרות מאירות",kind:"OTHER",replacement:"",auto:false},
  ];
  const on=new Set(["EMAIL","PHONE_MOBILE","PHONE_LAND","ISRAELI_ID","ISRAELI_ID_LABELED",
    "ADDRESS_STREET","PLACES"]);
@@ -141,7 +141,7 @@ const ok=(c,m)=>{c?pass++:(fail++,console.log("  ✗ "+m))};
  const near=r.verification.near||[];
  console.log("   נמצא: "+near.map(x=>`${x.value} ← ${x.near.target}`).join(" | "));
  ok(near.some(x=>x.value==="מהירות"||x.value.includes("מהירות")),
-    'תפס את "פנים מהירות"');
+    'תפס את "נרות מהירות"');
  ok(near.some(x=>x.value.includes("ונית")),'תפס את "לונית לוי" (שיבוש של רונית לוי)');
  ok(!r.verification.complete,"הבר לא מכריז ירוק כשיש שיבוש");
 

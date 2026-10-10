@@ -4,7 +4,7 @@ const H = require("./helpers");
 // the service worker fetches the CDN itself, where page routes do not reach
 test.use({ serviceWorkers: "block" });
 
-/* The supply chain (outside review H14, M4, M2). The libraries that see her document are served
+/* The supply chain (outside review H14, M4, M2). The libraries that see the document are served
    by the site itself; the runtime's WebAssembly comes from the CDN and is checked against a
    pinned SHA-256 before the runtime gets it; the model is pinned to a commit. The real model
    path runs in e2e/model.spec.js, which downloads it; here nothing is downloaded. */

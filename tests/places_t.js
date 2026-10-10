@@ -23,7 +23,7 @@ const ok = (c, m) => { c ? pass++ : (fail++, console.log("  ✗ " + m)); };
 
 console.log("\n— geoNames: a settlement name that is also a word is not offered —");
 {
-  const t = "גדעון לוי מתגורר בחיפה. הוא עובד באזור התעשייה, וכל האזור סבל מהצפות.";
+  const t = "עמרי לוי מתגורר בחיפה. הוא עובד באזור התעשייה, וכל האזור סבל מהצפות.";
   const names = C.geoNames(t);
   ok(names.includes("חיפה"), "an unambiguous town is offered");
   ok(!names.includes("אזור"), "אזור is not offered for a distance-preserving swap");
@@ -51,14 +51,14 @@ console.log("\n— geoNames: a settlement name that is also a word is not offere
 console.log("\n— examplesOf: the sentences behind a decision —");
 {
   const blocks = [
-    { part: "word/document.xml", text: "גדעון לוי מתגורר בחיפה מאז 2019." },
-    { part: "word/document.xml", text: "לגדעון אין רכב. גדעון מגיע באוטובוס." },
+    { part: "word/document.xml", text: "עמרי לוי מתגורר בחיפה מאז 2019." },
+    { part: "word/document.xml", text: "לעמרי אין רכב. עמרי מגיע באוטובוס." },
   ];
-  const ex = C.examplesOf(blocks, "גדעון", 3);
+  const ex = C.examplesOf(blocks, "עמרי", 3);
   ok(ex.length === 3, "three occurrences found across blocks, got " + ex.length);
   ok(ex.every((e) => typeof e.pre === "string" && typeof e.post === "string"), "each carries pre and post");
-  ok(ex[0].hit === "גדעון", "the first hit is the bare name");
-  ok(ex[1].hit === "לגדעון", "a prefixed form is shown as it appears in the text");
+  ok(ex[0].hit === "עמרי", "the first hit is the bare name");
+  ok(ex[1].hit === "לעמרי", "a prefixed form is shown as it appears in the text");
   ok(ex.some((e) => e.pre.includes("מתגורר") || e.post.includes("מתגורר")), "context comes from the document");
 }
 {
@@ -69,9 +69,9 @@ console.log("\n— examplesOf: the sentences behind a decision —");
 }
 {
   const blocks = [{ part: "word/document.xml", text: "אין כאן כלום." }];
-  ok(C.examplesOf(blocks, "גדעון", 3).length === 0, "a value that is absent has no examples");
+  ok(C.examplesOf(blocks, "עמרי", 3).length === 0, "a value that is absent has no examples");
   ok(C.examplesOf(blocks, "", 3).length === 0, "an empty value has no examples");
-  ok(C.examplesOf(null, "גדעון", 3).length === 0, "no blocks is not a crash");
+  ok(C.examplesOf(null, "עמרי", 3).length === 0, "no blocks is not a crash");
 }
 {
   const blocks = [{ part: "word/document.xml", text: "דנה. דנה. דנה. דנה. דנה." }];

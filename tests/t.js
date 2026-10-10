@@ -5,7 +5,7 @@ const eq=(a,b,m)=>ok(a===b,`${m}\n     got: ${JSON.stringify(a)}\n     exp: ${JS
 
 console.log("\n— near1 —");
 ok(C.near1("מהירות","מאירות"),"substitution א↔ה detected");
-ok(C.near1("פנים מהירות","פנים מאירות"),"multi-word substitution");
+ok(C.near1("נרות מהירות","נרות מאירות"),"multi-word substitution");
 ok(!C.near1("מאירות","מאירות"),"identical is not a near miss");
 ok(C.near1("גולדשמיט","גולדשמידט"),"one char missing");
 ok(!C.near1("כהן","לוי"),"unrelated words rejected");
@@ -14,15 +14,15 @@ ok(C.near1("כץ","כז"),"short substitution still structurally detected");
 
 console.log("\n— findNear (her actual failure) —");
 const blocks=[{part:"word/document.xml",text:
- "העמותה פנים מהירות הפעילה את המרכז. בהמשך פנתה גב' רונית לוי אל המנהל. "+
+ "העמותה נרות מהירות הפעילה את המרכז. בהמשך פנתה גב' רונית לוי אל המנהל. "+
  "נכח גם מר אורי בן-שחר. הדוח הוגש לוועדה."}];
 const targets=[
- {value:"פנים מאירות",norm:"פנים מאירות",words:2,rep:"ידיים חמות",kind:"OTHER"},
+ {value:"נרות מאירות",norm:"נרות מאירות",words:2,rep:"ידיים חמות",kind:"OTHER"},
  {value:"רונית לוי",norm:"רונית לוי",words:2,rep:"מיכל ברנע",kind:"NAME"}];
 const near=C.findNear(blocks,targets,new Set(["ידיים חמות","מיכל ברנע"]));
 eq(near.length,1,"exactly one near miss found");
-eq(near[0].value,"פנים מהירות","the transcription typo is the one caught");
-eq(near[0].near.target,"פנים מאירות","typo is linked to its source name");
+eq(near[0].value,"נרות מהירות","the transcription typo is the one caught");
+eq(near[0].near.target,"נרות מאירות","typo is linked to its source name");
 eq(near[0].near.rep,"ידיים חמות","one-tap fix carries the same replacement");
 ok(near[0].conf==="high","homophone swap is high confidence");
 ok(/א↔ה|ה↔א/.test(near[0].why),"explanation names the swapped letters: "+near[0].why);

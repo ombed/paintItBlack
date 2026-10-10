@@ -49,8 +49,8 @@ console.log("\n— same person from a short or prefixed form takes the matching 
 console.log("\n— an infinitive after a first name is not a surname —");
 {
   const blocks = [
-    { part: "w", text: "מהאמור לעיל סבור הח\"מ כי דין הדרישה ששלח הספק לאסתר להידחות. לא הובאו תימוכין." },
-    { part: "w", text: "אסתר ציינה כי היא מבינה. אסתר חזרה על כך." },
+    { part: "w", text: "מהאמור לעיל סבור הח\"מ כי דין הדרישה ששלח הספק לאסתר להידחות. אין לה בסיס." },
+    { part: "w", text: "אסתר אמרה שהיא מסכימה. אסתר חזרה על כך." },
     { part: "w", text: "המורה יעל לביא אמרה שהכול בסדר. יעל לביא הוסיפה דברים." },
   ];
   const got = C.bodyNames(blocks, new Set()).map((c) => c.value);
@@ -91,7 +91,7 @@ console.log("\n— a deleted address takes its prefix letter and the postal code
 console.log("\n— a place or a name that starts with ה keeps it after a prefix; a model place keeps its prefix (QA run-2 L14) —");
 {
   const O = { on: new Set(["PLACES", "NAME"]), flag: new Set(), mode: "real", near: false, body: false, prefixes: "normal" };
-  const t = "היא מתגוררת בקריית אתא ועובדת ברמת גן. הלכה להדס.";
+  const t = "היא גרה בקריית אתא ועובדת ברמת גן. הלכה להדס.";
   const s0 = t.indexOf("בקריית");
   const ner = C.nerClean([{ type: "LOC", score: 0.99, s: s0, e: s0 + "בקריית אתא".length }], t, {}).map((x) => x.value);
   ok(ner[0] === "קריית אתא", "the model place is peeled: " + JSON.stringify(ner));

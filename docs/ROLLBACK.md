@@ -32,10 +32,10 @@ from it, exactly as before the move. That is a rollback.
 
 Only for a blocker. Before the move: she cannot work at all (the page will not
 load, a file will not process, the download fails). Now also: the moved page does
-not load or its file does not download, so she cannot take her cases along. Then
+not load or its file does not download, so she cannot take the cases along. Then
 publish the last tool tag, and the old address serves the tool again until the
 forward is fixed. Anything less waits for a normal fix. During a freeze before a
-client session this is the only deploy allowed.
+user session this is the only deploy allowed.
 
 Roll back first, diagnose second.
 
