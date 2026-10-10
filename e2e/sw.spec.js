@@ -20,7 +20,7 @@ const { SITE_FILES } = require("../scripts/build-site.js");
    server must not change under the other specs. */
 
 const ROOT = path.join(__dirname, "..");
-const PAGE_V = (fs.readFileSync(path.join(ROOT, "index.html"), "utf8").match(/<div id="ver">גרסה (v\d+)<\/div>/) || [])[1];
+const PAGE_V = (fs.readFileSync(path.join(ROOT, "index.html"), "utf8").match(/<div id="ver">גרסה (v\d+(?:\.\d+)?)<\/div>/) || [])[1];
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".mjs": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8", ".webmanifest": "application/manifest+json; charset=utf-8",
   ".svg": "image/svg+xml", ".png": "image/png", ".woff2": "font/woff2" };
@@ -36,7 +36,7 @@ function serveRepo() {
     if (!file.startsWith(ROOT + path.sep)) { res.writeHead(403).end(); return; }
     const send = () => fs.readFile(file, (err, buf) => {
       if (err) { res.writeHead(404).end(); return; }
-      const body = url === "/sw.js" && state.worker === "old" ? buf.toString("utf8").replace(/const V="hedact-v\d+";/, 'const V="hedact-v1";') : buf;
+      const body = url === "/sw.js" && state.worker === "old" ? buf.toString("utf8").replace(/const V="hedact-v\d+(?:\.\d+)?";/, 'const V="hedact-v1";') : buf;
       res.writeHead(200, { "content-type": TYPES[path.extname(file)] || "application/octet-stream" }).end(body);
     });
     if (url === "/sw.js" && state.worker === "fails") { res.writeHead(500).end(); return; }

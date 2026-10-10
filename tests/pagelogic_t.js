@@ -75,6 +75,9 @@ ok("model span bounds classified", s4.layers.model && s4.layers.model.bounds ===
   ok("a value that does not fit is replaced", bad.shapes[0].gapAfter === "?" && bad.shapes[0].kind === "?" && bad.shapes[0].lens === "?");
   ok("and named, so the refusal is visible", ["shapes[0].kind", "shapes[0].lens", "shapes[0].gapAfter"].every((p) => bad.refused.includes(p)));
   ok("the version is checked too", bad.v === "");
+  // a small fix of a version is "v73.1" (scripts/bump.js, 9.10.2026); it reaches the report, a longer tail does not
+  ok("a small fix's version is kept", JSON.parse(PL.leakReport([a], { version: "v73.1" })).v === "v73.1");
+  ok("a version with more than a small fix's tail is refused", JSON.parse(PL.leakReport([a], { version: "v73.1.2" })).v === "");
   const model = mark(["רחל פרידמן אמרה."], "רחל פרידמן", { kind: "NAME", nerRaw: [{ type: "PER", score: 0.913, s: 0, e: 3 }] });
   ok("the model's bounds are codes with no stray space", model.layers.model.bounds === "cut-right" && JSON.parse(PL.leakReport([model])).refused === undefined);
 }

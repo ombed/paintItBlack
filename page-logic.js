@@ -128,7 +128,8 @@
     int: (v) => Number.isInteger(v) && v >= 0 && v < 1e7,
     ints: (v) => Array.isArray(v) && v.length <= 12 && v.every((x) => Number.isInteger(x) && x >= 0 && x < 200),
     score: (v) => typeof v === "number" && v >= 0 && v <= 1,
-    version: (v) => typeof v === "string" && /^v?\d{0,4}$/.test(v),
+    // "v73", or "v73.1" for a small fix of the same version (scripts/bump.js, 9.10.2026)
+    version: (v) => typeof v === "string" && /^v?\d{0,4}(?:\.\d{1,3})?$/.test(v),
     when: (v) => typeof v === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/.test(v),
     code: (v) => typeof v === "string" && /^[A-Za-z][A-Za-z_-]{0,23}$/.test(v),
     codes: (v) => typeof v === "string" && /^[a-z]+(?:-[a-z]+)?(?: [a-z]+-[a-z]+)?$/.test(v) && v.length <= 24,

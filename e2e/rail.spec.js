@@ -70,7 +70,8 @@ test("the check package holds the log only, and no mail address is kept", async 
   // the product is InKognito from v60: the package carries its name, and its README says it on line one
   expect(download.suggestedFilename()).toMatch(/^inkognito-package-\d{4}-\d{2}-\d{2}\.zip$/);
   const readme = files.find((f) => f.name === "README.txt").data.toString("utf8");
-  expect(readme.split("\n")[0]).toMatch(/^InKognito v\d+$/);
+  // the whole version: a small fix is v73.1 (scripts/bump.js, 9.10.2026)
+  expect(readme.split("\n")[0]).toMatch(/^InKognito v\d+(?:\.\d+)?$/);
 });
 
 test("the bottom bar never covers the document", async ({ page }) => {

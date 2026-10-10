@@ -288,7 +288,7 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
 </div></div>
 <script>
 (function(){
-  console.log("אינקוגניטו — גרסה v73");
+  console.log("אינקוגניטו — גרסה v73.1");
   var stuck=setTimeout(function(){
     var b=document.getElementById("boot"); if(!b) return;
     b.className="stuck";
@@ -335,8 +335,8 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
         console.log("עובד שירות: "+served);
         var el=document.getElementById("ver"); if(!el) return;
         if(chip===null) chip=el.innerHTML; else el.innerHTML=chip;
-        if(served==="v73") return;
-        el.innerHTML='גרסה v73 · <b style="color:var(--warn)">יש גרסה חדשה: רעננו עם Ctrl+Shift+R</b>';
+        if(served==="v73.1") return;
+        el.innerHTML='גרסה v73.1 · <b style="color:var(--warn)">יש גרסה חדשה: רעננו עם Ctrl+Shift+R</b>';
       });
       var ask=function(){ if(sw.controller) sw.controller.postMessage("version") };
       sw.ready.then(ask);
@@ -1368,7 +1368,7 @@ textarea[dir=auto]:placeholder-shown,input[dir=auto]:placeholder-shown{direction
 
 </div>
 </x-dc>
-<footer><nav data-foot aria-label="מידע ומסמכים משפטיים"><a href="https://inkognito.co.il/" target="_blank" rel="noopener">עמוד הבית</a><a href="https://inkognito.co.il/terms" target="_blank" rel="noopener">תנאי שימוש</a><a href="https://inkognito.co.il/privacy" target="_blank" rel="noopener">מדיניות פרטיות</a><a href="https://inkognito.co.il/accessibility" target="_blank" rel="noopener">הצהרת נגישות</a><a href="mailto:contact@inkognito.co.il">יצירת קשר</a></nav><div id="ver">גרסה v73</div></footer>
+<footer><nav data-foot aria-label="מידע ומסמכים משפטיים"><a href="https://inkognito.co.il/" target="_blank" rel="noopener">עמוד הבית</a><a href="https://inkognito.co.il/terms" target="_blank" rel="noopener">תנאי שימוש</a><a href="https://inkognito.co.il/privacy" target="_blank" rel="noopener">מדיניות פרטיות</a><a href="https://inkognito.co.il/accessibility" target="_blank" rel="noopener">הצהרת נגישות</a><a href="mailto:contact@inkognito.co.il">יצירת קשר</a></nav><div id="ver">גרסה v73.1</div></footer>
 <script type="text/x-dc" data-dc-script data-props="{&quot;docFont&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;serif&quot;,&quot;sans&quot;],&quot;default&quot;:&quot;serif&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;עיצוב&quot;},
 &quot;railWidth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:340,&quot;max&quot;:500,&quot;step&quot;:4,&quot;default&quot;:404,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;עיצוב&quot;}}">
 class Component extends DCLogic {
@@ -1404,10 +1404,14 @@ class Component extends DCLogic {
       if(!c){ const t=e.matches?"dark":"light"; this.applyTheme(t); this.setState({theme:t}); } }); }catch(_){} }
     /* «לפני שמתחילים» נפתח פעם אחת (Q33, 6.10.2026); עד כאן הוא חזר אחרי כל עדכון. אחרי עדכון באה במקומו שורה
        אחת, «אינקוגניטו עודכן. מה חדש», פעם אחת לכל גרסה, עם קישור לעמוד השינויים באתר. המפתח נושא את מספר הגרסה
-       האחרונה שנראתה, ו-"*" (מהבדיקות) מכסה את כולן. e2e/restore-ux.spec.js */
+       האחרונה שנראתה, ו-"*" (מהבדיקות) מכסה את כולן. e2e/restore-ux.spec.js
+       תיקון קטן (v73 ← v73.1) אינו גרסה חדשה בשביל מי שעובד בכלי, ולכן השורה באה רק כשמספר הגרסה עצמו
+       זז (החלטת הבעלים, 9.10.2026; e2e/tour.spec.js). המפתח בכל זאת מתעדכן לגרסה המלאה. */
     let seen=false, updated=false;
+    const release=v=>String(v).replace(/\.\d+$/,"");
     try{ const t=localStorage.getItem("redact-tour-seen"); seen=localStorage.getItem("redact-intro-seen")==="1";
-      updated=seen&&t!=="*"&&t!==this.ver(); if(updated) localStorage.setItem("redact-tour-seen", this.ver()); }catch(_){}
+      updated=seen&&t!=="*"&&release(t)!==release(this.ver());
+      if(seen&&t!=="*"&&t!==this.ver()) localStorage.setItem("redact-tour-seen", this.ver()); }catch(_){}
     const lastProfile=this.readLast();
     /* ההדגמה שבלי חשבון באתר (window.__inkDemo, scripts/build-hosted.js; החלטות 18 ו־29 של הבעלים, 6.10): רק המסמך הבדוי,
        בלי קובץ, הדבקה או ייבוא, בלי מודל ובלי שום דבר שנשמר. הסיור מתחיל מעצמו, וסופו כרטיס שמזמין לפתוח חשבון. e2e/demo.spec.js */
@@ -1416,7 +1420,7 @@ class Component extends DCLogic {
       ...(demo?{o:{...this.state.o, ner:false}}:{})});
     if(demo) this.tourStart();
     // יומן הסשן (PLAN-v18 Q16): זמנים ואירועים בלי טקסט, בדפדפן בלבד, מיוצא בכפתור ליד דוח הדליפה
-    const ver=((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"");
+    const ver=this.verText();
     this.log=window.PL?window.PL.sessionLog(ver):{add(){},export(){return "{}"}};
     // עד v56 החבילה פתחה מייל לכתובת ששמורה כאן; החבילה כבר לא נשלחת, והכתובת לא נשארת במחשב
     try{ localStorage.removeItem("redact-feedback-mail"); }catch(_){}
@@ -2653,7 +2657,7 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
   async recordLeak(value, kind){
     try{
       const S=this.state, E=S.E, blocks=await this.blocksOf(S.buf);
-      const ver=((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"");
+      const ver=this.verText();
       const shape=window.PL.leakShape(E, blocks, value, {kind, version:ver, modelUsed:S.nerUsed, cands:S.cands,
         nerRaw:S.nerUsed&&E.nerLast?E.nerLast():[], rules:S.rules, near:(S.res.verification.near)||[], suggest:(S.res.verification.suggest)||[]});
       this.setState({leaks:[...this.state.leaks, shape]});
@@ -3159,7 +3163,10 @@ ${clean.length?`<h2>נוקה מהקובץ</h2><table>${clean.map(([l,n])=>`<tr><
      פעם אחת לכל גרסה, על מסמך בדוי שמובנה בכלי, ומסומן ככזה בכותרתו. הסיור
      מנווט בעצמו בין המסכים באותם מסלולים שהיא תלחץ בהם; המודל כבוי כדי שלא
      תחכי להורדה; שום דבר מהמסמך לא נשמר בפרופיל, לא מועתק ולא יורד. */
-  ver(){ return ((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"")||"v0"; }
+  /* הגרסה שבשבב: "v73", או "v73.1" לתיקון קטן של אותה גרסה (scripts/bump.js, החלטת הבעלים 9.10.2026).
+     עד כאן כל מי שקרא אותה זרק כל תו שאינו v או ספרה, ו-"v73.1" היה נקרא "v731". */
+  verText(){ return ((((document.getElementById("ver")||{}).textContent||"").match(/v\d+(?:\.\d+)?/))||[""])[0]; }
+  ver(){ return this.verText()||"v0"; }
   tourMarkSeen(){ try{ localStorage.setItem("redact-intro-seen","1"); localStorage.setItem("redact-tour-seen", this.ver()); }catch(_){} }
   static SAMPLE=[
     // כל אדם כאן דובר פעמיים לפחות: כך הרשימה מתמלאת גם בלי המודל, והסיור
@@ -4203,7 +4210,7 @@ const KIND_NAME={NAME:"אדם", ORG:"גוף", PLACE:"מקום"};
       logCopyLabel:S.logCopyLabel||"העתקת יומן השימוש",
       onCopyLog:()=>{ try{ this.copyTo(this.log.export(), "logCopyLabel", "העתקת יומן השימוש"); }catch(e){ this.setState({err:String(e.message||e)}); } },
       onPackage:()=>this.sendPackage(),
-      onCopyLeaks:()=>{ try{ this.copyTo(window.PL.leakReport(S.leaks,{version:((document.getElementById("ver")||{}).textContent||"").replace(/[^v\d]/g,"")}), "leakCopyLabel", "העתקת פירוט השמות שסימנתם"); }catch(e){ this.setState({err:String(e.message||e)}); } },
+      onCopyLeaks:()=>{ try{ this.copyTo(window.PL.leakReport(S.leaks,{version:this.verText()}), "leakCopyLabel", "העתקת פירוט השמות שסימנתם"); }catch(e){ this.setState({err:String(e.message||e)}); } },
       addV:S.addV, addR:S.addR,
       onAddV:e=>this.setState({addV:e.target.value}), onAddR:e=>this.setState({addR:e.target.value}),
       onAddKey:e=>{ if(e.key==="Enter") this.addRule(this.state.addV, this.state.addK, this.state.addR); },

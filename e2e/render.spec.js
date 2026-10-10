@@ -53,9 +53,10 @@ test("the page and the service worker agree on the version", async ({ page }) =>
 
   const chip = (await page.locator("#ver").textContent()).trim();
   const swSrc = await (await page.request.get("/sw.js")).text();
-  const swVersion = (swSrc.match(/const V="hedact-(v\d+)"/) || [])[1];
+  const swVersion = (swSrc.match(/const V="hedact-(v\d+(?:\.\d+)?)"/) || [])[1];
 
   console.log(`   chip: ${chip} · service worker: ${swVersion}`);
   expect(swVersion).toBeTruthy();
-  expect(chip).toContain(swVersion);
+  // the whole version, so a small fix's v73.1 is not taken as v73 (scripts/bump.js, 9.10.2026)
+  expect((chip.match(/v\d+(?:\.\d+)?/) || [])[0]).toBe(swVersion);
 });

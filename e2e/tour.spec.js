@@ -121,7 +121,7 @@ test("a first visit offers the tour, and the tour walks the screens on the sampl
   }));
   expect(stored.last).toBeNull();
   expect(stored.cases === null || stored.cases === "{}").toBe(true);
-  expect(stored.tour).toMatch(/^v\d+$/);
+  expect(stored.tour).toMatch(/^v\d+(?:\.\d+)?$/);
 });
 
 /* The owner's decision of 6.10 (Q33): the welcome shows once. Until v65 it came back after every update;
@@ -140,6 +140,18 @@ test("skip closes the tour and the welcome is not offered again; a new version s
   await ready();
   await expect(page.getByText("לפני שמתחילים")).toHaveCount(0);
   await expect(page.locator("[data-whats-new]")).toHaveCount(0);
+  // a small fix of the same version (v73 → v73.1, scripts/bump.js) is not a new version for her: no line
+  // (the owner, 9.10.2026). The flag still moves to the version she now has.
+  const now = (await page.locator("#ver").textContent()).match(/v\d+(?:\.\d+)?/)[0];
+  const release = now.replace(/\.\d+$/, "");
+  for (const flag of [release + ".99", release]) {
+    await page.evaluate((f) => localStorage.setItem("redact-tour-seen", f), flag);
+    await page.reload();
+    await ready();
+    await expect(page.locator("#dc-root")).toBeAttached();
+    await expect(page.locator("[data-whats-new]")).toHaveCount(0);
+    expect(await page.evaluate(() => localStorage.getItem("redact-tour-seen"))).toBe(now);
+  }
   // an older version's flag: no welcome again, but one line that links to what changed
   await page.evaluate(() => localStorage.setItem("redact-tour-seen", "v1"));
   await page.reload();

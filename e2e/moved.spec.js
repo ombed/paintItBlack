@@ -203,7 +203,7 @@ test("the handover: the tool's worker gives way, its caches and the model go, th
       await m.put("https://huggingface.co/x/resolve/r/config.json", new window.Response("{}"));
     }, [CASES, LAST]);
     const before = await page.evaluate(() => caches.keys());
-    expect(before.some((k) => /^hedact-v\d+$/.test(k)) && before.includes("transformers-cache"), before.join(",")).toBe(true);
+    expect(before.some((k) => /^hedact-v\d+(?:\.\d+)?$/.test(k)) && before.includes("transformers-cache"), before.join(",")).toBe(true);
 
     // the deploy: this address now serves the forward
     site.state.root = forwardSite();
